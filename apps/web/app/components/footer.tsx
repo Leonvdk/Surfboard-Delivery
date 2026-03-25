@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export function Footer() {
@@ -8,8 +7,7 @@ export function Footer() {
 				<div className="footer-grid">
 					<div>
 						<div className="footer-brand">
-							<Image src="/images/logo.png" alt="" width={32} height={32} className="footer-logo-img" />
-							<span>Surf Rental <em>Aljezur</em></span>
+							Surf Rental <em>Aljezur</em>
 						</div>
 						<p className="footer-tagline">
 							Premium surf board rentals across Europe&apos;s best beaches.
