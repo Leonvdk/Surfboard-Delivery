@@ -149,12 +149,14 @@ type PackageInfo = {
 function getPackageOptions(days: number | null): PackageInfo[] {
 	if (days !== null && days >= 10) {
 		return [
+			{ value: "premium-2w", label: "Premium (board + wetsuit + changing mat + roof rack) — €249 / 2 weeks", includesWetsuit: true },
 			{ value: "full-2w", label: "Full Package (board + wetsuit) — €199 / 2 weeks", includesWetsuit: true },
 			{ value: "board-2w", label: "Board Only — €170 / 2 weeks", includesWetsuit: false },
 			{ value: "custom", label: "Not sure — recommend something", includesWetsuit: false },
 		];
 	}
 	return [
+		{ value: "premium-1w", label: "Premium (board + wetsuit + changing mat + roof rack) — €150/week", includesWetsuit: true },
 		{ value: "full-1w", label: "Full Package (board + wetsuit) — €120/week", includesWetsuit: true },
 		{ value: "board-1w", label: "Board Only — €85/week", includesWetsuit: false },
 		{ value: "custom", label: "Not sure — recommend something", includesWetsuit: false },

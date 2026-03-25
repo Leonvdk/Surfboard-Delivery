@@ -49,6 +49,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+[id] {
+  scroll-margin-top: 120px;
+}
+
 body {
   font-family: var(--font-body);
   background: var(--bg);

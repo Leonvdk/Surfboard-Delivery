@@ -157,7 +157,7 @@ export default function Home() {
 										</p>
 										<div className="board-card-footer">
 											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
-											<span className="board-card-level">Beginner</span>
+											<span className="board-card-level">Beginner &amp; Longboarder</span>
 										</div>
 									</div>
 								</article>
