@@ -44,7 +44,7 @@ export function Hero() {
 								</div>
 								<div className="hero-card-body">
 									<div className="hero-card-row">
-										<div className="hero-card-label">7&rsquo;8 Funboard</div>
+										<div className="hero-card-label">Funboard</div>
 										<div className="hero-card-price"><span className="hero-card-from">from</span> &euro;11 <small>/day</small></div>
 									</div>
 									<div className="hero-card-sub">7&apos;8&quot; &middot; Stability meets maneuverability</div>

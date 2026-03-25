@@ -31,7 +31,11 @@ export function Nav() {
 			<div className="container">
 				<Link href="/" className="nav-logo" aria-label="Surf Rental Aljezur home">
 					<Image src="/images/logo.png" alt="" width={36} height={36} className="nav-logo-img" />
-					<span className="nav-logo-text">Surf Rental <em>Aljezur</em></span>
+					<span className="nav-logo-text">
+						<span className="nav-word nav-word-1">Surf</span>{" "}
+						<span className="nav-word nav-word-2">Rental</span>{" "}
+						<em className="nav-word nav-word-3">Aljezur</em>
+					</span>
 				</Link>
 
 				<ul className="nav-links">

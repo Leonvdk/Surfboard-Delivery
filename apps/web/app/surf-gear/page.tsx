@@ -27,7 +27,7 @@ const boards = [
 		slug: "7'8",
 		level: "Beginner – Intermediate",
 		description:
-			"Available in 7\u20190 and 7\u20198, our funboards are the sweet spot between stability and maneuverability. Plenty of volume to paddle into waves easily, with enough shape to start carving real turns. The 7\u20190 is smaller and great for first-timers, while the 7\u20198 suits riders ready to progress.",
+			"Available in 7\u20190 and 7\u20198, our funboards are the sweet spot between stability and maneuverability. Plenty of volume to paddle into waves easily, with enough shape to start carving real turns. The 7\u20198 is bigger and great for first-timers, while the 7\u20190 suits riders ready to progress.",
 		traits: ["Versatile all-rounder", "Easy paddling", "Forgiving & stable"],
 		who: "Beginners catching their first waves and intermediate surfers looking to build technique without sacrificing wave count.",
 	},
@@ -47,7 +47,7 @@ const boards = [
 		description:
 			"A responsive shortboard built for speed, sharp turns, and aerial maneuvers. Soft-top construction keeps it safe and durable while still delivering real performance. Best for experienced surfers comfortable in varied conditions.",
 		traits: ["Fast & responsive", "Duck-dives easily", "Thruster fin setup"],
-		who: "Experienced surfers who want to work the wave face, hit the lip, and generate speed in hollow or punchy conditions.",
+		who: "Experienced surfers who want to work the wave face, hit the lip, and generate speed.",
 	},
 ] as const;
 
