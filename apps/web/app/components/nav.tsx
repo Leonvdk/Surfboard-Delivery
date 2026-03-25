@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -28,8 +29,9 @@ export function Nav() {
 	return (
 		<nav className="nav" aria-label="Main navigation">
 			<div className="container">
-				<Link href="/" className="nav-logo" aria-label="Wavebreak home">
-					Wavebreak
+				<Link href="/" className="nav-logo" aria-label="Surf Rental Aljezur home">
+					<Image src="/images/logo.png" alt="" width={36} height={36} className="nav-logo-img" />
+					<span className="nav-logo-text">Surf Rental <em>Aljezur</em></span>
 				</Link>
 
 				<ul className="nav-links">

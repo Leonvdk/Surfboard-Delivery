@@ -1,7 +1,14 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+
+function getResend() {
+	if (!_resend) {
+		_resend = new Resend(process.env.RESEND_API_KEY);
+	}
+	return _resend;
+}
 
 const BUSINESS_EMAIL = "hello@surfrental.pt";
 const FROM_EMAIL = "SurfRental Aljezur <bookings@surfrental.pt>";
@@ -205,8 +212,10 @@ export async function POST(request: Request) {
 		const businessEmail = buildBusinessEmail(data);
 		const customerEmail = buildCustomerEmail(data);
 
+		const client = getResend();
+
 		const [businessResult, customerResult] = await Promise.all([
-			resend.emails.send({
+			client.emails.send({
 				from: FROM_EMAIL,
 				to: BUSINESS_EMAIL,
 				replyTo: data.email,
@@ -214,7 +223,7 @@ export async function POST(request: Request) {
 				text: businessEmail.text,
 				html: businessEmail.html,
 			}),
-			resend.emails.send({
+			client.emails.send({
 				from: FROM_EMAIL,
 				to: data.email,
 				replyTo: BUSINESS_EMAIL,

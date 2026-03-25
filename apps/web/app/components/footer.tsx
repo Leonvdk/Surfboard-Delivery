@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function Footer() {
@@ -6,7 +7,10 @@ export function Footer() {
 			<div className="container">
 				<div className="footer-grid">
 					<div>
-						<div className="footer-brand">Wavebreak</div>
+						<div className="footer-brand">
+							<Image src="/images/logo.png" alt="" width={32} height={32} className="footer-logo-img" />
+							<span>Surf Rental <em>Aljezur</em></span>
+						</div>
 						<p className="footer-tagline">
 							Premium surf board rentals across Europe&apos;s best beaches.
 						</p>
@@ -39,7 +43,7 @@ export function Footer() {
 					</div>
 				</div>
 				<div className="footer-bottom">
-					<div>&copy; {new Date().getFullYear()} Wavebreak</div>
+					<div>&copy; {new Date().getFullYear()} Surf Rental Aljezur</div>
 					<div className="footer-socials">
 						<a href="#" aria-label="Instagram">
 							<svg viewBox="0 0 24 24" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
