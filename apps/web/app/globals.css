@@ -3109,9 +3109,11 @@ h1, h2, h3, h4 {
    ═══════════════════════════════════════════════ */
 
 .gear-card {
+  position: relative;
   background: var(--surface);
   border: var(--border);
-  padding: 36px;
+  padding: 0 32px 32px;
+  overflow: hidden;
   transition: box-shadow 250ms ease, transform 250ms ease;
 }
 
@@ -3120,12 +3122,45 @@ h1, h2, h3, h4 {
   transform: translate(-2px, -2px);
 }
 
+.gear-card-accent {
+  height: 4px;
+  margin: 0 -32px 28px;
+  background: var(--gray-300);
+}
+
+.gear-card--summer .gear-card-accent { background: #D4501E; }
+.gear-card--shoulder .gear-card-accent { background: #C88A3A; }
+.gear-card--winter .gear-card-accent { background: #3A7FC8; }
+
+.gear-card-header {
+  margin-bottom: var(--space-md);
+}
+
+.gear-card-temp {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.gear-card--summer .gear-card-temp { color: #D4501E; }
+.gear-card--shoulder .gear-card-temp { color: #C88A3A; }
+.gear-card--winter .gear-card-temp { color: #3A7FC8; }
+
 .gear-card h3 {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.125rem;
   letter-spacing: -0.01em;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
+}
+
+.gear-card-months {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-bottom: 0;
 }
 
 .gear-tag {
