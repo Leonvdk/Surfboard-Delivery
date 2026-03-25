@@ -249,7 +249,7 @@ export default function Home() {
 									<div className="testimonial-avatar">MK</div>
 									<div>
 										<div className="testimonial-name">Mara K.</div>
-										<div className="testimonial-meta">Fuerteventura, Apr 2026</div>
+										<div className="testimonial-meta">from Fuerteventura, Apr 2026</div>
 									</div>
 								</div>
 							</div>
@@ -264,7 +264,7 @@ export default function Home() {
 									<div className="testimonial-avatar">JV</div>
 									<div>
 										<div className="testimonial-name">Joost V.</div>
-										<div className="testimonial-meta">Scheveningen, Jul 2025</div>
+										<div className="testimonial-meta">from Scheveningen, Jul 2025</div>
 									</div>
 								</div>
 							</div>
@@ -280,7 +280,7 @@ export default function Home() {
 									<div className="testimonial-avatar">SL</div>
 									<div>
 										<div className="testimonial-name">Sofia L.</div>
-										<div className="testimonial-meta">Biarritz, Sep 2025</div>
+										<div className="testimonial-meta">from Biarritz, Sep 2025</div>
 									</div>
 								</div>
 							</div>
