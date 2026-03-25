@@ -41,9 +41,9 @@ export const baseMetadata: Metadata = {
 		description: DEFAULT_DESCRIPTION,
 		images: [
 			{
-				url: "/images/meta.jpg",
-				width: 1200,
-				height: 630,
+				url: `${SITE_URL}/images/meta.jpg`,
+				width: 2000,
+				height: 2000,
 				alt: "SurfRental Aljezur — Surfboard & Wetsuit Rental",
 			},
 		],
@@ -52,11 +52,7 @@ export const baseMetadata: Metadata = {
 		card: "summary_large_image",
 		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered",
 		description: DEFAULT_DESCRIPTION,
-		images: ["/images/meta.jpg"],
-	},
-	icons: {
-		icon: "/images/logo.png",
-		apple: "/images/logo.png",
+		images: [`${SITE_URL}/images/meta.jpg`],
 	},
 	alternates: {
 		canonical: SITE_URL,
