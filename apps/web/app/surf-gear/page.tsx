@@ -70,13 +70,20 @@ export default function SurfGearPage() {
 							<h1 className="section-title" id="guide-heading">
 								Which surfboard is right for my level?
 							</h1>
-							<p className="section-desc">
-								Not sure which board to pick? We carry three shapes — all soft
-								tops — to cover every skill level, from your first wave to
-								advanced sessions. We also provide seasonal wetsuits so you can
-								focus on the surf.
-							</p>
-						</div>
+						<p className="section-desc">
+							Not sure which board to pick? We carry three shapes — all soft
+							tops — to cover every skill level, from your first wave to
+							advanced sessions. We also provide seasonal wetsuits so you can
+							focus on the surf.
+						</p>
+						<a href="#the-quiver" className="btn btn-outline scroll-down-btn">
+							View our boards
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<polyline points="19 12 12 19 5 12" />
+							</svg>
+						</a>
+					</div>
 					</Reveal>
 					<BoardCalculator />
 				</div>
@@ -85,7 +92,7 @@ export default function SurfGearPage() {
 			<HorizonLine />
 
 			{/* Board details */}
-			<section className="section" aria-labelledby="picker-heading">
+			<section id="the-quiver" className="section" aria-labelledby="picker-heading">
 				<div className="container">
 					<Reveal>
 						<div className="section-header section-header-center">
@@ -135,10 +142,17 @@ export default function SurfGearPage() {
 											<li key={t}>{t}</li>
 										))}
 									</ul>
-									<div className="board-detail-who">
-										<strong>Best for:</strong> {board.who}
-									</div>
+								<div className="board-detail-who">
+									<strong>Best for:</strong> {board.who}
 								</div>
+								<Link href="/contact" className="btn btn-primary board-detail-cta">
+									Book this board now!
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+										<line x1="5" y1="12" x2="19" y2="12" />
+										<polyline points="12 5 19 12 12 19" />
+									</svg>
+								</Link>
+							</div>
 							</div>
 						</Reveal>
 					))}
@@ -213,7 +227,7 @@ export default function SurfGearPage() {
 						</div>
 					</Reveal>
 					<Reveal stagger>
-						<div className="grid-2-narrow">
+						<div className="grid-3">
 							<article className="gear-card">
 								<h3>Changing tub</h3>
 								<p className="gear-tag">Included in Premium Package</p>
@@ -230,6 +244,15 @@ export default function SurfGearPage() {
 									Soft rack pads with straps that fit any rental car. Transport your
 									board safely on the roof without scratching the car or the board.
 									We show you how to strap everything down on delivery.
+								</p>
+							</article>
+							<article className="gear-card">
+								<h3>Wax</h3>
+								<p className="gear-tag">Included in all packages</p>
+								<p>
+									Fresh wax applied before every rental, matched to the water
+									temperature. We use eco-friendly wax so you can surf with a
+									clear conscience.
 								</p>
 							</article>
 						</div>

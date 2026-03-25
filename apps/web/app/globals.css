@@ -209,6 +209,35 @@ h1, h2, h3, h4 {
   background: var(--gray-100);
 }
 
+.btn-outline {
+  background: transparent;
+  color: var(--black);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline:hover {
+  background: var(--black);
+  color: var(--white);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--black);
+}
+
+.scroll-down-btn {
+  margin-top: var(--space-lg);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.scroll-down-btn svg {
+  transition: transform var(--transition);
+}
+
+.scroll-down-btn:hover svg {
+  transform: translateY(3px);
+}
+
 .btn-accent {
   font-family: var(--font-display);
   font-weight: 600;
@@ -578,6 +607,12 @@ h1, h2, h3, h4 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-lg);
+}
+
+.board-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .board-card {
@@ -1536,7 +1571,7 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: center;
   gap: 0;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-2xl);
   border: var(--border);
   width: fit-content;
   margin-inline: auto;
@@ -1929,6 +1964,63 @@ h1, h2, h3, h4 {
   color: var(--gray-500);
   text-align: center;
   margin-top: -4px;
+}
+
+.form-success {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-lg);
+  background: var(--surface);
+  border: var(--border);
+}
+
+.form-success-icon {
+  color: #2e7d32;
+  margin-bottom: var(--space-lg);
+}
+
+.form-success-icon svg {
+  display: inline-block;
+}
+
+.form-success-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: var(--space-md);
+}
+
+.form-success-text {
+  font-size: 1rem;
+  color: var(--gray-700);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto var(--space-md);
+}
+
+.form-success-sub {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+.form-error {
+  background: #fef2f2;
+  border: 1.5px solid #dc2626;
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  font-size: 0.9rem;
+  color: #991b1b;
+}
+
+.form-error p {
+  margin: 0;
+}
+
+.btn:disabled,
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow);
 }
 
 /* Per-person fieldsets */
@@ -2472,6 +2564,13 @@ h1, h2, h3, h4 {
 
 .board-detail-who strong {
   color: var(--black);
+}
+
+.board-detail-cta {
+  margin-top: var(--space-lg);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 /* ═══════════════════════════════════════════════

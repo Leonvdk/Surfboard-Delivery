@@ -64,98 +64,104 @@ export default function Home() {
 					</Reveal>
 					<Reveal stagger>
 						<div className="boards-grid">
-							<article className="board-card">
-								<div className="board-card-img">
-									<Image
-										className="board-card-img-default"
-										src="/images/rentals/6'6/picture(1).jpg"
-										alt="6'6 Shortboard"
-										width={600}
-										height={450}
-									/>
-									<Image
-										className="board-card-img-hover"
-										src="/images/rentals/6'6/picture(3).jpg"
-										alt=""
-										width={600}
-										height={450}
-										aria-hidden="true"
-									/>
-								</div>
-								<div className="board-card-body">
-									<h3 className="board-card-title">Shortboard</h3>
-									<p className="board-card-desc">
-										Built for speed, sharp turns, and aerial maneuvers. For
-										experienced surfers chasing performance.
-									</p>
-									<div className="board-card-footer">
-										<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
-										<span className="board-card-level">Advanced</span>
+							<Link href="/surf-gear#board-6-6" className="board-card-link">
+								<article className="board-card">
+									<div className="board-card-img">
+										<Image
+											className="board-card-img-default"
+											src="/images/rentals/6'6/picture(1).jpg"
+											alt="6'6 Shortboard"
+											width={600}
+											height={450}
+										/>
+										<Image
+											className="board-card-img-hover"
+											src="/images/rentals/6'6/picture(3).jpg"
+											alt=""
+											width={600}
+											height={450}
+											aria-hidden="true"
+										/>
 									</div>
-								</div>
-							</article>
+									<div className="board-card-body">
+										<h3 className="board-card-title">Shortboard</h3>
+										<p className="board-card-desc">
+											Built for speed, sharp turns, and aerial maneuvers. For
+											experienced surfers chasing performance.
+										</p>
+										<div className="board-card-footer">
+											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<span className="board-card-level">Advanced</span>
+										</div>
+									</div>
+								</article>
+							</Link>
 
-							<article className="board-card">
-								<div className="board-card-img">
-									<Image
-										className="board-card-img-default"
-										src="/images/rentals/7'8/picture(1).jpg"
-										alt="7'8 Funboard"
-										width={600}
-										height={450}
-									/>
-									<Image
-										className="board-card-img-hover"
-										src="/images/rentals/7'8/picture(3).jpg"
-										alt=""
-										width={600}
-										height={450}
-										aria-hidden="true"
-									/>
-								</div>
-								<div className="board-card-body">
-									<h3 className="board-card-title">Funboard</h3>
-									<p className="board-card-desc">
-										The middle ground. Enough stability to catch waves easily,
-										enough response to start carving turns.
-									</p>
-									<div className="board-card-footer">
-										<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
-										<span className="board-card-level">Intermediate</span>
+							<Link href="/surf-gear#board-7-8" className="board-card-link">
+								<article className="board-card">
+									<div className="board-card-img">
+										<Image
+											className="board-card-img-default"
+											src="/images/rentals/7'8/picture(1).jpg"
+											alt="7'8 Funboard"
+											width={600}
+											height={450}
+										/>
+										<Image
+											className="board-card-img-hover"
+											src="/images/rentals/7'8/picture(3).jpg"
+											alt=""
+											width={600}
+											height={450}
+											aria-hidden="true"
+										/>
 									</div>
-								</div>
-							</article>
+									<div className="board-card-body">
+										<h3 className="board-card-title">Funboard</h3>
+										<p className="board-card-desc">
+											The middle ground. Enough stability to catch waves easily,
+											enough response to start carving turns.
+										</p>
+										<div className="board-card-footer">
+											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<span className="board-card-level">Intermediate</span>
+										</div>
+									</div>
+								</article>
+							</Link>
 
-							<article className="board-card">
-								<div className="board-card-img">
-									<Image
-										className="board-card-img-default"
-										src="/images/rentals/8'6/picture(1).jpg"
-										alt="8'6 Longboard"
-										width={600}
-										height={450}
-									/>
-									<Image
-										className="board-card-img-hover"
-										src="/images/rentals/8'6/picture(3).jpg"
-										alt=""
-										width={600}
-										height={450}
-										aria-hidden="true"
-									/>
-								</div>
-								<div className="board-card-body">
-									<h3 className="board-card-title">Longboard</h3>
-									<p className="board-card-desc">
-										Stable and forgiving. Perfect for catching every wave,
-										whether you are starting out or cruising.
-									</p>
-									<div className="board-card-footer">
-										<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
-										<span className="board-card-level">Beginner</span>
+							<Link href="/surf-gear#board-8-6" className="board-card-link">
+								<article className="board-card">
+									<div className="board-card-img">
+										<Image
+											className="board-card-img-default"
+											src="/images/rentals/8'6/picture(1).jpg"
+											alt="8'6 Longboard"
+											width={600}
+											height={450}
+										/>
+										<Image
+											className="board-card-img-hover"
+											src="/images/rentals/8'6/picture(3).jpg"
+											alt=""
+											width={600}
+											height={450}
+											aria-hidden="true"
+										/>
 									</div>
-								</div>
-							</article>
+									<div className="board-card-body">
+										<h3 className="board-card-title">Longboard</h3>
+										<p className="board-card-desc">
+											Stable and forgiving. Perfect for catching every wave,
+											whether you are starting out or cruising.
+										</p>
+										<div className="board-card-footer">
+											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<span className="board-card-level">Beginner</span>
+										</div>
+									</div>
+								</article>
+							</Link>
 						</div>
 					</Reveal>
 				</div>
@@ -169,7 +175,7 @@ export default function Home() {
 							<div className="section-header">
 								<p className="section-eyebrow">The process</p>
 								<h2 className="section-title">
-									Booking to<br />breaking waves<br />in 10 minutes.
+									Booking to<br />securing your waves<br />in 10 minutes.
 								</h2>
 							</div>
 						</Reveal>
@@ -283,7 +289,12 @@ export default function Home() {
 				</div>
 			</section>
 
-			<CtaSection />
+			<CtaSection
+				heading="Need help choosing?"
+				text="Tell us your level, your dates, and what you want to surf — we'll put together the perfect setup."
+				buttonText="Find your board"
+				buttonHref="/surf-gear#guide-heading"
+			/>
 		</>
 	);
 }

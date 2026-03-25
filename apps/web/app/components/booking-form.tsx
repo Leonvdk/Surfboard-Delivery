@@ -124,15 +124,15 @@ function recommendBoard(level: Level, weight: number): BoardRec | "advanced" | n
 	if (!level || !weight) return null;
 	if (level === "advanced") return "advanced";
 	if (level === "never") {
-		return weight >= 80 ? BOARD_RECS.longboard : BOARD_RECS["funboard-78"];
+		return weight >= 80 ? BOARD_RECS.longboard ?? null : BOARD_RECS["funboard-78"] ?? null;
 	}
 	if (level === "few-times") {
-		if (weight >= 80) return BOARD_RECS.longboard;
-		if (weight < 38) return BOARD_RECS["funboard-70"];
-		return BOARD_RECS["funboard-78"];
+		if (weight >= 80) return BOARD_RECS.longboard ?? null;
+		if (weight < 38) return BOARD_RECS["funboard-70"] ?? null;
+		return BOARD_RECS["funboard-78"] ?? null;
 	}
 	if (level === "intermediate") {
-		return weight >= 80 ? BOARD_RECS["funboard-78"] : BOARD_RECS["funboard-70"];
+		return weight >= 80 ? BOARD_RECS["funboard-78"] ?? null : BOARD_RECS["funboard-70"] ?? null;
 	}
 	return null;
 }
@@ -430,6 +430,8 @@ function WetsuitCalcModal({
 
 /* ── Main booking form ── */
 
+type FormStatus = "idle" | "submitting" | "success" | "error";
+
 export function BookingForm() {
 	const [checkin, setCheckin] = useState("");
 	const [checkout, setCheckout] = useState("");
@@ -437,6 +439,8 @@ export function BookingForm() {
 	const [people, setPeople] = useState<Person[]>([emptyPerson()]);
 	const [boardCalcOpen, setBoardCalcOpen] = useState<number | null>(null);
 	const [wetsuitCalcOpen, setWetsuitCalcOpen] = useState<number | null>(null);
+	const [status, setStatus] = useState<FormStatus>("idle");
+	const [errorMsg, setErrorMsg] = useState("");
 
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
 	const pkgOptions = useMemo(() => getPackageOptions(days), [days]);
@@ -454,7 +458,9 @@ export function BookingForm() {
 	const updatePerson = (index: number, field: keyof Person, value: string) => {
 		setPeople((prev) => {
 			const next = [...prev];
-			const updated = { ...next[index], [field]: value };
+			const current = next[index];
+			if (!current) return prev;
+			const updated: Person = { ...current, [field]: value };
 			if (field === "sex") updated.wetsuitSize = "";
 			next[index] = updated;
 			return next;
@@ -467,12 +473,79 @@ export function BookingForm() {
 
 	const wetsuitCalcSex = wetsuitCalcOpen !== null ? (people[wetsuitCalcOpen]?.sex as Sex) : ("" as Sex);
 
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setStatus("submitting");
+		setErrorMsg("");
+
+		const form = e.currentTarget;
+		const formData = new FormData(form);
+
+		const payload = {
+			name: formData.get("name") as string,
+			email: formData.get("email") as string,
+			checkin,
+			checkout,
+			accommodation: formData.get("accommodation") as string,
+			peopleCount,
+			people: people.map((p) => ({
+				sex: p.sex,
+				experience: p.experience,
+				package: p.package,
+				board: p.board,
+				wetsuitSize: p.wetsuitSize,
+			})),
+			message: formData.get("message") as string,
+		};
+
+		try {
+			const res = await fetch("/api/contact", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+
+			if (!res.ok) {
+				const data = await res.json().catch(() => null);
+				throw new Error(data?.error || "Something went wrong");
+			}
+
+			setStatus("success");
+		} catch (err) {
+			setStatus("error");
+			setErrorMsg(
+				err instanceof Error ? err.message : "Something went wrong. Please try again.",
+			);
+		}
+	};
+
+	if (status === "success") {
+		return (
+			<div className="form-success">
+				<div className="form-success-icon">
+					<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+						<polyline points="22 4 12 14.01 9 11.01" />
+					</svg>
+				</div>
+				<h3 className="form-success-title">Request received!</h3>
+				<p className="form-success-text">
+					Thanks — we&apos;ve sent you a confirmation email with your booking
+					details. We&apos;ll get back to you within 24 hours with availability
+					and a gear recommendation.
+				</p>
+				<p className="form-success-sub">
+					Check your spam folder if you don&apos;t see our email.
+				</p>
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<form
 				className="contact-form"
-				action="https://formspree.io/f/placeholder"
-				method="POST"
+				onSubmit={handleSubmit}
 			>
 				<div className="form-group">
 					<label htmlFor="name">Name</label>
@@ -609,8 +682,17 @@ export function BookingForm() {
 					<label htmlFor="message">Anything else we should know?</label>
 					<textarea id="message" name="message" rows={4} placeholder="Board preferences, special requests, questions..." />
 				</div>
-				<button type="submit" className="btn btn-primary btn-full">
-					Send booking request
+				{status === "error" && (
+					<div className="form-error">
+						<p>{errorMsg || "Something went wrong. Please try again or contact us via WhatsApp."}</p>
+					</div>
+				)}
+				<button
+					type="submit"
+					className="btn btn-primary btn-full"
+					disabled={status === "submitting"}
+				>
+					{status === "submitting" ? "Sending..." : "Send booking request"}
 				</button>
 				<p className="form-note">
 					This is a booking request, not a live reservation. We&apos;ll confirm
