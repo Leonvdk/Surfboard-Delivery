@@ -39,20 +39,11 @@ export const baseMetadata: Metadata = {
 		siteName: SITE_NAME,
 		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
 		description: DEFAULT_DESCRIPTION,
-		images: [
-			{
-				url: `${SITE_URL}/images/meta.jpg`,
-				width: 2000,
-				height: 2000,
-				alt: "SurfRental Aljezur — Surfboard & Wetsuit Rental",
-			},
-		],
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered",
 		description: DEFAULT_DESCRIPTION,
-		images: [`${SITE_URL}/images/meta.jpg`],
 	},
 	alternates: {
 		canonical: SITE_URL,
