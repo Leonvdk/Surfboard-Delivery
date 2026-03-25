@@ -9,7 +9,7 @@ export function Hero() {
 				<div className="hero-grid">
 					<Reveal>
 						<div className="hero-content">
-							<p className="hero-eyebrow">Surf board rentals — Aljezur, Arrifana & Vale da Telha</p>
+							<p className="hero-eyebrow">Surfboard Rental Delivery — Aljezur, Arrifana & Vale da Telha</p>
 							<h1 className="hero-title">
 								Surfboards.<br />Wetsuits.<br /><em>Delivered.</em>
 							</h1>

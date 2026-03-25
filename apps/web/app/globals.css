@@ -2965,6 +2965,83 @@ h1, h2, h3, h4 {
   line-height: 1.6;
 }
 
+/* Wetsuit recommendation */
+
+@keyframes wetsuit-slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.calc-wetsuit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--surface);
+  border: var(--border);
+  animation: wetsuit-slide-in 400ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+}
+
+.calc-wetsuit-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  border: var(--border);
+  color: var(--accent);
+}
+
+.calc-wetsuit-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.calc-wetsuit-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+}
+
+.calc-wetsuit-size {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.calc-wetsuit-note {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.calc-wetsuit-hint {
+  margin-top: var(--space-md);
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  font-style: italic;
+  animation: wetsuit-slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calc-wetsuit,
+  .calc-wetsuit-hint {
+    animation: none !important;
+  }
+}
+
 /* Advanced — all boards */
 
 .calc-advanced {
