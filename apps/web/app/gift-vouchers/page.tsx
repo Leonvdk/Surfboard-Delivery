@@ -147,7 +147,7 @@ export default function GiftVouchersPage() {
 								<h3>Premium Package</h3>
 								<div className="price">&euro;{prices.premium.weekly.amount}</div>
 								<p className="voucher-includes">
-									Board, wetsuit, changing tub &amp; roof rack pads for 1 week. The complete surf trip kit.
+									Board, wetsuit, changing mat &amp; roof rack pads for 1 week. The complete surf trip kit.
 								</p>
 								<Link href="/contact?subject=Gift+Voucher+Premium+Package" className="btn btn-secondary btn-full">
 									Order this voucher

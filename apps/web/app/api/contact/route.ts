@@ -10,7 +10,7 @@ function getResend() {
 	return _resend;
 }
 
-const BUSINESS_EMAIL = "hello@surfrental.pt";
+const BUSINESS_EMAIL = "hello@surfrental-aljezur.com";
 const FROM_EMAIL = "SurfRental Aljezur <bookings@surfrental.pt>";
 
 interface PersonData {
@@ -64,8 +64,8 @@ function buildBusinessEmail(data: BookingRequest): { subject: string; text: stri
 
 Name: ${data.name}
 Email: ${data.email}
-Check-in: ${data.checkin}
-Checkout: ${data.checkout}
+Delivery: ${data.checkin}
+Pickup: ${data.checkout}
 Accommodation: ${data.accommodation}
 People: ${data.peopleCount}
 
@@ -94,8 +94,8 @@ Reply directly to this email to reach the customer.`;
       <table style="width:100%;border-collapse:collapse;">
         ${row("Name", data.name)}
         ${row("Email", `<a href="mailto:${data.email}" style="color:#D4501E;text-decoration:none;">${data.email}</a>`)}
-        ${row("Check-in", data.checkin)}
-        ${row("Checkout", data.checkout)}
+        ${row("Delivery", data.checkin)}
+        ${row("Pickup", data.checkout)}
         ${row("Accommodation", data.accommodation)}
         ${row("People", String(data.peopleCount))}
         ${data.people.map((p, i) => formatPersonHtml(p, i)).join("")}
@@ -123,8 +123,8 @@ function buildCustomerEmail(data: BookingRequest): { subject: string; text: stri
 Thanks for your booking request! We've received your details and will get back to you within 24 hours with availability and a gear recommendation.
 
 Your request summary:
-  Check-in: ${data.checkin}
-  Checkout: ${data.checkout}
+  Delivery: ${data.checkin}
+  Pickup: ${data.checkout}
   Accommodation: ${data.accommodation}
   People: ${data.peopleCount}
 
@@ -160,8 +160,8 @@ See you in the water!
       <h3 style="margin:0 0 20px;font-size:17px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">Booking summary</h3>
 
       <table style="width:100%;border-collapse:collapse;">
-        ${summaryRow("Check-in", data.checkin)}
-        ${summaryRow("Checkout", data.checkout)}
+        ${summaryRow("Delivery", data.checkin)}
+        ${summaryRow("Pickup", data.checkout)}
         ${summaryRow("Accommodation", data.accommodation)}
         ${summaryRow("People", String(data.peopleCount))}
         ${data.people.map((p, i) => formatPersonHtml(p, i)).join("")}

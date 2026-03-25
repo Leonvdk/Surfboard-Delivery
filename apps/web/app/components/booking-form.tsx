@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { DateRangePicker } from "./date-range-picker";
 
 /* ── Board calculator logic ── */
 
@@ -467,14 +468,25 @@ export function BookingForm() {
 		});
 	};
 
-	const durationLabel = days !== null
-		? `${days} night${days !== 1 ? "s" : ""}${days >= 10 ? " — extended stay pricing applied" : ""}`
-		: null;
-
 	const wetsuitCalcSex = wetsuitCalcOpen !== null ? (people[wetsuitCalcOpen]?.sex as Sex) : ("" as Sex);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+
+		if (!checkin || !checkout) {
+			setStatus("error");
+			setErrorMsg("Please select your delivery and pickup dates.");
+			return;
+		}
+		const ci = new Date(`${checkin}T00:00:00`);
+		const co = new Date(`${checkout}T00:00:00`);
+		const span = Math.round((co.getTime() - ci.getTime()) / (1000 * 60 * 60 * 24));
+		if (span < 5) {
+			setStatus("error");
+			setErrorMsg("Minimum rental period is 5 days. Please select a longer stay.");
+			return;
+		}
+
 		setStatus("submitting");
 		setErrorMsg("");
 
@@ -555,19 +567,12 @@ export function BookingForm() {
 					<label htmlFor="email">Email</label>
 					<input type="email" id="email" name="email" required autoComplete="email" />
 				</div>
-				<div className="form-row">
-					<div className="form-group">
-						<label htmlFor="checkin">Check-in date</label>
-						<input type="date" id="checkin" name="checkin" required value={checkin} onChange={(e) => setCheckin(e.target.value)} />
-					</div>
-					<div className="form-group">
-						<label htmlFor="checkout">Checkout date</label>
-						<input type="date" id="checkout" name="checkout" required value={checkout} onChange={(e) => setCheckout(e.target.value)} />
-					</div>
-				</div>
-				{durationLabel && (
-					<p className="form-duration-hint">{durationLabel}</p>
-				)}
+			<DateRangePicker
+				checkin={checkin}
+				checkout={checkout}
+				onCheckinChange={setCheckin}
+				onCheckoutChange={setCheckout}
+			/>
 				<div className="form-group">
 					<label htmlFor="accommodation">Accommodation address or name</label>
 					<input type="text" id="accommodation" name="accommodation" placeholder="e.g. Casa Sol, Vale da Telha" required />

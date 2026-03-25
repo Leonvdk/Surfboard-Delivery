@@ -63,8 +63,8 @@ export default function ContactPage() {
 										<dl className="contact-details">
 											<dt>Email</dt>
 											<dd>
-												<a href="mailto:hello@surfrental.pt">
-													hello@surfrental.pt
+												<a href="mailto:hello@surfrental-aljezur.com">
+													hello@surfrental-aljezur.com
 												</a>
 											</dd>
 											<dt>Phone / WhatsApp</dt>
@@ -103,7 +103,7 @@ export default function ContactPage() {
 										<p>
 											Free delivery to Aljezur, Arrifana, Vale da Telha, and
 											Monte Clérigo. Staying nearby?{" "}
-											<a href="mailto:hello@surfrental.pt">Ask us</a>.
+											<a href="mailto:hello@surfrental-aljezur.com">Ask us</a>.
 										</p>
 									</div>
 								</aside>

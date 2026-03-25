@@ -43,12 +43,12 @@ export const packages: Record<PackageTier, PackageInfo> = {
 	premium: {
 		name: "Premium Package",
 		description:
-			"Everything you need for a complete surf trip — board, wetsuit, changing tub, and roof rack pads delivered to your door.",
+			"Everything you need for a complete surf trip — board, wetsuit, changing mat, and roof rack pads delivered to your door.",
 		features: [
 			"Surfboard of your choice",
 			"Wetsuit (season-appropriate)",
 			"Leash & wax included",
-			"Changing tub",
+			"Changing mat",
 			"Roof rack pads",
 			"Free delivery & pickup",
 			"Local surf spot tips",

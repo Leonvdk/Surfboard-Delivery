@@ -217,7 +217,7 @@ export default function GroupBookingsPage() {
 							<p>
 								All prices are per person, per week. Mix and match packages within
 								a group — we&apos;ll work it out. Premium includes board, wetsuit,
-								changing tub &amp; roof rack pads.
+								changing mat &amp; roof rack pads.
 							</p>
 						</div>
 					</Reveal>

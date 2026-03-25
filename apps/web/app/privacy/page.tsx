@@ -50,7 +50,7 @@ export default function PrivacyPage() {
 							</p>
 							<p>
 								<strong>Contact:</strong>{" "}
-								<a href="mailto:hello@surfrental.pt">hello@surfrental.pt</a>
+								<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>
 							</p>
 
 							<h2>2. What data we collect</h2>
@@ -160,7 +160,7 @@ export default function PrivacyPage() {
 							</ul>
 							<p>
 								To exercise any of these rights, email us at{" "}
-								<a href="mailto:hello@surfrental.pt">hello@surfrental.pt</a>. We respond to all
+								<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>. We respond to all
 								requests within 30 days.
 							</p>
 
@@ -205,7 +205,7 @@ export default function PrivacyPage() {
 							<h2>10. Contact &amp; complaints</h2>
 							<p>
 								If you have questions about this policy or wish to make a complaint, contact us at{" "}
-								<a href="mailto:hello@surfrental.pt">hello@surfrental.pt</a>.
+								<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>.
 							</p>
 							<p>
 								You also have the right to lodge a complaint with the Portuguese data protection

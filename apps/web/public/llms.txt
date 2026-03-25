@@ -19,13 +19,13 @@ SurfRental is a surf gear rental service based in the Aljezur area of Portugal's
 
 - Board Only: €25/day (surfboard, leash, wax)
 - Full Package: €35/day (surfboard, wetsuit, leash, wax)
-- Premium Package: €45/day (surfboard, wetsuit, changing tub, roof rack pads, leash, wax)
+- Premium Package: €45/day (surfboard, wetsuit, changing mat, roof rack pads, leash, wax)
 
 ### Weekly Rates
 
 - Board Only: €85/week (surfboard, leash, wax)
 - Full Package: €120/week (surfboard, wetsuit, leash, wax)
-- Premium Package: €150/week (surfboard, wetsuit, changing tub, roof rack pads, leash, wax)
+- Premium Package: €150/week (surfboard, wetsuit, changing mat, roof rack pads, leash, wax)
 
 ### Extended Stay (2 Weeks)
 
@@ -74,7 +74,7 @@ SurfRental is a surf gear rental service based in the Aljezur area of Portugal's
 
 ## Contact
 
-- Email: hello@surfrental.pt
+- Email: hello@surfrental-aljezur.com
 - Website: https://surfrental.pt
 - Contact form: https://surfrental.pt/contact
 

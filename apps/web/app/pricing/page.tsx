@@ -11,7 +11,7 @@ import { prices } from "../lib/pricing";
 export const metadata: Metadata = {
 	title: "Pricing — Daily & Weekly Surf Rental Packages",
 	description:
-		"Surfboard and wetsuit rental from \u20AC25/day or \u20AC85/week. Board only, full package, or premium bundle with changing tub & roof rack — free delivery in Aljezur, Arrifana, and Vale da Telha.",
+		"Surfboard and wetsuit rental from \u20AC25/day or \u20AC85/week. Board only, full package, or premium bundle with changing mat & roof rack — free delivery in Aljezur, Arrifana, and Vale da Telha.",
 	alternates: { canonical: "/pricing" },
 	openGraph: {
 		title: "Pricing — Daily & Weekly Surf Rental Packages | SurfRental Aljezur",
@@ -181,7 +181,7 @@ export default function PricingPage() {
 								<summary className="faq-question">What&apos;s included in the Premium Package?</summary>
 								<p className="faq-answer">
 									The Premium Package includes a surfboard, season-appropriate wetsuit,
-									leash &amp; wax, a changing tub for getting changed at the beach, and
+									leash &amp; wax, a changing mat for getting changed at the beach, and
 									roof rack pads so you can transport the board on your rental car.
 								</p>
 							</details>
@@ -189,7 +189,7 @@ export default function PricingPage() {
 								<summary className="faq-question">Can I upgrade my package mid-rental?</summary>
 								<p className="faq-answer">
 									Yes. If you start with a Board Only and decide you need a wetsuit, or want
-									to add the changing tub and roof rack, just let us know and we&apos;ll
+									to add the changing mat and roof rack, just let us know and we&apos;ll
 									arrange a swap delivery.
 								</p>
 							</details>
@@ -309,7 +309,7 @@ function pricingProductJsonLd() {
 				},
 				{
 					"@type": "Offer",
-					name: "Premium Package (Board + Wetsuit + Changing Tub + Roof Rack) — Daily",
+					name: "Premium Package (Board + Wetsuit + Changing Mat + Roof Rack) — Daily",
 					price: String(prices.premium.daily.amount),
 					priceCurrency: "EUR",
 					priceSpecification: {
@@ -323,7 +323,7 @@ function pricingProductJsonLd() {
 				},
 				{
 					"@type": "Offer",
-					name: "Premium Package (Board + Wetsuit + Changing Tub + Roof Rack) — Weekly",
+					name: "Premium Package (Board + Wetsuit + Changing Mat + Roof Rack) — Weekly",
 					price: String(prices.premium.weekly.amount),
 					priceCurrency: "EUR",
 					priceSpecification: {

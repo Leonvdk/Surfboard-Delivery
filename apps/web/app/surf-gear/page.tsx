@@ -76,13 +76,22 @@ export default function SurfGearPage() {
 							advanced sessions. We also provide seasonal wetsuits so you can
 							focus on the surf.
 						</p>
-						<a href="#the-quiver" className="btn btn-outline scroll-down-btn">
-							View our boards
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-								<line x1="12" y1="5" x2="12" y2="19" />
-								<polyline points="19 12 12 19 5 12" />
-							</svg>
-						</a>
+						<div className="hero-btn-row">
+							<a href="#the-quiver" className="btn btn-outline scroll-down-btn">
+								View our boards
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+									<line x1="12" y1="5" x2="12" y2="19" />
+									<polyline points="19 12 12 19 5 12" />
+								</svg>
+							</a>
+							<a href="#extras-heading" className="btn btn-outline scroll-down-btn">
+								Check out our Premium Package
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+									<line x1="12" y1="5" x2="12" y2="19" />
+									<polyline points="19 12 12 19 5 12" />
+								</svg>
+							</a>
+						</div>
 					</div>
 					</Reveal>
 					<BoardCalculator />
@@ -235,7 +244,7 @@ export default function SurfGearPage() {
 								Everything you need, nothing to think about
 							</h2>
 							<p className="section-desc">
-								Add a changing tub and roof rack pads to your rental for the complete
+								Add a changing mat and roof rack pads to your rental for the complete
 								hassle-free surf trip. Available as part of our{" "}
 								<Link href="/pricing">Premium Package</Link>.
 							</p>
@@ -243,31 +252,52 @@ export default function SurfGearPage() {
 					</Reveal>
 					<Reveal stagger>
 						<div className="grid-3">
-							<article className="gear-card">
-								<h3>Changing tub</h3>
-								<p className="gear-tag">Included in Premium Package</p>
+							<article className="extras-card">
+								<div className="extras-img">
+									<Image
+										src="/images/changing-mat/picture.jpg"
+										alt="Changing mat for surfers"
+										fill
+										sizes="(max-width: 640px) 100vw, 33vw"
+									/>
+								</div>
+								<h3>Changing mat</h3>
+								<span className="extras-badge">Premium Package</span>
 								<p>
-									A portable tub you stand in while changing out of your wetsuit. Keeps
-									sand and water contained, and doubles as a rinse bucket for your
-									wetsuit after a session. Essential for keeping your rental car clean.
+									A portable mat you stand on while changing. Keeps sand
+									contained and doubles as a bag for your wetsuit after a session.
 								</p>
 							</article>
-							<article className="gear-card">
+							<article className="extras-card">
+								<div className="extras-img">
+									<Image
+										src="/images/rentals/soft-racks/picture.jpg"
+										alt="Soft roof rack pads for surfboards"
+										fill
+										sizes="(max-width: 640px) 100vw, 33vw"
+									/>
+								</div>
 								<h3>Roof rack pads</h3>
-								<p className="gear-tag">Included in Premium Package</p>
+								<span className="extras-badge">Premium Package</span>
 								<p>
-									Soft rack pads with straps that fit any rental car. Transport your
-									board safely on the roof without scratching the car or the board.
-									We show you how to strap everything down on delivery.
+									Soft rack pads with straps that fit any rental car. We show
+									you how to strap everything down on delivery.
 								</p>
 							</article>
-							<article className="gear-card">
+							<article className="extras-card">
+								<div className="extras-img">
+									<Image
+										src="/images/rentals/wax/wax.png"
+										alt="Eco-friendly surf wax"
+										fill
+										sizes="(max-width: 640px) 100vw, 33vw"
+									/>
+								</div>
 								<h3>Wax</h3>
-								<p className="gear-tag">Included in all packages</p>
+								<span className="extras-badge">All packages</span>
 								<p>
-									Fresh wax applied before every rental, matched to the water
-									temperature. We use eco-friendly wax so you can surf with a
-									clear conscience.
+									Fresh eco-friendly wax applied before every rental, matched
+									to the water temperature.
 								</p>
 							</article>
 						</div>
@@ -279,7 +309,7 @@ export default function SurfGearPage() {
 				heading="Need help choosing?"
 				text="Tell us your level, your dates, and what you want to surf — we'll put together the perfect setup."
 				buttonText="Go to our gear calculator"
-				buttonHref="/surf-gear#guide-heading"
+				buttonHref="#guide-heading"
 			/>
 		</>
 	);

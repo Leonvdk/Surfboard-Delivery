@@ -9,7 +9,7 @@ export function localBusinessJsonLd() {
 		description:
 			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
-		email: "hello@surfrental.pt",
+		email: "hello@surfrental-aljezur.com",
 		telephone: "+31613262259",
 		areaServed: [
 			{
@@ -89,9 +89,9 @@ export function localBusinessJsonLd() {
 				},
 				{
 					"@type": "Offer",
-					name: "Premium Package — Board + Wetsuit + Changing Tub + Roof Rack — Weekly",
+					name: "Premium Package — Board + Wetsuit + Changing Mat + Roof Rack — Weekly",
 					description:
-						"Complete surf trip bundle: surfboard, wetsuit, changing tub, and roof rack pads for 1 week with free delivery and pickup.",
+						"Complete surf trip bundle: surfboard, wetsuit, changing mat, and roof rack pads for 1 week with free delivery and pickup.",
 					price: "150",
 					priceCurrency: "EUR",
 					availability: "https://schema.org/InStock",
@@ -134,7 +134,7 @@ export function localBusinessJsonLd() {
 					"@type": "Offer",
 					name: "Premium Package — Daily",
 					description:
-						"Complete surf trip bundle per day (3-day minimum): surfboard, wetsuit, changing tub, and roof rack pads.",
+						"Complete surf trip bundle per day (3-day minimum): surfboard, wetsuit, changing mat, and roof rack pads.",
 					price: "45",
 					priceCurrency: "EUR",
 					availability: "https://schema.org/InStock",

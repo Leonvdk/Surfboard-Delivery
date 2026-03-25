@@ -44,7 +44,7 @@ export default function TermsPage() {
 							<h2>1. Booking &amp; confirmation</h2>
 							<p>
 								All bookings are made via our <Link href="/contact">contact form</Link>, email
-								(hello@surfrental.pt), or WhatsApp. A booking is confirmed once we reply with
+								(hello@surfrental-aljezur.com), or WhatsApp. A booking is confirmed once we reply with
 								availability and you agree to proceed. No payment is taken until delivery.
 							</p>
 							<p>
