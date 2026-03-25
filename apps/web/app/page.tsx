@@ -1,102 +1,289 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { CtaSection } from "./components/cta-section";
+import { Hero } from "./components/hero";
+import { Reveal } from "./components/reveal";
+import { StarRating } from "./components/star-rating";
+import { prices } from "./lib/pricing";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
+export const metadata: Metadata = {
+	title: "Wavebreak — Surf Board Rentals",
+	description:
+		"Premium surf board rentals. Choose your shape, book in seconds, paddle out in minutes.",
+	alternates: { canonical: "/" },
 };
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+const boardFromPrice = Math.ceil(
+	prices.boardOnly.extended.amount / 14,
+);
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+	return (
+		<>
+			<Hero />
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
-      </footer>
-    </div>
-  );
+			{/* Metrics */}
+			<section className="metrics" aria-label="Key figures">
+				<div className="container">
+					<Reveal stagger>
+						<div className="metrics-grid">
+							<div className="metric">
+								<div className="metric-value">2,400+</div>
+								<div className="metric-label">Sessions last year</div>
+							</div>
+							<div className="metric">
+								<div className="metric-value">3</div>
+								<div className="metric-label">Board models</div>
+							</div>
+							<div className="metric">
+								<div className="metric-value">4.9</div>
+								<div className="metric-label">Average rating</div>
+							</div>
+							<div className="metric">
+								<div className="metric-value metric-value--xl">&infin;</div>
+								<div className="metric-label">Possibilities</div>
+							</div>
+						</div>
+					</Reveal>
+				</div>
+			</section>
+
+			{/* Boards */}
+			<section className="boards" id="boards">
+				<div className="container">
+					<Reveal>
+						<div className="section-header section-header--center">
+							<p className="section-eyebrow">The collection</p>
+							<h2 className="section-title">Three shapes. Every wave.</h2>
+							<p className="section-desc">
+								Each board is cleaned, waxed, and inspected before every rental.
+								Pick the shape that matches your experience.
+							</p>
+						</div>
+					</Reveal>
+					<Reveal stagger>
+						<div className="boards-grid">
+							<article className="board-card">
+								<div className="board-card-img">
+									<Image
+										className="board-card-img-default"
+										src="/images/rentals/6'6/picture(1).jpg"
+										alt="6'6 Shortboard"
+										width={600}
+										height={450}
+									/>
+									<Image
+										className="board-card-img-hover"
+										src="/images/rentals/6'6/picture(3).jpg"
+										alt=""
+										width={600}
+										height={450}
+										aria-hidden="true"
+									/>
+								</div>
+								<div className="board-card-body">
+									<h3 className="board-card-title">Shortboard</h3>
+									<p className="board-card-desc">
+										Built for speed, sharp turns, and aerial maneuvers. For
+										experienced surfers chasing performance.
+									</p>
+									<div className="board-card-footer">
+										<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+										<span className="board-card-level">Advanced</span>
+									</div>
+								</div>
+							</article>
+
+							<article className="board-card">
+								<div className="board-card-img">
+									<Image
+										className="board-card-img-default"
+										src="/images/rentals/7'8/picture(1).jpg"
+										alt="7'8 Funboard"
+										width={600}
+										height={450}
+									/>
+									<Image
+										className="board-card-img-hover"
+										src="/images/rentals/7'8/picture(3).jpg"
+										alt=""
+										width={600}
+										height={450}
+										aria-hidden="true"
+									/>
+								</div>
+								<div className="board-card-body">
+									<h3 className="board-card-title">Funboard</h3>
+									<p className="board-card-desc">
+										The middle ground. Enough stability to catch waves easily,
+										enough response to start carving turns.
+									</p>
+									<div className="board-card-footer">
+										<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+										<span className="board-card-level">Intermediate</span>
+									</div>
+								</div>
+							</article>
+
+							<article className="board-card">
+								<div className="board-card-img">
+									<Image
+										className="board-card-img-default"
+										src="/images/rentals/8'6/picture(1).jpg"
+										alt="8'6 Longboard"
+										width={600}
+										height={450}
+									/>
+									<Image
+										className="board-card-img-hover"
+										src="/images/rentals/8'6/picture(3).jpg"
+										alt=""
+										width={600}
+										height={450}
+										aria-hidden="true"
+									/>
+								</div>
+								<div className="board-card-body">
+									<h3 className="board-card-title">Longboard</h3>
+									<p className="board-card-desc">
+										Stable and forgiving. Perfect for catching every wave,
+										whether you are starting out or cruising.
+									</p>
+									<div className="board-card-footer">
+										<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+										<span className="board-card-level">Beginner</span>
+									</div>
+								</div>
+							</article>
+						</div>
+					</Reveal>
+				</div>
+			</section>
+
+			{/* How It Works */}
+			<section className="how" id="how">
+				<div className="container">
+					<div className="how-layout">
+						<Reveal>
+							<div className="section-header">
+								<p className="section-eyebrow">The process</p>
+								<h2 className="section-title">
+									Booking to<br />breaking waves<br />in 10 minutes.
+								</h2>
+							</div>
+						</Reveal>
+						<Reveal stagger>
+							<div className="steps">
+								<div className="step">
+									<div className="step-number">01</div>
+									<div>
+										<h3 className="step-title">Choose your board</h3>
+										<p className="step-desc">
+											Browse online or visit any of our seven beach-side
+											locations. We help you find the right shape for your
+											level and conditions.
+										</p>
+									</div>
+								</div>
+								<div className="step">
+									<div className="step-number">02</div>
+									<div>
+										<h3 className="step-title">Book and pay</h3>
+										<p className="step-desc">
+											Reserve for an hour, a day, or a full week. Transparent
+											pricing, no hidden fees. Pay online or on-site.
+										</p>
+									</div>
+								</div>
+								<div className="step">
+									<div className="step-number">03</div>
+									<div>
+										<h3 className="step-title">Paddle out</h3>
+										<p className="step-desc">
+											Pick up your board, get a quick safety brief, and head
+											to the water. Return it when you are done.
+										</p>
+									</div>
+								</div>
+							</div>
+							<div className="how-cta">
+								<Link href="/surf-gear" className="btn btn-primary">
+									Rent a surfboard
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+										<line x1="5" y1="12" x2="19" y2="12" />
+										<polyline points="12 5 19 12 12 19" />
+									</svg>
+								</Link>
+							</div>
+						</Reveal>
+					</div>
+				</div>
+			</section>
+
+			{/* Testimonials */}
+			<section className="testimonials" id="reviews">
+				<div className="container">
+					<Reveal>
+						<div className="section-header section-header--center">
+							<p className="section-eyebrow">What riders say</p>
+							<h2 className="section-title">Trusted by surfers across Europe.</h2>
+						</div>
+					</Reveal>
+					<Reveal stagger>
+						<div className="testimonials-grid">
+							<div className="testimonial-card">
+								<StarRating />
+								<p className="testimonial-quote">
+									Rented a longboard for a full week. Board was in perfect
+									condition, and the staff gave excellent local spot
+									recommendations.
+								</p>
+								<div className="testimonial-author">
+									<div className="testimonial-avatar">MK</div>
+									<div>
+										<div className="testimonial-name">Mara K.</div>
+										<div className="testimonial-meta">Fuerteventura, Apr 2026</div>
+									</div>
+								</div>
+							</div>
+
+							<div className="testimonial-card">
+								<StarRating />
+								<p className="testimonial-quote">
+									First time surfing. They matched me with the right board and I
+									caught my first wave within an hour. Coming back next summer.
+								</p>
+								<div className="testimonial-author">
+									<div className="testimonial-avatar">JV</div>
+									<div>
+										<div className="testimonial-name">Joost V.</div>
+										<div className="testimonial-meta">Scheveningen, Jul 2025</div>
+									</div>
+								</div>
+							</div>
+
+							<div className="testimonial-card">
+								<StarRating />
+								<p className="testimonial-quote">
+									Shortboard selection is top-notch. Clean, well-maintained boards
+									and the pickup process is seamless. Best rental experience in
+									Europe.
+								</p>
+								<div className="testimonial-author">
+									<div className="testimonial-avatar">SL</div>
+									<div>
+										<div className="testimonial-name">Sofia L.</div>
+										<div className="testimonial-meta">Biarritz, Sep 2025</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</Reveal>
+				</div>
+			</section>
+
+			<CtaSection />
+		</>
+	);
 }

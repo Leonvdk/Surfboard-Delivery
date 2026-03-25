@@ -1,19 +1,20 @@
 {
-  "name": "Surf Rental",
+  "name": "surf-rental",
   "private": true,
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "format": "biome format . --write",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.8.20",
+    "@biomejs/biome": "^2.0.0",
+    "turbo": "^2.8.17",
     "typescript": "5.9.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=18"
   }

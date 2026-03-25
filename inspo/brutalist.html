@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WAVEBREAK — Surf Board Rentals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Mega:wght@400;600;700;800;900&family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root {
+      --bg: #FFFDF5;
+      --black: #000000;
+      --white: #FFFFFF;
+      --cream: #FFFDF5;
+      --ocean: #0057FF;
+      --coral: #FF5C5C;
+      --sand: #FFD93D;
+      --mint: #00E5A0;
+      --text: #0A0A0A;
+      --text-muted: #3D3D3D;
+
+      --border: 3px solid var(--black);
+      --border-thick: 4px solid var(--black);
+      --shadow: 5px 5px 0 var(--black);
+      --shadow-lg: 8px 8px 0 var(--black);
+      --radius: 0px;
+
+      --font-display: 'Lexend Mega', sans-serif;
+      --font-body: 'Public Sans', sans-serif;
+
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-4xl: 96px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    img { max-width: 100%; display: block; }
+
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-lg);
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: var(--border);
+      padding: var(--space-md) 0;
+    }
+
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .nav-logo span {
+      display: inline-block;
+      background: var(--ocean);
+      color: var(--white);
+      padding: 2px 8px;
+      border: 2px solid var(--black);
+      box-shadow: 3px 3px 0 var(--black);
+      margin-left: 4px;
+      transform: rotate(-2deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 200ms ease;
+    }
+
+    .nav-links a:hover { color: var(--ocean); }
+
+    .nav-cta {
+      font-family: var(--font-display) !important;
+      font-weight: 700 !important;
+      font-size: 0.75rem !important;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--sand);
+      color: var(--black);
+      padding: 10px 20px;
+      border: var(--border);
+      box-shadow: 3px 3px 0 var(--black);
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .nav-cta:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--black);
+    }
+
+    .nav-cta:active {
+      transform: translate(3px, 3px);
+      box-shadow: 0 0 0 var(--black);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: var(--border);
+      padding: 8px;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--black);
+    }
+
+    .mobile-menu-btn svg { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      padding-top: calc(80px + var(--space-4xl));
+      padding-bottom: var(--space-4xl);
+      position: relative;
+    }
+
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+      align-items: center;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--coral);
+      color: var(--white);
+      padding: 6px 14px;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      transform: rotate(-1.5deg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-lg);
+    }
+
+    .hero-title .highlight {
+      display: inline;
+      background: var(--sand);
+      padding: 0 8px;
+      border-bottom: 4px solid var(--black);
+    }
+
+    .hero-desc {
+      font-size: 1.125rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin-bottom: var(--space-xl);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 16px 32px;
+      border: var(--border-thick);
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--ocean);
+      color: var(--white);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-primary:hover {
+      transform: translate(4px, 4px);
+      box-shadow: 4px 4px 0 var(--black);
+    }
+
+    .btn-primary:active {
+      transform: translate(8px, 8px);
+      box-shadow: 0 0 0 var(--black);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--black);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 3px 3px 0 var(--black);
+    }
+
+    .btn-secondary:active {
+      transform: translate(5px, 5px);
+      box-shadow: 0 0 0 var(--black);
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-card {
+      background: var(--white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-xl);
+      width: 100%;
+      max-width: 420px;
+      transform: rotate(2deg);
+    }
+
+    .hero-card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, var(--ocean) 0%, #003ecb 100%);
+      border: var(--border);
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card-img svg {
+      width: 80px;
+      height: 80px;
+      stroke: var(--white);
+      opacity: 0.9;
+    }
+
+    .wave-pattern {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+    }
+
+    .hero-card-label {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .hero-card-sub {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: var(--space-xs);
+    }
+
+    .hero-card-price {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.5rem;
+      background: var(--sand);
+      padding: 4px 12px;
+      border: 2px solid var(--black);
+      box-shadow: 3px 3px 0 var(--black);
+      margin-top: var(--space-md);
+    }
+
+    .hero-float-tag {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      background: var(--mint);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      transform: rotate(4deg);
+      z-index: 3;
+    }
+
+    /* ── STATS STRIP ── */
+    .stats {
+      border-top: var(--border);
+      border-bottom: var(--border);
+      background: var(--black);
+      color: var(--white);
+      padding: var(--space-xl) 0;
+    }
+
+    .stats .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-lg);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+    }
+
+    .stat-number .accent { color: var(--sand); }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      opacity: 0.75;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: var(--space-xs);
+    }
+
+    /* ── BOARDS / OFFERINGS ── */
+    .boards {
+      padding: var(--space-4xl) 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: var(--space-3xl);
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 6px 16px;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: var(--space-lg);
+    }
+
+    .section-tag--ocean { background: var(--ocean); color: var(--white); }
+    .section-tag--coral { background: var(--coral); color: var(--white); }
+    .section-tag--sand { background: var(--sand); color: var(--black); }
+    .section-tag--mint { background: var(--mint); color: var(--black); }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(1.75rem, 4vw, 3rem);
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: var(--space-md) auto 0;
+      line-height: 1.7;
+    }
+
+    .boards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .board-card {
+      background: var(--white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      padding: 0;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .board-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 12px 12px 0 var(--black);
+    }
+
+    .board-card-img {
+      width: 100%;
+      aspect-ratio: 3/2;
+      border-bottom: var(--border-thick);
+      overflow: hidden;
+      background: var(--cream);
+    }
+
+    .board-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .board-card-body { padding: var(--space-lg); }
+
+    .board-card-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--space-sm);
+    }
+
+    .board-card-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: var(--space-md);
+    }
+
+    .board-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .board-card-price {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.25rem;
+    }
+
+    .board-card-price small {
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .board-card-tag {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border: 2px solid var(--black);
+    }
+
+    .board-card:nth-child(1) .board-card-tag { background: var(--sand); }
+    .board-card:nth-child(2) .board-card-tag { background: var(--mint); }
+    .board-card:nth-child(3) .board-card-tag { background: var(--coral); color: var(--white); }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      padding: var(--space-4xl) 0;
+      background: var(--black);
+      color: var(--white);
+      border-top: var(--border-thick);
+      border-bottom: var(--border-thick);
+    }
+
+    .how .section-tag { box-shadow: 5px 5px 0 var(--white); border-color: var(--white); }
+    .how .section-desc { color: rgba(255,255,255,0.65); }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .step-card {
+      border: 3px solid var(--white);
+      padding: var(--space-xl);
+      position: relative;
+      box-shadow: 6px 6px 0 rgba(255,255,255,0.15);
+      transition: box-shadow 200ms ease, transform 200ms ease;
+    }
+
+    .step-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 9px 9px 0 rgba(255,255,255,0.25);
+    }
+
+    .step-number {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 3.5rem;
+      line-height: 1;
+      margin-bottom: var(--space-md);
+    }
+
+    .step-card:nth-child(1) .step-number { color: var(--sand); }
+    .step-card:nth-child(2) .step-number { color: var(--mint); }
+    .step-card:nth-child(3) .step-number { color: var(--coral); }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      margin-bottom: var(--space-sm);
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      opacity: 0.7;
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials {
+      padding: var(--space-4xl) 0;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .testimonial-card {
+      background: var(--white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-xl);
+      position: relative;
+    }
+
+    .testimonial-card:nth-child(2) { transform: rotate(-1deg); }
+    .testimonial-card:nth-child(3) { transform: rotate(0.5deg); }
+
+    .testimonial-quote {
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: var(--space-lg);
+      font-style: italic;
+    }
+
+    .testimonial-quote::before {
+      content: '\201C';
+      font-family: var(--font-display);
+      font-size: 3rem;
+      line-height: 0;
+      vertical-align: -0.5em;
+      color: var(--ocean);
+      margin-right: 4px;
+      font-style: normal;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      border: 2px solid var(--black);
+      box-shadow: 3px 3px 0 var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .testimonial-card:nth-child(1) .testimonial-avatar { background: var(--sand); }
+    .testimonial-card:nth-child(2) .testimonial-avatar { background: var(--mint); }
+    .testimonial-card:nth-child(3) .testimonial-avatar { background: var(--coral); color: var(--white); }
+
+    .testimonial-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .testimonial-role {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .testimonial-stars {
+      position: absolute;
+      top: var(--space-lg);
+      right: var(--space-lg);
+      display: flex;
+      gap: 2px;
+    }
+
+    .testimonial-stars svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--sand);
+      stroke: var(--black);
+      stroke-width: 1.5;
+    }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      padding: var(--space-4xl) 0;
+      position: relative;
+    }
+
+    .cta-box {
+      background: var(--ocean);
+      color: var(--white);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-3xl) var(--space-2xl);
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-box .section-title { color: var(--white); }
+
+    .cta-box .section-desc {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: var(--space-xl);
+    }
+
+    .btn-cta {
+      background: var(--sand);
+      color: var(--black);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 18px 40px;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-lg);
+      cursor: pointer;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-cta:hover {
+      transform: translate(4px, 4px);
+      box-shadow: 4px 4px 0 var(--black);
+    }
+
+    .btn-cta:active {
+      transform: translate(8px, 8px);
+      box-shadow: 0 0 0 var(--black);
+    }
+
+    .cta-float-left {
+      position: absolute;
+      top: -20px;
+      left: -12px;
+      background: var(--coral);
+      color: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: 8px 18px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      transform: rotate(-6deg);
+    }
+
+    .cta-float-right {
+      position: absolute;
+      bottom: -18px;
+      right: -10px;
+      background: var(--mint);
+      color: var(--black);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: 8px 18px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      transform: rotate(4deg);
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--black);
+      color: var(--white);
+      border-top: var(--border-thick);
+      padding: var(--space-3xl) 0 var(--space-xl);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: var(--space-2xl);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .footer-brand {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      margin-bottom: var(--space-md);
+    }
+
+    .footer-brand span {
+      display: inline-block;
+      background: var(--ocean);
+      padding: 2px 8px;
+      border: 2px solid var(--white);
+      box-shadow: 3px 3px 0 rgba(255,255,255,0.3);
+      margin-left: 4px;
+      transform: rotate(-2deg);
+    }
+
+    .footer-tagline {
+      font-size: 0.9rem;
+      opacity: 0.6;
+      line-height: 1.6;
+      max-width: 320px;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-lg);
+      opacity: 0.5;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .footer-links a {
+      font-size: 0.9rem;
+      opacity: 0.75;
+      transition: opacity 200ms ease;
+    }
+
+    .footer-links a:hover { opacity: 1; }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: var(--space-xl);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      opacity: 0.5;
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    .footer-socials a {
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 200ms ease, background 200ms ease;
+      cursor: pointer;
+    }
+
+    .footer-socials a:hover {
+      border-color: var(--white);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .footer-socials svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--white);
+      fill: none;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .hero .container {
+        grid-template-columns: 1fr;
+        gap: var(--space-2xl);
+      }
+      .hero-visual { order: -1; }
+      .hero-card { max-width: 360px; margin: 0 auto; }
+
+      .boards-grid,
+      .steps-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-xl);
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --space-4xl: 64px;
+      }
+
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+
+      .stats .container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+      }
+
+      .boards-grid,
+      .steps-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .testimonial-card:nth-child(2),
+      .testimonial-card:nth-child(3) {
+        transform: none;
+      }
+
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: var(--space-md); text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 2rem; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+      .cta-float-left, .cta-float-right { display: none; }
+    }
+
+    /* ── FOCUS STATES ── */
+    :focus-visible {
+      outline: 3px solid var(--ocean);
+      outline-offset: 2px;
+    }
+
+    .btn:focus-visible,
+    .btn-cta:focus-visible,
+    .nav-cta:focus-visible {
+      outline: 3px solid var(--sand);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="#" class="nav-logo" aria-label="Wavebreak home">WAVE<span>BREAK</span></a>
+      <ul class="nav-links">
+        <li><a href="#boards">Boards</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#book" class="nav-cta">Book Now</a></li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content fade-up">
+        <div class="hero-badge">Season 2026 is Open</div>
+        <h1 class="hero-title">
+          Boards.<br>
+          <span class="highlight">Wetsuits.</span><br>
+          Delivered.
+        </h1>
+        <p class="hero-desc">
+          Premium surfboards for every skill level. Pick your board, hit the beach, and let the ocean do the rest. No hassle, no commitments.
+        </p>
+        <div class="hero-actions">
+          <a href="#boards" class="btn btn-primary">
+            Browse Boards
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="#how" class="btn btn-secondary">How It Works</a>
+        </div>
+      </div>
+
+      <div class="hero-visual fade-up" style="transition-delay: 150ms;">
+        <div class="hero-card">
+          <div class="hero-float-tag">Most Popular</div>
+          <div class="hero-card-img">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12C2 12 5 4 12 4C19 4 22 12 22 12"/>
+              <path d="M2 12C2 12 5 20 12 20C19 20 22 12 22 12"/>
+              <path d="M12 4V20"/>
+              <path d="M4 8L20 16"/>
+              <path d="M20 8L4 16"/>
+            </svg>
+            <svg class="wave-pattern" viewBox="0 0 400 60" preserveAspectRatio="none">
+              <path d="M0,30 Q50,5 100,30 T200,30 T300,30 T400,30 V60 H0 Z" fill="rgba(255,255,255,0.15)"/>
+              <path d="M0,40 Q50,20 100,40 T200,40 T300,40 T400,40 V60 H0 Z" fill="rgba(255,255,255,0.08)"/>
+            </svg>
+          </div>
+          <div class="hero-card-label">Longboard Classic</div>
+          <div class="hero-card-sub">9'2" &middot; Ideal for beginners &amp; cruising</div>
+          <div class="hero-card-price">&euro;35 <small>/day</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats" aria-label="Key statistics">
+    <div class="container">
+      <div class="fade-up">
+        <div class="stat-number">2<span class="accent">,</span>400<span class="accent">+</span></div>
+        <div class="stat-label">Happy Riders</div>
+      </div>
+      <div class="fade-up" style="transition-delay:80ms">
+        <div class="stat-number">50<span class="accent">+</span></div>
+        <div class="stat-label">Board Models</div>
+      </div>
+      <div class="fade-up" style="transition-delay:160ms">
+        <div class="stat-number">4<span class="accent">.</span>9</div>
+        <div class="stat-label">Avg. Rating</div>
+      </div>
+      <div class="fade-up" style="transition-delay:240ms">
+        <div class="stat-number">7</div>
+        <div class="stat-label">Beach Locations</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOARDS -->
+  <section class="boards" id="boards">
+    <div class="container">
+      <div class="section-header fade-up">
+        <div class="section-tag section-tag--ocean">Our Fleet</div>
+        <h2 class="section-title">Pick Your Ride</h2>
+        <p class="section-desc">From mellow longboards to high-performance shortboards. Every board is waxed, prepped, and ready for your session.</p>
+      </div>
+
+      <div class="boards-grid">
+        <article class="board-card fade-up">
+          <div class="board-card-img">
+            <img src="apps/web/public/images/rentals/8'6/picture(1).jpg" alt="8'6 Longboard">
+          </div>
+          <div class="board-card-body">
+            <h3 class="board-card-title">8'6 Longboard</h3>
+            <p class="board-card-desc">Stable, forgiving, and perfect for catching every wave. The go-to for beginners and soul surfers.</p>
+            <div class="board-card-footer">
+              <div class="board-card-price">&euro;35 <small>/day</small></div>
+              <span class="board-card-tag">Beginner</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="board-card fade-up" style="transition-delay:100ms">
+          <div class="board-card-img">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L8 22H16L12 2Z"/>
+              <path d="M10 8L14 8"/>
+              <path d="M9 14L15 14"/>
+            </svg>
+          </div>
+          <div class="board-card-body">
+            <h3 class="board-card-title">Funboard</h3>
+            <p class="board-card-desc">The sweet spot between stability and maneuverability. Great for intermediate riders looking to progress.</p>
+            <div class="board-card-footer">
+              <div class="board-card-price">&euro;40 <small>/day</small></div>
+              <span class="board-card-tag">Intermediate</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="board-card fade-up" style="transition-delay:200ms">
+          <div class="board-card-img">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1L9 23H15L12 1Z"/>
+              <path d="M10 5L14 5"/>
+              <path d="M10.5 10L13.5 10"/>
+            </svg>
+          </div>
+          <div class="board-card-body">
+            <h3 class="board-card-title">Shortboard</h3>
+            <p class="board-card-desc">Designed for speed, sharp turns, and aerial tricks. Built for experienced surfers chasing performance.</p>
+            <div class="board-card-footer">
+              <div class="board-card-price">&euro;45 <small>/day</small></div>
+              <span class="board-card-tag">Advanced</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="container">
+      <div class="section-header fade-up">
+        <div class="section-tag section-tag--sand">Simple as 1-2-3</div>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-desc">Get from booking to breaking waves in under 10 minutes. We handle the gear so you can focus on the stoke.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card fade-up">
+          <div class="step-number">01</div>
+          <h3 class="step-title">Choose Your Board</h3>
+          <p class="step-desc">Browse our collection online or walk into any of our beach-side locations. We help you find the right fit.</p>
+        </div>
+        <div class="step-card fade-up" style="transition-delay:100ms">
+          <div class="step-number">02</div>
+          <h3 class="step-title">Book &amp; Pay</h3>
+          <p class="step-desc">Reserve for an hour, a day, or a full week. Flexible pricing with no hidden fees. Pay online or on-site.</p>
+        </div>
+        <div class="step-card fade-up" style="transition-delay:200ms">
+          <div class="step-number">03</div>
+          <h3 class="step-title">Hit the Water</h3>
+          <p class="step-desc">Pick up your board, get a quick safety brief, and paddle out. Return it whenever you are done. That is it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="reviews">
+    <div class="container">
+      <div class="section-header fade-up">
+        <div class="section-tag section-tag--coral">Real Riders</div>
+        <h2 class="section-title">What They Say</h2>
+        <p class="section-desc">Do not take our word for it. Here is what surfers have to say after their sessions with us.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card fade-up">
+          <div class="testimonial-stars" aria-label="5 out of 5 stars">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          </div>
+          <p class="testimonial-quote">Rented a longboard for a full week. The board was in perfect condition and the staff was incredibly helpful with local spot recommendations.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MK</div>
+            <div>
+              <div class="testimonial-name">Mara K.</div>
+              <div class="testimonial-role">Fuerteventura, Apr 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card fade-up" style="transition-delay:100ms">
+          <div class="testimonial-stars" aria-label="5 out of 5 stars">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          </div>
+          <p class="testimonial-quote">First time surfing and they set me up with the perfect beginner board. Caught my first wave within an hour. Absolutely coming back next summer.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">JV</div>
+            <div>
+              <div class="testimonial-name">Joost V.</div>
+              <div class="testimonial-role">Scheveningen, Jul 2025</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card fade-up" style="transition-delay:200ms">
+          <div class="testimonial-stars" aria-label="5 out of 5 stars">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>
+          </div>
+          <p class="testimonial-quote">The shortboard selection is top-notch. Clean, well-maintained boards and the pickup process is seamless. Best rental experience in Europe.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SL</div>
+            <div>
+              <div class="testimonial-name">Sofia L.</div>
+              <div class="testimonial-role">Biarritz, Sep 2025</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta-banner" id="book">
+    <div class="container">
+      <div class="cta-box fade-up">
+        <div class="cta-float-left">Limited Stock</div>
+        <div class="cta-float-right">Free Wax Included</div>
+        <h2 class="section-title">Ready to<br>Paddle Out?</h2>
+        <p class="section-desc">Book your board in 30 seconds. Flexible cancellation. Premium gear, zero stress.</p>
+        <button class="btn-cta">
+          Reserve Your Board
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">WAVE<span>BREAK</span></div>
+          <p class="footer-tagline">Premium surf board rentals across Europe's best beaches. Ride better, worry less.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Explore</div>
+          <ul class="footer-links">
+            <li><a href="#boards">Our Boards</a></li>
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#">Locations</a></li>
+            <li><a href="#">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">Cancellation</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 Wavebreak. All rights reserved.</div>
+        <div class="footer-socials">
+          <a href="#" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" aria-label="Twitter / X">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16h-4.267z"/><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19.13C5.12 19.56 12 19.56 12 19.56s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.43z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+        menuBtn.setAttribute('aria-expanded', !expanded);
+        navLinks.style.display = expanded ? 'none' : 'flex';
+        if (!expanded) {
+          navLinks.style.position = 'absolute';
+          navLinks.style.top = '100%';
+          navLinks.style.left = '0';
+          navLinks.style.right = '0';
+          navLinks.style.background = 'var(--bg)';
+          navLinks.style.borderBottom = 'var(--border)';
+          navLinks.style.flexDirection = 'column';
+          navLinks.style.padding = 'var(--space-lg)';
+          navLinks.style.gap = 'var(--space-md)';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

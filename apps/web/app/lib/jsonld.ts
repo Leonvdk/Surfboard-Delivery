@@ -1,0 +1,291 @@
+import { SITE_URL } from "./metadata";
+
+export function localBusinessJsonLd() {
+	return {
+		"@context": "https://schema.org",
+		"@type": "LocalBusiness",
+		"@id": `${SITE_URL}/#business`,
+		name: "SurfRental Aljezur",
+		description:
+			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
+		url: SITE_URL,
+		email: "hello@surfrental.pt",
+		telephone: "+31613262259",
+		areaServed: [
+			{
+				"@type": "Place",
+				name: "Aljezur",
+				address: { "@type": "PostalAddress", addressLocality: "Aljezur", addressCountry: "PT" },
+			},
+			{
+				"@type": "Place",
+				name: "Arrifana",
+				address: { "@type": "PostalAddress", addressLocality: "Arrifana", addressCountry: "PT" },
+			},
+			{
+				"@type": "Place",
+				name: "Vale da Telha",
+				address: {
+					"@type": "PostalAddress",
+					addressLocality: "Vale da Telha",
+					addressCountry: "PT",
+				},
+			},
+			{
+				"@type": "Place",
+				name: "Monte Clérigo",
+				address: {
+					"@type": "PostalAddress",
+					addressLocality: "Monte Clérigo",
+					addressCountry: "PT",
+				},
+			},
+		],
+		address: {
+			"@type": "PostalAddress",
+			addressLocality: "Aljezur",
+			addressRegion: "Faro",
+			addressCountry: "PT",
+		},
+		geo: {
+			"@type": "GeoCoordinates",
+			latitude: 37.3178,
+			longitude: -8.8037,
+		},
+		priceRange: "€€",
+		currenciesAccepted: "EUR",
+		paymentAccepted: "Cash, MBWay, Bank Transfer",
+		hasOfferCatalog: {
+			"@type": "OfferCatalog",
+			name: "Surf Gear Rental Packages",
+			itemListElement: [
+				{
+					"@type": "Offer",
+					name: "Board Only — Weekly",
+					description: "Surfboard rental for 1 week with leash, wax, and free delivery and pickup.",
+					price: "85",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Weekly Surfboard Rental",
+						category: "Surf Equipment Rental",
+					},
+				},
+				{
+					"@type": "Offer",
+					name: "Full Package — Board + Wetsuit — Weekly",
+					description: "Surfboard and wetsuit rental for 1 week with free delivery and pickup.",
+					price: "120",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Weekly Surfboard & Wetsuit Rental",
+						category: "Surf Equipment Rental",
+					},
+				},
+				{
+					"@type": "Offer",
+					name: "Premium Package — Board + Wetsuit + Changing Tub + Roof Rack — Weekly",
+					description:
+						"Complete surf trip bundle: surfboard, wetsuit, changing tub, and roof rack pads for 1 week with free delivery and pickup.",
+					price: "150",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Weekly Premium Surf Rental Bundle",
+						category: "Surf Equipment Rental",
+					},
+				},
+				{
+					"@type": "Offer",
+					name: "Board Only — Daily",
+					description: "Surfboard rental per day (3-day minimum) with free delivery and pickup.",
+					price: "25",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Daily Surfboard Rental",
+						category: "Surf Equipment Rental",
+					},
+				},
+				{
+					"@type": "Offer",
+					name: "Full Package — Board + Wetsuit — Daily",
+					description: "Surfboard and wetsuit rental per day (3-day minimum) with free delivery and pickup.",
+					price: "35",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Daily Surfboard & Wetsuit Rental",
+						category: "Surf Equipment Rental",
+					},
+				},
+				{
+					"@type": "Offer",
+					name: "Premium Package — Daily",
+					description:
+						"Complete surf trip bundle per day (3-day minimum): surfboard, wetsuit, changing tub, and roof rack pads.",
+					price: "45",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Daily Premium Surf Rental Bundle",
+						category: "Surf Equipment Rental",
+					},
+				},
+				{
+					"@type": "Offer",
+					name: "Extended Stay — Full Package — 2 Weeks",
+					description:
+						"Surfboard and wetsuit rental for 2 weeks with free delivery, pickup, and a mid-stay board swap.",
+					price: "199",
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: "2026-12-31",
+					itemOffered: {
+						"@type": "Product",
+						name: "Two-Week Surfboard & Wetsuit Rental",
+						category: "Surf Equipment Rental",
+					},
+				},
+			],
+		},
+	};
+}
+
+export function faqJsonLd(items: Array<{ question: string; answer: string }>) {
+	return {
+		"@context": "https://schema.org",
+		"@type": "FAQPage",
+		mainEntity: items.map((item) => ({
+			"@type": "Question",
+			name: item.question,
+			acceptedAnswer: {
+				"@type": "Answer",
+				text: item.answer,
+			},
+		})),
+	};
+}
+
+export function breadcrumbJsonLd(items: Array<{ name: string; url: string }>) {
+	return {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: items.map((item, index) => ({
+			"@type": "ListItem",
+			position: index + 1,
+			name: item.name,
+			item: item.url,
+		})),
+	};
+}
+
+export function reviewJsonLd(reviews: Array<{ author: string; rating: number; body: string }>) {
+	const ratingValues = reviews.map((r) => r.rating);
+	const avg = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+
+	return {
+		"@context": "https://schema.org",
+		"@type": "LocalBusiness",
+		"@id": `${SITE_URL}/#business`,
+		name: "SurfRental Aljezur",
+		aggregateRating: {
+			"@type": "AggregateRating",
+			ratingValue: avg.toFixed(1),
+			reviewCount: reviews.length,
+			bestRating: "5",
+			worstRating: "1",
+		},
+		review: reviews.map((r) => ({
+			"@type": "Review",
+			author: { "@type": "Person", name: r.author },
+			reviewRating: {
+				"@type": "Rating",
+				ratingValue: r.rating,
+				bestRating: "5",
+			},
+			reviewBody: r.body,
+		})),
+	};
+}
+
+export function organizationJsonLd() {
+	return {
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		name: "SurfRental Aljezur",
+		url: SITE_URL,
+		description:
+			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
+		address: {
+			"@type": "PostalAddress",
+			addressLocality: "Aljezur",
+			addressRegion: "Faro",
+			addressCountry: "PT",
+		},
+		areaServed: {
+			"@type": "Place",
+			name: "Costa Vicentina, Algarve, Portugal",
+		},
+	};
+}
+
+export function articleJsonLd({
+	title,
+	description,
+	url,
+	datePublished,
+}: {
+	title: string;
+	description: string;
+	url: string;
+	datePublished: string;
+}) {
+	return {
+		"@context": "https://schema.org",
+		"@type": "Article",
+		headline: title,
+		description,
+		url,
+		datePublished,
+		author: {
+			"@type": "Organization",
+			name: "SurfRental Aljezur",
+			url: SITE_URL,
+		},
+		publisher: {
+			"@type": "Organization",
+			name: "SurfRental Aljezur",
+			url: SITE_URL,
+		},
+	};
+}
+
+export function webSiteJsonLd() {
+	return {
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		name: "SurfRental Aljezur",
+		url: SITE_URL,
+		description:
+			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha.",
+		potentialAction: {
+			"@type": "SearchAction",
+			target: `${SITE_URL}/surf-spots`,
+			"query-input": "required name=search_term_string",
+		},
+	};
+}
