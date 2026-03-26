@@ -28,6 +28,6 @@ export default function robots(): MetadataRoute.Robots {
 				allow: "/",
 			},
 		],
-		sitemap: "https://surfrental.pt/sitemap.xml",
+		sitemap: "https://surfrental-aljezur.com/sitemap.xml",
 	};
 }

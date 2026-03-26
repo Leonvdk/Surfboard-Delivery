@@ -76,8 +76,8 @@ SurfRental is a surf gear rental service based in the Aljezur area of Portugal's
 
 - Email: hello@surfrental-aljezur.com
 - WhatsApp: https://wa.me/31613262259
-- Website: https://surfrental.pt
-- Contact form: https://surfrental.pt/contact
+- Website: https://surfrental-aljezur.com
+- Contact form: https://surfrental-aljezur.com/contact
 
 ## Language
 
@@ -85,15 +85,15 @@ Primary language: English
 
 ## Pages
 
-- Home: https://surfrental.pt
-- Surf Gear: https://surfrental.pt/surf-gear
-- Pricing: https://surfrental.pt/pricing
-- Surf Spots Guide: https://surfrental.pt/surf-spots
-- How It Works: https://surfrental.pt/how-it-works
-- Blog: https://surfrental.pt/blog
-- About: https://surfrental.pt/about
-- Reviews: https://surfrental.pt/reviews
-- Group Bookings: https://surfrental.pt/group-bookings
-- Gift Vouchers: https://surfrental.pt/gift-vouchers
-- Contact: https://surfrental.pt/contact
-- FAQ: https://surfrental.pt/faq
+- Home: https://surfrental-aljezur.com
+- Surf Gear: https://surfrental-aljezur.com/surf-gear
+- Pricing: https://surfrental-aljezur.com/pricing
+- Surf Spots Guide: https://surfrental-aljezur.com/surf-spots
+- How It Works: https://surfrental-aljezur.com/how-it-works
+- Blog: https://surfrental-aljezur.com/blog
+- About: https://surfrental-aljezur.com/about
+- Reviews: https://surfrental-aljezur.com/reviews
+- Group Bookings: https://surfrental-aljezur.com/group-bookings
+- Gift Vouchers: https://surfrental-aljezur.com/gift-vouchers
+- Contact: https://surfrental-aljezur.com/contact
+- FAQ: https://surfrental-aljezur.com/faq

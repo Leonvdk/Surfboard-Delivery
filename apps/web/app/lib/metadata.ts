@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const SITE_URL = "https://surfrental.pt";
+const SITE_URL = "https://surfrental-aljezur.com";
 const SITE_NAME = "SurfRental Aljezur";
 const DEFAULT_DESCRIPTION =
 	"Rent surfboards and wetsuits delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha. Minimum one-week rental with free delivery and pickup on the Costa Vicentina.";
