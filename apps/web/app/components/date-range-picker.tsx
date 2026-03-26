@@ -54,13 +54,16 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
 	const [open, setOpen] = useState(false);
 	const [hovered, setHovered] = useState<Date | null>(null);
+	const [mounted, setMounted] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => setMounted(true), []);
 
 	const today = useMemo(() => {
 		const d = new Date();
 		d.setHours(0, 0, 0, 0);
 		return d;
-	}, []);
+	}, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const minDate = useMemo(() => {
 		const d = new Date(today);
@@ -71,10 +74,12 @@ export function DateRangePicker({
 	const startDate = parseDate(checkin);
 	const endDate = parseDate(checkout);
 
-	const [viewMonth, setViewMonth] = useState(() => {
+	const [viewMonth, setViewMonth] = useState({ year: 0, month: 0 });
+
+	useEffect(() => {
 		const d = startDate || minDate;
-		return { year: d.getFullYear(), month: d.getMonth() };
-	});
+		setViewMonth({ year: d.getFullYear(), month: d.getMonth() });
+	}, [mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const days = useMemo(() => daysBetween(startDate || today, endDate || today), [startDate, endDate, today]);
 	const tooShort = startDate && endDate && days < MIN_DAYS;

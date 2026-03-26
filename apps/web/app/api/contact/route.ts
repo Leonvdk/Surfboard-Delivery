@@ -11,7 +11,7 @@ function getResend() {
 }
 
 const BUSINESS_EMAIL = "hello@surfrental-aljezur.com";
-const FROM_EMAIL = "SurfRental Aljezur <bookings@surfrental.pt>";
+const FROM_EMAIL = "SurfRental Aljezur <hello@surfrental-aljezur.com>";
 
 interface PersonData {
 	sex: string;
@@ -234,9 +234,10 @@ export async function POST(request: Request) {
 		]);
 
 		if (businessResult.error || customerResult.error) {
-			console.error("Resend error:", businessResult.error || customerResult.error);
+			const resendErr = businessResult.error || customerResult.error;
+			console.error("Resend error:", JSON.stringify(resendErr));
 			return NextResponse.json(
-				{ error: "Failed to send email" },
+				{ error: "Failed to send email", details: resendErr },
 				{ status: 500 },
 			);
 		}
