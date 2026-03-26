@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import BlogCtaPopup from "../components/blog-cta-popup";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { getAllPosts } from "../lib/blog";
+import { getAllPosts, getAllTags } from "../lib/blog";
 import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
@@ -29,6 +31,7 @@ function formatDate(dateStr: string): string {
 
 export default function BlogPage() {
 	const posts = getAllPosts();
+	const tags = getAllTags();
 
 	return (
 		<>
@@ -42,6 +45,7 @@ export default function BlogPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Blog" }]} />
 						<div>
 							<h1>Blog</h1>
 							<p className="page-hero-sub">
@@ -50,6 +54,21 @@ export default function BlogPage() {
 							</p>
 						</div>
 					</Reveal>
+					{tags.length > 0 && (
+						<Reveal>
+							<div className="blog-tag-filters">
+								{tags.map((tag) => (
+									<Link
+										key={tag}
+										href={`/blog/tag/${encodeURIComponent(tag)}`}
+										className="blog-tag"
+									>
+										{tag}
+									</Link>
+								))}
+							</div>
+						</Reveal>
+					)}
 				</div>
 			</section>
 
@@ -72,20 +91,30 @@ export default function BlogPage() {
 										href={`/blog/${post.slug}`}
 										className="blog-card"
 									>
-										<time className="blog-card-date" dateTime={post.date}>
-											{formatDate(post.date)}
-										</time>
+										{post.emoji && (
+											<span className="blog-card-emoji">{post.emoji}</span>
+										)}
+										<div className="blog-card-meta">
+											<time className="blog-card-date" dateTime={post.date}>
+												{formatDate(post.date)}
+											</time>
+											<span className="blog-card-dot">·</span>
+											<span className="blog-card-read">{post.readingTime} min read</span>
+										</div>
 										<h3>{post.title}</h3>
 										<p>{post.description}</p>
-										{post.tags.length > 0 && (
-											<div className="blog-card-tags">
-												{post.tags.map((tag) => (
-													<span key={tag} className="blog-tag">
-														{tag}
-													</span>
-												))}
-											</div>
-										)}
+										<div className="blog-card-bottom">
+											{post.tags.length > 0 && (
+												<div className="blog-card-tags">
+													{post.tags.map((tag) => (
+														<span key={tag} className="blog-tag">
+															{tag}
+														</span>
+													))}
+												</div>
+											)}
+											<span className="blog-card-arrow" aria-hidden="true">→</span>
+										</div>
 									</Link>
 								))}
 							</div>
@@ -93,6 +122,8 @@ export default function BlogPage() {
 					)}
 				</div>
 			</section>
+
+			<BlogCtaPopup />
 		</>
 	);
 }

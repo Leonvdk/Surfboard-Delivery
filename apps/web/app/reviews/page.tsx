@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
@@ -95,6 +96,7 @@ export default function ReviewsPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Reviews" }]} />
 						<div>
 							<h1>Don&apos;t take our word for it</h1>
 							<p className="page-hero-sub">

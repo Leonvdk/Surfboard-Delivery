@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { BoardCalculator } from "../components/board-calculator";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
@@ -65,6 +66,7 @@ export default function SurfGearPage() {
 			<section className="page-hero" aria-labelledby="guide-heading">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Surf Gear" }]} />
 						<div className="section-header">
 							<p className="section-label">Board finder</p>
 							<h1 className="section-title" id="guide-heading">

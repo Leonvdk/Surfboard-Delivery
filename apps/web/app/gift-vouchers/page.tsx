@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
@@ -33,6 +34,7 @@ export default function GiftVouchersPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Gift Vouchers" }]} />
 						<div>
 							<h1>Give the gift of waves</h1>
 							<p className="page-hero-sub">

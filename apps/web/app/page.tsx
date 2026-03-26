@@ -186,9 +186,9 @@ export default function Home() {
 									<div>
 										<h3 className="step-title">Choose your board</h3>
 										<p className="step-desc">
-											Browse online or visit any of our seven beach-side
-											locations. We help you find the right shape for your
-											level and conditions.
+											Browse our boards online and tell us your level.
+											We'll recommend the right shape for the conditions
+											and deliver it to your door.
 										</p>
 									</div>
 								</div>

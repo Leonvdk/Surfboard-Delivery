@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import BlogCtaPopup from "../../components/blog-cta-popup";
+import { Breadcrumbs } from "../../components/breadcrumbs";
 import { CtaSection } from "../../components/cta-section";
 import { JsonLd } from "../../components/json-ld";
 import { mdxComponents } from "../../components/mdx-components";
@@ -33,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 			url: `${SITE_URL}/blog/${slug}`,
 			type: "article",
 			publishedTime: post.date,
+			modifiedTime: post.updated !== post.date ? post.updated : undefined,
 		},
 	};
 }
@@ -65,25 +67,37 @@ export default async function BlogPostPage({ params }: Props) {
 					description: post.description,
 					url: `${SITE_URL}/blog/${slug}`,
 					datePublished: post.date,
+					dateModified: post.updated,
 				})}
 			/>
 
-			<section className="section" style={{ paddingTop: "var(--space-10)" }}>
+			<section className="section" style={{ paddingTop: 100 }}>
 				<div className="container">
 					<Reveal>
-						<nav className="blog-breadcrumbs" aria-label="Breadcrumb">
-							<Link href="/">Home</Link>
-							<span>/</span>
-							<Link href="/blog">Blog</Link>
-							<span>/</span>
-							<span>{post.title}</span>
-						</nav>
+						<Breadcrumbs
+							items={[
+								{ label: "Home", href: "/" },
+								{ label: "Blog", href: "/blog" },
+								{ label: post.title },
+							]}
+						/>
 					</Reveal>
 					<Reveal>
 						<header className="blog-post-header">
-							<time className="blog-post-date" dateTime={post.date}>
-								{formatDate(post.date)}
-							</time>
+							{post.emoji && (
+								<span className="blog-post-emoji">{post.emoji}</span>
+							)}
+							<div className="blog-post-meta">
+								<time className="blog-post-date" dateTime={post.date}>
+									{formatDate(post.date)}
+								</time>
+								{post.updated && post.updated !== post.date && (
+									<span className="blog-post-updated">
+										· Updated {formatDate(post.updated)}
+									</span>
+								)}
+								<span className="blog-post-read">· {post.readingTime} min read</span>
+							</div>
 							<h1 className="blog-post-title">{post.title}</h1>
 							<p className="blog-post-description">{post.description}</p>
 							{post.tags.length > 0 && (
@@ -109,6 +123,8 @@ export default async function BlogPostPage({ params }: Props) {
 			</section>
 
 			<CtaSection />
+
+			<BlogCtaPopup />
 		</>
 	);
 }

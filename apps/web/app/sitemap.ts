@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts } from "./lib/blog";
+import { getAllPosts, getAllTags } from "./lib/blog";
 import { SITE_URL } from "./lib/metadata";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -114,5 +114,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			priority: 0.6,
 		}));
 
-	return [...staticPages, ...blogPages];
+	const tagPages: MetadataRoute.Sitemap = getAllTags().map((tag) => ({
+		url: `${SITE_URL}/blog/tag/${encodeURIComponent(tag)}`,
+		lastModified,
+		changeFrequency: "weekly" as const,
+		priority: 0.4,
+	}));
+
+	return [...staticPages, ...blogPages, ...tagPages];
 }

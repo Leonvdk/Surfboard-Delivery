@@ -39,11 +39,20 @@ export const baseMetadata: Metadata = {
 		siteName: SITE_NAME,
 		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
 		description: DEFAULT_DESCRIPTION,
+		images: [
+			{
+				url: "/images/open-graph.jpg",
+				width: 1200,
+				height: 630,
+				alt: "SurfRental Aljezur — Surfboard & Wetsuit Rental on the Costa Vicentina",
+			},
+		],
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered",
 		description: DEFAULT_DESCRIPTION,
+		images: ["/images/open-graph.jpg"],
 	},
 	alternates: {
 		canonical: SITE_URL,

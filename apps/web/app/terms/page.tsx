@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { breadcrumbJsonLd } from "../lib/jsonld";
@@ -25,6 +26,9 @@ export default function TermsPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs
+							items={[{ label: "Home", href: "/" }, { label: "Terms & Conditions" }]}
+						/>
 						<div>
 							<h1>Terms &amp; conditions</h1>
 							<p className="page-hero-sub">

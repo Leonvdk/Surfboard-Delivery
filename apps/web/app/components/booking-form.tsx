@@ -586,10 +586,16 @@ export function BookingForm() {
 					</svg>
 				</div>
 				<h3 className="form-success-title">Request received!</h3>
+				{estimate.allSelected && (
+					<div className="form-success-price">
+						<span className="form-success-price-label">Estimated total</span>
+						<span className="form-success-price-amount">&euro;{estimate.total}</span>
+					</div>
+				)}
 				<p className="form-success-text">
 					Thanks — we&apos;ve sent you a confirmation email with your booking
-					details. We&apos;ll get back to you within 24 hours with availability
-					and a gear recommendation.
+					details. We&apos;ll get back to you within 24 hours with availability,
+					a gear recommendation, and final pricing.
 				</p>
 				<p className="form-success-sub">
 					Check your spam folder if you don&apos;t see our email.
@@ -668,21 +674,31 @@ export function BookingForm() {
 											))}
 										</select>
 									</div>
-									<div className="form-group">
-										<label htmlFor={`package-${i}`}>Package</label>
-										<select
-											id={`package-${i}`}
-											name={`person_${i + 1}_package`}
-											required
-											value={person.package}
-											onChange={(e) => updatePerson(i, "package", e.target.value)}
-										>
-											<option value="">Select a package</option>
-											{pkgOptions.map((o) => (
-												<option key={o.value} value={o.value}>{o.label}</option>
-											))}
-										</select>
-									</div>
+								<div className="form-group">
+									<label htmlFor={`package-${i}`}>Package</label>
+									<select
+										id={`package-${i}`}
+										name={`person_${i + 1}_package`}
+										required
+										value={person.package}
+										onChange={(e) => updatePerson(i, "package", e.target.value)}
+									>
+										<option value="">Select a package</option>
+										{pkgOptions.map((o) => (
+											<option key={o.value} value={o.value}>{o.label}</option>
+										))}
+									</select>
+									{(() => {
+										const sel = pkgOptions.find((o) => o.value === person.package);
+										if (!sel?.pricePerPerson) return null;
+										const isExtended = days !== null && days >= 10;
+										return (
+											<span className="package-price-tag">
+												&euro;{sel.pricePerPerson}{isExtended ? " for 2 weeks" : "/week"} per person
+											</span>
+										);
+									})()}
+								</div>
 									<div className="form-group">
 										<label htmlFor={`board-${i}`}>Board size</label>
 										<select

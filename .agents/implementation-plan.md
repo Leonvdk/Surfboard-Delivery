@@ -421,15 +421,15 @@ Week 7+: Continue Phase 1/2 content calendar, begin Phase 2 content
 | `apps/web/app/globals.css` | DONE — fixed Wavebreak → SurfRental in CSS comment |
 | `apps/web/app/api/contact/route.ts` | DONE — fixed Wavebreak → SurfRental in both email templates |
 | `apps/web/public/llms.txt` | DONE — added WhatsApp, blog/about/reviews URLs, language declaration |
-| `apps/web/app/components/nav.tsx` | TODO — add Blog link |
-| `apps/web/app/components/breadcrumbs.tsx` | TODO — create breadcrumbs component |
-| `apps/web/app/blog/tag/[tag]/page.tsx` | TODO — create tag archive pages |
-| `apps/web/app/blog/[slug]/page.tsx` | TODO — add breadcrumbs, related posts, last updated |
-| `apps/web/app/lib/blog.ts` | TODO — add `updated` field support |
-| `apps/web/app/lib/metadata.ts` | TODO — add default OG image (`openGraph.images`) |
+| `apps/web/app/components/nav.tsx` | DONE — added Blog link to main navigation |
+| `apps/web/app/components/breadcrumbs.tsx` | DONE — reusable Breadcrumbs component, added to all 16 subpages |
+| `apps/web/app/blog/tag/[tag]/page.tsx` | DONE — tag archive pages with generateStaticParams, metadata, breadcrumbs |
+| `apps/web/app/blog/[slug]/page.tsx` | DONE — breadcrumbs, dateModified in JSON-LD + OG, "Last updated" display. TODO — related posts |
+| `apps/web/app/lib/blog.ts` | DONE — `updated` field in PostMeta, `getAllTags()`, `getPostsByTag()` |
+| `apps/web/app/lib/metadata.ts` | DONE — default OG image (`/images/open-graph.jpg`) in openGraph.images + twitter.images |
 | `apps/web/app/surf-spots/[spot]/page.tsx` | TODO — create spot detail pages (use `Place` schema, not `LocalBusiness` per spot) |
 | `apps/web/app/lib/surf-spots.ts` | TODO — create spot data |
 | `apps/web/app/components/related-posts.tsx` | TODO — create related posts component |
 | `apps/web/app/blog/feed.xml/route.ts` | TODO — create RSS feed |
-| `apps/web/content/blog/what-surfboard-should-i-rent.mdx` | TODO — fix inventory mismatch (describes 8'0, fibreglass boards not in actual stock) |
+| `apps/web/content/blog/what-surfboard-should-i-rent.mdx` | DONE — fixed inventory to match actual quiver (6'6, 7'0, 7'8, 8'6 soft tops only) |
 | `apps/web/content/blog/*.mdx` | TODO — new posts per content calendar |

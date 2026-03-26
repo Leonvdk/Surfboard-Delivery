@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
@@ -100,6 +101,7 @@ export default function SurfSpotsPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Surf Spots" }]} />
 						<div>
 							<h1>Surf spots near Aljezur</h1>
 							<p className="page-hero-sub">

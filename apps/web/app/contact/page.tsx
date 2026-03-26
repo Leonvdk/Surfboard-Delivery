@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { BookingForm } from "../components/booking-form";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
@@ -31,6 +32,7 @@ export default function ContactPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
 						<div>
 							<h1>Book your surf gear</h1>
 							<p className="page-hero-sub">

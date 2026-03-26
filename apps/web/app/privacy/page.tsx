@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { breadcrumbJsonLd } from "../lib/jsonld";
@@ -25,6 +26,7 @@ export default function PrivacyPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Privacy Policy" }]} />
 						<div>
 							<h1>Privacy policy</h1>
 							<p className="page-hero-sub">

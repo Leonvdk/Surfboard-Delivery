@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { PricingToggle } from "../components/pricing-toggle";
@@ -35,6 +36,7 @@ export default function PricingPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
+						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Pricing" }]} />
 						<div>
 							<h1>Simple, transparent pricing</h1>
 							<p className="page-hero-sub">
