@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const STORAGE_KEY = "blog-cta-dismissed";
 const SCROLL_THRESHOLD = 0.4;
 const MIN_TIME_ON_PAGE_MS = 15_000;
 
@@ -26,20 +25,10 @@ export default function BlogCtaPopup() {
 			setVisible(false);
 			setClosing(false);
 			dismissedRef.current = true;
-			try {
-				sessionStorage.setItem(STORAGE_KEY, "1");
-			} catch {}
 		}, 300);
 	}, []);
 
 	useEffect(() => {
-		try {
-			if (sessionStorage.getItem(STORAGE_KEY) === "1") {
-				dismissedRef.current = true;
-				return;
-			}
-		} catch {}
-
 		const timer = setTimeout(() => {
 			timerMetRef.current = true;
 			show();

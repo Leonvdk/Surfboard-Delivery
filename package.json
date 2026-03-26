@@ -10,9 +10,9 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
-    "turbo": "^2.8.17",
-    "typescript": "5.9.2"
+    "@biomejs/biome": "^2.4.9",
+    "turbo": "^2.8.20",
+    "typescript": "6.0.2"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {
