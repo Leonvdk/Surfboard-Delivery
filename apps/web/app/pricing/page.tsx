@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { PricingToggle } from "../components/pricing-toggle";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 import { prices } from "../lib/pricing";
 
@@ -25,18 +23,11 @@ export const metadata: Metadata = {
 export default function PricingPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Pricing", url: `${SITE_URL}/pricing` },
-				])}
-			/>
 			<JsonLd data={pricingProductJsonLd()} />
 
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Pricing" }]} />
 						<div>
 							<h1>Simple, transparent pricing</h1>
 							<p className="page-hero-sub">

@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -23,17 +20,9 @@ export const metadata: Metadata = {
 export default function SustainabilityPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Sustainability", url: `${SITE_URL}/sustainability` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Sustainability" }]} />
 						<div>
 							<h1>We surf here. We protect here.</h1>
 							<p className="page-hero-sub">

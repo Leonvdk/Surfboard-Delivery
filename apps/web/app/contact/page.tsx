@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { BookingForm } from "../components/booking-form";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -22,17 +19,9 @@ export const metadata: Metadata = {
 export default function ContactPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Contact", url: `${SITE_URL}/contact` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
 						<div>
 							<h1>Book your surf gear</h1>
 							<p className="page-hero-sub">

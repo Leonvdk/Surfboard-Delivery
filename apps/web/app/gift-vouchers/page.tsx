@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 import { prices } from "../lib/pricing";
 
@@ -24,17 +21,9 @@ export const metadata: Metadata = {
 export default function GiftVouchersPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Gift Vouchers", url: `${SITE_URL}/gift-vouchers` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Gift Vouchers" }]} />
 						<div>
 							<h1>Give the gift of waves</h1>
 							<p className="page-hero-sub">

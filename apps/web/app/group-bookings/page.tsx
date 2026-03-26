@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 import { getGroupPrice } from "../lib/pricing";
 
@@ -24,17 +21,9 @@ export const metadata: Metadata = {
 export default function GroupBookingsPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Group Bookings", url: `${SITE_URL}/group-bookings` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Group Bookings" }]} />
 						<div>
 							<h1>Gear for the whole crew</h1>
 							<p className="page-hero-sub">

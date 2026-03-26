@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import BlogCtaPopup from "../../components/blog-cta-popup";
 import { Breadcrumbs } from "../../components/breadcrumbs";
 import { CtaSection } from "../../components/cta-section";
@@ -74,20 +75,15 @@ export default async function BlogPostPage({ params }: Props) {
 			<section className="section" style={{ paddingTop: 100 }}>
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs
-							items={[
-								{ label: "Home", href: "/" },
-								{ label: "Blog", href: "/blog" },
-								{ label: post.title },
-							]}
-						/>
-					</Reveal>
-					<Reveal>
 						<header className="blog-post-header">
-							{post.emoji && (
-								<span className="blog-post-emoji">{post.emoji}</span>
-							)}
-							<div className="blog-post-meta">
+							<Breadcrumbs
+								items={[
+									{ label: "Home", href: "/" },
+									{ label: "Blog", href: "/blog" },
+									{ label: post.title },
+								]}
+							/>
+													<div className="blog-post-meta">
 								<time className="blog-post-date" dateTime={post.date}>
 									{formatDate(post.date)}
 								</time>
@@ -114,11 +110,9 @@ export default async function BlogPostPage({ params }: Props) {
 
 					<HorizonLine />
 
-					<Reveal>
-						<article className="blog-post-body">
-							<MDXRemote source={post.content} components={mdxComponents} />
-						</article>
-					</Reveal>
+					<article className="blog-post-body">
+						<MDXRemote source={post.content} components={mdxComponents} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
+					</article>
 				</div>
 			</section>
 

@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -91,17 +88,9 @@ const spots = [
 export default function SurfSpotsPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Surf Spots Guide", url: `${SITE_URL}/surf-spots` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Surf Spots" }]} />
 						<div>
 							<h1>Surf spots near Aljezur</h1>
 							<p className="page-hero-sub">

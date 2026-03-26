@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { BoardCalculator } from "../components/board-calculator";
 import { CtaSection } from "../components/cta-section";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -55,18 +52,10 @@ const boards = [
 export default function SurfGearPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Surf Gear", url: `${SITE_URL}/surf-gear` },
-				])}
-			/>
-
 			{/* Board size calculator */}
 			<section className="page-hero" aria-labelledby="guide-heading">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Surf Gear" }]} />
 						<div className="section-header">
 							<p className="section-label">Board finder</p>
 							<h1 className="section-title" id="guide-heading">

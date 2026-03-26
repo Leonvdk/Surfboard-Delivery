@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
-import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
 	title: "Privacy Policy",
@@ -16,17 +12,9 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Privacy Policy", url: `${SITE_URL}/privacy` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Privacy Policy" }]} />
 						<div>
 							<h1>Privacy policy</h1>
 							<p className="page-hero-sub">

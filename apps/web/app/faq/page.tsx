@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd, faqJsonLd } from "../lib/jsonld";
+import { faqJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -86,18 +85,11 @@ const faqs = [
 export default function FaqPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "FAQ", url: `${SITE_URL}/faq` },
-				])}
-			/>
 			<JsonLd data={faqJsonLd(faqs)} />
 
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "FAQ" }]} />
 						<div>
 							<h1>Frequently asked questions</h1>
 							<p className="page-hero-sub">

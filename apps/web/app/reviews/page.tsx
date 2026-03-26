@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Breadcrumbs } from "../components/breadcrumbs";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { StarRating } from "../components/star-rating";
-import { breadcrumbJsonLd, reviewJsonLd } from "../lib/jsonld";
+import { reviewJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -82,12 +81,6 @@ export default function ReviewsPage() {
 	return (
 		<>
 			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Reviews", url: `${SITE_URL}/reviews` },
-				])}
-			/>
-			<JsonLd
 				data={reviewJsonLd(
 					reviews.map((r) => ({ author: r.author, rating: r.rating, body: r.body })),
 				)}
@@ -96,7 +89,6 @@ export default function ReviewsPage() {
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Reviews" }]} />
 						<div>
 							<h1>Don&apos;t take our word for it</h1>
 							<p className="page-hero-sub">

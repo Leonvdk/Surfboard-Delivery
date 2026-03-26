@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/breadcrumbs";
-import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { breadcrumbJsonLd } from "../lib/jsonld";
-import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
 	title: "Terms & Conditions",
@@ -16,19 +12,9 @@ export const metadata: Metadata = {
 export default function TermsPage() {
 	return (
 		<>
-			<JsonLd
-				data={breadcrumbJsonLd([
-					{ name: "Home", url: SITE_URL },
-					{ name: "Terms & Conditions", url: `${SITE_URL}/terms` },
-				])}
-			/>
-
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
-						<Breadcrumbs
-							items={[{ label: "Home", href: "/" }, { label: "Terms & Conditions" }]}
-						/>
 						<div>
 							<h1>Terms &amp; conditions</h1>
 							<p className="page-hero-sub">

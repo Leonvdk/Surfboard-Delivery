@@ -46,4 +46,24 @@ export const mdxComponents: MDXComponents = {
 		<strong className="blog-post-strong" {...props} />
 	),
 	hr: () => <hr className="blog-post-hr" />,
+	table: (props: HTMLAttributes<HTMLTableElement>) => (
+		<div className="blog-post-table-wrap">
+			<table className="blog-post-table" {...props} />
+		</div>
+	),
+	thead: (props: HTMLAttributes<HTMLTableSectionElement>) => (
+		<thead className="blog-post-thead" {...props} />
+	),
+	tbody: (props: HTMLAttributes<HTMLTableSectionElement>) => (
+		<tbody className="blog-post-tbody" {...props} />
+	),
+	tr: (props: HTMLAttributes<HTMLTableRowElement>) => (
+		<tr className="blog-post-tr" {...props} />
+	),
+	th: (props: HTMLAttributes<HTMLTableCellElement>) => (
+		<th className="blog-post-th" {...props} />
+	),
+	td: (props: HTMLAttributes<HTMLTableCellElement>) => (
+		<td className="blog-post-td" {...props} />
+	),
 };
