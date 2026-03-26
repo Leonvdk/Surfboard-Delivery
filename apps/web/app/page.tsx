@@ -8,9 +8,9 @@ import { StarRating } from "./components/star-rating";
 import { prices } from "./lib/pricing";
 
 export const metadata: Metadata = {
-	title: "Wavebreak — Surf Board Rentals",
+	title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
 	description:
-		"Premium surf board rentals. Choose your shape, book in seconds, paddle out in minutes.",
+		"Rent surfboards and wetsuits delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha. Free delivery and pickup on the Costa Vicentina.",
 	alternates: { canonical: "/" },
 };
 

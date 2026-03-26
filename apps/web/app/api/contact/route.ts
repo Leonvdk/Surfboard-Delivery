@@ -30,6 +30,7 @@ interface BookingRequest {
 	peopleCount: number;
 	people: PersonData[];
 	message: string;
+	estimatedTotal: number | null;
 }
 
 function formatPerson(p: PersonData, i: number): string {
@@ -60,6 +61,8 @@ function formatPersonHtml(p: PersonData, i: number): string {
 function buildBusinessEmail(data: BookingRequest): { subject: string; text: string; html: string } {
 	const subject = `New booking request from ${data.name} (${data.checkin} → ${data.checkout})`;
 
+	const totalLine = data.estimatedTotal != null ? `Estimated total: €${data.estimatedTotal}` : "Estimated total: Not available (custom package selected)";
+
 	const text = `New booking request
 
 Name: ${data.name}
@@ -68,6 +71,7 @@ Delivery: ${data.checkin}
 Pickup: ${data.checkout}
 Accommodation: ${data.accommodation}
 People: ${data.peopleCount}
+${totalLine}
 
 ${data.people.map((p, i) => formatPerson(p, i)).join("\n\n")}
 
@@ -83,7 +87,7 @@ Reply directly to this email to reach the customer.`;
   <div style="max-width:560px;margin:0 auto;padding:0 16px;">
     <!-- Header -->
     <div style="margin-bottom:24px;">
-      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">Wavebreak</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">SurfRental Aljezur</span>
     </div>
 
     <!-- Card -->
@@ -100,6 +104,11 @@ Reply directly to this email to reach the customer.`;
         ${row("People", String(data.peopleCount))}
         ${data.people.map((p, i) => formatPersonHtml(p, i)).join("")}
       </table>
+
+      <div style="margin-top:20px;padding:16px 20px;background:${data.estimatedTotal != null ? "#F0F0EE" : "#FFF8F5"};border-left:3px solid ${data.estimatedTotal != null ? "#1A1A1A" : "#D4501E"};">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#555555;margin-bottom:6px;">Estimated total</div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">${data.estimatedTotal != null ? `€${data.estimatedTotal}` : "Custom — needs quote"}</div>
+      </div>
 
       ${data.message ? `
       <div style="margin-top:24px;padding:16px 20px;background:#F0F0EE;border-left:3px solid #D4501E;">
@@ -118,6 +127,10 @@ Reply directly to this email to reach the customer.`;
 function buildCustomerEmail(data: BookingRequest): { subject: string; text: string; html: string } {
 	const subject = "We received your booking request — SurfRental Aljezur";
 
+	const customerTotalLine = data.estimatedTotal != null
+		? `Estimated total: €${data.estimatedTotal} (final pricing confirmed in our reply)`
+		: "We'll include pricing in our personalized reply.";
+
 	const text = `Hi ${data.name},
 
 Thanks for your booking request! We've received your details and will get back to you within 24 hours with availability and a gear recommendation.
@@ -127,6 +140,7 @@ Your request summary:
   Pickup: ${data.checkout}
   Accommodation: ${data.accommodation}
   People: ${data.peopleCount}
+  ${customerTotalLine}
 
 ${data.people.map((p, i) => formatPerson(p, i)).join("\n\n")}
 
@@ -143,7 +157,7 @@ See you in the water!
   <div style="max-width:560px;margin:0 auto;padding:0 16px;">
     <!-- Header -->
     <div style="margin-bottom:32px;">
-      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">Wavebreak</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">SurfRental Aljezur</span>
     </div>
 
     <!-- Personal message -->
@@ -167,6 +181,13 @@ See you in the water!
         ${data.people.map((p, i) => formatPersonHtml(p, i)).join("")}
       </table>
 
+      ${data.estimatedTotal != null ? `
+      <div style="margin-top:24px;padding:20px;background:#F0F0EE;border-left:3px solid #1A1A1A;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555555;margin-bottom:6px;">Estimated total</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#1A1A1A;margin-bottom:4px;">€${data.estimatedTotal}</div>
+        <div style="font-size:12px;color:#888888;">Final pricing confirmed in our personalized reply</div>
+      </div>` : ""}
+
       ${data.message ? `
       <div style="margin-top:20px;padding:16px 20px;background:#F0F0EE;border-left:3px solid #D4501E;">
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#555555;margin-bottom:6px;">Your message</div>
@@ -179,7 +200,7 @@ See you in the water!
       <h3 style="margin:0 0 12px;font-size:15px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">What happens next?</h3>
       <table style="border-collapse:collapse;font-size:14px;line-height:1.7;color:#555555;">
         <tr><td style="padding:4px 12px 4px 0;font-weight:700;color:#D4501E;vertical-align:top;">01</td><td style="padding:4px 0;">We review your request and check gear availability</td></tr>
-        <tr><td style="padding:4px 12px 4px 0;font-weight:700;color:#D4501E;vertical-align:top;">02</td><td style="padding:4px 0;">You receive a personalized confirmation with pricing</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;font-weight:700;color:#D4501E;vertical-align:top;">02</td><td style="padding:4px 0;">You receive a personalized confirmation with final pricing</td></tr>
         <tr><td style="padding:4px 12px 4px 0;font-weight:700;color:#D4501E;vertical-align:top;">03</td><td style="padding:4px 0;">We deliver everything to your door — you just paddle out</td></tr>
       </table>
     </div>
@@ -191,7 +212,7 @@ See you in the water!
 
     <!-- Footer -->
     <hr style="margin:32px 0 16px;border:none;border-top:1.5px solid #1A1A1A;" />
-    <p style="font-size:12px;color:#888888;line-height:1.5;">SurfRental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental.pt" style="color:#D4501E;text-decoration:none;">surfrental.pt</a></p>
+    <p style="font-size:12px;color:#888888;line-height:1.5;">SurfRental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#D4501E;text-decoration:none;">surfrental-aljezur.com</a></p>
   </div>
 </div>`;
 

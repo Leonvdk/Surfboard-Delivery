@@ -75,8 +75,13 @@ SurfRental is a surf gear rental service based in the Aljezur area of Portugal's
 ## Contact
 
 - Email: hello@surfrental-aljezur.com
+- WhatsApp: https://wa.me/31613262259
 - Website: https://surfrental.pt
 - Contact form: https://surfrental.pt/contact
+
+## Language
+
+Primary language: English
 
 ## Pages
 
@@ -85,6 +90,9 @@ SurfRental is a surf gear rental service based in the Aljezur area of Portugal's
 - Pricing: https://surfrental.pt/pricing
 - Surf Spots Guide: https://surfrental.pt/surf-spots
 - How It Works: https://surfrental.pt/how-it-works
+- Blog: https://surfrental.pt/blog
+- About: https://surfrental.pt/about
+- Reviews: https://surfrental.pt/reviews
 - Group Bookings: https://surfrental.pt/group-bookings
 - Gift Vouchers: https://surfrental.pt/gift-vouchers
 - Contact: https://surfrental.pt/contact

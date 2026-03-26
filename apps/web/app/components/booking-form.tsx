@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { DateRangePicker } from "./date-range-picker";
+import { prices, type PackageTier } from "../lib/pricing";
 
 /* ── Board calculator logic ── */
 
@@ -140,27 +141,67 @@ function recommendBoard(level: Level, weight: number): BoardRec | "advanced" | n
 
 /* ── Package logic based on duration ── */
 
-type PackageInfo = {
+type FormPackageInfo = {
 	value: string;
 	label: string;
 	includesWetsuit: boolean;
+	pricePerPerson: number | null;
+	tier: PackageTier | null;
 };
 
-function getPackageOptions(days: number | null): PackageInfo[] {
-	if (days !== null && days >= 10) {
-		return [
-			{ value: "premium-2w", label: "Premium (board + wetsuit + changing mat + roof rack) — €249 / 2 weeks", includesWetsuit: true },
-			{ value: "full-2w", label: "Full Package (board + wetsuit) — €199 / 2 weeks", includesWetsuit: true },
-			{ value: "board-2w", label: "Board Only — €170 / 2 weeks", includesWetsuit: false },
-			{ value: "custom", label: "Not sure — recommend something", includesWetsuit: false },
-		];
-	}
+function getPackageOptions(days: number | null): FormPackageInfo[] {
+	const isExtended = days !== null && days >= 10;
+	const duration = isExtended ? "extended" : "weekly";
+	const periodLabel = isExtended ? "2 weeks" : "week";
+
 	return [
-		{ value: "premium-1w", label: "Premium (board + wetsuit + changing mat + roof rack) — €150/week", includesWetsuit: true },
-		{ value: "full-1w", label: "Full Package (board + wetsuit) — €120/week", includesWetsuit: true },
-		{ value: "board-1w", label: "Board Only — €85/week", includesWetsuit: false },
-		{ value: "custom", label: "Not sure — recommend something", includesWetsuit: false },
+		{
+			value: isExtended ? "premium-2w" : "premium-1w",
+			label: `Premium (board + wetsuit + changing mat + roof rack) — €${prices.premium[duration].amount}/${periodLabel}`,
+			includesWetsuit: true,
+			pricePerPerson: prices.premium[duration].amount,
+			tier: "premium",
+		},
+		{
+			value: isExtended ? "full-2w" : "full-1w",
+			label: `Full Package (board + wetsuit) — €${prices.fullPackage[duration].amount}/${periodLabel}`,
+			includesWetsuit: true,
+			pricePerPerson: prices.fullPackage[duration].amount,
+			tier: "fullPackage",
+		},
+		{
+			value: isExtended ? "board-2w" : "board-1w",
+			label: `Board Only — €${prices.boardOnly[duration].amount}/${periodLabel}`,
+			includesWetsuit: false,
+			pricePerPerson: prices.boardOnly[duration].amount,
+			tier: "boardOnly",
+		},
+		{
+			value: "custom",
+			label: "Not sure — recommend something",
+			includesWetsuit: false,
+			pricePerPerson: null,
+			tier: null,
+		},
 	];
+}
+
+function calcEstimatedTotal(
+	people: Person[],
+	pkgOptions: FormPackageInfo[],
+): { total: number; allSelected: boolean; selectedCount: number } {
+	let total = 0;
+	let selectedCount = 0;
+	for (const person of people) {
+		if (!person.package) continue;
+		const opt = pkgOptions.find((o) => o.value === person.package);
+		if (opt?.pricePerPerson != null) {
+			total += opt.pricePerPerson;
+			selectedCount++;
+		}
+	}
+	const allSelected = selectedCount === people.length && people.length > 0;
+	return { total, allSelected, selectedCount };
 }
 
 function calcDays(checkin: string, checkout: string): number | null {
@@ -171,7 +212,7 @@ function calcDays(checkin: string, checkout: string): number | null {
 	return diff > 0 ? diff : null;
 }
 
-function packageIncludesWetsuit(pkg: string, options: PackageInfo[]): boolean {
+function packageIncludesWetsuit(pkg: string, options: FormPackageInfo[]): boolean {
 	return options.find((o) => o.value === pkg)?.includesWetsuit ?? false;
 }
 
@@ -447,6 +488,7 @@ export function BookingForm() {
 
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
 	const pkgOptions = useMemo(() => getPackageOptions(days), [days]);
+	const estimate = useMemo(() => calcEstimatedTotal(people, pkgOptions), [people, pkgOptions]);
 
 	const handlePeopleChange = (count: number) => {
 		setPeopleCount(count);
@@ -510,6 +552,7 @@ export function BookingForm() {
 				wetsuitSize: p.wetsuitSize,
 			})),
 			message: formData.get("message") as string,
+			estimatedTotal: estimate.allSelected ? estimate.total : null,
 		};
 
 		try {
@@ -689,22 +732,52 @@ export function BookingForm() {
 					<label htmlFor="message">Anything else we should know?</label>
 					<textarea id="message" name="message" rows={4} placeholder="Board preferences, special requests, questions..." />
 				</div>
-				{status === "error" && (
-					<div className="form-error">
-						<p>{errorMsg || "Something went wrong. Please try again or contact us via WhatsApp."}</p>
+			{estimate.selectedCount > 0 && (
+				<div className="estimate-summary">
+					<div className="estimate-header">
+						<span className="estimate-label">Estimated total</span>
+						{estimate.allSelected ? (
+							<span className="estimate-amount">&euro;{estimate.total}</span>
+						) : (
+							<span className="estimate-amount estimate-amount--partial">&euro;{estimate.total}+</span>
+						)}
 					</div>
-				)}
-				<button
-					type="submit"
-					className="btn btn-primary btn-full"
-					disabled={status === "submitting"}
-				>
-					{status === "submitting" ? "Sending..." : "Send booking request"}
-				</button>
-				<p className="form-note">
-					This is a booking request, not a live reservation. We&apos;ll confirm
-					availability and details via email within 24 hours.
-				</p>
+					{estimate.allSelected && people.length > 1 && (
+						<div className="estimate-breakdown">
+							{people.map((person, i) => {
+								const opt = pkgOptions.find((o) => o.value === person.package);
+								if (!opt?.pricePerPerson) return null;
+								return (
+									<div key={i} className="estimate-line">
+										<span>Person {i + 1} &middot; {opt.label.split(" — ")[0]}</span>
+										<span>&euro;{opt.pricePerPerson}</span>
+									</div>
+								);
+							})}
+						</div>
+					)}
+					<p className="estimate-note">
+						Final pricing confirmed in our personalized reply
+					</p>
+				</div>
+			)}
+
+			{status === "error" && (
+				<div className="form-error">
+					<p>{errorMsg || "Something went wrong. Please try again or contact us via WhatsApp."}</p>
+				</div>
+			)}
+			<button
+				type="submit"
+				className="btn btn-primary btn-full"
+				disabled={status === "submitting"}
+			>
+				{status === "submitting" ? "Sending..." : "Send booking request"}
+			</button>
+			<p className="form-note">
+				This is a booking request, not a live reservation. We&apos;ll confirm
+				availability and details via email within 24 hours.
+			</p>
 			</form>
 
 			<BoardCalcModal

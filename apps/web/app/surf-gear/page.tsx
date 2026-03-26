@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 		"Find the right surfboard and wetsuit for your level. We carry shortboards, funboards, and longboards with seasonal wetsuits — delivered free to your door in Aljezur.",
 	alternates: { canonical: "/surf-gear" },
 	openGraph: {
-		title: "Surf Gear — Boards & Wetsuits | Wavebreak",
+		title: "Surf Gear — Boards & Wetsuits | SurfRental Aljezur",
 		description:
 			"Shortboards, funboards, and longboards for every level. Seasonal wetsuits included. Free delivery on the Costa Vicentina.",
 		url: `${SITE_URL}/surf-gear`,

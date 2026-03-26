@@ -9,8 +9,16 @@ export function localBusinessJsonLd() {
 		description:
 			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
+		logo: `${SITE_URL}/images/logo.png`,
+		image: `${SITE_URL}/images/logo.png`,
 		email: "hello@surfrental-aljezur.com",
 		telephone: "+31613262259",
+		contactPoint: {
+			"@type": "ContactPoint",
+			telephone: "+31613262259",
+			contactType: "reservations",
+			availableLanguage: ["English", "Dutch", "Portuguese"],
+		},
 		areaServed: [
 			{
 				"@type": "Place",
@@ -119,7 +127,8 @@ export function localBusinessJsonLd() {
 				{
 					"@type": "Offer",
 					name: "Full Package — Board + Wetsuit — Daily",
-					description: "Surfboard and wetsuit rental per day (3-day minimum) with free delivery and pickup.",
+					description:
+						"Surfboard and wetsuit rental per day (3-day minimum) with free delivery and pickup.",
 					price: "35",
 					priceCurrency: "EUR",
 					availability: "https://schema.org/InStock",
@@ -194,6 +203,8 @@ export function breadcrumbJsonLd(items: Array<{ name: string; url: string }>) {
 }
 
 export function reviewJsonLd(reviews: Array<{ author: string; rating: number; body: string }>) {
+	if (reviews.length === 0) return null;
+
 	const ratingValues = reviews.map((r) => r.rating);
 	const avg = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
 
@@ -248,11 +259,13 @@ export function articleJsonLd({
 	description,
 	url,
 	datePublished,
+	dateModified,
 }: {
 	title: string;
 	description: string;
 	url: string;
 	datePublished: string;
+	dateModified?: string;
 }) {
 	return {
 		"@context": "https://schema.org",
@@ -261,6 +274,7 @@ export function articleJsonLd({
 		description,
 		url,
 		datePublished,
+		dateModified: dateModified ?? datePublished,
 		author: {
 			"@type": "Organization",
 			name: "SurfRental Aljezur",
@@ -282,10 +296,5 @@ export function webSiteJsonLd() {
 		url: SITE_URL,
 		description:
 			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha.",
-		potentialAction: {
-			"@type": "SearchAction",
-			target: `${SITE_URL}/surf-spots`,
-			"query-input": "required name=search_term_string",
-		},
 	};
 }
