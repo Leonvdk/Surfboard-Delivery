@@ -1,8 +1,10 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { DM_Sans, Syne } from "next/font/google";
+import { EngagementTracker } from "./components/engagement-tracker";
 import { Footer } from "./components/footer";
 import { JsonLd } from "./components/json-ld";
 import { Nav } from "./components/nav";
+import { OutboundTracker } from "./components/outbound-tracker";
 import { localBusinessJsonLd, webSiteJsonLd } from "./lib/jsonld";
 import { baseMetadata } from "./lib/metadata";
 import "./globals.css";
@@ -35,6 +37,8 @@ export default function RootLayout({
 				<Nav />
 				<main id="main-content">{children}</main>
 				<Footer />
+				<EngagementTracker />
+				<OutboundTracker />
 			</body>
 		</html>
 	);

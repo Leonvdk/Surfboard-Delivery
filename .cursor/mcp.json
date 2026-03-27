@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "analytics-mcp": {
+      "command": "pipx",
+      "args": ["run", "analytics-mcp"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/Users/leonvandeklundert/.config/gcloud/application_default_credentials.json",
+        "GOOGLE_CLOUD_PROJECT": "happy-critics-475818"
+      }
+    }
+  }
+}

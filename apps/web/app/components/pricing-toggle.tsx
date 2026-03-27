@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { CheckIcon } from "./check-icon";
+import { TrackedCtaLink } from "./tracked-cta-link";
 import {
 	type Duration,
 	type PackageTier,
@@ -99,12 +99,14 @@ function PricingCard({
 					</li>
 				))}
 			</ul>
-			<Link
+			<TrackedCtaLink
 				href={`/contact?package=${encodeURIComponent(pkg.name)}`}
 				className={`btn ${featured ? "btn-primary" : "btn-secondary"} btn-full`}
+				ctaText={`Book ${pkg.name}`}
+				ctaLocation="pricing_card"
 			>
 				Book {pkg.name}
-			</Link>
+			</TrackedCtaLink>
 		</div>
 	);
 }

@@ -1,8 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import {
+	trackBookingSubmitted,
+	trackFormAbandoned,
+	trackFormFieldFocused,
+	trackFormStepCompleted,
+} from "../lib/analytics";
 import { DateRangePicker } from "./date-range-picker";
 import { prices, type PackageTier } from "../lib/pricing";
 
@@ -486,6 +492,45 @@ export function BookingForm() {
 	const [status, setStatus] = useState<FormStatus>("idle");
 	const [errorMsg, setErrorMsg] = useState("");
 
+	const formStartTime = useRef(Date.now());
+	const trackedFields = useRef(new Set<string>());
+	const lastField = useRef("");
+
+	const handleFieldFocus = useCallback(
+		(e: React.FocusEvent<HTMLFormElement>) => {
+			const target = e.target as HTMLElement;
+			const name =
+				(target as HTMLInputElement).name ||
+				target.id ||
+				target.closest(".form-group")?.querySelector("label")?.textContent ||
+				"unknown";
+			lastField.current = name;
+			if (!trackedFields.current.has(name)) {
+				trackedFields.current.add(name);
+				trackFormFieldFocused(name);
+				if (trackedFields.current.size === 1) trackFormStepCompleted("started");
+			}
+		},
+		[],
+	);
+
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			if (
+				status !== "success" &&
+				trackedFields.current.size > 0
+			) {
+				trackFormAbandoned({
+					last_field: lastField.current,
+					fields_completed: trackedFields.current.size,
+					time_spent: Math.floor((Date.now() - formStartTime.current) / 1000),
+				});
+			}
+		};
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+	}, [status]);
+
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
 	const pkgOptions = useMemo(() => getPackageOptions(days), [days]);
 	const estimate = useMemo(() => calcEstimatedTotal(people, pkgOptions), [people, pkgOptions]);
@@ -567,6 +612,12 @@ export function BookingForm() {
 				throw new Error(data?.error || "Something went wrong");
 			}
 
+			trackBookingSubmitted({
+				people_count: peopleCount,
+				checkin,
+				checkout,
+				estimated_total: estimate.allSelected ? estimate.total : null,
+			});
 			setStatus("success");
 		} catch (err) {
 			setStatus("error");
@@ -609,6 +660,7 @@ export function BookingForm() {
 			<form
 				className="contact-form"
 				onSubmit={handleSubmit}
+				onFocusCapture={handleFieldFocus}
 			>
 				<div className="form-group">
 					<label htmlFor="name">Name</label>

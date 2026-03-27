@@ -1,32 +1,45 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	trackBlogPopupClicked,
+	trackBlogPopupDismissed,
+	trackBlogPopupShown,
+} from "../lib/analytics";
 
 const SCROLL_THRESHOLD = 0.4;
 const MIN_TIME_ON_PAGE_MS = 15_000;
 
 export default function BlogCtaPopup() {
+	const pathname = usePathname();
 	const [visible, setVisible] = useState(false);
 	const [closing, setClosing] = useState(false);
 	const dismissedRef = useRef(false);
 	const timerMetRef = useRef(false);
 	const scrollMetRef = useRef(false);
+	const shownTracked = useRef(false);
 
 	const show = useCallback(() => {
 		if (dismissedRef.current) return;
 		if (!timerMetRef.current || !scrollMetRef.current) return;
 		setVisible(true);
-	}, []);
+		if (!shownTracked.current) {
+			trackBlogPopupShown(pathname);
+			shownTracked.current = true;
+		}
+	}, [pathname]);
 
 	const dismiss = useCallback(() => {
+		trackBlogPopupDismissed(pathname);
 		setClosing(true);
 		setTimeout(() => {
 			setVisible(false);
 			setClosing(false);
 			dismissedRef.current = true;
 		}, 300);
-	}, []);
+	}, [pathname]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -84,7 +97,14 @@ export default function BlogCtaPopup() {
 				Get boards &amp; wetsuits delivered to your door in Aljezur
 			</p>
 
-			<Link href="/contact" className="blog-popup-cta" onClick={dismiss}>
+			<Link
+				href="/contact"
+				className="blog-popup-cta"
+				onClick={() => {
+					trackBlogPopupClicked(pathname);
+					dismiss();
+				}}
+			>
 				Check availability
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
 					<line x1="5" y1="12" x2="19" y2="12" />

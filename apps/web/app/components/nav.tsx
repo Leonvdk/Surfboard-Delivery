@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { trackCtaClick } from "../lib/analytics";
 
 const LINKS = [
 	{ href: "/surf-gear", label: "Boards" },
@@ -46,7 +47,17 @@ export function Nav() {
 						</li>
 					))}
 					<li>
-						<Link href="/contact" className="nav-cta">
+						<Link
+							href="/contact"
+							className="nav-cta"
+							onClick={() =>
+								trackCtaClick({
+									cta_text: "Book Now",
+									cta_location: "nav_desktop",
+									destination: "/contact",
+								})
+							}
+						>
 							Book Now
 						</Link>
 					</li>
@@ -91,7 +102,18 @@ export function Nav() {
 							{label}
 						</Link>
 					))}
-					<Link href="/contact" className="nav-cta" onClick={close}>
+					<Link
+						href="/contact"
+						className="nav-cta"
+						onClick={() => {
+							trackCtaClick({
+								cta_text: "Book Now",
+								cta_location: "nav_mobile",
+								destination: "/contact",
+							});
+							close();
+						}}
+					>
 						Book Now
 					</Link>
 				</div>

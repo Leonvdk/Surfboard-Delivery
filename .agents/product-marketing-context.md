@@ -2,7 +2,7 @@
 
 ## Company
 
-**Name:** SurfRental Aljezur
+**Name:** Surf Rental Aljezur
 **Domain:** surfrental-aljezur.com
 **Email:** hello@surfrental-aljezur.com
 **Location:** Aljezur, Costa Vicentina, Algarve, Portugal
@@ -100,4 +100,4 @@ Most competitors require visiting a shop or signing up for lessons. We're the on
 - MDX blog (gray-matter + next-mdx-remote)
 - Biome (linting/formatting)
 - pnpm
-- Resend (contact form emails)
+- Resend (contact form emails & current booking system)
