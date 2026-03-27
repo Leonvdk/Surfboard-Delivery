@@ -1,6 +1,6 @@
 export function StarRating({ rating = 5 }: { rating?: number }) {
 	return (
-		<div className="review-stars" aria-label={`${rating} out of 5 stars`}>
+		<div className="review-stars" role="img" aria-label={`${rating} out of 5 stars`}>
 			{Array.from({ length: 5 }, (_, i) => (
 				<svg key={i} viewBox="0 0 20 20" aria-hidden="true">
 					{i < rating ? (
