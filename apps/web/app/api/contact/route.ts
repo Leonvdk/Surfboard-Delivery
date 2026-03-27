@@ -235,6 +235,8 @@ export async function POST(request: Request) {
 
 		const client = getResend();
 
+		const firstName = data.name.split(" ")[0] || data.name;
+
 		const [businessResult, customerResult] = await Promise.all([
 			client.emails.send({
 				from: FROM_EMAIL,
@@ -252,6 +254,12 @@ export async function POST(request: Request) {
 				text: customerEmail.text,
 				html: customerEmail.html,
 			}),
+			client.contacts.create({
+				email: data.email,
+				firstName,
+				unsubscribed: false,
+				segments: [{ id: "f2615757-9791-466f-9ca2-061d884304ce" }],
+			}).catch((err) => console.error("Contact create error:", err)),
 		]);
 
 		if (businessResult.error || customerResult.error) {

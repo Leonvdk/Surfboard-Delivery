@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsletterForm } from "./newsletter-form";
 
 export function Footer() {
 	return (
@@ -38,6 +39,17 @@ export function Footer() {
 							<li><Link href="/terms">Terms</Link></li>
 							<li><Link href="/privacy">Privacy</Link></li>
 						</ul>
+					</div>
+				</div>
+				<div className="footer-newsletter">
+					<div className="footer-newsletter-inner">
+						<div className="footer-newsletter-text">
+							<p className="footer-newsletter-title">Stay in the lineup</p>
+							<p className="footer-newsletter-desc">
+								Surf conditions, local tips &amp; exclusive deals — straight to your inbox.
+							</p>
+						</div>
+						<NewsletterForm />
 					</div>
 				</div>
 				<div className="footer-bottom">

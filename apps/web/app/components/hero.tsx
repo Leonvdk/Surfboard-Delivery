@@ -35,6 +35,7 @@ export function Hero() {
 					<Reveal delay={120}>
 						<div className="hero-visual">
 							<Link href="/surf-gear#board-7-8" className="hero-card">
+								<div className="hero-card-tag">Most rented</div>
 								<div className="hero-card-img">
 									<Image
 										src="/images/rentals/7'8/picture(1).jpg"
@@ -49,7 +50,6 @@ export function Hero() {
 										<div className="hero-card-price"><span className="hero-card-from">from</span> &euro;11 <small>/day</small></div>
 									</div>
 									<div className="hero-card-sub">7&apos;8&quot; &middot; Stability meets maneuverability</div>
-									<div className="hero-card-tag">Most rented</div>
 								</div>
 							</Link>
 						</div>
