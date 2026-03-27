@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { DM_Sans, Syne } from "next/font/google";
 import { Footer } from "./components/footer";
 import { JsonLd } from "./components/json-ld";
@@ -27,6 +28,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className={`${syne.variable} ${dmSans.variable}`}>
+			<GoogleAnalytics gaId="G-9NYPGY8VFQ" />
 			<body>
 				<JsonLd data={localBusinessJsonLd()} />
 				<JsonLd data={webSiteJsonLd()} />

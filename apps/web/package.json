@@ -10,6 +10,7 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.1",
     "@repo/ui": "workspace:*",
     "gray-matter": "^4.0.3",
     "next": "16.2.1",

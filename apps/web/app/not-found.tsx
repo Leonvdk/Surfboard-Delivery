@@ -3,15 +3,17 @@ import { Reveal } from "./components/reveal";
 
 export default function NotFound() {
 	return (
-		<section className="page-hero" style={{ minHeight: "60vh" }}>
-			<div className="container" style={{ textAlign: "center" }}>
+		<section className="error-page">
+			<div className="container">
 				<Reveal>
-					<div>
-						<h1>Page not found</h1>
-						<p className="page-hero-sub">
-							Looks like this wave closed out. Let&apos;s get you back in the lineup.
+					<div className="error-page-inner">
+						<span className="error-page-code">404</span>
+						<h1 className="error-page-title">Page not found</h1>
+						<p className="error-page-desc">
+							Looks like this wave closed out. Let&apos;s get you back in the
+							lineup.
 						</p>
-						<div className="hero-cta" style={{ marginTop: "32px" }}>
+						<div className="error-page-actions">
 							<Link href="/" className="btn btn-primary">
 								Back to home
 							</Link>
