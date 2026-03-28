@@ -1,4 +1,4 @@
-# SurfRental
+# Surf Rental
 
 Surfboard and wetsuit rental service with delivery to your accommodation in the Aljezur, Arrifana, and Vale da Telha area (Costa Vicentina, Portugal).
 

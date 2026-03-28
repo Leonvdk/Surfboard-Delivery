@@ -3,12 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { CtaSection } from "./components/cta-section";
 import { Hero } from "./components/hero";
+import NewsletterPopup from "./components/newsletter-popup";
 import { Reveal } from "./components/reveal";
 import { StarRating } from "./components/star-rating";
 import { prices } from "./lib/pricing";
 
 export const metadata: Metadata = {
-	title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
+	title: "Surf Rental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
 	description:
 		"Rent surfboards and wetsuits delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha. Free delivery and pickup on the Costa Vicentina.",
 	alternates: { canonical: "/" },
@@ -295,6 +296,8 @@ export default function Home() {
 				buttonText="Find your board"
 				buttonHref="/surf-gear#guide-heading"
 			/>
+
+			<NewsletterPopup />
 		</>
 	);
 }

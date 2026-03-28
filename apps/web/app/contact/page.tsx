@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 		"Get in touch to reserve surfboards and wetsuits for your trip to Aljezur. Send us your dates and accommodation — we'll confirm within 24 hours. Email, WhatsApp, or contact form.",
 	alternates: { canonical: "/contact" },
 	openGraph: {
-		title: "Contact & Book | SurfRental Aljezur",
+		title: "Contact & Book | Surf Rental Aljezur",
 		description:
 			"Reserve surfboards and wetsuits for your stay in Aljezur. We respond within 24 hours.",
 		url: `${SITE_URL}/contact`,

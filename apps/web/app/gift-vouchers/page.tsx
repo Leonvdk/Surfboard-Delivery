@@ -8,10 +8,10 @@ import { prices } from "../lib/pricing";
 export const metadata: Metadata = {
 	title: "Surf Gift Vouchers Aljezur — Surfboard Rental Gift Cards",
 	description:
-		"Give the gift of waves. Buy a SurfRental gift voucher for surfboard and wetsuit rental in Aljezur. Perfect for birthdays, Christmas, and anniversaries.",
+		"Give the gift of waves. Buy a Surf Rental gift voucher for surfboard and wetsuit rental in Aljezur. Perfect for birthdays, Christmas, and anniversaries.",
 	alternates: { canonical: "/gift-vouchers" },
 	openGraph: {
-		title: "Gift Vouchers | SurfRental Aljezur",
+		title: "Gift Vouchers | Surf Rental Aljezur",
 		description:
 			"Surf gift vouchers for board and wetsuit rental in Aljezur, Portugal. Digital delivery, valid for 12 months.",
 		url: `${SITE_URL}/gift-vouchers`,
@@ -27,7 +27,7 @@ export default function GiftVouchersPage() {
 						<div>
 							<h1>Give the gift of waves</h1>
 							<p className="page-hero-sub">
-								A SurfRental voucher is a week of surf, delivered to their door. Perfect for someone
+								A Surf Rental voucher is a week of surf, delivered to their door. Perfect for someone
 								planning a trip to the Algarve — or nudging them to book one.
 							</p>
 						</div>

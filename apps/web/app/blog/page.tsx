@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 		"Surf guides, trip planning tips, and local knowledge from the Costa Vicentina. Everything you need to plan your surf holiday in Aljezur, Portugal.",
 	alternates: { canonical: "/blog" },
 	openGraph: {
-		title: "Blog | SurfRental Aljezur",
+		title: "Blog | Surf Rental Aljezur",
 		description:
 			"Surf tips, travel guides, and local knowledge for your Aljezur surf trip.",
 		url: `${SITE_URL}/blog`,

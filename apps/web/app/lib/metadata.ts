@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 
 const SITE_URL = "https://surfrental-aljezur.com";
-const SITE_NAME = "SurfRental Aljezur";
+const SITE_NAME = "Surf Rental Aljezur";
 const DEFAULT_DESCRIPTION =
 	"Rent surfboards and wetsuits delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha. Minimum one-week rental with free delivery and pickup on the Costa Vicentina.";
 
 export const baseMetadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
 	title: {
-		default: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
-		template: "%s | SurfRental Aljezur",
+		default: "Surf Rental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
+		template: "%s | Surf Rental Aljezur",
 	},
 	description: DEFAULT_DESCRIPTION,
 	keywords: [
@@ -37,20 +37,20 @@ export const baseMetadata: Metadata = {
 		locale: "en_GB",
 		url: SITE_URL,
 		siteName: SITE_NAME,
-		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
+		title: "Surf Rental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
 		description: DEFAULT_DESCRIPTION,
 		images: [
 			{
 				url: "/images/open-graph.jpg",
 				width: 1200,
 				height: 630,
-				alt: "SurfRental Aljezur — Surfboard & Wetsuit Rental on the Costa Vicentina",
+				alt: "Surf Rental Aljezur — Surfboard & Wetsuit Rental on the Costa Vicentina",
 			},
 		],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "SurfRental Aljezur — Surfboard & Wetsuit Rental Delivered",
+		title: "Surf Rental Aljezur — Surfboard & Wetsuit Rental Delivered",
 		description: DEFAULT_DESCRIPTION,
 		images: ["/images/open-graph.jpg"],
 	},

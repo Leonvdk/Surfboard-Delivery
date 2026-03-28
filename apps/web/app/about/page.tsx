@@ -7,12 +7,12 @@ import { organizationJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
-	title: "About SurfRental Aljezur — Local Surf Gear Delivery",
+	title: "About Surf Rental Aljezur — Local Surf Gear Delivery",
 	description:
-		"Meet the team behind SurfRental. Two surfers, one van, and a simple idea: deliver quality surfboards and wetsuits to your door in Aljezur, Arrifana, and Vale da Telha.",
+		"Meet the team behind Surf Rental. Two surfers, one van, and a simple idea: deliver quality surfboards and wetsuits to your door in Aljezur, Arrifana, and Vale da Telha.",
 	alternates: { canonical: "/about" },
 	openGraph: {
-		title: "About SurfRental Aljezur",
+		title: "About Surf Rental Aljezur",
 		description:
 			"Two surfers, one van, zero queues. Learn our story and why we built a surf rental delivery service on the Costa Vicentina.",
 		url: `${SITE_URL}/about`,
@@ -30,7 +30,7 @@ export default function AboutPage() {
 						<div>
 							<h1>Two surfers, one van, zero queues</h1>
 							<p className="page-hero-sub">
-								We started SurfRental because we believed renting surf gear should be as easy as
+								We started Surf Rental because we believed renting surf gear should be as easy as
 								showing up to the beach.
 							</p>
 						</div>
@@ -59,7 +59,7 @@ export default function AboutPage() {
 								there had to be a better way.
 							</p>
 							<p>
-								SurfRental started with a simple idea. What if we brought quality boards and wetsuits
+								Surf Rental started with a simple idea. What if we brought quality boards and wetsuits
 								directly to people&apos;s accommodation? No queues, no car racks, no deposits. Just
 								gear waiting at your door when you arrive, and us picking it up when you leave.
 							</p>
@@ -70,7 +70,7 @@ export default function AboutPage() {
 								get from surfing here every day.
 							</p>
 							<p>
-								That&apos;s what SurfRental is: a small, local operation run by surfers who care about
+								That&apos;s what Surf Rental is: a small, local operation run by surfers who care about
 								your holiday as much as you do.
 							</p>
 						</div>

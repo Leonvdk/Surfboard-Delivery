@@ -1,4 +1,4 @@
-# Agent Implementation Plan — SurfRental Aljezur SEO & Blog System
+# Agent Implementation Plan — Surf Rental Aljezur SEO & Blog System
 
 *This document provides step-by-step instructions for agents to implement the SEO strategy defined in `seo-strategy-and-content-calendar.md`.*
 
@@ -64,7 +64,7 @@ Before starting any task, agents must:
 2. Get all unique tags from `getAllPosts()` → extract unique tags from all posts
 3. Add `generateStaticParams` to pre-render all tag pages
 4. Display filtered list of posts matching the tag
-5. Add proper metadata: `title: "Posts tagged [tag] | SurfRental Aljezur"`
+5. Add proper metadata: `title: "Posts tagged [tag] | Surf Rental Aljezur"`
 6. Add these tag pages to the sitemap by updating `apps/web/app/sitemap.ts`
 7. Add tag links to the blog index page (`apps/web/app/blog/page.tsx`)
 
@@ -115,10 +115,10 @@ Before starting any task, agents must:
 ### Task 0.6: Add Default OG Image *(PRIORITY: P1)*
 
 **Instructions:**
-1. Create a default Open Graph image (1200x630px) showing the SurfRental brand, a surfboard, and the Costa Vicentina coastline
+1. Create a default Open Graph image (1200x630px) showing the Surf Rental brand, a surfboard, and the Costa Vicentina coastline
 2. Save as `apps/web/public/images/og-default.jpg`
 3. Update `apps/web/app/lib/metadata.ts` to include default `openGraph.images` and `twitter.images`:
-   - `openGraph.images: [{ url: "/images/og-default.jpg", width: 1200, height: 630, alt: "SurfRental Aljezur — Surfboard & Wetsuit Rental" }]`
+   - `openGraph.images: [{ url: "/images/og-default.jpg", width: 1200, height: 630, alt: "Surf Rental Aljezur — Surfboard & Wetsuit Rental" }]`
 4. For blog posts: add optional `image` field to front matter, and override `openGraph.images` in `generateMetadata` when present
 
 **Acceptance criteria:**
@@ -416,10 +416,10 @@ Week 7+: Continue Phase 1/2 content calendar, begin Phase 2 content
 | `apps/web/app/sitemap.ts` | DONE — includes all pages + dynamic blog posts, uses `SITE_URL`, safe date fallback |
 | `apps/web/app/robots.ts` | DONE — explicit AI bot allow rules (GPTBot, ChatGPT-User, PerplexityBot, ClaudeBot, Google-Extended) |
 | `apps/web/app/lib/jsonld.ts` | DONE — `dateModified` in articleJsonLd, `logo`/`image`/`contactPoint` in LocalBusiness, removed invalid `SearchAction`, empty reviews guard |
-| `apps/web/app/page.tsx` | DONE — fixed Wavebreak → SurfRental brand in metadata |
-| `apps/web/app/surf-gear/page.tsx` | DONE — fixed Wavebreak → SurfRental brand in OpenGraph |
-| `apps/web/app/globals.css` | DONE — fixed Wavebreak → SurfRental in CSS comment |
-| `apps/web/app/api/contact/route.ts` | DONE — fixed Wavebreak → SurfRental in both email templates |
+| `apps/web/app/page.tsx` | DONE — fixed Wavebreak → Surf Rental brand in metadata |
+| `apps/web/app/surf-gear/page.tsx` | DONE — fixed Wavebreak → Surf Rental brand in OpenGraph |
+| `apps/web/app/globals.css` | DONE — fixed Wavebreak → Surf Rental in CSS comment |
+| `apps/web/app/api/contact/route.ts` | DONE — fixed Wavebreak → Surf Rental in both email templates |
 | `apps/web/public/llms.txt` | DONE — added WhatsApp, blog/about/reviews URLs, language declaration |
 | `apps/web/app/components/nav.tsx` | DONE — added Blog link to main navigation |
 | `apps/web/app/components/breadcrumbs.tsx` | DONE — reusable Breadcrumbs component, added to all 16 subpages |

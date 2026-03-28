@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 		"Answers to common questions about surfboard and wetsuit rental in Aljezur. Minimum rental period, delivery area, what's included, payment, and cancellation policy.",
 	alternates: { canonical: "/faq" },
 	openGraph: {
-		title: "FAQ | SurfRental Aljezur",
+		title: "FAQ | Surf Rental Aljezur",
 		description:
 			"Everything you need to know about renting surf gear with delivery in Aljezur, Arrifana, and Vale da Telha.",
 		url: `${SITE_URL}/faq`,

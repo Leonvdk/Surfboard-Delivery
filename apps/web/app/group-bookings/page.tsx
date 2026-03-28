@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 		"Rent surf gear for groups of 3 or more in Aljezur. Discounted rates for families, friend groups, surf camps, and corporate retreats. Delivered to your accommodation.",
 	alternates: { canonical: "/group-bookings" },
 	openGraph: {
-		title: "Group Bookings | SurfRental Aljezur",
+		title: "Group Bookings | Surf Rental Aljezur",
 		description:
 			"Discounted surf gear rental for groups. Boards and wetsuits for families, friends, and retreats delivered in Aljezur.",
 		url: `${SITE_URL}/group-bookings`,

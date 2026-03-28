@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	if (!cat) return {};
 
 	return {
-		title: `${cat.label} — SurfRental Aljezur Blog`,
+		title: `${cat.label} — Surf Rental Aljezur Blog`,
 		description: `Browse all ${cat.label.toLowerCase()} articles — surf guides, tips, and local knowledge from the Costa Vicentina.`,
 		alternates: { canonical: `/blog/category/${category}` },
 		robots: { index: true, follow: true },

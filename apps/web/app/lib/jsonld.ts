@@ -5,7 +5,7 @@ export function localBusinessJsonLd() {
 		"@context": "https://schema.org",
 		"@type": "LocalBusiness",
 		"@id": `${SITE_URL}/#business`,
-		name: "SurfRental Aljezur",
+		name: "Surf Rental Aljezur",
 		description:
 			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
@@ -212,7 +212,7 @@ export function reviewJsonLd(reviews: Array<{ author: string; rating: number; bo
 		"@context": "https://schema.org",
 		"@type": "LocalBusiness",
 		"@id": `${SITE_URL}/#business`,
-		name: "SurfRental Aljezur",
+		name: "Surf Rental Aljezur",
 		aggregateRating: {
 			"@type": "AggregateRating",
 			ratingValue: avg.toFixed(1),
@@ -237,7 +237,7 @@ export function organizationJsonLd() {
 	return {
 		"@context": "https://schema.org",
 		"@type": "Organization",
-		name: "SurfRental Aljezur",
+		name: "Surf Rental Aljezur",
 		url: SITE_URL,
 		description:
 			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
@@ -277,12 +277,12 @@ export function articleJsonLd({
 		dateModified: dateModified ?? datePublished,
 		author: {
 			"@type": "Organization",
-			name: "SurfRental Aljezur",
+			name: "Surf Rental Aljezur",
 			url: SITE_URL,
 		},
 		publisher: {
 			"@type": "Organization",
-			name: "SurfRental Aljezur",
+			name: "Surf Rental Aljezur",
 			url: SITE_URL,
 		},
 	};
@@ -292,7 +292,7 @@ export function webSiteJsonLd() {
 	return {
 		"@context": "https://schema.org",
 		"@type": "WebSite",
-		name: "SurfRental Aljezur",
+		name: "Surf Rental Aljezur",
 		url: SITE_URL,
 		description:
 			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha.",

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 		"Meet the local businesses we work with in Aljezur. Surf schools, accommodation, restaurants, and activity providers — our recommended partners on the Costa Vicentina.",
 	alternates: { canonical: "/partners" },
 	openGraph: {
-		title: "Partners | SurfRental Aljezur",
+		title: "Partners | Surf Rental Aljezur",
 		description:
 			"Local surf schools, accommodation, restaurants, and activities we partner with in the Aljezur area.",
 		url: `${SITE_URL}/partners`,

@@ -5,12 +5,12 @@ import { HorizonLine, Reveal } from "../components/reveal";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
-	title: "Sustainability — How SurfRental Protects the Costa Vicentina",
+	title: "Sustainability — How Surf Rental Protects the Costa Vicentina",
 	description:
 		"Our commitment to protecting the Costa Vicentina Natural Park. Learn about our eco-friendly practices, beach cleanups, and how you can help as a visitor.",
 	alternates: { canonical: "/sustainability" },
 	openGraph: {
-		title: "Sustainability | SurfRental Aljezur",
+		title: "Sustainability | Surf Rental Aljezur",
 		description:
 			"We surf here. We protect here. Our commitment to low-impact operations on the Costa Vicentina.",
 		url: `${SITE_URL}/sustainability`,

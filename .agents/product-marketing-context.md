@@ -1,4 +1,4 @@
-# Product Marketing Context — SurfRental Aljezur
+# Product Marketing Context — Surf Rental Aljezur
 
 ## Company
 

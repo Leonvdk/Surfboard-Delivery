@@ -1,4 +1,4 @@
-# SEO Strategy & Content Calendar — SurfRental Aljezur
+# SEO Strategy & Content Calendar — Surf Rental Aljezur
 
 *Last updated: March 2026*
 
@@ -35,7 +35,7 @@
 | Issue | Resolution |
 |-------|-----------|
 | Sitemap missing 11+ pages | FIXED — `sitemap.ts` now includes all 16 static pages + dynamic blog posts |
-| "Wavebreak" brand name in metadata/emails | FIXED — replaced with "SurfRental Aljezur" across homepage, surf-gear, CSS, email templates |
+| "Wavebreak" brand name in metadata/emails | FIXED — replaced with "Surf Rental Aljezur" across homepage, surf-gear, CSS, email templates |
 | No `dateModified` on articles | FIXED — `articleJsonLd()` now accepts optional `dateModified` |
 | No explicit AI bot rules in robots.txt | FIXED — explicit allow rules for GPTBot, ChatGPT-User, PerplexityBot, ClaudeBot, Google-Extended |
 | Invalid `SearchAction` in WebSite JSON-LD | FIXED — removed misleading search action (no search endpoint exists) |
@@ -202,7 +202,7 @@ Content publication should lead search intent by 2-3 months:
 ---
 
 ### Pillar 3: Surf Education & Skills
-**Goal:** Help beginners and intermediates improve, building trust and positioning SurfRental as knowledgeable experts.
+**Goal:** Help beginners and intermediates improve, building trust and positioning Surf Rental as knowledgeable experts.
 
 **Hub page:** New — `/blog/learn-to-surf` or keep under blog with strong interlinking
 **Spokes:**
@@ -353,7 +353,7 @@ Update `articleJsonLd()` in `jsonld.ts` to accept and output `dateModified`. Dis
 ### P2 — Do This Month
 
 #### 5.6 Fix "Wavebreak" in Surf-Gear Metadata
-The `/surf-gear` page has "Wavebreak" in its OpenGraph metadata. Replace with "SurfRental Aljezur."
+The `/surf-gear` page has "Wavebreak" in its OpenGraph metadata. Replace with "Surf Rental Aljezur."
 
 #### 5.7 Add Canonical URLs to All Pages
 Ensure every page has a proper canonical tag. The base metadata sets canonical to the homepage, but individual pages need their own canonical URLs.
@@ -398,7 +398,7 @@ Create `/blog/feed.xml` — useful for content syndication and AI crawlers.
 **Status:** Unknown — needs to be created or claimed.
 
 **Actions:**
-- Create/claim Google Business Profile for "SurfRental Aljezur"
+- Create/claim Google Business Profile for "Surf Rental Aljezur"
 - Category: "Surfboard Rental Service" or "Surf Shop"
 - Add all service areas (Aljezur, Arrifana, Vale da Telha, Monte Clérigo)
 - Upload photos of boards, delivery process, beaches
@@ -412,7 +412,7 @@ Create `/blog/feed.xml` — useful for content syndication and AI crawlers.
 Ensure Name, Address, Phone are identical everywhere:
 
 ```
-Name: SurfRental Aljezur
+Name: Surf Rental Aljezur
 Address: Aljezur, Faro, Portugal
 Phone: +31613262259
 Email: hello@surfrental-aljezur.com

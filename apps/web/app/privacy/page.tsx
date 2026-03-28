@@ -5,7 +5,7 @@ import { HorizonLine, Reveal } from "../components/reveal";
 export const metadata: Metadata = {
 	title: "Privacy Policy",
 	description:
-		"How SurfRental Aljezur collects, uses, and protects your personal data. GDPR-compliant privacy policy.",
+		"How Surf Rental Aljezur collects, uses, and protects your personal data. GDPR-compliant privacy policy.",
 	alternates: { canonical: "/privacy" },
 };
 
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
 						<div className="legal-prose">
 							<h2>1. Who we are</h2>
 							<p>
-								SurfRental Aljezur is a surf equipment rental service based in Aljezur, Faro district,
+								Surf Rental Aljezur is a surf equipment rental service based in Aljezur, Faro district,
 								Portugal. We are the data controller for the personal information described in this
 								policy.
 							</p>

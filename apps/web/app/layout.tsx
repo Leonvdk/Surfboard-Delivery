@@ -1,5 +1,5 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { DM_Sans, Syne } from "next/font/google";
+import { DM_Sans, Sora } from "next/font/google";
 import { EngagementTracker } from "./components/engagement-tracker";
 import { Footer } from "./components/footer";
 import { JsonLd } from "./components/json-ld";
@@ -9,9 +9,9 @@ import { localBusinessJsonLd, webSiteJsonLd } from "./lib/jsonld";
 import { baseMetadata } from "./lib/metadata";
 import "./globals.css";
 
-const syne = Syne({
+const sora = Sora({
 	subsets: ["latin"],
-	variable: "--font-syne",
+	variable: "--font-sora",
 	display: "swap",
 });
 
@@ -29,7 +29,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={`${syne.variable} ${dmSans.variable}`}>
+		<html lang="en" className={`${sora.variable} ${dmSans.variable}`}>
 			<GoogleAnalytics gaId="G-9NYPGY8VFQ" />
 			<body>
 				<JsonLd data={localBusinessJsonLd()} />

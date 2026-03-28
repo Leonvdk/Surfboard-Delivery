@@ -11,7 +11,7 @@ function getResend() {
 }
 
 const BUSINESS_EMAIL = "hello@surfrental-aljezur.com";
-const FROM_EMAIL = "SurfRental Aljezur <hello@surfrental-aljezur.com>";
+const FROM_EMAIL = "Surf Rental Aljezur <hello@surfrental-aljezur.com>";
 
 interface PersonData {
 	sex: string;
@@ -87,7 +87,7 @@ Reply directly to this email to reach the customer.`;
   <div style="max-width:560px;margin:0 auto;padding:0 16px;">
     <!-- Header -->
     <div style="margin-bottom:24px;">
-      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">SurfRental Aljezur</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">Surf Rental Aljezur</span>
     </div>
 
     <!-- Card -->
@@ -125,7 +125,7 @@ Reply directly to this email to reach the customer.`;
 }
 
 function buildCustomerEmail(data: BookingRequest): { subject: string; text: string; html: string } {
-	const subject = "We received your booking request — SurfRental Aljezur";
+	const subject = "We received your booking request — Surf Rental Aljezur";
 
 	const customerTotalLine = data.estimatedTotal != null
 		? `Estimated total: €${data.estimatedTotal} (final pricing confirmed in our reply)`
@@ -147,7 +147,7 @@ ${data.people.map((p, i) => formatPerson(p, i)).join("\n\n")}
 If you have any questions in the meantime, reply to this email or reach us on WhatsApp at +31 6 13262259.
 
 See you in the water!
-— The SurfRental team`;
+— The Surf Rental team`;
 
 	const summaryRow = (label: string, value: string) =>
 		`<tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;width:140px;">${label}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${value}</td></tr>`;
@@ -157,7 +157,7 @@ See you in the water!
   <div style="max-width:560px;margin:0 auto;padding:0 16px;">
     <!-- Header -->
     <div style="margin-bottom:32px;">
-      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">SurfRental Aljezur</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-0.03em;color:#1A1A1A;">Surf Rental Aljezur</span>
     </div>
 
     <!-- Personal message -->
@@ -208,11 +208,11 @@ See you in the water!
     <!-- Contact -->
     <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#1A1A1A;">Questions before we get back to you? Just reply to this email or send us a message on <a href="https://wa.me/31613262259" style="color:#D4501E;font-weight:600;text-decoration:none;">WhatsApp</a>.</p>
 
-    <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#1A1A1A;">See you in the water!<br/><strong style="font-weight:800;">Leon</strong><br/><span style="color:#555555;">SurfRental Aljezur</span></p>
+    <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#1A1A1A;">See you in the water!<br/><strong style="font-weight:800;">Leon</strong><br/><span style="color:#555555;">Surf Rental Aljezur</span></p>
 
     <!-- Footer -->
     <hr style="margin:32px 0 16px;border:none;border-top:1.5px solid #1A1A1A;" />
-    <p style="font-size:12px;color:#888888;line-height:1.5;">SurfRental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#D4501E;text-decoration:none;">surfrental-aljezur.com</a></p>
+    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#D4501E;text-decoration:none;">surfrental-aljezur.com</a></p>
   </div>
 </div>`;
 

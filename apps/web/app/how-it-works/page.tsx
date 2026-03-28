@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CtaSection } from "../components/cta-section";
+import NewsletterPopup from "../components/newsletter-popup";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { SITE_URL } from "../lib/metadata";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 		"Book your surf gear in 3 simple steps: send us your dates, we deliver to your door in Aljezur, and we pick up before checkout. No queues, no car racks, no deposit hassle.",
 	alternates: { canonical: "/how-it-works" },
 	openGraph: {
-		title: "How It Works | SurfRental Aljezur",
+		title: "How It Works | Surf Rental Aljezur",
 		description:
 			"3-step surfboard and wetsuit rental delivery to your accommodation in Aljezur, Arrifana, and Vale da Telha.",
 		url: `${SITE_URL}/how-it-works`,
@@ -194,6 +195,8 @@ export default function HowItWorksPage() {
 			</section>
 
 			<CtaSection />
+
+			<NewsletterPopup />
 		</>
 	);
 }

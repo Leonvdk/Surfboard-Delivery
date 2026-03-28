@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 		"Surfboard and wetsuit rental from \u20AC25/day or \u20AC85/week. Board only, full package, or premium bundle with changing mat & roof rack — free delivery in Aljezur, Arrifana, and Vale da Telha.",
 	alternates: { canonical: "/pricing" },
 	openGraph: {
-		title: "Pricing — Daily & Weekly Surf Rental Packages | SurfRental Aljezur",
+		title: "Pricing — Daily & Weekly Surf Rental Packages | Surf Rental Aljezur",
 		description:
 			"Surfboard and wetsuit rental packages from \u20AC25/day or \u20AC85/week with free delivery on the Costa Vicentina.",
 		url: `${SITE_URL}/pricing`,
@@ -219,12 +219,12 @@ function pricingProductJsonLd() {
 	return {
 		"@context": "https://schema.org",
 		"@type": "Product",
-		name: "Surf Gear Rental — SurfRental Aljezur",
+		name: "Surf Gear Rental — Surf Rental Aljezur",
 		description:
 			"Surfboard and wetsuit rental packages with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, and Monte Cl\u00E9rigo.",
 		brand: {
 			"@type": "Brand",
-			name: "SurfRental Aljezur",
+			name: "Surf Rental Aljezur",
 		},
 		offers: {
 			"@type": "AggregateOffer",

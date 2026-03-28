@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 		"Complete guide to the best surf spots near Aljezur on the Costa Vicentina. Wave conditions, best tides, difficulty levels, and seasonal tips for Arrifana, Monte Clérigo, Amoreira, and Vale Figueiras.",
 	alternates: { canonical: "/surf-spots" },
 	openGraph: {
-		title: "Surf Spots Guide — Aljezur & Costa Vicentina | SurfRental",
+		title: "Surf Spots Guide — Aljezur & Costa Vicentina | Surf Rental",
 		description:
 			"Everything you need to know about surfing Arrifana, Monte Clérigo, Amoreira, and the best breaks on Portugal's Costa Vicentina.",
 		url: `${SITE_URL}/surf-spots`,

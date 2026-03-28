@@ -1,6 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
 import { TrackedCtaLink } from "./tracked-cta-link";
+import { HeroCalculator } from "./hero-calculator";
 
 export function Hero() {
 	return (
@@ -30,24 +29,7 @@ export function Hero() {
 						</div>
 					</div>
 					<div className="hero-visual">
-						<Link href="/surf-gear#board-7-8" className="hero-card">
-							<div className="hero-card-tag">Most rented</div>
-							<div className="hero-card-img">
-								<Image
-									src="/images/rentals/7'8/picture(1).jpg"
-									alt="7'8 Funboard"
-									width={600}
-									height={450}
-								/>
-							</div>
-							<div className="hero-card-body">
-								<div className="hero-card-row">
-									<div className="hero-card-label">Funboard</div>
-									<div className="hero-card-price"><span className="hero-card-from">from</span> &euro;11 <small>/day</small></div>
-								</div>
-								<div className="hero-card-sub">7&apos;8&quot; &middot; Stability meets maneuverability</div>
-							</div>
-						</Link>
+						<HeroCalculator />
 					</div>
 				</div>
 			</div>

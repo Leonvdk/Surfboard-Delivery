@@ -1,11 +1,11 @@
 "use client";
 
-import { Syne, DM_Sans } from "next/font/google";
+import { DM_Sans, Sora } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const sora = Sora({
 	subsets: ["latin"],
-	variable: "--font-syne",
+	variable: "--font-sora",
 	display: "swap",
 });
 
@@ -22,7 +22,7 @@ export default function GlobalError({
 	reset: () => void;
 }) {
 	return (
-		<html lang="en" className={`${syne.variable} ${dmSans.variable}`}>
+		<html lang="en" className={`${sora.variable} ${dmSans.variable}`}>
 			<body>
 				<section className="error-page">
 					<div className="container">

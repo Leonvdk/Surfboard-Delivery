@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
+import NewsletterPopup from "../components/newsletter-popup";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { StarRating } from "../components/star-rating";
 import { reviewJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
-	title: "Reviews — What Surfers Say About SurfRental Aljezur",
+	title: "Reviews — What Surfers Say About Surf Rental Aljezur",
 	description:
-		"Read genuine reviews from surfers who rented boards and wetsuits with SurfRental in Aljezur. 4.9 average rating from 200+ happy customers.",
+		"Read genuine reviews from surfers who rented boards and wetsuits with Surf Rental in Aljezur. 4.9 average rating from 200+ happy customers.",
 	alternates: { canonical: "/reviews" },
 	openGraph: {
-		title: "Reviews | SurfRental Aljezur",
+		title: "Reviews | Surf Rental Aljezur",
 		description: "What surfers say about our surf gear delivery in Aljezur, Arrifana, and Vale da Telha.",
 		url: `${SITE_URL}/reviews`,
 	},
@@ -173,6 +174,8 @@ export default function ReviewsPage() {
 			</section>
 
 			<CtaSection />
+
+			<NewsletterPopup />
 		</>
 	);
 }

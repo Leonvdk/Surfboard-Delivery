@@ -1,0 +1,180 @@
+[    4147ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   23193ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   38670ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   50395ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   65412ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   68674ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   76192ms] [WARNING] The resource http://localhost:3000/_next/static/chunks/%5Bnext%5D_internal_font_google_0.inzxj._.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/surf-gear:0
+[   89380ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_0adwku7._.js:3272
+[   90030ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_0adwku7._.js:3272
+[   90067ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/surf-gear?_rsc=1txsw:0
+[   90164ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_0adwku7._.js:3272
+[   90245ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_0adwku7._.js:3272
+[   90253ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/surf-gear?_rsc=1txsw:0
+[   90410ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_0adwku7._.js:3272
+[   90442ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/surf-gear?_rsc=1txsw:0
+[   90450ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/surf-gear:0
+[   90824ms] Error: ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error
+
+
+    at <unknown> (Error: ./apps/web/app/layout.tsx:2:10)
+    at Object.getCompilationErrors (file:///Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/node_modules/.pnpm/next@16.2.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:1189:59)
+    at DevBundlerService.getCompilationError (file:///Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/node_modules/.pnpm/next@16.2.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/lib/dev-bundler-service.js:44:55)
+    at DevServer.getCompilationError (file:///Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/node_modules/.pnpm/next@16.2.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/dev/next-dev-server.js:719:42)
+    at DevServer.findPageComponents (file:///Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/node_modules/.pnpm/next@16.2.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/dev/next-dev-server.js:689:43)
+    at async DevServer.renderErrorToResponseImpl (file:///Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/node_modules/.pnpm/next@16.2.1_react-dom@19.2.4_react@19.2.4__react@19.2.4/node_modules/next/dist/server/base-server.js:1745:26)
+[   90855ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   90856ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   90856ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   90856ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   90873ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[   90875ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   91051ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   91097ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   91221ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   91275ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945
+[   92860ms] [ERROR] ./apps/web/app/layout.tsx:2:10
+the name `GoogleAnalytics` is defined multiple times
+  1 | import { GoogleAnalytics } from "@next/third-parties/google";
+> 2 | import { GoogleAnalytics } from "@next/third-parties/google";
+    |          ^^^^^^^^^^^^^^^
+  3 | import { DM_Sans } from "next/font/google";
+  4 | import { EngagementTracker } from "./components/engagement-tracker";
+  5 | import { Footer } from "./components/footer";
+
+Ecmascript file had an error @ http://localhost:3000/_next/static/chunks/0m~-_next_dist_12z0b9t._.js:1945

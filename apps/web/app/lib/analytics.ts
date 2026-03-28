@@ -61,6 +61,20 @@ export function trackBlogPopupDismissed(page: string) {
 	send("blog_popup_dismissed", { page_path: page });
 }
 
+// ── Newsletter popup ─────────────────────────────────────────────────
+
+export function trackNewsletterPopupShown(page: string) {
+	send("newsletter_popup_shown", { page_path: page });
+}
+
+export function trackNewsletterPopupSubmitted(page: string) {
+	send("newsletter_popup_submitted", { page_path: page });
+}
+
+export function trackNewsletterPopupDismissed(page: string) {
+	send("newsletter_popup_dismissed", { page_path: page });
+}
+
 // ── Scroll depth ────────────────────────────────────────────────────
 
 export function trackScrollDepth(depth: number, pagePath: string) {

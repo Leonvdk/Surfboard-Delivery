@@ -5,7 +5,7 @@ import { HorizonLine, Reveal } from "../components/reveal";
 export const metadata: Metadata = {
 	title: "Terms & Conditions",
 	description:
-		"Terms and conditions for SurfRental Aljezur surf gear rental, including booking, cancellation, damage, and delivery policies.",
+		"Terms and conditions for Surf Rental Aljezur surf gear rental, including booking, cancellation, damage, and delivery policies.",
 	alternates: { canonical: "/terms" },
 };
 
@@ -110,7 +110,7 @@ export default function TermsPage() {
 
 							<h2>7. Liability &amp; insurance</h2>
 							<p>
-								Surfing involves inherent risks. By renting from SurfRental, you acknowledge that
+								Surfing involves inherent risks. By renting from Surf Rental, you acknowledge that
 								you surf at your own risk. We are not liable for injuries, accidents, or losses that
 								occur while using our equipment.
 							</p>

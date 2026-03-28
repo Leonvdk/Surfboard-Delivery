@@ -1,10 +1,10 @@
-# SurfRental Aljezur
+# Surf Rental Aljezur
 
 > Surfboard and wetsuit rental with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, and Monte Clérigo on the Costa Vicentina, Portugal.
 
 ## About
 
-SurfRental is a surf gear rental service based in the Aljezur area of Portugal's Costa Vicentina. We deliver surfboards and wetsuits directly to holiday accommodations (Airbnbs, villas, holiday homes) and pick them up before checkout.
+Surf Rental is a surf gear rental service based in the Aljezur area of Portugal's Costa Vicentina. We deliver surfboards and wetsuits directly to holiday accommodations (Airbnbs, villas, holiday homes) and pick them up before checkout.
 
 ## Key Facts
 
