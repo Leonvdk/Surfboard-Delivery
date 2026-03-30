@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { isBot } from "../lib/analytics";
 import { trackScrollDepth, trackTimeOnPage } from "../lib/analytics";
 
 const SCROLL_THRESHOLDS = [25, 50, 75, 90];
@@ -12,6 +13,12 @@ export function EngagementTracker() {
 	const scrollHits = useRef(new Set<number>());
 	const timeHits = useRef(new Set<number>());
 	const startTime = useRef(Date.now());
+
+	useEffect(() => {
+		if (isBot() && window.gtag) {
+			window.gtag("set", { traffic_type: "bot" });
+		}
+	}, []);
 
 	useEffect(() => {
 		scrollHits.current.clear();

@@ -1023,7 +1023,7 @@ h1 {
 
 .boards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-lg);
 }
 
@@ -1102,8 +1102,8 @@ h1 {
 
 .board-card-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 4px;
   margin-top: var(--space-md);
   padding-top: var(--space-md);
   border-top: var(--border-light);
@@ -2675,22 +2675,23 @@ h1 {
   cursor: not-allowed;
 }
 
-.drp-nav-title {
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  flex: 1;
-  text-align: center;
-}
-
 .drp-months {
   display: flex;
   gap: 24px;
 }
 
 .drp-month {
+  flex: 1;
   min-width: 0;
+}
+
+.drp-month-title {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0 0 8px;
 }
 
 .drp-day-labels {
@@ -2800,9 +2801,6 @@ h1 {
     grid-template-columns: repeat(7, 1fr);
   }
 
-  .drp-nav-title {
-    font-size: 0.8125rem;
-  }
 }
 
 /* ---- End Date Range Picker ---- */
@@ -3761,131 +3759,9 @@ h1 {
   top: 100px;
 }
 
-.calc-card {
-  border: var(--border);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  animation: calc-fade-in 400ms ease;
-}
-
 @keyframes calc-fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.calc-card-img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  border-bottom: var(--border);
-  background: var(--gray-100);
-}
-
-.calc-card-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.calc-card-body {
-  padding: var(--space-lg);
-}
-
-.calc-card-level {
-  display: inline-block;
-  padding: 4px 12px;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: var(--border);
-  margin-bottom: var(--space-md);
-}
-
-.calc-card-name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-sm);
-}
-
-.calc-card-desc {
-  font-size: 0.9375rem;
-  color: var(--gray-700);
-  line-height: 1.7;
-  margin-bottom: var(--space-lg);
-}
-
-.calc-card-traits {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-}
-
-.calc-card-traits li {
-  padding: 6px 14px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  border: var(--border);
-  background: var(--gray-100);
-}
-
-/* Compact card on mobile */
-
-@media (max-width: 767px) {
-  .calc-card {
-    display: flex;
-    gap: var(--space-md);
-  }
-
-  .calc-card-img {
-    width: 100px;
-    min-width: 100px;
-    aspect-ratio: auto;
-    height: auto;
-    border-bottom: none;
-    border-right: var(--border);
-  }
-
-  .calc-card-body {
-    padding: var(--space-md);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .calc-card-level {
-    margin-bottom: var(--space-xs);
-    padding: 2px 8px;
-    font-size: 0.6rem;
-  }
-
-  .calc-card-name {
-    font-size: 1.1rem;
-    margin-bottom: var(--space-xs);
-  }
-
-  .calc-card-desc {
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    margin-bottom: var(--space-sm);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .calc-card-traits {
-    gap: var(--space-xs);
-  }
-
-  .calc-card-traits li {
-    padding: 3px 8px;
-    font-size: 0.7rem;
-  }
 }
 
 /* Empty state */
@@ -4058,6 +3934,21 @@ h1 {
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: -0.01em;
+}
+
+.calc-mini-level {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.calc-hint {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-top: var(--space-sm);
 }
 
 /* Compact advanced grid on mobile */

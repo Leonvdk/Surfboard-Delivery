@@ -4,8 +4,23 @@ declare global {
 	}
 }
 
+const BOT_PATTERN =
+	/bot|crawl|spider|slurp|facebookexternalhit|linkedinbot|twitterbot|whatsapp|bingpreview|mj12bot|semrush|ahref|yandex|baidu|duckduckbot|googlebot|mediapartners|adsbot|apis-google|feedfetcher|lighthouse|pagespeed|headlesschrome|phantomjs|prerender|snap-prefetch|wget|curl|python-requests|go-http-client|java\/|okhttp|httpx|node-fetch|cf-ray/i;
+
+export function isBot(): boolean {
+	if (typeof navigator === "undefined") return false;
+	return BOT_PATTERN.test(navigator.userAgent);
+}
+
 function send(eventName: string, params?: Record<string, unknown>) {
 	if (typeof window !== "undefined" && window.gtag) {
+		if (isBot()) {
+			window.gtag("event", eventName, {
+				...params,
+				traffic_type: "bot",
+			});
+			return;
+		}
 		window.gtag("event", eventName, params);
 	}
 }

@@ -183,12 +183,6 @@ export function DateRangePicker({
 								<polyline points="15 18 9 12 15 6" />
 							</svg>
 						</button>
-						<span className="drp-nav-title">
-							{MONTH_NAMES[viewMonth.month]} {viewMonth.year}
-						</span>
-						<span className="drp-nav-title">
-							{MONTH_NAMES[nextMonth.month]} {nextMonth.year}
-						</span>
 						<button type="button" onClick={goForward} aria-label="Next month">
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 								<polyline points="9 18 15 12 9 6" />
@@ -257,6 +251,7 @@ function MonthGrid({
 
 	return (
 		<div className="drp-month">
+			<h3 className="drp-month-title">{MONTH_NAMES[month]} {year}</h3>
 			<div className="drp-day-labels">
 				{DAY_LABELS.map((d) => (
 					<span key={d}>{d}</span>

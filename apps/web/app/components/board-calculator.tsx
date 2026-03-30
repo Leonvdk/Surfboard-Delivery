@@ -38,7 +38,7 @@ const BOARDS = {
 	"funboard-70": {
 		name: "Funboard",
 		size: "7\u20190",
-		anchor: "board-7-8",
+		anchor: "board-7-0",
 		image: "/images/rentals/7'0/picture(1).jpg",
 		level: "Intermediate",
 		description:
@@ -67,7 +67,7 @@ const ALL_BOARDS: Board[] = [
 type Level = "" | "never" | "few-times" | "intermediate" | "advanced";
 type Sex = "" | "male" | "female" | "kid";
 type Result =
-	| { type: "single"; board: Board }
+	| { type: "pair"; easier: Board; harder: Board }
 	| { type: "advanced" }
 	| null;
 
@@ -105,49 +105,20 @@ function recommend(level: Level, weight: number, height: number): Result {
 	if (level === "advanced") return { type: "advanced" };
 
 	if (level === "never") {
-		if (weight >= 80) return { type: "single", board: BOARDS.longboard };
-		return { type: "single", board: BOARDS["funboard-78"] };
+		return { type: "pair", easier: BOARDS.longboard, harder: BOARDS["funboard-78"] };
 	}
 
 	if (level === "few-times") {
-		if (weight >= 80) return { type: "single", board: BOARDS.longboard };
-		if (weight < 38) return { type: "single", board: BOARDS["funboard-70"] };
-		return { type: "single", board: BOARDS["funboard-78"] };
+		if (weight >= 80) return { type: "pair", easier: BOARDS.longboard, harder: BOARDS["funboard-78"] };
+		return { type: "pair", easier: BOARDS["funboard-78"], harder: BOARDS["funboard-70"] };
 	}
 
 	if (level === "intermediate") {
-		if (weight >= 80) return { type: "single", board: BOARDS["funboard-78"] };
-		return { type: "single", board: BOARDS["funboard-70"] };
+		if (weight >= 80) return { type: "pair", easier: BOARDS["funboard-78"], harder: BOARDS["funboard-70"] };
+		return { type: "pair", easier: BOARDS["funboard-70"], harder: BOARDS.shortboard };
 	}
 
 	return null;
-}
-
-function BoardCard({ board }: { board: Board }) {
-	return (
-		<div className="calc-card">
-			<div className="calc-card-img">
-				<Image
-					src={board.image}
-					alt={`${board.size} ${board.name}`}
-					width={600}
-					height={450}
-				/>
-			</div>
-			<div className="calc-card-body">
-				<span className="calc-card-level">{board.level}</span>
-				<h3 className="calc-card-name">
-					{board.size} {board.name}
-				</h3>
-				<p className="calc-card-desc">{board.description}</p>
-				<ul className="calc-card-traits">
-					{board.traits.map((t) => (
-						<li key={t}>{t}</li>
-					))}
-				</ul>
-			</div>
-		</div>
-	);
 }
 
 export function BoardCalculator() {
@@ -155,7 +126,11 @@ export function BoardCalculator() {
 	const [sex, setSex] = useState<Sex>("");
 	const [weight, setWeight] = useState("");
 	const [height, setHeight] = useState("");
-	const [advancedBoard, setAdvancedBoard] = useState<Board | null>(null);
+	const [pickedBoard, setPickedBoard] = useState<Board | null>(null);
+
+	const handleLevelChange = (v: Level) => { setLevel(v); setPickedBoard(null); };
+	const handleWeightChange = (v: string) => { setWeight(v); setPickedBoard(null); };
+	const handleHeightChange = (v: string) => { setHeight(v); setPickedBoard(null); };
 
 	const w = Number.parseInt(weight, 10) || 0;
 	const h = Number.parseInt(height, 10) || 0;
@@ -164,8 +139,11 @@ export function BoardCalculator() {
 
 	const filled = level !== "" && w > 0 && h > 0;
 
-	/* The board to use for the booking URL: either the recommendation or the advanced pick */
-	const selectedBoard = result?.type === "single" ? result.board : advancedBoard;
+	/* The board to use for the booking URL: the pick, or the easier default for pairs */
+	const selectedBoard =
+		result?.type === "pair"
+			? (pickedBoard ?? result.easier)
+			: pickedBoard;
 
 	/* Build booking URL with pre-fill params */
 	let calcBookingUrl: string | null = null;
@@ -191,7 +169,7 @@ export function BoardCalculator() {
 						id="calc-level"
 						className="calc-select"
 						value={level}
-						onChange={(e) => setLevel(e.target.value as Level)}
+						onChange={(e) => handleLevelChange(e.target.value as Level)}
 					>
 						<option value="">Select your level</option>
 						<option value="never">Never surfed before</option>
@@ -235,7 +213,7 @@ export function BoardCalculator() {
 							max="200"
 							placeholder="e.g. 75"
 							value={weight}
-							onChange={(e) => setWeight(e.target.value)}
+							onChange={(e) => handleWeightChange(e.target.value)}
 						/>
 					</div>
 					<div className="calc-field">
@@ -250,7 +228,7 @@ export function BoardCalculator() {
 							max="220"
 							placeholder="e.g. 178"
 							value={height}
-							onChange={(e) => setHeight(e.target.value)}
+							onChange={(e) => handleHeightChange(e.target.value)}
 						/>
 					</div>
 				</div>
@@ -295,37 +273,67 @@ export function BoardCalculator() {
 			<div className="calc-result">
 				{filled && result ? (
 					<>
-						{result.type === "single" ? (
-							<BoardCard board={result.board} />
+						{result.type === "pair" ? (
+							<div className="calc-advanced">
+								<p className="calc-advanced-intro">
+									We recommend these two boards for you. Pick the one that fits you best!
+								</p>
+								<div className="calc-advanced-grid">
+									{[result.easier, result.harder].map((board) => (
+										<button
+											key={board.size}
+											type="button"
+											className={`calc-mini-card${selectedBoard?.size === board.size ? " calc-mini-card--selected" : ""}`}
+											onClick={() => setPickedBoard(board)}
+										>
+											<div className="calc-mini-img">
+												<Image
+													src={board.image}
+													alt={`${board.size} ${board.name}`}
+													width={300}
+													height={225}
+												/>
+											</div>
+											<div className="calc-mini-body">
+												<div className="calc-mini-name">
+													{board.size} {board.name}
+												</div>
+												<div className="calc-mini-level">{board.level}</div>
+											</div>
+										</button>
+									))}
+								</div>
+								<p className="calc-hint">When in doubt, pick the easier board.</p>
+							</div>
 						) : (
 							<div className="calc-advanced">
 								<p className="calc-advanced-intro">
 									You can surf any of our boards. Pick your board below!
 								</p>
-							<div className="calc-advanced-grid">
-								{ALL_BOARDS.map((board) => (
-									<button
-										key={board.size}
-										type="button"
-										className={`calc-mini-card${advancedBoard?.size === board.size ? " calc-mini-card--selected" : ""}`}
-										onClick={() => setAdvancedBoard(advancedBoard?.size === board.size ? null : board)}
-									>
-										<div className="calc-mini-img">
-											<Image
-												src={board.image}
-												alt={`${board.size} ${board.name}`}
-												width={300}
-												height={225}
-											/>
-										</div>
-										<div className="calc-mini-body">
-											<div className="calc-mini-name">
-												{board.size} {board.name}
+								<div className="calc-advanced-grid">
+									{ALL_BOARDS.map((board) => (
+										<button
+											key={board.size}
+											type="button"
+											className={`calc-mini-card${pickedBoard?.size === board.size ? " calc-mini-card--selected" : ""}`}
+											onClick={() => setPickedBoard(pickedBoard?.size === board.size ? null : board)}
+										>
+											<div className="calc-mini-img">
+												<Image
+													src={board.image}
+													alt={`${board.size} ${board.name}`}
+													width={300}
+													height={225}
+												/>
 											</div>
-										</div>
-									</button>
-								))}
-							</div>
+											<div className="calc-mini-body">
+												<div className="calc-mini-name">
+													{board.size} {board.name}
+												</div>
+											</div>
+										</button>
+									))}
+								</div>
 							</div>
 						)}
 					</>

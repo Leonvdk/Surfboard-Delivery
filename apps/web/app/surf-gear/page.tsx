@@ -21,18 +21,25 @@ export const metadata: Metadata = {
 
 const boards = [
 	{
-		name: "Funboard",
-		slug: "7'8",
-		crossfadeSlug: "7'0",
-		altThumbnailSlug: "7'0",
+		name: "7\u20190 Funboard",
+		slug: "7'0",
 		level: "Beginner – Intermediate",
 		description:
-			"Available in 7\u20190 and 7\u20198, our funboards are the sweet spot between stability and maneuverability. Plenty of volume to paddle into waves easily, with enough shape to start carving real turns. The 7\u20198 is bigger and great for first-timers, while the 7\u20190 suits riders ready to progress.",
-		traits: ["Versatile all-rounder", "Easy paddling", "Forgiving & stable"],
-		who: "Beginners catching their first waves and intermediate surfers looking to build technique without sacrificing wave count.",
+			"A compact funboard that bridges the gap between a longboard and a shortboard. Easier to maneuver than the 7\u20198 while still offering plenty of volume for easy paddling. Great for riders ready to progress beyond a bigger board.",
+		traits: ["Versatile all-rounder", "Easy to maneuver", "Compact & responsive"],
+		who: "Intermediate surfers looking to build technique without sacrificing wave count, and confident beginners ready to size down.",
 	},
 	{
-		name: "Longboard",
+		name: "7\u20198 Funboard",
+		slug: "7'8",
+		level: "Beginner – Intermediate",
+		description:
+			"Our bigger funboard with extra volume for easy paddling and stability. The sweet spot between a longboard and a shortboard — forgiving enough for first-timers, with enough shape to start carving real turns.",
+		traits: ["Versatile all-rounder", "Easy paddling", "Forgiving & stable"],
+		who: "Beginners catching their first waves and intermediate surfers who want a stable, confidence-building board.",
+	},
+	{
+		name: "8\u20196 Longboard",
 		slug: "8'6",
 		level: "Beginner & Longboarders",
 		description:
@@ -41,9 +48,9 @@ const boards = [
 		who: "Beginners who could use an extra-big board to catch more waves, and longboarders who want to work on their cross step and hang ten.",
 	},
 	{
-		name: "Shortboard",
+		name: "6\u20196 Shortboard",
 		slug: "6'6",
-		level: "Advanced",
+		level: "Intermediate – Advanced",
 		description:
 			"A responsive shortboard built for speed, sharp turns, and aerial maneuvers. Soft-top construction keeps it safe and durable while still delivering real performance. Best for experienced surfers comfortable in varied conditions.",
 		traits: ["Fast & responsive", "Duck-dives easily", "Thruster fin setup"],
@@ -64,7 +71,7 @@ export default function SurfGearPage() {
 								Which surfboard is right for my level?
 							</h1>
 						<p className="section-desc">
-							Not sure which board to pick? We carry three shapes — all soft
+							Not sure which board to pick? We carry four shapes — all soft
 							tops — to cover every skill level, from your first wave to
 							advanced sessions. We also provide seasonal wetsuits so you can
 							focus on the surf.
@@ -100,7 +107,7 @@ export default function SurfGearPage() {
 						<div className="section-header section-header-center">
 							<p className="section-label">The quiver</p>
 							<h2 className="section-title" id="picker-heading">
-								Three shapes. Every wave.
+								Four shapes. Every wave.
 							</h2>
 							<p className="section-desc">
 								All our boards are soft tops — safe, durable, and forgiving.
@@ -288,7 +295,7 @@ export default function SurfGearPage() {
 							<article className="extras-card">
 								<div className="extras-img">
 									<Image
-										src="/images/changing-mat/picture.jpg"
+										src="/images/rentals/changing-mat/picture.jpg"
 										alt="Changing mat for surfers"
 										fill
 										sizes="(max-width: 640px) 100vw, 33vw"

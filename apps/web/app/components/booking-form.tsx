@@ -503,11 +503,45 @@ function personDisplayName(person: Person, index: number): string {
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
+const STORAGE_KEY = "sra-booking-draft";
+
+type FormDraft = {
+	checkin: string;
+	checkout: string;
+	people: Person[];
+	name: string;
+	email: string;
+	accommodation: string;
+	message: string;
+};
+
+function saveDraft(draft: Partial<FormDraft>) {
+	try {
+		const existing = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+		sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...draft }));
+	} catch { /* ignore */ }
+}
+
+function loadDraft(): FormDraft | null {
+	try {
+		const raw = sessionStorage.getItem(STORAGE_KEY);
+		return raw ? JSON.parse(raw) : null;
+	} catch { return null; }
+}
+
+function clearDraft() {
+	try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+}
+
 export function BookingForm() {
-	const [checkin, setCheckin] = useState("");
-	const [checkout, setCheckout] = useState("");
-	const [peopleCount, setPeopleCount] = useState(1);
-	const [people, setPeople] = useState<Person[]>([emptyPerson()]);
+	const draft = useRef(loadDraft());
+
+	const [checkin, setCheckin] = useState(draft.current?.checkin || "");
+	const [checkout, setCheckout] = useState(draft.current?.checkout || "");
+	const [peopleCount, setPeopleCount] = useState(draft.current?.people?.length || 1);
+	const [people, setPeople] = useState<Person[]>(
+		draft.current?.people?.length ? draft.current.people : [emptyPerson()],
+	);
 	const [expandedPerson, setExpandedPerson] = useState(0);
 	const [editingName, setEditingName] = useState<number | null>(null);
 	const [boardCalcOpen, setBoardCalcOpen] = useState<number | null>(null);
@@ -515,10 +549,41 @@ export function BookingForm() {
 	const [status, setStatus] = useState<FormStatus>("idle");
 	const [errorMsg, setErrorMsg] = useState("");
 
+	const formRef = useRef<HTMLFormElement>(null);
 	const formStartTime = useRef(Date.now());
 	const trackedFields = useRef(new Set<string>());
 	const lastField = useRef("");
 	const prefilled = useRef(false);
+
+	/* Restore uncontrolled fields on mount */
+	useEffect(() => {
+		const d = draft.current;
+		if (!d || !formRef.current) return;
+		const form = formRef.current;
+		if (d.name) (form.elements.namedItem("name") as HTMLInputElement | null)?.setAttribute("value", d.name);
+		if (d.email) (form.elements.namedItem("email") as HTMLInputElement | null)?.setAttribute("value", d.email);
+		if (d.accommodation) (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.setAttribute("value", d.accommodation);
+		if (d.message) {
+			const el = form.elements.namedItem("message") as HTMLTextAreaElement | null;
+			if (el) el.value = d.message;
+		}
+	}, []);
+
+	/* Save controlled state to sessionStorage */
+	useEffect(() => {
+		saveDraft({ checkin, checkout, people });
+	}, [checkin, checkout, people]);
+
+	const saveTextFields = useCallback(() => {
+		if (!formRef.current) return;
+		const form = formRef.current;
+		saveDraft({
+			name: (form.elements.namedItem("name") as HTMLInputElement | null)?.value || "",
+			email: (form.elements.namedItem("email") as HTMLInputElement | null)?.value || "",
+			accommodation: (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.value || "",
+			message: (form.elements.namedItem("message") as HTMLTextAreaElement | null)?.value || "",
+		});
+	}, []);
 
 	const handleFieldFocus = useCallback(
 		(e: React.FocusEvent<HTMLFormElement>) => {
@@ -693,6 +758,7 @@ export function BookingForm() {
 				checkout,
 				estimated_total: estimate.allSelected ? estimate.total : null,
 			});
+			clearDraft();
 			setStatus("success");
 		} catch (err) {
 			setStatus("error");
@@ -733,9 +799,11 @@ export function BookingForm() {
 	return (
 		<>
 			<form
+				ref={formRef}
 				className="contact-form"
 				onSubmit={handleSubmit}
 				onFocusCapture={handleFieldFocus}
+				onBlurCapture={saveTextFields}
 			>
 				<div className="form-group">
 					<label htmlFor="name">Name</label>

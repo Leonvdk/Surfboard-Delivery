@@ -34,7 +34,7 @@ export default function Home() {
 								<div className="metric-label">Sessions last year</div>
 							</div>
 							<div className="metric">
-								<div className="metric-value">3</div>
+								<div className="metric-value">4</div>
 								<div className="metric-label">Board models</div>
 							</div>
 							<div className="metric">
@@ -56,7 +56,7 @@ export default function Home() {
 					<Reveal>
 						<div className="section-header section-header--center">
 							<p className="section-eyebrow">The collection</p>
-							<h2 className="section-title">Three shapes. Every wave.</h2>
+							<h2 className="section-title">Four shapes. Every wave.</h2>
 							<p className="section-desc">
 								Each board is cleaned, waxed, and inspected before every rental.
 								Pick the shape that matches your experience.
@@ -85,14 +85,47 @@ export default function Home() {
 										/>
 									</div>
 									<div className="board-card-body">
-										<h3 className="board-card-title">Shortboard</h3>
+										<h3 className="board-card-title">6&#8217;6 Shortboard</h3>
 										<p className="board-card-desc">
 											Built for speed, sharp turns, and aerial maneuvers. For
 											experienced surfers chasing performance.
 										</p>
 										<div className="board-card-footer">
 											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
-											<span className="board-card-level">Advanced</span>
+											<span className="board-card-level">Intermediate – Advanced</span>
+										</div>
+									</div>
+								</article>
+							</Link>
+
+							<Link href="/surf-gear#board-7-0" className="board-card-link">
+								<article className="board-card">
+									<div className="board-card-img">
+										<Image
+											className="board-card-img-default"
+											src="/images/rentals/7'0/picture(1).jpg"
+											alt="7'0 Funboard"
+											width={600}
+											height={450}
+										/>
+										<Image
+											className="board-card-img-hover"
+											src="/images/rentals/7'0/picture(3).jpg"
+											alt=""
+											width={600}
+											height={450}
+											aria-hidden="true"
+										/>
+									</div>
+									<div className="board-card-body">
+										<h3 className="board-card-title">7&#8217;0 Funboard</h3>
+										<p className="board-card-desc">
+											A step up from the beginner board. Easier to maneuver
+											while still forgiving enough to build confidence.
+										</p>
+										<div className="board-card-footer">
+											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<span className="board-card-level">Beginner – Intermediate</span>
 										</div>
 									</div>
 								</article>
@@ -118,14 +151,14 @@ export default function Home() {
 										/>
 									</div>
 									<div className="board-card-body">
-										<h3 className="board-card-title">Funboard</h3>
+										<h3 className="board-card-title">7&#8217;8 Funboard</h3>
 										<p className="board-card-desc">
 											The middle ground. Enough stability to catch waves easily,
 											enough response to start carving turns.
 										</p>
 										<div className="board-card-footer">
 											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
-											<span className="board-card-level">Intermediate</span>
+											<span className="board-card-level">Beginner – Intermediate</span>
 										</div>
 									</div>
 								</article>
@@ -151,7 +184,7 @@ export default function Home() {
 										/>
 									</div>
 									<div className="board-card-body">
-										<h3 className="board-card-title">Longboard</h3>
+										<h3 className="board-card-title">8&#8217;6 Longboard</h3>
 										<p className="board-card-desc">
 											Stable and forgiving. Perfect for catching every wave,
 											whether you are starting out or cruising.

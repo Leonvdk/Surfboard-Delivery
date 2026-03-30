@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm --filter web exec tsc --noEmit)"
+      "Bash(pnpm --filter web exec tsc --noEmit)",
+      "Bash(npx lighthouse:*)",
+      "Bash(sips -g pixelHeight -g pixelWidth \"/Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/apps/web/app/icon.png\")",
+      "Bash(ls ~/Leonvdk/Projects/mcpkeys/surf-rental-analytics-058c675e24d8*)",
+      "Bash(ls ~/Leonvdk/projects/mcpkeys/surf-rental-analytics-058c675e24d8*)",
+      "Bash(ls ~/leonvdk/Projects/mcpkeys/surf-rental-analytics-058c675e24d8*)",
+      "Bash(pipx list:*)",
+      "Bash(pipx install:*)",
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json\" GOOGLE_CLOUD_PROJECT=\"surf-rental-analytics\" analytics-mcp --help)",
+      "Bash(pipx runpip:*)",
+      "Bash(pipx run --spec analytics-mcp python -c \":*)",
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json\" /Users/leonvandeklundert/.local/pipx/venvs/analytics-mcp/bin/python -c \":*)"
     ]
   }
 }
