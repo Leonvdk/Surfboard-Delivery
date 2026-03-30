@@ -211,70 +211,6 @@ export default function SurfGearPage() {
 
 			<HorizonLine />
 
-			{/* Wetsuits */}
-			<section className="section" aria-labelledby="wetsuits-heading">
-				<div className="container">
-					<Reveal>
-						<div className="section-header section-header-center">
-							<p className="section-label">Wetsuits</p>
-							<h2 className="section-title" id="wetsuits-heading">
-								Wetsuits by season
-							</h2>
-							<p className="section-desc">
-								The water temperature on the Costa Vicentina varies from 15°C in
-								winter to 20°C in summer. We provide the right thickness for
-								your dates — no guesswork needed.
-							</p>
-						</div>
-					</Reveal>
-					<Reveal stagger>
-						<div className="grid-3">
-							<article className="gear-card gear-card--summer">
-								<div className="gear-card-accent" />
-								<div className="gear-card-header">
-									<div className="gear-card-temp">18–20°C</div>
-									<h3>Summer</h3>
-									<p className="gear-card-months">Jun – Sep</p>
-								</div>
-								<p className="gear-tag">3/2mm fullsuit or spring suit</p>
-								<p>
-									A light fullsuit keeps you comfortable for long sessions
-									without overheating.
-								</p>
-							</article>
-							<article className="gear-card gear-card--shoulder">
-								<div className="gear-card-accent" />
-								<div className="gear-card-header">
-									<div className="gear-card-temp">16–18°C</div>
-									<h3>Shoulder</h3>
-									<p className="gear-card-months">Apr – May, Oct</p>
-								</div>
-								<p className="gear-tag">4/3mm fullsuit</p>
-								<p>
-									The standard thickness for the Algarve. Warm enough for
-									dawn patrols.
-								</p>
-							</article>
-							<article className="gear-card gear-card--winter">
-								<div className="gear-card-accent" />
-								<div className="gear-card-header">
-									<div className="gear-card-temp">15–16°C</div>
-									<h3>Winter</h3>
-									<p className="gear-card-months">Nov – Mar</p>
-								</div>
-								<p className="gear-tag">4/3mm or 5/3mm fullsuit</p>
-								<p>
-									Thicker neoprene plus optional boots and gloves for the
-									colder months.
-								</p>
-							</article>
-						</div>
-					</Reveal>
-				</div>
-			</section>
-
-			<HorizonLine />
-
 			{/* Premium extras */}
 			<section className="section section-alt" aria-labelledby="extras-heading">
 				<div className="container">
@@ -354,6 +290,70 @@ export default function SurfGearPage() {
 								<p>
 									A warm changing poncho for getting in and out of your wetsuit
 									at the beach. Keeps you covered and warm after a session.
+								</p>
+							</article>
+						</div>
+					</Reveal>
+				</div>
+			</section>
+
+			<HorizonLine />
+
+			{/* Wetsuits */}
+			<section className="section" aria-labelledby="wetsuits-heading">
+				<div className="container">
+					<Reveal>
+						<div className="section-header section-header-center">
+							<p className="section-label">Wetsuits</p>
+							<h2 className="section-title" id="wetsuits-heading">
+								Wetsuits by season
+							</h2>
+							<p className="section-desc">
+								The water temperature on the Costa Vicentina varies from 15°C in
+								winter to 20°C in summer. We provide the right thickness for
+								your dates — no guesswork needed.
+							</p>
+						</div>
+					</Reveal>
+					<Reveal stagger>
+						<div className="grid-3">
+							<article className="gear-card gear-card--summer">
+								<div className="gear-card-accent" />
+								<div className="gear-card-header">
+									<div className="gear-card-temp">18–20°C</div>
+									<h3>Summer</h3>
+									<p className="gear-card-months">Jun – Sep</p>
+								</div>
+								<p className="gear-tag">3/2mm fullsuit or spring suit</p>
+								<p>
+									A light fullsuit keeps you comfortable for long sessions
+									without overheating.
+								</p>
+							</article>
+							<article className="gear-card gear-card--shoulder">
+								<div className="gear-card-accent" />
+								<div className="gear-card-header">
+									<div className="gear-card-temp">16–18°C</div>
+									<h3>Shoulder</h3>
+									<p className="gear-card-months">Apr – May, Oct</p>
+								</div>
+								<p className="gear-tag">4/3mm fullsuit</p>
+								<p>
+									The standard thickness for the Algarve. Warm enough for
+									dawn patrols.
+								</p>
+							</article>
+							<article className="gear-card gear-card--winter">
+								<div className="gear-card-accent" />
+								<div className="gear-card-header">
+									<div className="gear-card-temp">15–16°C</div>
+									<h3>Winter</h3>
+									<p className="gear-card-months">Nov – Mar</p>
+								</div>
+								<p className="gear-tag">4/3mm or 5/3mm fullsuit</p>
+								<p>
+									Thicker neoprene plus optional boots and gloves for the
+									colder months.
 								</p>
 							</article>
 						</div>
