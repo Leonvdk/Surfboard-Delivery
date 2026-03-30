@@ -77,14 +77,15 @@ export default function SurfGearPage() {
 							focus on the surf.
 						</p>
 						<div className="hero-btn-row">
-							<a href="#the-quiver" className="btn btn-outline scroll-down-btn">
-								View our boards
+							<a href="#the-quiver" className="btn btn-outline scroll-down-btn boards-btn">
+								<span className="boards-btn-desktop">View our boards</span>
+								<span className="boards-btn-mobile">Go to our gear calculator</span>
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 									<line x1="12" y1="5" x2="12" y2="19" />
 									<polyline points="19 12 12 19 5 12" />
 								</svg>
 							</a>
-							<a href="#extras-heading" className="btn btn-outline scroll-down-btn">
+							<a href="#extras-heading" className="btn btn-primary scroll-down-btn">
 								Check out our Premium Package
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 									<line x1="12" y1="5" x2="12" y2="19" />
@@ -325,19 +326,34 @@ export default function SurfGearPage() {
 								</p>
 							</article>
 							<article className="extras-card">
-								<div className="extras-img">
+								<div className="extras-img extras-img--crossfade extras-img--poncho">
 									<Image
-										src="/images/rentals/wax/wax.png"
-										alt="Eco-friendly surf wax"
+										src="/images/rentals/poncho/picture(1).png"
+										alt="Surf poncho — front"
 										fill
 										sizes="(max-width: 640px) 100vw, 33vw"
+										className="crossfade-img crossfade-img--a"
+									/>
+									<Image
+										src="/images/rentals/poncho/picture(2).png"
+										alt="Surf poncho — detail"
+										fill
+										sizes="(max-width: 640px) 100vw, 33vw"
+										className="crossfade-img crossfade-img--b"
+									/>
+									<Image
+										src="/images/rentals/poncho/picture(5).png"
+										alt="Surf poncho — in use"
+										fill
+										sizes="(max-width: 640px) 100vw, 33vw"
+										className="poncho-hover-img"
 									/>
 								</div>
-								<h3>Wax</h3>
-								<span className="extras-badge">All packages</span>
+								<h3>Poncho</h3>
+								<span className="extras-badge">Premium Package</span>
 								<p>
-									Fresh eco-friendly wax applied before every rental, matched
-									to the water temperature.
+									A warm changing poncho for getting in and out of your wetsuit
+									at the beach. Keeps you covered and warm after a session.
 								</p>
 							</article>
 						</div>

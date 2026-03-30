@@ -265,6 +265,19 @@ h1 {
   margin-top: 0;
 }
 
+.boards-btn-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .boards-btn-desktop {
+    display: none;
+  }
+  .boards-btn-mobile {
+    display: inline;
+  }
+}
+
 .btn-accent {
   font-family: var(--font-display);
   font-weight: 600;
@@ -4095,6 +4108,36 @@ h1 {
   object-fit: contain;
   object-position: center;
   transition: transform 300ms ease;
+}
+
+.extras-img--crossfade img {
+  animation: none;
+  transition: none;
+}
+
+.extras-img--crossfade img.crossfade-img--a {
+  animation: crossfade-a 9s ease-in-out infinite;
+}
+
+.extras-img--crossfade img.crossfade-img--b {
+  animation: crossfade-b 9s ease-in-out infinite;
+}
+
+.extras-img--poncho .poncho-hover-img {
+  opacity: 0;
+  transition: opacity 400ms ease;
+  z-index: 2;
+  animation: none !important;
+  object-fit: cover !important;
+}
+
+.extras-card:hover .extras-img--poncho .poncho-hover-img {
+  opacity: 1;
+}
+
+.extras-card:hover .extras-img--poncho .crossfade-img--a,
+.extras-card:hover .extras-img--poncho .crossfade-img--b {
+  animation-play-state: paused;
 }
 
 .extras-card:hover .extras-img img {
