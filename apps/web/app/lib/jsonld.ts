@@ -10,7 +10,7 @@ export function localBusinessJsonLd() {
 			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
 		logo: `${SITE_URL}/images/logo.png`,
-		image: `${SITE_URL}/images/logo.png`,
+		image: `${SITE_URL}/images/meta.jpg`,
 		email: "hello@surfrental-aljezur.com",
 		telephone: "+31613262259",
 		contactPoint: {
@@ -68,105 +68,98 @@ export function localBusinessJsonLd() {
 			name: "Surf Gear Rental Packages",
 			itemListElement: [
 				{
-					"@type": "Offer",
-					name: "Board Only — Weekly",
+					"@type": "Product",
+					name: "Weekly Surfboard Rental",
 					description: "Surfboard rental for 1 week with leash, wax, and free delivery and pickup.",
-					price: "85",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Weekly Surfboard Rental",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "85",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 				{
-					"@type": "Offer",
-					name: "Full Package — Board + Wetsuit — Weekly",
+					"@type": "Product",
+					name: "Weekly Surfboard & Wetsuit Rental",
 					description: "Surfboard and wetsuit rental for 1 week with free delivery and pickup.",
-					price: "120",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Weekly Surfboard & Wetsuit Rental",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "120",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 				{
-					"@type": "Offer",
-					name: "Premium Package — Board + Wetsuit + Changing Mat + Roof Rack — Weekly",
+					"@type": "Product",
+					name: "Weekly Premium Surf Rental Bundle",
 					description:
 						"Complete surf trip bundle: surfboard, wetsuit, changing mat, and roof rack pads for 1 week with free delivery and pickup.",
-					price: "150",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Weekly Premium Surf Rental Bundle",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "150",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 				{
-					"@type": "Offer",
-					name: "Board Only — Daily",
+					"@type": "Product",
+					name: "Daily Surfboard Rental",
 					description: "Surfboard rental per day (3-day minimum) with free delivery and pickup.",
-					price: "25",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Daily Surfboard Rental",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "25",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 				{
-					"@type": "Offer",
-					name: "Full Package — Board + Wetsuit — Daily",
+					"@type": "Product",
+					name: "Daily Surfboard & Wetsuit Rental",
 					description:
 						"Surfboard and wetsuit rental per day (3-day minimum) with free delivery and pickup.",
-					price: "35",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Daily Surfboard & Wetsuit Rental",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "35",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 				{
-					"@type": "Offer",
-					name: "Premium Package — Daily",
+					"@type": "Product",
+					name: "Daily Premium Surf Rental Bundle",
 					description:
 						"Complete surf trip bundle per day (3-day minimum): surfboard, wetsuit, changing mat, and roof rack pads.",
-					price: "45",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Daily Premium Surf Rental Bundle",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "45",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 				{
-					"@type": "Offer",
-					name: "Extended Stay — Full Package — 2 Weeks",
+					"@type": "Product",
+					name: "Two-Week Surfboard & Wetsuit Rental",
 					description:
 						"Surfboard and wetsuit rental for 2 weeks with free delivery, pickup, and a mid-stay board swap.",
-					price: "199",
-					priceCurrency: "EUR",
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-					itemOffered: {
-						"@type": "Product",
-						name: "Two-Week Surfboard & Wetsuit Rental",
-						category: "Surf Equipment Rental",
+					category: "Surf Equipment Rental",
+					offers: {
+						"@type": "Offer",
+						price: "199",
+						priceCurrency: "EUR",
+						availability: "https://schema.org/InStock",
+						priceValidUntil: "2026-12-31",
 					},
 				},
 			],
@@ -296,5 +289,29 @@ export function webSiteJsonLd() {
 		url: SITE_URL,
 		description:
 			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha.",
+	};
+}
+
+export function siteNavigationJsonLd() {
+	const pages = [
+		{ name: "Surfboards & Wetsuits", url: `${SITE_URL}/surf-gear` },
+		{ name: "Pricing", url: `${SITE_URL}/pricing` },
+		{ name: "How It Works", url: `${SITE_URL}/how-it-works` },
+		{ name: "Reviews", url: `${SITE_URL}/reviews` },
+		{ name: "Surf Spots", url: `${SITE_URL}/surf-spots` },
+		{ name: "Blog", url: `${SITE_URL}/blog` },
+		{ name: "Book Now", url: `${SITE_URL}/contact` },
+	];
+
+	return {
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		name: "Site Navigation",
+		itemListElement: pages.map((page, index) => ({
+			"@type": "SiteNavigationElement",
+			position: index + 1,
+			name: page.name,
+			url: page.url,
+		})),
 	};
 }

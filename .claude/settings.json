@@ -1,8 +1,17 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/leonvandeklundert/Leonvdk/Projects/Surf Rental -type f -name robots.*)",
+      "Bash(find /Users/leonvandeklundert/Leonvdk/Projects/Surf Rental/apps/web/content/blog -type f \\\\\\(-name *.md -o -name *.mdx \\\\\\))"
+    ]
+  },
   "mcpServers": {
     "analytics-mcp": {
       "command": "pipx",
-      "args": ["run", "analytics-mcp"],
+      "args": [
+        "run",
+        "analytics-mcp"
+      ],
       "env": {
         "GOOGLE_APPLICATION_CREDENTIALS": "/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json",
         "GOOGLE_CLOUD_PROJECT": "surf-rental-analytics"

@@ -41,7 +41,7 @@ export const baseMetadata: Metadata = {
 		description: DEFAULT_DESCRIPTION,
 		images: [
 			{
-				url: "/images/open-graph.jpg",
+				url: "/images/meta.jpg",
 				width: 1200,
 				height: 630,
 				alt: "Surf Rental Aljezur — Surfboard & Wetsuit Rental on the Costa Vicentina",
@@ -52,7 +52,7 @@ export const baseMetadata: Metadata = {
 		card: "summary_large_image",
 		title: "Surf Rental Aljezur — Surfboard & Wetsuit Rental Delivered",
 		description: DEFAULT_DESCRIPTION,
-		images: ["/images/open-graph.jpg"],
+		images: ["/images/meta.jpg"],
 	},
 	alternates: {
 		canonical: SITE_URL,

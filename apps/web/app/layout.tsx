@@ -5,7 +5,7 @@ import { Footer } from "./components/footer";
 import { JsonLd } from "./components/json-ld";
 import { Nav } from "./components/nav";
 import { OutboundTracker } from "./components/outbound-tracker";
-import { localBusinessJsonLd, webSiteJsonLd } from "./lib/jsonld";
+import { localBusinessJsonLd, siteNavigationJsonLd, webSiteJsonLd } from "./lib/jsonld";
 import { baseMetadata } from "./lib/metadata";
 import "./globals.css";
 
@@ -34,6 +34,7 @@ export default function RootLayout({
 			<body>
 				<JsonLd data={localBusinessJsonLd()} />
 				<JsonLd data={webSiteJsonLd()} />
+				<JsonLd data={siteNavigationJsonLd()} />
 				<Nav />
 				<main id="main-content">{children}</main>
 				<Footer />
