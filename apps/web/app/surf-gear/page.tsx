@@ -23,6 +23,8 @@ const boards = [
 	{
 		name: "Funboard",
 		slug: "7'8",
+		crossfadeSlug: "7'0",
+		altThumbnailSlug: "7'0",
 		level: "Beginner – Intermediate",
 		description:
 			"Available in 7\u20190 and 7\u20198, our funboards are the sweet spot between stability and maneuverability. Plenty of volume to paddle into waves easily, with enough shape to start carving real turns. The 7\u20198 is bigger and great for first-timers, while the 7\u20190 suits riders ready to progress.",
@@ -116,22 +118,62 @@ export default function SurfGearPage() {
 								className={`board-detail ${i % 2 !== 0 ? "board-detail--reverse" : ""}`}
 							>
 								<div className="board-detail-gallery">
-									<div className="board-detail-img board-detail-img--main">
-										<Image
-											src={`/images/rentals/${board.slug}/picture(1).jpg`}
-											alt={`${board.name} — front view`}
-											width={600}
-											height={450}
-										/>
+									<div className={`board-detail-img board-detail-img--main${"crossfadeSlug" in board ? " board-detail-img--crossfade" : ""}`}>
+										{"crossfadeSlug" in board ? (
+											<>
+												<Image
+													src={`/images/rentals/${board.slug}/picture(1).jpg`}
+													alt={`${board.name} ${board.slug} — front view`}
+													width={600}
+													height={450}
+													className="crossfade-img crossfade-img--a"
+												/>
+												<Image
+													src={`/images/rentals/${board.crossfadeSlug}/picture(1).jpg`}
+													alt={`${board.name} ${board.crossfadeSlug} — front view`}
+													width={600}
+													height={450}
+													className="crossfade-img crossfade-img--b"
+												/>
+											</>
+										) : (
+											<Image
+												src={`/images/rentals/${board.slug}/picture(1).jpg`}
+												alt={`${board.name} — front view`}
+												width={600}
+												height={450}
+											/>
+										)}
 									</div>
-									<div className="board-detail-img board-detail-img--alt">
-										<Image
-											src={`/images/rentals/${board.slug}/picture(3).jpg`}
-											alt={`${board.name} — detail`}
-											width={600}
-											height={450}
-										/>
-									</div>
+									{"altThumbnailSlug" in board ? (
+										<>
+											<div className="board-detail-img board-detail-img--alt">
+												<Image
+													src={`/images/rentals/${board.altThumbnailSlug}/picture(3).jpg`}
+													alt={`${board.name} ${board.altThumbnailSlug} — detail`}
+													width={600}
+													height={450}
+												/>
+											</div>
+											<div className="board-detail-img board-detail-img--alt">
+												<Image
+													src={`/images/rentals/${board.slug}/picture(3).jpg`}
+													alt={`${board.name} ${board.slug} — detail`}
+													width={600}
+													height={450}
+												/>
+											</div>
+										</>
+									) : (
+										<div className="board-detail-img board-detail-img--alt">
+											<Image
+												src={`/images/rentals/${board.slug}/picture(3).jpg`}
+												alt={`${board.name} — detail`}
+												width={600}
+												height={450}
+											/>
+										</div>
+									)}
 								</div>
 								<div className="board-detail-info">
 									<span className="board-detail-level">{board.level}</span>
@@ -145,7 +187,7 @@ export default function SurfGearPage() {
 								<div className="board-detail-who">
 									<strong>Best for:</strong> {board.who}
 								</div>
-								<Link href="/contact" className="btn btn-primary board-detail-cta">
+								<Link href={`/contact?board=${encodeURIComponent(board.slug)}`} className="btn btn-primary board-detail-cta">
 									Book this board now!
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 										<line x1="5" y1="12" x2="19" y2="12" />

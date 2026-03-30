@@ -1,0 +1,1 @@
+@layer vitamin-play{.vp-star-rating{align-items:center;display:flex;gap:var(--vp-semantic-spacing-4xs)}.vp-star-rating__star{color:var(--vp-semantic-color-content-neutral);height:var(--vp-semantic-sizing-m);width:var(--vp-semantic-sizing-m)}.vp-skeleton.vp-star-rating-skeleton{--skeleton-height:var(--vp-semantic-sizing-m);--skeleton-width:var(--vp-semantic-sizing-7xl)}}

@@ -1,0 +1,3 @@
+@keyframes pulse{0%,to{opacity:1}33%{opacity:.4}66%{opacity:.4}}.skeleton-loader{animation-name:pulse;animation-duration:calc((var(--vp-semantic-motion-duration-moderate) * 2) + var(--vp-semantic-motion-delay-extended));animation-timing-function:var(
+    --vp-semantic-motion-easing-expressive-ease-in-out
+  );animation-iteration-count:infinite}.skeleton-loader svg{inline-size:100%;block-size:auto}

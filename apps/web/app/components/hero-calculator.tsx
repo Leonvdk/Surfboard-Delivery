@@ -76,6 +76,19 @@ export function HeroCalculator() {
 
 	const hasResult = result !== null;
 
+	/* Build booking URL with pre-fill params */
+	let bookingUrl = "/contact";
+	if (result && result !== "advanced") {
+		const params = new URLSearchParams({ board: result.size.replace(/\u2019/g, "'") });
+		if (level) params.set("experience", level);
+		if (wetsuitSize) {
+			params.set("package", "full");
+			params.set("wetsuit", wetsuitSize.replace(/\s*cm$/, "").replace(/\u2013/g, "-"));
+			if (sex) params.set("sex", sex);
+		}
+		bookingUrl = `/contact?${params.toString()}`;
+	}
+
 	return (
 		<div className="hero-calc">
 			<div className="hero-calc-header">
@@ -171,13 +184,13 @@ export function HeroCalculator() {
 							</div>
 						</div>
 						<Link
-							href="/contact"
+							href={bookingUrl}
 							className="btn btn-primary btn-full"
 							onClick={() =>
 								trackCtaClick({
 									cta_text: "Book this setup",
 									cta_location: "hero_calculator",
-									destination: "/contact",
+									destination: bookingUrl,
 								})
 							}
 						>

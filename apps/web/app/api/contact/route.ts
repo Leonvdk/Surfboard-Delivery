@@ -14,6 +14,7 @@ const BUSINESS_EMAIL = "hello@surfrental-aljezur.com";
 const FROM_EMAIL = "Surf Rental Aljezur <hello@surfrental-aljezur.com>";
 
 interface PersonData {
+	name: string;
 	sex: string;
 	experience: string;
 	package: string;
@@ -34,8 +35,9 @@ interface BookingRequest {
 }
 
 function formatPerson(p: PersonData, i: number): string {
+	const label = p.name || `Person ${i + 1}`;
 	const lines = [
-		`  Person ${i + 1}:`,
+		`  ${label}:`,
 		`    Sex: ${p.sex}`,
 		`    Experience: ${p.experience}`,
 		`    Package: ${p.package}`,
@@ -46,10 +48,11 @@ function formatPerson(p: PersonData, i: number): string {
 }
 
 function formatPersonHtml(p: PersonData, i: number): string {
-	const row = (label: string, value: string) =>
-		`<tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">${label}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${value}</td></tr>`;
+	const label = p.name || `Person ${i + 1}`;
+	const row = (rlabel: string, value: string) =>
+		`<tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">${rlabel}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${value}</td></tr>`;
 
-	let html = `<tr><td colspan="2" style="padding:16px 0 8px;font-weight:800;font-size:15px;letter-spacing:-0.02em;border-bottom:1.5px solid #1A1A1A;">Person ${i + 1}</td></tr>`;
+	let html = `<tr><td colspan="2" style="padding:16px 0 8px;font-weight:800;font-size:15px;letter-spacing:-0.02em;border-bottom:1.5px solid #1A1A1A;">${label}</td></tr>`;
 	html += row("Sex", p.sex);
 	html += row("Experience", p.experience);
 	html += row("Package", p.package);

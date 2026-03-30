@@ -155,6 +155,7 @@ export function BoardCalculator() {
 	const [sex, setSex] = useState<Sex>("");
 	const [weight, setWeight] = useState("");
 	const [height, setHeight] = useState("");
+	const [advancedBoard, setAdvancedBoard] = useState<Board | null>(null);
 
 	const w = Number.parseInt(weight, 10) || 0;
 	const h = Number.parseInt(height, 10) || 0;
@@ -162,6 +163,22 @@ export function BoardCalculator() {
 	const wetsuitSize = recommendWetsuitSize(sex, h, w);
 
 	const filled = level !== "" && w > 0 && h > 0;
+
+	/* The board to use for the booking URL: either the recommendation or the advanced pick */
+	const selectedBoard = result?.type === "single" ? result.board : advancedBoard;
+
+	/* Build booking URL with pre-fill params */
+	let calcBookingUrl: string | null = null;
+	if (selectedBoard) {
+		const params = new URLSearchParams({ board: selectedBoard.size.replace(/\u2019/g, "'") });
+		if (level) params.set("experience", level);
+		if (wetsuitSize) {
+			params.set("package", "full");
+			params.set("wetsuit", wetsuitSize.replace(/\s*cm$/, "").replace(/\u2013/g, "-"));
+			if (sex) params.set("sex", sex);
+		}
+		calcBookingUrl = `/contact?${params.toString()}`;
+	}
 
 	return (
 		<div className="calc-layout">
@@ -263,6 +280,16 @@ export function BoardCalculator() {
 						Select your sex above to get a wetsuit size recommendation too.
 					</p>
 				)}
+
+				{calcBookingUrl && filled && (
+					<Link href={calcBookingUrl} className="btn btn-primary" style={{ marginTop: "var(--space-md)" }}>
+						Book this setup
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+							<polyline points="12 5 19 12 12 19" />
+						</svg>
+					</Link>
+				)}
 			</div>
 
 			<div className="calc-result">
@@ -273,12 +300,16 @@ export function BoardCalculator() {
 						) : (
 							<div className="calc-advanced">
 								<p className="calc-advanced-intro">
-									You can surf any of our boards. Check the surf forecast for your
-									trip and pick your poison!
+									You can surf any of our boards. Pick your board below!
 								</p>
 							<div className="calc-advanced-grid">
 								{ALL_BOARDS.map((board) => (
-									<Link key={board.size} href={`/surf-gear#${board.anchor}`} className="calc-mini-card">
+									<button
+										key={board.size}
+										type="button"
+										className={`calc-mini-card${advancedBoard?.size === board.size ? " calc-mini-card--selected" : ""}`}
+										onClick={() => setAdvancedBoard(advancedBoard?.size === board.size ? null : board)}
+									>
 										<div className="calc-mini-img">
 											<Image
 												src={board.image}
@@ -292,7 +323,7 @@ export function BoardCalculator() {
 												{board.size} {board.name}
 											</div>
 										</div>
-									</Link>
+									</button>
 								))}
 							</div>
 							</div>

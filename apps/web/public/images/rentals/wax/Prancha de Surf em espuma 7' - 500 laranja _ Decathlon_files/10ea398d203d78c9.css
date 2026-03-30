@@ -1,0 +1,1 @@
+.countdown{display:flex;flex-direction:row;gap:.25em;white-space:nowrap}.countdown__digits{display:inline-block;min-inline-size:2ch}.countdown__unit{font-size:.5em;font-weight:var(--vp-core-font-weight-400)}.countdown__colon{margin-inline-start:.1em;margin-inline-end:.1em}

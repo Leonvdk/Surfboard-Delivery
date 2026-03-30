@@ -1,0 +1,1 @@
+.store-info{display:flex;align-items:center;color:var(--vp-semantic-color-content-quiet)}.store-info__hours:before{block-size:var(--vp-semantic-sizing-m);margin-inline-start:var(--vp-semantic-spacing-xs);margin-inline-end:var(--vp-semantic-spacing-xs);content:"";border-inline-start:var(--vp-semantic-border-width-m) solid var(--vp-semantic-color-border-quiet)}

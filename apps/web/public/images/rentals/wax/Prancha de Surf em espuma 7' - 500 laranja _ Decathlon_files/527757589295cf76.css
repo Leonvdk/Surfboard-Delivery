@@ -1,0 +1,3 @@
+@keyframes heart-pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}to{transform:scale(1)}}.heart-button:hover .heart-button-icon,.heart-button__filled .heart-button-icon{fill:var(--vp-semantic-color-content-neutral)}.heart-button__animate .heart-button-icon{animation-name:heart-pulse}.heart-button-icon{animation-duration:var(--vp-semantic-motion-duration-quick);animation-timing-function:var(
+    --vp-semantic-motion-easing-functional-ease-out
+  );animation-delay:var(--vp-semantic-motion-delay-quick)}

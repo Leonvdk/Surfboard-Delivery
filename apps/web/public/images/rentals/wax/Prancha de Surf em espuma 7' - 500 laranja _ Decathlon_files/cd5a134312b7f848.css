@@ -1,0 +1,1 @@
+.interactive-carousel img,.interactive-carousel video{pointer-events:none}.interactive-carousel__item{-webkit-user-select:none;user-select:none}.interactive-carousel__item-wrapper{pointer-events:none}.interactive-carousel__item-wrapper--active{pointer-events:auto}

@@ -1,0 +1,5 @@
+:root{--vp-component-link-color-neutral-content-active:color-mix(in srgb,var(--vp-semantic-color-content-neutral) 80%,var(--vp-core-color-white));--vp-component-link-color-neutral-content-hover:color-mix(in srgb,var(--vp-semantic-color-content-neutral) 90%,var(--vp-core-color-white));--vp-component-link-color-neutral-content-default:var(
+    --vp-semantic-color-content-neutral
+  );--vp-component-link-color-brand-content-active:color-mix(in srgb,var(--vp-semantic-color-content-brand) 60%,var(--vp-semantic-color-container-catchy));--vp-component-link-color-brand-content-default:var(
+    --vp-semantic-color-content-brand
+  )}

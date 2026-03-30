@@ -225,6 +225,7 @@ function packageIncludesWetsuit(pkg: string, options: FormPackageInfo[]): boolea
 /* ── Per-person state ── */
 
 type Person = {
+	name: string;
 	sex: Sex;
 	experience: string;
 	package: string;
@@ -233,7 +234,7 @@ type Person = {
 };
 
 function emptyPerson(): Person {
-	return { sex: "", experience: "", package: "", board: "", wetsuitSize: "" };
+	return { name: "", sex: "", experience: "", package: "", board: "", wetsuitSize: "" };
 }
 
 /* ── Board calculator modal ── */
@@ -478,6 +479,26 @@ function WetsuitCalcModal({
 	);
 }
 
+/* ── Collapsed person summary helpers ── */
+
+function personSummaryLabel(person: Person, pkgOptions: FormPackageInfo[]): string {
+	const parts: string[] = [];
+	const sexLabel = SEX_OPTIONS.find((o) => o.value === person.sex)?.label;
+	if (sexLabel && person.sex) parts.push(sexLabel);
+	const expLabel = EXPERIENCE_OPTIONS.find((o) => o.value === person.experience)?.label;
+	if (expLabel && person.experience) parts.push(expLabel);
+	const boardLabel = BOARD_OPTIONS.find((o) => o.value === person.board)?.label;
+	if (boardLabel && person.board) parts.push(boardLabel);
+	const pkgLabel = pkgOptions.find((o) => o.value === person.package);
+	if (pkgLabel) parts.push(pkgLabel.label.split(" — ")[0]!);
+	if (person.wetsuitSize) parts.push(`Wetsuit ${person.wetsuitSize}`);
+	return parts.length > 0 ? parts.join(" · ") : "Not filled in yet";
+}
+
+function personDisplayName(person: Person, index: number): string {
+	return person.name || `Person ${index + 1}`;
+}
+
 /* ── Main booking form ── */
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
@@ -487,6 +508,8 @@ export function BookingForm() {
 	const [checkout, setCheckout] = useState("");
 	const [peopleCount, setPeopleCount] = useState(1);
 	const [people, setPeople] = useState<Person[]>([emptyPerson()]);
+	const [expandedPerson, setExpandedPerson] = useState(0);
+	const [editingName, setEditingName] = useState<number | null>(null);
 	const [boardCalcOpen, setBoardCalcOpen] = useState<number | null>(null);
 	const [wetsuitCalcOpen, setWetsuitCalcOpen] = useState<number | null>(null);
 	const [status, setStatus] = useState<FormStatus>("idle");
@@ -495,6 +518,7 @@ export function BookingForm() {
 	const formStartTime = useRef(Date.now());
 	const trackedFields = useRef(new Set<string>());
 	const lastField = useRef("");
+	const prefilled = useRef(false);
 
 	const handleFieldFocus = useCallback(
 		(e: React.FocusEvent<HTMLFormElement>) => {
@@ -531,6 +555,39 @@ export function BookingForm() {
 		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
 	}, [status]);
 
+	/* Pre-fill person 1 from URL params (e.g. /contact?board=7'8&package=full&wetsuit=M&sex=male) */
+	useEffect(() => {
+		if (prefilled.current) return;
+		prefilled.current = true;
+
+		const params = new URLSearchParams(window.location.search);
+		const board = params.get("board");
+		const pkgTier = params.get("package");
+		const wetsuit = params.get("wetsuit");
+		const sexParam = params.get("sex");
+		const experience = params.get("experience");
+
+		if (!board && !pkgTier && !wetsuit && !sexParam && !experience) return;
+
+		setPeople((prev) => {
+			const next = [...prev];
+			const person = { ...next[0]! };
+			if (board) person.board = board;
+			if (experience) person.experience = experience;
+			if (sexParam) person.sex = sexParam as Sex;
+			if (pkgTier) {
+				const tierMap: Record<string, string> = { full: "fullPackage", premium: "premium", board: "boardOnly" };
+				const tier = tierMap[pkgTier];
+				const defaultPkgOptions = getPackageOptions(null);
+				const pkg = tier ? defaultPkgOptions.find((o) => o.tier === tier) : undefined;
+				if (pkg) person.package = pkg.value;
+			}
+			if (wetsuit) person.wetsuitSize = wetsuit;
+			next[0] = person;
+			return next;
+		});
+	}, []);
+
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
 	const pkgOptions = useMemo(() => getPackageOptions(days), [days]);
 	const estimate = useMemo(() => calcEstimatedTotal(people, pkgOptions), [people, pkgOptions]);
@@ -543,6 +600,23 @@ export function BookingForm() {
 			}
 			return prev.slice(0, count);
 		});
+		if (count > peopleCount) setExpandedPerson(count - 1);
+		else if (expandedPerson >= count) setExpandedPerson(count - 1);
+	};
+
+	const handleAddPerson = () => {
+		if (people.length >= 8) return;
+		const newCount = people.length + 1;
+		setPeopleCount(newCount);
+		setPeople((prev) => [...prev, emptyPerson()]);
+		setExpandedPerson(newCount - 1);
+	};
+
+	const handleRemovePerson = (index: number) => {
+		if (people.length <= 1) return;
+		setPeople((prev) => prev.filter((_, i) => i !== index));
+		setPeopleCount((c) => c - 1);
+		setExpandedPerson((prev) => prev >= index ? Math.max(0, prev - 1) : prev);
 	};
 
 	const updatePerson = (index: number, field: keyof Person, value: string) => {
@@ -589,7 +663,8 @@ export function BookingForm() {
 			checkout,
 			accommodation: formData.get("accommodation") as string,
 			peopleCount,
-			people: people.map((p) => ({
+			people: people.map((p, i) => ({
+				name: p.name || `Person ${i + 1}`,
 				sex: p.sex,
 				experience: p.experience,
 				package: p.package,
@@ -692,11 +767,63 @@ export function BookingForm() {
 
 				<div className="person-list">
 					{people.map((person, i) => {
+						const isOpen = expandedPerson === i;
 						const showWetsuit = packageIncludesWetsuit(person.package, pkgOptions);
 						const wetsuitOpts = getWetsuitOptions(person.sex as Sex);
+
+						if (!isOpen) {
+							return (
+								<div key={i} className="person-fieldset person-fieldset--collapsed" onClick={() => setExpandedPerson(i)}>
+									<div className="person-collapsed-header">
+										<span className="person-legend">{personDisplayName(person, i)}</span>
+										<svg className="person-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+											<polyline points="6 9 12 15 18 9" />
+										</svg>
+									</div>
+									<p className="person-collapsed-summary">{personSummaryLabel(person, pkgOptions)}</p>
+								</div>
+							);
+						}
+
 						return (
 							<fieldset key={i} className="person-fieldset">
-								<legend className="person-legend">Person {i + 1}</legend>
+								<div className="person-expanded-header">
+									{editingName === i ? (
+										<input
+											className="person-name-input"
+											type="text"
+											value={person.name}
+											placeholder={`Person ${i + 1}`}
+											autoFocus
+											onChange={(e) => updatePerson(i, "name", e.target.value)}
+											onBlur={() => setEditingName(null)}
+											onKeyDown={(e) => { if (e.key === "Enter") setEditingName(null); }}
+										/>
+									) : (
+										<legend className="person-legend">
+											{personDisplayName(person, i)}
+											<button
+												type="button"
+												className="person-edit-name"
+												onClick={() => setEditingName(i)}
+												title="Change name"
+											>
+												<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+													<path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+													<path d="m15 5 4 4" />
+												</svg>
+											</button>
+										</legend>
+									)}
+									{people.length > 1 && (
+										<button type="button" className="person-remove" onClick={() => handleRemovePerson(i)} aria-label={`Remove person ${i + 1}`}>
+											<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<line x1="18" y1="6" x2="6" y2="18" />
+												<line x1="6" y1="6" x2="18" y2="18" />
+											</svg>
+										</button>
+									)}
+								</div>
 								<div className="person-fields">
 									<div className="form-group">
 										<label htmlFor={`sex-${i}`}>Sex</label>
@@ -794,6 +921,16 @@ export function BookingForm() {
 							</fieldset>
 						);
 					})}
+
+					{people.length < 8 && (
+						<button type="button" className="btn btn-outline person-add-btn" onClick={handleAddPerson}>
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+								<line x1="12" y1="5" x2="12" y2="19" />
+								<line x1="5" y1="12" x2="19" y2="12" />
+							</svg>
+							Add person
+						</button>
+					)}
 				</div>
 
 				<div className="form-group">
