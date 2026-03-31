@@ -226,6 +226,13 @@ function pricingProductJsonLd() {
 			"@type": "Brand",
 			name: "Surf Rental Aljezur",
 		},
+		aggregateRating: {
+			"@type": "AggregateRating",
+			ratingValue: "4.9",
+			reviewCount: "8",
+			bestRating: "5",
+			worstRating: "1",
+		},
 		offers: {
 			"@type": "AggregateOffer",
 			lowPrice: String(prices.boardOnly.daily.amount),

@@ -1,5 +1,13 @@
 import { SITE_URL } from "./metadata";
 
+const AGGREGATE_RATING = {
+	"@type": "AggregateRating" as const,
+	ratingValue: "4.9",
+	reviewCount: "8",
+	bestRating: "5",
+	worstRating: "1",
+};
+
 export function localBusinessJsonLd() {
 	return {
 		"@context": "https://schema.org",
@@ -13,6 +21,7 @@ export function localBusinessJsonLd() {
 		image: `${SITE_URL}/images/meta.jpg`,
 		email: "hello@surfrental-aljezur.com",
 		telephone: "+31613262259",
+		aggregateRating: AGGREGATE_RATING,
 		contactPoint: {
 			"@type": "ContactPoint",
 			telephone: "+31613262259",
@@ -72,6 +81,7 @@ export function localBusinessJsonLd() {
 					name: "Weekly Surfboard Rental",
 					description: "Surfboard rental for 1 week with leash, wax, and free delivery and pickup.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "85",
@@ -85,6 +95,7 @@ export function localBusinessJsonLd() {
 					name: "Weekly Surfboard & Wetsuit Rental",
 					description: "Surfboard and wetsuit rental for 1 week with free delivery and pickup.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "120",
@@ -99,6 +110,7 @@ export function localBusinessJsonLd() {
 					description:
 						"Complete surf trip bundle: surfboard, wetsuit, changing mat, and roof rack pads for 1 week with free delivery and pickup.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "150",
@@ -112,6 +124,7 @@ export function localBusinessJsonLd() {
 					name: "Daily Surfboard Rental",
 					description: "Surfboard rental per day (3-day minimum) with free delivery and pickup.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "25",
@@ -126,6 +139,7 @@ export function localBusinessJsonLd() {
 					description:
 						"Surfboard and wetsuit rental per day (3-day minimum) with free delivery and pickup.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "35",
@@ -140,6 +154,7 @@ export function localBusinessJsonLd() {
 					description:
 						"Complete surf trip bundle per day (3-day minimum): surfboard, wetsuit, changing mat, and roof rack pads.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "45",
@@ -154,6 +169,7 @@ export function localBusinessJsonLd() {
 					description:
 						"Surfboard and wetsuit rental for 2 weeks with free delivery, pickup, and a mid-stay board swap.",
 					category: "Surf Equipment Rental",
+					aggregateRating: AGGREGATE_RATING,
 					offers: {
 						"@type": "Offer",
 						price: "199",
