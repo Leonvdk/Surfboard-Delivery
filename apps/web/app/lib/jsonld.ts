@@ -72,114 +72,35 @@ export function localBusinessJsonLd() {
 		priceRange: "€€",
 		currenciesAccepted: "EUR",
 		paymentAccepted: "Cash, MBWay, Bank Transfer",
-		hasOfferCatalog: {
-			"@type": "OfferCatalog",
-			name: "Surf Gear Rental Packages",
-			itemListElement: [
-				{
-					"@type": "Product",
-					name: "Weekly Surfboard Rental",
-					description: "Surfboard rental for 1 week with leash, wax, and free delivery and pickup.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "85",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-				{
-					"@type": "Product",
-					name: "Weekly Surfboard & Wetsuit Rental",
-					description: "Surfboard and wetsuit rental for 1 week with free delivery and pickup.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "120",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-				{
-					"@type": "Product",
-					name: "Weekly Premium Surf Rental Bundle",
-					description:
-						"Complete surf trip bundle: surfboard, wetsuit, changing mat, and roof rack pads for 1 week with free delivery and pickup.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "150",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-				{
-					"@type": "Product",
-					name: "Daily Surfboard Rental",
-					description: "Surfboard rental per day (3-day minimum) with free delivery and pickup.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "25",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-				{
-					"@type": "Product",
-					name: "Daily Surfboard & Wetsuit Rental",
-					description:
-						"Surfboard and wetsuit rental per day (3-day minimum) with free delivery and pickup.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "35",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-				{
-					"@type": "Product",
-					name: "Daily Premium Surf Rental Bundle",
-					description:
-						"Complete surf trip bundle per day (3-day minimum): surfboard, wetsuit, changing mat, and roof rack pads.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "45",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-				{
-					"@type": "Product",
-					name: "Two-Week Surfboard & Wetsuit Rental",
-					description:
-						"Surfboard and wetsuit rental for 2 weeks with free delivery, pickup, and a mid-stay board swap.",
-					category: "Surf Equipment Rental",
-					aggregateRating: AGGREGATE_RATING,
-					offers: {
-						"@type": "Offer",
-						price: "199",
-						priceCurrency: "EUR",
-						availability: "https://schema.org/InStock",
-						priceValidUntil: "2026-12-31",
-					},
-				},
-			],
-		},
+		makesOffer: [
+			{
+				"@type": "Offer",
+				name: "Board Only Rental",
+				description: "Surfboard rental with leash, wax, and free delivery and pickup.",
+				price: "25",
+				priceCurrency: "EUR",
+				availability: "https://schema.org/InStock",
+				priceValidUntil: "2026-12-31",
+			},
+			{
+				"@type": "Offer",
+				name: "Full Package Rental (Board + Wetsuit)",
+				description: "Surfboard and wetsuit rental with free delivery and pickup.",
+				price: "35",
+				priceCurrency: "EUR",
+				availability: "https://schema.org/InStock",
+				priceValidUntil: "2026-12-31",
+			},
+			{
+				"@type": "Offer",
+				name: "Premium Package Rental (Board + Wetsuit + Extras)",
+				description: "Surfboard, wetsuit, changing mat, and roof rack pads with free delivery and pickup.",
+				price: "45",
+				priceCurrency: "EUR",
+				availability: "https://schema.org/InStock",
+				priceValidUntil: "2026-12-31",
+			},
+		],
 	};
 }
 

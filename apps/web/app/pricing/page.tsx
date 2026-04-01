@@ -233,6 +233,26 @@ function pricingProductJsonLd() {
 			bestRating: "5",
 			worstRating: "1",
 		},
+		review: [
+			{
+				"@type": "Review",
+				author: { "@type": "Person", name: "Hannah & Tom" },
+				reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+				reviewBody: "Boards and wetsuits were waiting at our Airbnb when we arrived. The local tips alone were worth it.",
+			},
+			{
+				"@type": "Review",
+				author: { "@type": "Person", name: "Marc Dumont" },
+				reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+				reviewBody: "I've rented boards all over Portugal and this is hands down the easiest experience. No shop queues, no deposit hassle.",
+			},
+			{
+				"@type": "Review",
+				author: { "@type": "Person", name: "Sara van Dijk" },
+				reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+				reviewBody: "The wetsuit fit perfectly and the funboard was exactly right for my level. They really listen to what you need.",
+			},
+		],
 		offers: {
 			"@type": "AggregateOffer",
 			lowPrice: String(prices.boardOnly.daily.amount),
