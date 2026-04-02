@@ -12,7 +12,8 @@
       "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json\" GOOGLE_CLOUD_PROJECT=\"surf-rental-analytics\" analytics-mcp --help)",
       "Bash(pipx runpip:*)",
       "Bash(pipx run --spec analytics-mcp python -c \":*)",
-      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json\" /Users/leonvandeklundert/.local/pipx/venvs/analytics-mcp/bin/python -c \":*)"
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json\" /Users/leonvandeklundert/.local/pipx/venvs/analytics-mcp/bin/python -c \":*)",
+      "WebFetch(domain:surfrental-aljezur.com)"
     ]
   }
 }
