@@ -12,7 +12,9 @@ export function EngagementTracker() {
 	const pathname = usePathname();
 	const scrollHits = useRef(new Set<number>());
 	const timeHits = useRef(new Set<number>());
-	const startTime = useRef(Date.now());
+	// Accumulated *active* (tab-visible) time, in ms.
+	const activeMs = useRef(0);
+	const lastTick = useRef(Date.now());
 
 	useEffect(() => {
 		if (isBot() && window.gtag) {
@@ -23,7 +25,8 @@ export function EngagementTracker() {
 	useEffect(() => {
 		scrollHits.current.clear();
 		timeHits.current.clear();
-		startTime.current = Date.now();
+		activeMs.current = 0;
+		lastTick.current = Date.now();
 
 		const handleScroll = () => {
 			const scrollTop = window.scrollY;
@@ -40,8 +43,22 @@ export function EngagementTracker() {
 			}
 		};
 
+		// Only count time while the tab is visible, so background tabs don't
+		// inflate engagement.
+		const handleVisibility = () => {
+			if (document.visibilityState === "hidden") {
+				activeMs.current += Date.now() - lastTick.current;
+			} else {
+				lastTick.current = Date.now();
+			}
+		};
+
 		const interval = setInterval(() => {
-			const elapsed = Math.floor((Date.now() - startTime.current) / 1000);
+			if (document.visibilityState !== "visible") return;
+			const now = Date.now();
+			activeMs.current += now - lastTick.current;
+			lastTick.current = now;
+			const elapsed = Math.floor(activeMs.current / 1000);
 			for (const milestone of TIME_MILESTONES) {
 				if (elapsed >= milestone && !timeHits.current.has(milestone)) {
 					timeHits.current.add(milestone);
@@ -51,8 +68,10 @@ export function EngagementTracker() {
 		}, 5000);
 
 		window.addEventListener("scroll", handleScroll, { passive: true });
+		document.addEventListener("visibilitychange", handleVisibility);
 		return () => {
 			window.removeEventListener("scroll", handleScroll);
+			document.removeEventListener("visibilitychange", handleVisibility);
 			clearInterval(interval);
 		};
 	}, [pathname]);

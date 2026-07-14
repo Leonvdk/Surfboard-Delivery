@@ -4,10 +4,17 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+	trackBoardCalcOpened,
+	trackBoardCalcResult,
+	trackBookingAbandoned,
+	trackBookingEstimateShown,
+	trackBookingFieldFocused,
+	trackBookingFormStart,
+	trackBookingStep,
 	trackBookingSubmitted,
-	trackFormAbandoned,
-	trackFormFieldFocused,
-	trackFormStepCompleted,
+	trackContactPageView,
+	trackWetsuitCalcOpened,
+	trackWetsuitCalcResult,
 } from "../lib/analytics";
 import { DateRangePicker } from "./date-range-picker";
 import { prices, type PackageTier } from "../lib/pricing";
@@ -554,6 +561,15 @@ export function BookingForm() {
 	const trackedFields = useRef(new Set<string>());
 	const lastField = useRef("");
 	const prefilled = useRef(false);
+	const didPrefill = useRef(false);
+	const firedSteps = useRef(new Set<string>());
+	const contactViewTracked = useRef(false);
+
+	const fireStep = useCallback((step: string) => {
+		if (firedSteps.current.has(step)) return;
+		firedSteps.current.add(step);
+		trackBookingStep(step);
+	}, []);
 
 	/* Restore uncontrolled fields on mount */
 	useEffect(() => {
@@ -577,13 +593,16 @@ export function BookingForm() {
 	const saveTextFields = useCallback(() => {
 		if (!formRef.current) return;
 		const form = formRef.current;
+		const name = (form.elements.namedItem("name") as HTMLInputElement | null)?.value || "";
+		const email = (form.elements.namedItem("email") as HTMLInputElement | null)?.value || "";
 		saveDraft({
-			name: (form.elements.namedItem("name") as HTMLInputElement | null)?.value || "",
-			email: (form.elements.namedItem("email") as HTMLInputElement | null)?.value || "",
+			name,
+			email,
 			accommodation: (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.value || "",
 			message: (form.elements.namedItem("message") as HTMLTextAreaElement | null)?.value || "",
 		});
-	}, []);
+		if (name.trim() && /.+@.+\..+/.test(email)) fireStep("contact_details_filled");
+	}, [fireStep]);
 
 	const handleFieldFocus = useCallback(
 		(e: React.FocusEvent<HTMLFormElement>) => {
@@ -596,8 +615,8 @@ export function BookingForm() {
 			lastField.current = name;
 			if (!trackedFields.current.has(name)) {
 				trackedFields.current.add(name);
-				trackFormFieldFocused(name);
-				if (trackedFields.current.size === 1) trackFormStepCompleted("started");
+				trackBookingFieldFocused(name);
+				if (trackedFields.current.size === 1) trackBookingFormStart();
 			}
 		},
 		[],
@@ -609,7 +628,7 @@ export function BookingForm() {
 				status !== "success" &&
 				trackedFields.current.size > 0
 			) {
-				trackFormAbandoned({
+				trackBookingAbandoned({
 					last_field: lastField.current,
 					fields_completed: trackedFields.current.size,
 					time_spent: Math.floor((Date.now() - formStartTime.current) / 1000),
@@ -619,6 +638,26 @@ export function BookingForm() {
 		window.addEventListener("beforeunload", handleBeforeUnload);
 		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
 	}, [status]);
+
+	/* Contact page arrival — where booking intent came from (once per mount) */
+	useEffect(() => {
+		if (contactViewTracked.current) return;
+		contactViewTracked.current = true;
+		let referrerPath = "";
+		try {
+			referrerPath = document.referrer
+				? new URL(document.referrer).pathname
+				: "(direct)";
+		} catch {
+			referrerPath = "(unknown)";
+		}
+		const search = window.location.search;
+		trackContactPageView({
+			referrer_path: referrerPath,
+			query_params: search || "(none)",
+			prefilled: /[?&](board|package|wetsuit|sex|experience)=/.test(search),
+		});
+	}, []);
 
 	/* Pre-fill person 1 from URL params (e.g. /contact?board=7'8&package=full&wetsuit=M&sex=male) */
 	useEffect(() => {
@@ -633,6 +672,7 @@ export function BookingForm() {
 		const experience = params.get("experience");
 
 		if (!board && !pkgTier && !wetsuit && !sexParam && !experience) return;
+		didPrefill.current = true;
 
 		setPeople((prev) => {
 			const next = [...prev];
@@ -656,6 +696,29 @@ export function BookingForm() {
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
 	const pkgOptions = useMemo(() => getPackageOptions(days), [days]);
 	const estimate = useMemo(() => calcEstimatedTotal(people, pkgOptions), [people, pkgOptions]);
+
+	/* Funnel milestones — each fires once via fireStep(). */
+	useEffect(() => {
+		if (checkin && checkout && days && days > 0) fireStep("dates_selected");
+	}, [checkin, checkout, days, fireStep]);
+
+	useEffect(() => {
+		if (estimate.selectedCount > 0) fireStep("package_selected");
+	}, [estimate.selectedCount, fireStep]);
+
+	/* Live estimate became complete for the whole party. */
+	useEffect(() => {
+		if (estimate.allSelected && estimate.total > 0) {
+			if (!firedSteps.current.has("estimate_shown")) {
+				firedSteps.current.add("estimate_shown");
+				trackBookingEstimateShown({
+					value: estimate.total,
+					all_selected: true,
+					people_count: peopleCount,
+				});
+			}
+		}
+	}, [estimate.allSelected, estimate.total, peopleCount]);
 
 	const handlePeopleChange = (count: number) => {
 		setPeopleCount(count);
@@ -754,8 +817,12 @@ export function BookingForm() {
 
 			trackBookingSubmitted({
 				people_count: peopleCount,
-				checkin,
-				checkout,
+				nights: days,
+				packages: people
+					.map((p) => pkgOptions.find((o) => o.value === p.package)?.tier ?? "unset")
+					.join(","),
+				has_wetsuit: people.some((p) => packageIncludesWetsuit(p.package, pkgOptions)),
+				prefilled: didPrefill.current,
 				estimated_total: estimate.allSelected ? estimate.total : null,
 			});
 			clearDraft();
@@ -959,7 +1026,14 @@ export function BookingForm() {
 												<option key={o.value} value={o.value}>{o.label}</option>
 											))}
 										</select>
-										<button type="button" className="calc-modal-link" onClick={() => setBoardCalcOpen(i)}>
+										<button
+											type="button"
+											className="calc-modal-link"
+											onClick={() => {
+												trackBoardCalcOpened();
+												setBoardCalcOpen(i);
+											}}
+										>
 											calculate →
 										</button>
 									</div>
@@ -979,7 +1053,14 @@ export function BookingForm() {
 												))}
 											</select>
 											{person.sex && (
-												<button type="button" className="calc-modal-link" onClick={() => setWetsuitCalcOpen(i)}>
+												<button
+													type="button"
+													className="calc-modal-link"
+													onClick={() => {
+														trackWetsuitCalcOpened(person.sex);
+														setWetsuitCalcOpen(i);
+													}}
+												>
 													calculate →
 												</button>
 											)}
@@ -1058,6 +1139,7 @@ export function BookingForm() {
 				onClose={() => setBoardCalcOpen(null)}
 				onSelect={(value) => {
 					if (boardCalcOpen !== null) updatePerson(boardCalcOpen, "board", value);
+					trackBoardCalcResult(value);
 					setBoardCalcOpen(null);
 				}}
 			/>
@@ -1068,6 +1150,7 @@ export function BookingForm() {
 				onClose={() => setWetsuitCalcOpen(null)}
 				onSelect={(size) => {
 					if (wetsuitCalcOpen !== null) updatePerson(wetsuitCalcOpen, "wetsuitSize", size);
+					trackWetsuitCalcResult({ sex: wetsuitCalcSex, size });
 					setWetsuitCalcOpen(null);
 				}}
 			/>

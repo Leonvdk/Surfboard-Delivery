@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import BlogCtaPopup from "../../components/blog-cta-popup";
+import { BlogReadTracker } from "../../components/blog-read-tracker";
 import { Breadcrumbs } from "../../components/breadcrumbs";
 import { CtaSection } from "../../components/cta-section";
 import { JsonLd } from "../../components/json-ld";
@@ -118,6 +119,7 @@ export default async function BlogPostPage({ params }: Props) {
 
 			<CtaSection />
 
+			<BlogReadTracker slug={slug} readingTime={post.readingTime} />
 			<BlogCtaPopup />
 		</>
 	);

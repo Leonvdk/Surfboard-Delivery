@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackPricingDurationToggled } from "../lib/analytics";
 import { CheckIcon } from "./check-icon";
 import { TrackedCtaLink } from "./tracked-cta-link";
 import {
@@ -17,13 +18,19 @@ import {
 export function PricingToggle() {
 	const [duration, setDuration] = useState<"daily" | "weekly">("weekly");
 
+	const selectDuration = (next: "daily" | "weekly") => {
+		if (next === duration) return;
+		setDuration(next);
+		trackPricingDurationToggled(next);
+	};
+
 	return (
 		<>
 			<div className="pricing-duration-toggle">
 				<button
 					type="button"
 					className={`toggle-btn ${duration === "daily" ? "active" : ""}`}
-					onClick={() => setDuration("daily")}
+					onClick={() => selectDuration("daily")}
 					aria-pressed={duration === "daily"}
 				>
 					Daily
@@ -31,7 +38,7 @@ export function PricingToggle() {
 				<button
 					type="button"
 					className={`toggle-btn ${duration === "weekly" ? "active" : ""}`}
-					onClick={() => setDuration("weekly")}
+					onClick={() => selectDuration("weekly")}
 					aria-pressed={duration === "weekly"}
 				>
 					Weekly
