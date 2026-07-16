@@ -25,7 +25,7 @@ type Level = "" | "never" | "few-times" | "intermediate" | "advanced";
 type Sex = "" | "male" | "female" | "kid";
 
 const BOARD_OPTIONS = [
-	{ value: "", label: "Select board size" },
+	{ value: "", label: "Not sure \u2014 recommend one" },
 	{ value: "6'6", label: "6\u20196 Shortboard" },
 	{ value: "7'0", label: "7\u20190 Funboard" },
 	{ value: "7'8", label: "7\u20198 Funboard" },
@@ -33,7 +33,7 @@ const BOARD_OPTIONS = [
 ] as const;
 
 const EXPERIENCE_OPTIONS = [
-	{ value: "", label: "Select level" },
+	{ value: "", label: "Not sure / skip" },
 	{ value: "never", label: "Never surfed" },
 	{ value: "few-times", label: "Surfed a few times" },
 	{ value: "intermediate", label: "Intermediate" },
@@ -978,11 +978,10 @@ export function BookingForm() {
 										</select>
 									</div>
 									<div className="form-group">
-										<label htmlFor={`experience-${i}`}>Experience</label>
+										<label htmlFor={`experience-${i}`}>Experience <span className="form-optional">(optional)</span></label>
 										<select
 											id={`experience-${i}`}
 											name={`person_${i + 1}_experience`}
-											required
 											value={person.experience}
 											onChange={(e) => updatePerson(i, "experience", e.target.value)}
 										>
@@ -1016,11 +1015,10 @@ export function BookingForm() {
 									})()}
 								</div>
 									<div className="form-group">
-										<label htmlFor={`board-${i}`}>Board size</label>
+										<label htmlFor={`board-${i}`}>Board size <span className="form-optional">(optional)</span></label>
 										<select
 											id={`board-${i}`}
 											name={`person_${i + 1}_board`}
-											required
 											value={person.board}
 											onChange={(e) => updatePerson(i, "board", e.target.value)}
 										>
@@ -1115,6 +1113,10 @@ export function BookingForm() {
 					<p className="estimate-note">
 						Final pricing confirmed in our personalized reply
 					</p>
+					<div className="estimate-rating">
+						<span className="estimate-rating-stars" aria-hidden="true">★★★★★</span>
+						<span className="estimate-rating-text">4.9 on Google · 8 reviews</span>
+					</div>
 					<ul className="estimate-trust">
 						<li>Free delivery in Aljezur, Arrifana &amp; Vale da Telha</li>
 						<li>Pay on arrival — no upfront payment</li>

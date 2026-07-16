@@ -2939,14 +2939,45 @@ h1 {
   text-align: right;
 }
 
+.estimate-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: var(--border-light);
+}
+
+.estimate-rating-stars {
+  font-size: 0.875rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.estimate-rating-text {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--gray-700);
+}
+
 .estimate-trust {
   list-style: none;
   margin: var(--space-md) 0 0;
-  padding: var(--space-md) 0 0;
-  border-top: var(--border-light);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.form-optional {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--gray-500);
+  margin-left: 4px;
 }
 
 .estimate-trust li {
