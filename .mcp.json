@@ -3,6 +3,13 @@
 		"sentry": {
 			"type": "http",
 			"url": "https://mcp.sentry.dev/mcp/leonvdk/surf-rental-aljezur"
+		},
+		"google-analytics": {
+			"command": "/Users/leonvandeklundert/.local/bin/google-analytics-mcp",
+			"args": [],
+			"env": {
+				"GOOGLE_APPLICATION_CREDENTIALS": "/Users/leonvandeklundert/Leonvdk/MCP Keys/surf-rental-analytics-058c675e24d8.json"
+			}
 		}
 	}
 }
