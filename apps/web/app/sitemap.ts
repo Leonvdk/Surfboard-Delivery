@@ -107,6 +107,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 	const blogPages: MetadataRoute.Sitemap = posts
 		.filter((post) => post.date && !Number.isNaN(Date.parse(post.date)))
+		.filter((post) => !post.noindex)
 		.map((post) => ({
 			url: `${SITE_URL}/blog/${post.slug}`,
 			lastModified: new Date(post.date),
