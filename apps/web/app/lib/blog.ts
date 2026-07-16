@@ -11,6 +11,7 @@ export interface PostMeta {
 	tags: string[];
 	emoji: string;
 	readingTime: number;
+	noindex: boolean;
 }
 
 export interface Post extends PostMeta {
@@ -46,6 +47,7 @@ export function getAllPosts(): PostMeta[] {
 				tags: data.tags ?? [],
 				emoji: data.emoji ?? "",
 				readingTime: estimateReadingTime(content),
+				noindex: data.noindex === true,
 			};
 		})
 		.sort((a, b) => (a.date > b.date ? -1 : 1));
@@ -167,6 +169,7 @@ export function getAllSearchablePosts(): SearchablePost[] {
 				tags: data.tags ?? [],
 				emoji: data.emoji ?? "",
 				readingTime: estimateReadingTime(content),
+				noindex: data.noindex === true,
 				searchText: [
 					data.title ?? "",
 					data.description ?? "",
@@ -226,6 +229,7 @@ export function getPostBySlug(slug: string): Post | null {
 		tags: data.tags ?? [],
 		emoji: data.emoji ?? "",
 		readingTime: estimateReadingTime(content),
+		noindex: data.noindex === true,
 		content,
 	};
 }

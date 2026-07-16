@@ -1115,6 +1115,11 @@ export function BookingForm() {
 					<p className="estimate-note">
 						Final pricing confirmed in our personalized reply
 					</p>
+					<ul className="estimate-trust">
+						<li>Free delivery in Aljezur, Arrifana &amp; Vale da Telha</li>
+						<li>Pay on arrival — no upfront payment</li>
+						<li>Free cancellation up to 24h before pickup</li>
+					</ul>
 				</div>
 			)}
 

@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import Link from "next/link";
 import type { AnchorHTMLAttributes, HTMLAttributes } from "react";
+import { InlineGearCta } from "./inline-gear-cta";
 
 function isInternalLink(href: string | undefined): boolean {
 	if (!href) return false;
@@ -66,4 +67,5 @@ export const mdxComponents: MDXComponents = {
 	td: (props: HTMLAttributes<HTMLTableCellElement>) => (
 		<td className="blog-post-td" {...props} />
 	),
+	InlineGearCta,
 };
