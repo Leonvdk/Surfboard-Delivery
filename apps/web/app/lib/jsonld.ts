@@ -119,6 +119,33 @@ export function faqJsonLd(items: Array<{ question: string; answer: string }>) {
 	};
 }
 
+export function howToJsonLd({
+	name,
+	description,
+	steps,
+	totalTime,
+}: {
+	name: string;
+	description: string;
+	steps: Array<{ name: string; text: string; url?: string }>;
+	totalTime?: string;
+}) {
+	return {
+		"@context": "https://schema.org",
+		"@type": "HowTo",
+		name,
+		description,
+		...(totalTime ? { totalTime } : {}),
+		step: steps.map((s, i) => ({
+			"@type": "HowToStep",
+			position: i + 1,
+			name: s.name,
+			text: s.text,
+			...(s.url ? { url: s.url } : {}),
+		})),
+	};
+}
+
 export function breadcrumbJsonLd(items: Array<{ name: string; url: string }>) {
 	return {
 		"@context": "https://schema.org",

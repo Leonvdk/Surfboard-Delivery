@@ -1,9 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CtaSection } from "../components/cta-section";
+import { JsonLd } from "../components/json-ld";
 import NewsletterPopup from "../components/newsletter-popup";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { howToJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
+
+const rentalHowTo = howToJsonLd({
+	name: "How to rent surfboards and wetsuits with delivery in Aljezur",
+	description:
+		"Rent a surfboard and wetsuit with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, or Monte Clérigo on Portugal's Costa Vicentina.",
+	steps: [
+		{
+			name: "Send us your trip details",
+			text: "Send your check-in and checkout dates, accommodation address, number of people, and surfing experience level via the contact form, email (hello@surfrental-aljezur.com), or WhatsApp. We reply within 24 hours with a gear recommendation and confirmation.",
+			url: `${SITE_URL}/contact`,
+		},
+		{
+			name: "We deliver on your check-in day",
+			text: "On your arrival day we deliver boards, wetsuits, leashes, and wax straight to your accommodation. We walk you through the gear and share local tips: which beach is working, best tide windows, parking, and post-surf coffee spots.",
+		},
+		{
+			name: "Surf your trip; we pick up before checkout",
+			text: "For the rest of your stay the gear is yours — surf every day, try different spots, take a rest day. On your last day (or the day before checkout) we come back to collect everything. Extended Stay packages include a free mid-stay board swap.",
+		},
+	],
+});
 
 export const metadata: Metadata = {
 	title: "How It Works — Surfboard Delivery to Your Accommodation",
@@ -21,6 +44,8 @@ export const metadata: Metadata = {
 export default function HowItWorksPage() {
 	return (
 		<>
+			<JsonLd data={rentalHowTo} />
+
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
