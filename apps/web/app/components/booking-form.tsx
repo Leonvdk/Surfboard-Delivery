@@ -17,7 +17,7 @@ import {
 	trackWetsuitCalcResult,
 } from "../lib/analytics";
 import { DateRangePicker } from "./date-range-picker";
-import { prices, type PackageTier } from "../lib/pricing";
+import { calcPackagePrice, formatDurationLabel, type PackageTier } from "../lib/pricing";
 
 /* ── Board calculator logic ── */
 
@@ -163,30 +163,33 @@ type FormPackageInfo = {
 };
 
 function getPackageOptions(days: number | null): FormPackageInfo[] {
-	const isExtended = days !== null && days >= 10;
-	const duration = isExtended ? "extended" : "weekly";
-	const periodLabel = isExtended ? "2 weeks" : "week";
+	// Before dates are picked, price against 7 days as a placeholder.
+	const priceDays = days ?? 7;
+	const durationLabel = formatDurationLabel(days);
+	const premiumPrice = calcPackagePrice("premium", priceDays);
+	const fullPrice = calcPackagePrice("fullPackage", priceDays);
+	const boardPrice = calcPackagePrice("boardOnly", priceDays);
 
 	return [
 		{
-			value: isExtended ? "premium-2w" : "premium-1w",
-			label: `Premium (board + wetsuit + changing mat + roof rack) — €${prices.premium[duration].amount}/${periodLabel}`,
+			value: "premium",
+			label: `Premium (board + wetsuit + changing mat + roof rack) — €${premiumPrice} ${durationLabel}`,
 			includesWetsuit: true,
-			pricePerPerson: prices.premium[duration].amount,
+			pricePerPerson: premiumPrice,
 			tier: "premium",
 		},
 		{
-			value: isExtended ? "full-2w" : "full-1w",
-			label: `Full Package (board + wetsuit) — €${prices.fullPackage[duration].amount}/${periodLabel}`,
+			value: "full",
+			label: `Full Package (board + wetsuit) — €${fullPrice} ${durationLabel}`,
 			includesWetsuit: true,
-			pricePerPerson: prices.fullPackage[duration].amount,
+			pricePerPerson: fullPrice,
 			tier: "fullPackage",
 		},
 		{
-			value: isExtended ? "board-2w" : "board-1w",
-			label: `Board Only — €${prices.boardOnly[duration].amount}/${periodLabel}`,
+			value: "board",
+			label: `Board Only — €${boardPrice} ${durationLabel}`,
 			includesWetsuit: false,
-			pricePerPerson: prices.boardOnly[duration].amount,
+			pricePerPerson: boardPrice,
 			tier: "boardOnly",
 		},
 		{
@@ -1005,10 +1008,9 @@ export function BookingForm() {
 									{(() => {
 										const sel = pkgOptions.find((o) => o.value === person.package);
 										if (!sel?.pricePerPerson) return null;
-										const isExtended = days !== null && days >= 10;
 										return (
 											<span className="package-price-tag">
-												&euro;{sel.pricePerPerson}{isExtended ? " for 2 weeks" : "/week"} per person
+												&euro;{sel.pricePerPerson} {formatDurationLabel(days)} per person
 											</span>
 										);
 									})()}

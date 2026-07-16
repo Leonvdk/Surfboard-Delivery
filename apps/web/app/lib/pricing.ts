@@ -94,3 +94,23 @@ export function savingsPercent(dailyPrice: number, bundlePrice: number, days: nu
 
 export const TIERS: PackageTier[] = ["boardOnly", "fullPackage", "premium"];
 export const FEATURED_TIER: PackageTier = "fullPackage";
+
+export function calcPackagePrice(tier: PackageTier, days: number): number {
+	const weeklyAmount = prices[tier].weekly.amount;
+	const extendedAmount = prices[tier].extended.amount;
+	const weeklyDaily = prices[tier].weekly.dailyEquivalent ?? 0;
+	const extendedDaily = prices[tier].extended.dailyEquivalent ?? 0;
+
+	if (days <= 7) return weeklyAmount;
+	if (days <= 14) {
+		// Cap at the 2-week price so the discount applies as soon as prorated ≥ extended.
+		return Math.min(weeklyAmount + (days - 7) * weeklyDaily, extendedAmount);
+	}
+	return extendedAmount + (days - 14) * extendedDaily;
+}
+
+export function formatDurationLabel(days: number | null): string {
+	if (days === null || days === 7) return "per week";
+	if (days === 14) return "for 2 weeks";
+	return `for ${days} days`;
+}
