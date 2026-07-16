@@ -4,8 +4,37 @@ import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { PricingToggle } from "../components/pricing-toggle";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { faqJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 import { prices } from "../lib/pricing";
+
+const pricingFaqs = [
+	{
+		question: "What's the minimum rental period at Surf Rental Aljezur?",
+		answer:
+			"Daily rentals have a 3-day minimum. Weekly rentals run for 7 days. For stays longer than 2 weeks, contact us for a custom rate.",
+	},
+	{
+		question: "What's included in the Premium Package?",
+		answer:
+			"The Premium Package includes a surfboard, season-appropriate wetsuit, leash and wax, a changing mat for getting changed at the beach, and roof rack pads so you can transport the board on your rental car.",
+	},
+	{
+		question: "Can I upgrade my Surf Rental Aljezur package mid-rental?",
+		answer:
+			"Yes. If you start with a Board Only and decide you need a wetsuit, or want to add the changing mat and roof rack, just let us know and we'll arrange a swap delivery.",
+	},
+	{
+		question: "Does Surf Rental Aljezur really include free delivery?",
+		answer:
+			"Yes — delivery and pickup are included in every package at no extra cost. We deliver to accommodations in Aljezur, Arrifana, Vale da Telha, and Monte Clérigo on Portugal's Costa Vicentina.",
+	},
+	{
+		question: "Does Surf Rental Aljezur offer group discounts?",
+		answer:
+			"Groups of 3–5 people save approximately 12% per person. For groups of 6 or more, we offer custom quotes. See our group bookings page for details.",
+	},
+];
 
 export const metadata: Metadata = {
 	title: "Pricing — Daily & Weekly Surf Rental Packages",
@@ -24,6 +53,7 @@ export default function PricingPage() {
 	return (
 		<>
 			<JsonLd data={pricingProductJsonLd()} />
+			<JsonLd data={faqJsonLd(pricingFaqs)} />
 
 			<section className="page-hero">
 				<div className="container">

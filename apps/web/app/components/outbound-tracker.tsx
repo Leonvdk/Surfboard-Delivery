@@ -15,7 +15,8 @@ export function OutboundTracker() {
 
 			const href = anchor.getAttribute("href") ?? "";
 			const section =
-				anchor.closest("footer") ? "footer"
+				anchor.closest(".whatsapp-float") ? "whatsapp_float"
+				: anchor.closest("footer") ? "footer"
 				: anchor.closest("nav") ? "nav"
 				: anchor.closest(".page-hero") ? "hero"
 				: anchor.closest(".blog-cta-popup") ? "blog_popup"
