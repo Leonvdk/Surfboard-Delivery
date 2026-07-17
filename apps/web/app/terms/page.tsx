@@ -79,15 +79,17 @@ export default function TermsPage() {
 							<h2>5. Cancellation &amp; refunds</h2>
 							<ul>
 								<li>
-									<strong>48+ hours before delivery:</strong> Free cancellation, no charge.
+									<strong>Free cancellation within 72 hours of booking.</strong> If you change your mind within 72 hours of placing your booking, we&apos;ll cancel it free of charge and refund any payment made.
 								</li>
 								<li>
-									<strong>24–48 hours before delivery:</strong> 50% of the rental fee applies.
-								</li>
-								<li>
-									<strong>Less than 24 hours / no-show:</strong> Full rental fee applies.
+									<strong>Bookings starting within 7 days cannot be cancelled.</strong> Once the start of your booking date is within 7 days, the booking is final and cannot be cancelled or refunded, including no-shows. This applies regardless of when the booking was placed.
 								</li>
 							</ul>
+							<p>
+								Between the 72-hour cooling-off window and the 7-day cut-off, contact us as
+								early as possible — we may be able to offer a partial refund or reschedule
+								depending on availability, but we&apos;re not obliged to.
+							</p>
 							<p>
 								If you need to shorten your rental after delivery, we can arrange early pickup but
 								no partial refund applies for the remaining days.

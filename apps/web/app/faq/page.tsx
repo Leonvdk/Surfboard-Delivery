@@ -68,7 +68,7 @@ const faqs = [
 	{
 		question: "What's your cancellation policy?",
 		answer:
-			"Cancel up to 48 hours before your check-in date for a full refund. Cancellations within 48 hours are charged at 50%. No-shows are charged in full.",
+			"Free cancellation up to 72 hours after booking. Once the start of your booking date is within 7 days, the booking can no longer be cancelled and no refund is possible, including no-shows. Between those windows, contact us — we may be able to reschedule or refund depending on availability, but we're not obliged to.",
 	},
 	{
 		question: "Do you offer surf lessons?",

@@ -33,7 +33,7 @@ export function CtaSection({
 								<polyline points="12 5 19 12 12 19" />
 							</svg>
 						</TrackedCtaLink>
-						<p className="cta-note">Free cancellation up to 24 hours before pickup</p>
+						<p className="cta-note">Free cancellation up to 72h after booking</p>
 					</div>
 				</Reveal>
 			</div>

@@ -14,7 +14,7 @@ export function InlineGearCta({
 	headline = "Get boards & wetsuits delivered to your Aljezur accommodation",
 	cta = "Reserve your gear",
 	href = "/contact?package=full",
-	note = "Free delivery · Free cancellation up to 24h",
+	note = "Free delivery · Free cancellation up to 72h after booking",
 	location = "blog_inline",
 }: Props) {
 	return (
