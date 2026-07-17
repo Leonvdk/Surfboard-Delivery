@@ -1,4 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { DM_Sans, Sora } from "next/font/google";
 import { EngagementTracker } from "./components/engagement-tracker";
 import { Footer } from "./components/footer";
@@ -42,6 +44,8 @@ export default function RootLayout({
 				<WhatsAppFloat />
 				<EngagementTracker />
 				<OutboundTracker />
+				<Analytics />
+				<SpeedInsights />
 			</body>
 		</html>
 	);

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { organizationJsonLd } from "../lib/jsonld";
+import { personJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
 	return (
 		<>
-			<JsonLd data={organizationJsonLd()} />
+			<JsonLd data={personJsonLd()} />
 
 			<section className="page-hero">
 				<div className="container">

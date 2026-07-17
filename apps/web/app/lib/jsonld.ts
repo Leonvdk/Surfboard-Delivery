@@ -159,34 +159,90 @@ export function breadcrumbJsonLd(items: Array<{ name: string; url: string }>) {
 	};
 }
 
-export function reviewJsonLd(reviews: Array<{ author: string; rating: number; body: string }>) {
+export function reviewJsonLd(
+	reviews: Array<{
+		author: string;
+		rating: number;
+		body: string;
+		country?: string;
+		type?: string;
+		datePublished?: string;
+	}>,
+) {
 	if (reviews.length === 0) return null;
 
-	const ratingValues = reviews.map((r) => r.rating);
-	const avg = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
-
-	return {
+	// Returns an array of Review objects each referencing the LocalBusiness by
+	// @id — no wrapping LocalBusiness node, no `publisher` field. Avoids a
+	// duplicate aggregateRating on the same @id (root layout's
+	// localBusinessJsonLd already carries the aggregate) and the "publisher =
+	// item reviewed" self-serving pattern Google penalises.
+	return reviews.map((r) => ({
 		"@context": "https://schema.org",
-		"@type": "LocalBusiness",
-		"@id": `${SITE_URL}/#business`,
-		name: "Surf Rental Aljezur",
-		aggregateRating: {
-			"@type": "AggregateRating",
-			ratingValue: avg.toFixed(1),
-			reviewCount: reviews.length,
+		"@type": "Review",
+		author: {
+			"@type": "Person",
+			name: r.author,
+			...(r.country
+				? {
+						address: {
+							"@type": "PostalAddress",
+							addressCountry: r.country,
+						},
+					}
+				: {}),
+		},
+		reviewRating: {
+			"@type": "Rating",
+			ratingValue: r.rating,
 			bestRating: "5",
 			worstRating: "1",
 		},
-		review: reviews.map((r) => ({
-			"@type": "Review",
-			author: { "@type": "Person", name: r.author },
-			reviewRating: {
-				"@type": "Rating",
-				ratingValue: r.rating,
-				bestRating: "5",
+		reviewBody: r.body,
+		...(r.datePublished ? { datePublished: r.datePublished } : {}),
+		itemReviewed: {
+			"@type": "LocalBusiness",
+			"@id": `${SITE_URL}/#business`,
+			name: "Surf Rental Aljezur",
+		},
+	}));
+}
+
+export function personJsonLd() {
+	return {
+		"@context": "https://schema.org",
+		"@type": "Person",
+		"@id": `${SITE_URL}/#leon`,
+		name: "Leon van de Klundert",
+		givenName: "Leon",
+		familyName: "van de Klundert",
+		jobTitle: "Owner, Surf Rental Aljezur",
+		description:
+			"Runs Surf Rental Aljezur. Lives in Aljezur and delivers surf gear across the Costa Vicentina.",
+		worksFor: {
+			"@type": "LocalBusiness",
+			"@id": `${SITE_URL}/#business`,
+			name: "Surf Rental Aljezur",
+			url: SITE_URL,
+		},
+		homeLocation: {
+			"@type": "Place",
+			name: "Aljezur, Portugal",
+			address: {
+				"@type": "PostalAddress",
+				addressLocality: "Aljezur",
+				addressRegion: "Faro",
+				addressCountry: "PT",
 			},
-			reviewBody: r.body,
-		})),
+		},
+		knowsAbout: [
+			"surfing",
+			"surf gear rental",
+			"Costa Vicentina",
+			"Aljezur",
+			"Portugal surf spots",
+		],
+		knowsLanguage: ["English", "Dutch", "Portuguese"],
+		url: `${SITE_URL}/about`,
 	};
 }
 
@@ -217,12 +273,14 @@ export function articleJsonLd({
 	url,
 	datePublished,
 	dateModified,
+	image,
 }: {
 	title: string;
 	description: string;
 	url: string;
 	datePublished: string;
 	dateModified?: string;
+	image?: string;
 }) {
 	return {
 		"@context": "https://schema.org",
@@ -233,14 +291,27 @@ export function articleJsonLd({
 		datePublished,
 		dateModified: dateModified ?? datePublished,
 		author: {
-			"@type": "Organization",
-			name: "Surf Rental Aljezur",
-			url: SITE_URL,
+			"@type": "Person",
+			"@id": `${SITE_URL}/#leon`,
+			name: "Leon van de Klundert",
+			url: `${SITE_URL}/about`,
 		},
 		publisher: {
 			"@type": "Organization",
+			"@id": `${SITE_URL}/#business`,
 			name: "Surf Rental Aljezur",
 			url: SITE_URL,
+			logo: {
+				"@type": "ImageObject",
+				url: `${SITE_URL}/images/logo.png`,
+				width: 600,
+				height: 60,
+			},
+		},
+		image: image ? [image] : [`${SITE_URL}/images/meta.jpg`],
+		mainEntityOfPage: {
+			"@type": "WebPage",
+			"@id": url,
 		},
 	};
 }

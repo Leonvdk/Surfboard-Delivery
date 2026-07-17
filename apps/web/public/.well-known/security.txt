@@ -1,0 +1,4 @@
+Contact: mailto:hello@surfrental-aljezur.com
+Expires: 2027-07-17T00:00:00Z
+Preferred-Languages: en, nl, pt
+Canonical: https://surfrental-aljezur.com/.well-known/security.txt

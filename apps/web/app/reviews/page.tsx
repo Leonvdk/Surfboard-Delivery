@@ -81,11 +81,7 @@ const reviews = [
 export default function ReviewsPage() {
 	return (
 		<>
-			<JsonLd
-				data={reviewJsonLd(
-					reviews.map((r) => ({ author: r.author, rating: r.rating, body: r.body })),
-				)}
-			/>
+			<JsonLd data={reviewJsonLd(reviews)} />
 
 			<section className="page-hero">
 				<div className="container">

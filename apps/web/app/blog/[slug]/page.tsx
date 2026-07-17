@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
+import { AuthorByline } from "../../components/author-byline";
 import BlogCtaPopup from "../../components/blog-cta-popup";
 import { BlogReadTracker } from "../../components/blog-read-tracker";
 import { Breadcrumbs } from "../../components/breadcrumbs";
 import { CtaSection } from "../../components/cta-section";
 import { JsonLd } from "../../components/json-ld";
 import { mdxComponents } from "../../components/mdx-components";
+import { RelatedPosts } from "../../components/related-posts";
 import { HorizonLine, Reveal } from "../../components/reveal";
+import { UpdatedBanner } from "../../components/updated-banner";
 import { getAllPosts, getPostBySlug } from "../../lib/blog";
 import { articleJsonLd, breadcrumbJsonLd } from "../../lib/jsonld";
 import { SITE_URL } from "../../lib/metadata";
+import { RELATED_POSTS_MAP } from "../../lib/related-posts-map";
 
 interface Props {
 	params: Promise<{ slug: string }>;
@@ -98,6 +102,8 @@ export default async function BlogPostPage({ params }: Props) {
 							</div>
 							<h1 className="blog-post-title">{post.title}</h1>
 							<p className="blog-post-description">{post.description}</p>
+							<AuthorByline />
+							<UpdatedBanner updated={post.updated} published={post.date} />
 							{post.tags.length > 0 && (
 								<div className="blog-post-tags">
 									{post.tags.map((tag) => (
@@ -115,6 +121,12 @@ export default async function BlogPostPage({ params }: Props) {
 					<article className="blog-post-body">
 						<MDXRemote source={post.content} components={mdxComponents} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
 					</article>
+
+					{RELATED_POSTS_MAP[slug] && (
+						<Reveal>
+							<RelatedPosts slugs={RELATED_POSTS_MAP[slug]} />
+						</Reveal>
+					)}
 				</div>
 			</section>
 

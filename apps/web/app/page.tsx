@@ -71,7 +71,7 @@ export default function Home() {
 										<Image
 											className="board-card-img-default"
 											src="/images/rentals/6'6/picture(1).jpg"
-											alt="6'6 Shortboard"
+											alt="6'6 soft-top shortboard rental in Aljezur — for intermediate to advanced surfers, delivered to your accommodation"
 											width={600}
 											height={450}
 										/>
@@ -104,7 +104,7 @@ export default function Home() {
 										<Image
 											className="board-card-img-default"
 											src="/images/rentals/7'0/picture(1).jpg"
-											alt="7'0 Funboard"
+											alt="7'0 soft-top funboard rental in Aljezur — for beginner to intermediate surfers, delivered to your accommodation"
 											width={600}
 											height={450}
 										/>
@@ -137,7 +137,7 @@ export default function Home() {
 										<Image
 											className="board-card-img-default"
 											src="/images/rentals/7'8/picture(1).jpg"
-											alt="7'8 Funboard"
+											alt="7'8 soft-top funboard rental in Aljezur — versatile board for building confidence, delivered to your accommodation"
 											width={600}
 											height={450}
 										/>
@@ -170,7 +170,7 @@ export default function Home() {
 										<Image
 											className="board-card-img-default"
 											src="/images/rentals/8'6/picture(1).jpg"
-											alt="8'6 Longboard"
+											alt="8'6 soft-top longboard rental in Aljezur — stable, forgiving board for beginners, delivered to your accommodation"
 											width={600}
 											height={450}
 										/>

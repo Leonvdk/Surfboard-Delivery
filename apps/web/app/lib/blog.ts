@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { cache } from "react";
 import matter from "gray-matter";
 
 export interface PostMeta {
@@ -29,7 +30,7 @@ function estimateReadingTime(content: string): number {
 	return Math.max(1, Math.ceil(words / 230));
 }
 
-export function getAllPosts(): PostMeta[] {
+export const getAllPosts = cache((): PostMeta[] => {
 	if (!fs.existsSync(POSTS_DIR)) return [];
 
 	return fs
@@ -51,7 +52,7 @@ export function getAllPosts(): PostMeta[] {
 			};
 		})
 		.sort((a, b) => (a.date > b.date ? -1 : 1));
-}
+});
 
 export const TAG_CATEGORIES: Record<string, { label: string; tags: string[] }> =
 	{
@@ -213,7 +214,7 @@ export function getPostsByTag(tag: string): PostMeta[] {
 	return getAllPosts().filter((post) => post.tags.includes(tag));
 }
 
-export function getPostBySlug(slug: string): Post | null {
+export const getPostBySlug = cache((slug: string): Post | null => {
 	const filePath = path.join(POSTS_DIR, `${slug}.mdx`);
 	if (!fs.existsSync(filePath)) return null;
 
@@ -232,4 +233,4 @@ export function getPostBySlug(slug: string): Post | null {
 		noindex: data.noindex === true,
 		content,
 	};
-}
+});
