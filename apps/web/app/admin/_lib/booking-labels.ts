@@ -80,7 +80,15 @@ export function summariseGear(people: BookingPerson[] | null) {
 	const wetsuits = new Map<string, number>();
 
 	for (const p of people) {
-		const pkg = normalisePackage(p.package || "custom");
+		// Use the effective package — if the customer picked Board Only but a
+		// wetsuit was booked, count it as Full so the summary reflects the actual
+		// delivery load rather than the raw form value.
+		const declared = normalisePackage(p.package || "custom");
+		let pkg: string;
+		if (declared === "premium") pkg = "premium";
+		else if (declared === "full") pkg = "full";
+		else if (p.wetsuitSize && p.wetsuitSize.trim() !== "") pkg = "full";
+		else pkg = "board";
 		packages.set(pkg, (packages.get(pkg) ?? 0) + 1);
 		if (p.board) boards.set(p.board, (boards.get(p.board) ?? 0) + 1);
 		if (p.wetsuitSize) wetsuits.set(p.wetsuitSize, (wetsuits.get(p.wetsuitSize) ?? 0) + 1);

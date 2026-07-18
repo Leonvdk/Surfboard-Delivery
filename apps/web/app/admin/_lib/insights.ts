@@ -83,6 +83,25 @@ function normalisePackage(v: string | undefined): string {
 }
 
 /**
+ * Effective package the person actually got. The declared `package` field
+ * captures intent at booking time; the wetsuit size captures what physically
+ * went out. If either says they had a wetsuit, they get counted as Full — so
+ * the mix reflects reality, not just the form. Premium is trusted when
+ * declared because its extras (changing mat, roof rack pads) aren't stored
+ * per person.
+ */
+function effectivePackage(p: {
+	package: string;
+	wetsuitSize: string;
+}): string {
+	const declared = normalisePackage(p.package);
+	if (declared === "premium") return "premium";
+	if (declared === "full") return "full";
+	if (p.wetsuitSize && p.wetsuitSize.trim() !== "") return "full";
+	return "board";
+}
+
+/**
  * Package mix across every person in every non-cancelled booking whose
  * check-in falls in the last `days` days.
  */
@@ -94,7 +113,7 @@ export function packageMix(bookings: Booking[], days: number): PackageMixEntry[]
 		if (b.checkin < cutoff) continue;
 		if (!b.people) continue;
 		for (const p of b.people) {
-			const key = normalisePackage(p.package);
+			const key = effectivePackage(p);
 			counts.set(key, (counts.get(key) ?? 0) + 1);
 		}
 	}
