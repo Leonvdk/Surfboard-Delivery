@@ -34,6 +34,24 @@ function bookingSpansDay(b: Booking, iso: string): boolean {
 	return b.checkin <= iso && iso <= b.checkout;
 }
 
+function EdgeMarker({ kind }: { kind: "delivery" | "pickup" }) {
+	// Inline SVG so iOS Safari doesn't render triangle chars (▶ ◀) as color
+	// emoji — those glyphs break the flat black-and-orange brand look.
+	const points =
+		kind === "delivery" ? "1,1 8,4.5 1,8" : "8,1 1,4.5 8,8";
+	return (
+		<svg
+			width={9}
+			height={9}
+			viewBox="0 0 9 9"
+			className="cal-chip-marker"
+			aria-hidden="true"
+		>
+			<polygon points={points} fill="currentColor" />
+		</svg>
+	);
+}
+
 export default async function AdminCalendarPage({ searchParams }: Props) {
 	const params = await searchParams;
 	const { year, month } = parseMonthParam(params.month);
@@ -112,7 +130,8 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 				<span className="cal-chip cal-chip--completed">Completed</span>
 				<span className="cal-chip cal-chip--cancelled">Cancelled</span>
 				<span className="cal-chip cal-chip--legend-marker">
-					▶ delivery · ◀ pickup
+					<EdgeMarker kind="delivery" /> delivery ·{" "}
+					<EdgeMarker kind="pickup" /> pickup
 				</span>
 			</div>
 
@@ -133,7 +152,6 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 									{dayBookings.slice(0, 3).map((b) => {
 										const isDelivery = b.checkin === cell.iso;
 										const isPickup = b.checkout === cell.iso;
-										const marker = isDelivery ? "▶ " : isPickup ? "◀ " : "";
 										return (
 											<Link
 												key={b.id}
@@ -141,12 +159,14 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 												className={`cal-chip ${STATUS_CLASS[b.status]}${isDelivery || isPickup ? " cal-chip--edge" : ""}`}
 												title={b.ownerNotes ? `Note: ${b.ownerNotes.slice(0, 200)}` : undefined}
 											>
-												{marker}
+												{isDelivery && <EdgeMarker kind="delivery" />}
+												{isPickup && <EdgeMarker kind="pickup" />}
 												{b.name.split(" ")[0]} · {b.peopleCount}p
 												{b.ownerNotes ? (
-													<span className="cal-chip-note" aria-hidden="true">
-														●
-													</span>
+													<span
+														className="cal-chip-note"
+														aria-hidden="true"
+													/>
 												) : null}
 											</Link>
 										);

@@ -1,8 +1,19 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+function logoDataUrl(): string {
+	const buf = readFileSync(
+		join(process.cwd(), "public", "images", "logo.png"),
+	);
+	return `data:image/png;base64,${buf.toString("base64")}`;
+}
+
+export function GET() {
+	// 512 icon with generous padding so it survives the maskable safe-zone
+	// crop that Android home-screen launchers apply.
 	return new ImageResponse(
 		(
 			<div
@@ -12,15 +23,17 @@ export async function GET() {
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
-					background: "#C04419",
-					color: "#FFFFFF",
-					fontSize: 280,
-					fontWeight: 900,
-					fontFamily: "system-ui",
-					letterSpacing: -10,
+					background: "#FAFAF8",
+					padding: 92,
 				}}
 			>
-				SR
+				{/* biome-ignore lint/performance/noImgElement: Satori only supports <img> */}
+				<img
+					src={logoDataUrl()}
+					width={328}
+					height={166}
+					alt=""
+				/>
 			</div>
 		),
 		{ width: 512, height: 512 },

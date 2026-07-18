@@ -10,6 +10,7 @@ export interface FunnelSummary {
 	label: string;
 	requested: number;
 	confirmed: number;
+	inProgress: number;
 	completed: number;
 	cancelled: number;
 	confirmRate: number | null; // (confirmed + completed) / requested-or-more
@@ -49,11 +50,20 @@ export function bookingFunnelForRecentMonths(
 			inPeriod.filter((b) => b.status === s).length;
 		const requested = inPeriod.length;
 		const confirmed = by("confirmed");
+		const inProgress = by("in_progress");
 		const completed = by("completed");
 		const cancelled = by("cancelled");
-		const producing = confirmed + completed + by("in_progress");
+		const producing = confirmed + inProgress + completed;
 		const rate = requested > 0 ? producing / requested : null;
-		return { label, requested, confirmed, completed, cancelled, confirmRate: rate };
+		return {
+			label,
+			requested,
+			confirmed,
+			inProgress,
+			completed,
+			cancelled,
+			confirmRate: rate,
+		};
 	}
 
 	return {

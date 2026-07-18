@@ -131,6 +131,10 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 								<strong>{funnel.current.confirmed}</strong>
 							</div>
 							<div className="funnel-metric">
+								<span>In progress</span>
+								<strong>{funnel.current.inProgress}</strong>
+							</div>
+							<div className="funnel-metric">
 								<span>Completed</span>
 								<strong>{funnel.current.completed}</strong>
 							</div>
@@ -156,6 +160,10 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 							<div className="funnel-metric">
 								<span>Confirmed</span>
 								<strong>{funnel.previous.confirmed}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>In progress</span>
+								<strong>{funnel.previous.inProgress}</strong>
 							</div>
 							<div className="funnel-metric">
 								<span>Completed</span>
