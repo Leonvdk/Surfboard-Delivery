@@ -7,6 +7,7 @@ import { updateBookingStatus } from "../_actions";
 const STATUSES: Array<{ value: BookingStatus; label: string }> = [
 	{ value: "requested", label: "Requested" },
 	{ value: "confirmed", label: "Confirmed" },
+	{ value: "in_progress", label: "In progress" },
 	{ value: "completed", label: "Completed" },
 	{ value: "cancelled", label: "Cancelled" },
 ];
@@ -73,7 +74,8 @@ export function StatusPicker({ bookingId, current }: Props) {
 				aria-expanded={open}
 				title="Click to change status"
 			>
-				{status.charAt(0).toUpperCase() + status.slice(1)}
+				{STATUSES.find((s) => s.value === status)?.label ??
+					status.charAt(0).toUpperCase() + status.slice(1)}
 			</button>
 			{open && (
 				<div className="status-picker-menu" role="listbox">

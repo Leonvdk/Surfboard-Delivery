@@ -25,6 +25,7 @@ function pad(n: number): string {
 const STATUS_CLASS: Record<BookingStatus, string> = {
 	requested: "cal-chip--requested",
 	confirmed: "cal-chip--confirmed",
+	in_progress: "cal-chip--in_progress",
 	cancelled: "cal-chip--cancelled",
 	completed: "cal-chip--completed",
 };
@@ -105,6 +106,7 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 			<div className="admin-cal-legend">
 				<span className="cal-chip cal-chip--requested">Requested</span>
 				<span className="cal-chip cal-chip--confirmed">Confirmed</span>
+				<span className="cal-chip cal-chip--in_progress">In progress</span>
 				<span className="cal-chip cal-chip--completed">Completed</span>
 				<span className="cal-chip cal-chip--cancelled">Cancelled</span>
 			</div>

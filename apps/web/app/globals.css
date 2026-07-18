@@ -6076,10 +6076,11 @@ h1 {
   border: 1px solid var(--black);
 }
 
-.admin-status--requested { background: #fef1d1; color: #7a4706; }
-.admin-status--confirmed { background: #b9e4d0; color: #076239; }
-.admin-status--completed { background: #c9daf8; color: #1c4587; }
-.admin-status--cancelled { background: #efefef; color: #666666; }
+.admin-status--requested   { background: #fef1d1; color: #7a4706; }
+.admin-status--confirmed   { background: #b9e4d0; color: #076239; }
+.admin-status--in_progress { background: #ffcdb9; color: #822111; }
+.admin-status--completed   { background: #c9daf8; color: #1c4587; }
+.admin-status--cancelled   { background: #efefef; color: #666666; }
 
 /* Click-to-pick status widget (list rows + detail page) */
 .status-picker {
@@ -6458,10 +6459,11 @@ h1 {
   text-overflow: ellipsis;
 }
 
-.cal-chip--requested { background: #fef1d1; border-color: #7a4706; color: #7a4706; }
-.cal-chip--confirmed { background: #b9e4d0; border-color: #076239; color: #076239; }
-.cal-chip--completed { background: #c9daf8; border-color: #1c4587; color: #1c4587; }
-.cal-chip--cancelled { background: #efefef; border-color: #666666; color: #666666; }
+.cal-chip--requested   { background: #fef1d1; border-color: #7a4706; color: #7a4706; }
+.cal-chip--confirmed   { background: #b9e4d0; border-color: #076239; color: #076239; }
+.cal-chip--in_progress { background: #ffcdb9; border-color: #822111; color: #822111; }
+.cal-chip--completed   { background: #c9daf8; border-color: #1c4587; color: #1c4587; }
+.cal-chip--cancelled   { background: #efefef; border-color: #666666; color: #666666; }
 .cal-chip--more { background: transparent; color: var(--gray-500); font-style: italic; }
 
 @media (max-width: 640px) {

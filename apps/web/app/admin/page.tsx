@@ -10,7 +10,10 @@ function formatDate(dateStr: string): string {
 	if (!dateStr) return "";
 	const d = new Date(dateStr);
 	if (Number.isNaN(d.getTime())) return dateStr;
-	return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+	const day = d.getDate();
+	const month = d.toLocaleDateString("en-GB", { month: "short" });
+	const year2 = String(d.getFullYear() % 100).padStart(2, "0");
+	return `${day} ${month} '${year2}`;
 }
 
 export default async function AdminBookingsPage() {
