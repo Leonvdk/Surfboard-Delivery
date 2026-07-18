@@ -9,6 +9,12 @@ export interface AdminSession {
 
 const SESSION_PASSWORD = process.env.SESSION_SECRET;
 
+// 90 days ≈ 3 months. iron-session's ttl (top-level) validates freshness on
+// unseal — if we only set cookieOptions.maxAge, the cookie sticks around but
+// iron-session rejects it after its default 14-day ttl, silently kicking the
+// user back to the login page. Both need to line up.
+const THREE_MONTHS_SECONDS = 60 * 60 * 24 * 90;
+
 export const sessionOptions: SessionOptions = {
 	// iron-session requires a 32+ char password. During local dev without a
 	// SESSION_SECRET we fall back to a fixed dev-only value so the app boots;
@@ -18,11 +24,12 @@ export const sessionOptions: SessionOptions = {
 			? SESSION_PASSWORD
 			: "dev-session-password-change-me-please-32chars",
 	cookieName: "sra_admin_session",
+	ttl: THREE_MONTHS_SECONDS,
 	cookieOptions: {
 		secure: process.env.NODE_ENV === "production",
 		httpOnly: true,
 		sameSite: "lax",
-		maxAge: 60 * 60 * 24 * 30, // 30 days
+		maxAge: THREE_MONTHS_SECONDS,
 	},
 };
 
