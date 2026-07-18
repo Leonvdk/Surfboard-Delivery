@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { getStripe } from "../../lib/stripe";
+import { RevenueLineChart } from "../_components/revenue-line-chart";
 
 export const dynamic = "force-dynamic";
 
@@ -75,8 +76,6 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		const d = new Date(Date.now() - i * 86400 * 1000).toISOString().slice(0, 10);
 		trendDays.push({ day: d, cents: byDay.get(d) ?? 0 });
 	}
-	const maxCents = Math.max(1, ...trendDays.map((d) => d.cents));
-
 	return (
 		<section className="admin-revenue-page">
 			<header className="admin-page-header">
@@ -92,16 +91,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 			<article className="admin-card">
 				<h2>Daily net revenue</h2>
-				<div className="revenue-trend" role="img" aria-label={`Daily net revenue over the last ${days} days`}>
-					{trendDays.map((d) => {
-						const heightPct = (d.cents / maxCents) * 100;
-						return (
-							<div key={d.day} className="revenue-trend-col" title={`${d.day} · ${formatEuros(d.cents)}`}>
-								<div className="revenue-trend-bar" style={{ height: `${heightPct}%` }} />
-							</div>
-						);
-					})}
-				</div>
+				<RevenueLineChart trend={trendDays} />
 			</article>
 
 			<article className="admin-card">

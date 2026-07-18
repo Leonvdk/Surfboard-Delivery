@@ -67,7 +67,7 @@ export default async function AdminBookingsPage() {
 							<th>Customer</th>
 							<th>Dates</th>
 							<th>People</th>
-							<th>Estimate</th>
+							<th>Price</th>
 							<th>Status</th>
 							<th />
 						</tr>
@@ -90,7 +90,7 @@ export default async function AdminBookingsPage() {
 								</td>
 								<td>
 									<Link href={`/admin/bookings/${b.id}`} className="admin-row-link">
-										Open →
+										Open&nbsp;→
 									</Link>
 								</td>
 							</tr>
