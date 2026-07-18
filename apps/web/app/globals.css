@@ -7334,6 +7334,71 @@ h1 {
   }
 }
 
+/* ─── Notifications toggle (bookings page header) ────── */
+
+.notif-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notif-toggle--hint {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin: 0;
+  max-width: 320px;
+}
+
+.notif-toggle-error {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin: 0;
+}
+
+/* ─── Pull-to-refresh badge (mobile / standalone) ────── */
+
+.ptr {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 200;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.ptr-badge {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  color: var(--gray-500);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.ptr-badge--armed {
+  background: var(--accent);
+  color: var(--white);
+}
+
+.ptr-badge--spinning svg {
+  animation: ptr-spin 700ms linear infinite;
+}
+
+@keyframes ptr-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ─── Admin: native-app feel ────────────────────────
    The admin panel is designed to be installed to the home screen and
    pinch-hit as a real app. These rules apply on touch phones (and always

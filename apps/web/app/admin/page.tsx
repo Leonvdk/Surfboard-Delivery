@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getDb, schema } from "../lib/db/client";
 import type { Booking, BookingStatus } from "../lib/db/schema";
 import { BookingsFilter } from "./_components/bookings-filter";
+import { NotificationsToggle } from "./_components/notifications-toggle";
 import { StatusPicker } from "./_components/status-picker";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 
@@ -121,6 +122,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		<section className="admin-list-page">
 			<header className="admin-page-header">
 				<h1>Bookings</h1>
+				<NotificationsToggle />
 			</header>
 
 			{/* ── Today card ── */}

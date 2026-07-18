@@ -73,3 +73,26 @@ export const bookings = pgTable(
 
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
+
+/**
+ * Web-push subscriptions from Leon's installed admin PWA. One row per
+ * device/browser. The endpoint uniquely identifies a subscription; we
+ * upsert on it so re-subscribing on the same device just updates the
+ * keys. Delete a row when its endpoint returns 404/410 during send.
+ */
+export const pushSubscriptions = pgTable(
+	"push_subscriptions",
+	{
+		id: serial("id").primaryKey(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		endpoint: text("endpoint").notNull().unique(),
+		p256dh: text("p256dh").notNull(),
+		auth: text("auth").notNull(),
+		userAgent: text("user_agent"),
+	},
+	(t) => ({
+		endpointIdx: index("push_subscriptions_endpoint_idx").on(t.endpoint),
+	}),
+);
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;

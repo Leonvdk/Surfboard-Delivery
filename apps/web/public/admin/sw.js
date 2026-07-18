@@ -1,13 +1,26 @@
-// Minimal service worker for the Surf Rental Admin PWA.
-// Presence of a fetch handler is what makes the app installable on desktop
-// Chrome and other Chromium engines — the network-first strategy just proxies
-// to the actual server so booking data is always fresh. If Leon is offline the
-// browser's own error page shows, which is fine for now (offline mode isn't
-// a real requirement for an admin dashboard).
+// Service worker for the Surf Rental Admin PWA.
+//
+// Responsibilities:
+//   1. Provide the fetch handler that makes the app installable on Chrome
+//      (network-first for the shell assets; everything else passes through).
+//   2. Handle web-push events and show a native notification.
+//   3. On notification tap, focus an existing tab if we have one already
+//      on that URL — otherwise open a new one.
+//   4. Increment/clear the app badge (unread count) so Leon sees a
+//      numbered dot on the home-screen icon.
+//
+// Version the cache name whenever the shell asset list changes so old
+// SWs get evicted on the next activate.
 
-const CACHE_NAME = "sra-admin-v1";
+const CACHE_NAME = "sra-admin-v2";
+const SHELL_PATHS = new Set([
+	"/admin/manifest.webmanifest",
+	"/admin/icon",
+	"/admin/icon-512",
+	"/admin/apple-icon",
+]);
 
-self.addEventListener("install", (event) => {
+self.addEventListener("install", () => {
 	self.skipWaiting();
 });
 
@@ -26,19 +39,12 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-	// Only handle same-origin GETs — anything else falls through to the network.
 	const req = event.request;
 	if (req.method !== "GET") return;
 	const url = new URL(req.url);
 	if (url.origin !== self.location.origin) return;
 
-	// Network-first: try live, fall back to cache if offline. Only cache the
-	// static shell (icons, manifest) — booking pages must always be fresh.
-	const isShell =
-		url.pathname === "/admin/manifest.webmanifest" ||
-		url.pathname === "/admin/icon" ||
-		url.pathname === "/admin/icon-512" ||
-		url.pathname === "/admin/apple-icon";
+	const isShell = SHELL_PATHS.has(url.pathname);
 
 	event.respondWith(
 		(async () => {
@@ -56,6 +62,72 @@ self.addEventListener("fetch", (event) => {
 				}
 				throw err;
 			}
+		})(),
+	);
+});
+
+// ─── Push handling ──────────────────────────────────────
+
+self.addEventListener("push", (event) => {
+	if (!event.data) return;
+
+	let payload;
+	try {
+		payload = event.data.json();
+	} catch {
+		payload = { title: "Surf Rental Admin", body: event.data.text(), url: "/admin" };
+	}
+
+	const title = payload.title || "Surf Rental Admin";
+	const body = payload.body || "";
+	const url = payload.url || "/admin";
+	const tag = payload.tag || url;
+	const badgeCount = typeof payload.badge === "number" ? payload.badge : null;
+
+	event.waitUntil(
+		Promise.all([
+			self.registration.showNotification(title, {
+				body,
+				tag,
+				renotify: true,
+				icon: "/admin/icon",
+				badge: "/admin/icon",
+				data: { url },
+			}),
+			badgeCount != null && "setAppBadge" in self.navigator
+				? self.navigator.setAppBadge(badgeCount).catch(() => {})
+				: Promise.resolve(),
+		]),
+	);
+});
+
+self.addEventListener("notificationclick", (event) => {
+	event.notification.close();
+	const targetPath = event.notification.data?.url || "/admin";
+
+	event.waitUntil(
+		(async () => {
+			const allClients = await self.clients.matchAll({
+				type: "window",
+				includeUncontrolled: true,
+			});
+			// If any tab already shows the admin surface, focus it and navigate.
+			for (const client of allClients) {
+				const u = new URL(client.url);
+				if (u.pathname.startsWith("/admin")) {
+					await client.focus();
+					if ("navigate" in client) {
+						try {
+							await client.navigate(targetPath);
+						} catch {
+							// Cross-origin or state-locked; ignore and rely on focus.
+						}
+					}
+					return;
+				}
+			}
+			// Nothing open — spawn a new tab.
+			await self.clients.openWindow(targetPath);
 		})(),
 	);
 });

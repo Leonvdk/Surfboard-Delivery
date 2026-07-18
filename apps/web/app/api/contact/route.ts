@@ -279,23 +279,52 @@ export async function POST(request: Request) {
 		// — email delivery is the primary success path and should never be blocked
 		// by a database that's still being provisioned.
 		const db = getDb();
+		let bookingId: number | null = null;
 		if (db) {
 			try {
-				await db.insert(schema.bookings).values({
-					name: data.name,
-					email: data.email,
-					checkin: data.checkin,
-					checkout: data.checkout,
-					accommodation: data.accommodation ?? null,
-					peopleCount: data.peopleCount,
-					people: data.people,
-					message: data.message ?? null,
-					estimatedTotal: data.estimatedTotal ?? null,
-					status: "requested",
-				});
+				const [row] = await db
+					.insert(schema.bookings)
+					.values({
+						name: data.name,
+						email: data.email,
+						checkin: data.checkin,
+						checkout: data.checkout,
+						accommodation: data.accommodation ?? null,
+						peopleCount: data.peopleCount,
+						people: data.people,
+						message: data.message ?? null,
+						estimatedTotal: data.estimatedTotal ?? null,
+						status: "requested",
+					})
+					.returning({ id: schema.bookings.id });
+				bookingId = row?.id ?? null;
 			} catch (dbErr) {
 				console.error("Booking DB insert error:", dbErr);
 				// Do not fail the request — the customer already got their email.
+			}
+		}
+
+		// Fire a push to Leon's installed admin PWA. Best-effort — don't block
+		// the customer's success response on it.
+		if (bookingId != null) {
+			try {
+				const { sendPushToAll } = await import("../../lib/push");
+				const nights = Math.max(
+					1,
+					Math.round(
+						(new Date(`${data.checkout}T00:00:00Z`).getTime() -
+							new Date(`${data.checkin}T00:00:00Z`).getTime()) /
+							86400000,
+					),
+				);
+				await sendPushToAll({
+					title: "New booking request",
+					body: `${data.name} · ${data.peopleCount}p · ${nights}n from ${data.checkin}`,
+					url: `/admin/bookings/${bookingId}`,
+					tag: `booking-${bookingId}`,
+				});
+			} catch (pushErr) {
+				console.error("Push send error:", pushErr);
 			}
 		}
 
