@@ -1,4 +1,4 @@
-import { and, gte, lte, or } from "drizzle-orm";
+import { and, gte, isNull, lte, or } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "../../lib/db/client";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
@@ -52,12 +52,14 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 		);
 	}
 
-	// Bookings whose window overlaps the calendar's month
+	// Bookings whose window overlaps the calendar's month.
+	// Soft-deleted rows are excluded.
 	const bookings = await db
 		.select()
 		.from(schema.bookings)
 		.where(
 			and(
+				isNull(schema.bookings.deletedAt),
 				or(
 					gte(schema.bookings.checkin, monthStart),
 					lte(schema.bookings.checkin, monthEnd),

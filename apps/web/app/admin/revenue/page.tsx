@@ -1,4 +1,4 @@
-import { desc } from "drizzle-orm";
+import { desc, isNull } from "drizzle-orm";
 import type Stripe from "stripe";
 import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
@@ -69,11 +69,13 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	}
 
 	// Bookings-side insights (funnel, package mix, monthly rollup) — best-effort.
+	// Soft-deleted rows are excluded.
 	const db = getDb();
 	const allBookings = db
 		? await db
 				.select()
 				.from(schema.bookings)
+				.where(isNull(schema.bookings.deletedAt))
 				.orderBy(desc(schema.bookings.createdAt))
 		: [];
 	const funnel = bookingFunnelForRecentMonths(allBookings);

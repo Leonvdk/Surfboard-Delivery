@@ -56,11 +56,18 @@ export const bookings = pgTable(
 		stripeCustomerId: text("stripe_customer_id"),
 
 		importedFromResend: timestamp("imported_from_resend"),
+
+		// Soft delete: rows with a non-null deletedAt are filtered out of every
+		// admin query (list, calendar, revenue, insights, detail lookup, repeat
+		// customer). Keeps a safety net without cluttering the UI. To purge for
+		// real, DELETE FROM bookings WHERE deleted_at IS NOT NULL against Neon.
+		deletedAt: timestamp("deleted_at"),
 	},
 	(t) => ({
 		statusIdx: index("bookings_status_idx").on(t.status),
 		checkinIdx: index("bookings_checkin_idx").on(t.checkin),
 		createdAtIdx: index("bookings_created_at_idx").on(t.createdAt),
+		deletedAtIdx: index("bookings_deleted_at_idx").on(t.deletedAt),
 	}),
 );
 

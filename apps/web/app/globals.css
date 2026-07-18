@@ -6457,6 +6457,44 @@ h1 {
   gap: 6px;
 }
 
+.delete-booking-trigger {
+  color: var(--gray-500);
+  border-color: var(--gray-200);
+  background: transparent;
+}
+
+.delete-booking-trigger:hover {
+  color: #b1291a;
+  border-color: #b1291a;
+}
+
+.delete-booking-confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border: 1px solid #b1291a;
+  background: #fdecea;
+}
+
+.delete-booking-question {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: #7a1f13;
+}
+
+.delete-booking-confirm-yes {
+  background: #b1291a;
+  color: white;
+  border-color: #b1291a;
+}
+
+.delete-booking-confirm-yes:hover:not(:disabled) {
+  background: #7a1f13;
+  border-color: #7a1f13;
+}
+
 .cancellation-badge {
   margin-top: var(--space-md);
   padding: 8px 12px;

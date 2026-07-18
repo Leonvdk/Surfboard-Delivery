@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDb, schema } from "../../../lib/db/client";
 import { updateBookingNotes, updateFinalTotal } from "../../_actions";
+import { DeleteBookingButton } from "../../_components/delete-booking-button";
 import { DraftEmailButton } from "../../_components/draft-email-button";
 import { QuickStatusButtons } from "../../_components/quick-status-buttons";
 import { StatusPicker } from "../../_components/status-picker";
@@ -41,7 +42,9 @@ export default async function BookingDetailPage({
 	const [booking] = await db
 		.select()
 		.from(schema.bookings)
-		.where(eq(schema.bookings.id, id))
+		.where(
+			and(eq(schema.bookings.id, id), isNull(schema.bookings.deletedAt)),
+		)
 		.limit(1);
 
 	if (!booking) notFound();
@@ -80,6 +83,7 @@ export default async function BookingDetailPage({
 			<div className="admin-detail-actions">
 				<QuickStatusButtons bookingId={id} current={booking.status} />
 				<DraftEmailButton booking={booking} />
+				<DeleteBookingButton bookingId={id} customerName={booking.name} />
 			</div>
 
 			<div className="admin-detail-grid">

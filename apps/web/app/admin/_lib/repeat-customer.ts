@@ -1,4 +1,4 @@
-import { and, ne, sql } from "drizzle-orm";
+import { and, isNull, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "../../lib/db/client";
 
 export interface RepeatCustomerInfo {
@@ -28,6 +28,7 @@ export async function getRepeatCustomer(
 			and(
 				sql`lower(${schema.bookings.email}) = lower(${email})`,
 				ne(schema.bookings.id, currentBookingId),
+				isNull(schema.bookings.deletedAt),
 			),
 		);
 

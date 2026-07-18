@@ -1,4 +1,4 @@
-import { and, desc, ilike, inArray, or } from "drizzle-orm";
+import { and, desc, ilike, inArray, isNull, or } from "drizzle-orm";
 import Link from "next/link";
 import { getDb, schema } from "../lib/db/client";
 import type { Booking, BookingStatus } from "../lib/db/schema";
@@ -56,9 +56,11 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 	}
 
 	// Load all bookings once — at Leon's volume this is a few hundred rows max.
+	// Soft-deleted rows are always excluded.
 	const allBookings = await db
 		.select()
 		.from(schema.bookings)
+		.where(isNull(schema.bookings.deletedAt))
 		.orderBy(desc(schema.bookings.createdAt));
 
 	const today = todayIso();
@@ -83,8 +85,10 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		)
 		.sort((a, b) => a.checkin.localeCompare(b.checkin));
 
-	// Filter for the full list section
-	const filteredWhere = [] as ReturnType<typeof inArray>[];
+	// Filter for the full list section. Soft-deleted rows are always excluded.
+	const filteredWhere = [
+		isNull(schema.bookings.deletedAt),
+	] as ReturnType<typeof inArray>[];
 	if (statusFilter) {
 		filteredWhere.push(inArray(schema.bookings.status, [statusFilter]));
 	}
@@ -97,20 +101,12 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 			) as ReturnType<typeof inArray>,
 		);
 	}
-	const listQuery = db
+	const filteredBookings = await db
 		.select()
 		.from(schema.bookings)
+		.where(and(...filteredWhere))
 		.orderBy(desc(schema.bookings.createdAt))
 		.limit(200);
-	const filteredBookings =
-		filteredWhere.length > 0
-			? await db
-					.select()
-					.from(schema.bookings)
-					.where(and(...filteredWhere))
-					.orderBy(desc(schema.bookings.createdAt))
-					.limit(200)
-			: await listQuery;
 
 	// Counts per status for the filter chips
 	const counts = allBookings.reduce(
