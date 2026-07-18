@@ -5941,17 +5941,34 @@ h1 {
   padding: 0;
 }
 
-.admin-nav-links a {
+.admin-nav-links a,
+.admin-nav-link {
   font-family: var(--font-display);
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--gray-700);
   text-decoration: none;
   padding: 6px 4px;
+  position: relative;
 }
 
-.admin-nav-links a:hover {
+.admin-nav-links a:hover,
+.admin-nav-link:hover {
   color: var(--accent);
+}
+
+.admin-nav-link--active {
+  color: var(--black);
+}
+
+.admin-nav-link--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: var(--accent);
 }
 
 .admin-nav-logout {
@@ -7263,5 +7280,177 @@ h1 {
   }
   .admin-nav-brand {
     font-size: 0.875rem;
+  }
+}
+
+/* ─── Admin: native-app feel ────────────────────────
+   The admin panel is designed to be installed to the home screen and
+   pinch-hit as a real app. These rules apply on touch phones (and always
+   in standalone mode) so tapping, scrolling and navigating feel native. */
+
+.admin-tabbar { display: none; }
+
+@media (max-width: 768px) {
+  /* Kill the tap-highlight flash on links/buttons — feels very webby */
+  .admin-shell a,
+  .admin-shell button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Chrome (nav, tab bar, buttons) should never be text-selected */
+  .admin-nav,
+  .admin-tabbar {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* No horizontal pull-refresh bounce that swaps to the previous page */
+  html,
+  body {
+    overscroll-behavior-y: contain;
+  }
+
+  /* Inputs at 16px on mobile so iOS Safari doesn't zoom into the form */
+  .admin-input,
+  .admin-textarea,
+  .admin-status-select,
+  .admin-login-input,
+  .bookings-filter-input {
+    font-size: 16px;
+  }
+
+  /* Bigger touch targets on primary actions */
+  .admin-btn {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 0.9375rem;
+  }
+  .admin-login-submit {
+    min-height: 48px;
+  }
+
+  /* Hide the top nav's section-link row on mobile — bottom tab bar owns
+     section switching. Keep brand + logout on top for context. */
+  .admin-nav-links {
+    display: none;
+  }
+  .admin-nav-inner {
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    padding: 12px 16px;
+  }
+
+  /* Bottom tab bar */
+  .admin-tabbar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    background: var(--surface);
+    border-top: var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .admin-tabbar-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 6px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .admin-tabbar-item { margin: 0; }
+  .admin-tabbar-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 4px;
+    text-decoration: none;
+    color: var(--gray-500);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    min-height: 52px;
+    position: relative;
+    transition: color 100ms ease;
+  }
+  .admin-tabbar-icon {
+    display: inline-flex;
+    line-height: 0;
+  }
+  .admin-tabbar-link:active {
+    color: var(--accent);
+  }
+  .admin-tabbar-link--active {
+    color: var(--black);
+  }
+  .admin-tabbar-link--active .admin-tabbar-icon svg {
+    stroke: var(--accent);
+    stroke-width: 2;
+  }
+  .admin-tabbar-link--active::before {
+    content: "";
+    position: absolute;
+    top: -1.5px;
+    left: 30%;
+    right: 30%;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* Add scroll-space so content isn't hidden behind the tab bar */
+  .admin-main {
+    padding-bottom: 88px;
+  }
+
+  /* Detail-page cards feel more like sections in an app */
+  .admin-card {
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+    margin-left: calc(var(--space-md) * -1);
+    margin-right: calc(var(--space-md) * -1);
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  /* Today rows: hard-shadow tap feedback so a tap feels physical */
+  .admin-today-link:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 var(--black);
+  }
+}
+
+/* Extra polish when actually running as an installed PWA */
+@media (display-mode: standalone) {
+  .admin-nav {
+    /* Status-bar area is coloured by theme_color already — the nav sits
+       right below it and should feel connected, not pop out. */
+    box-shadow: none;
+  }
+  .admin-nav-inner {
+    padding-top: 14px;
+  }
+  /* Hide the sticky top nav's section list entirely — the bottom tab
+     bar handles navigation. Keeps standalone view clean. */
+  .admin-nav-links { display: none; }
+
+  .admin-tabbar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    background: var(--surface);
+    border-top: var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .admin-main {
+    padding-bottom: 96px;
   }
 }

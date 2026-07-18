@@ -21,13 +21,40 @@ export function AdminNavBar({ logout }: Props) {
 				</Link>
 				<ul className="admin-nav-links">
 					<li>
-						<Link href="/admin">Bookings</Link>
+						<Link
+							href="/admin"
+							className={
+								pathname === "/admin" || pathname.startsWith("/admin/bookings")
+									? "admin-nav-link admin-nav-link--active"
+									: "admin-nav-link"
+							}
+						>
+							Bookings
+						</Link>
 					</li>
 					<li>
-						<Link href="/admin/calendar">Calendar</Link>
+						<Link
+							href="/admin/calendar"
+							className={
+								pathname.startsWith("/admin/calendar")
+									? "admin-nav-link admin-nav-link--active"
+									: "admin-nav-link"
+							}
+						>
+							Calendar
+						</Link>
 					</li>
 					<li>
-						<Link href="/admin/revenue">Revenue</Link>
+						<Link
+							href="/admin/revenue"
+							className={
+								pathname.startsWith("/admin/revenue")
+									? "admin-nav-link admin-nav-link--active"
+									: "admin-nav-link"
+							}
+						>
+							Revenue
+						</Link>
 					</li>
 				</ul>
 				<form action={logout}>

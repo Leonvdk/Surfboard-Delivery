@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { AdminNavBar } from "./_components/admin-nav-bar";
+import { AdminTabBar } from "./_components/admin-tab-bar";
 import { ServiceWorkerRegister } from "./_components/service-worker-register";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 		<div className="admin-shell">
 			<AdminNavBar logout={logout} />
 			<main className="admin-main">{children}</main>
+			<AdminTabBar />
 			<ServiceWorkerRegister />
 		</div>
 	);
