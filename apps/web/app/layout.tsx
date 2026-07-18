@@ -7,6 +7,7 @@ import { Footer } from "./components/footer";
 import { JsonLd } from "./components/json-ld";
 import { Nav } from "./components/nav";
 import { OutboundTracker } from "./components/outbound-tracker";
+import { SiteChrome } from "./components/site-chrome";
 import { WhatsAppFloat } from "./components/whatsapp-float";
 import { localBusinessJsonLd, siteNavigationJsonLd, webSiteJsonLd } from "./lib/jsonld";
 import { baseMetadata } from "./lib/metadata";
@@ -38,10 +39,14 @@ export default function RootLayout({
 				<JsonLd data={localBusinessJsonLd()} />
 				<JsonLd data={webSiteJsonLd()} />
 				<JsonLd data={siteNavigationJsonLd()} />
-				<Nav />
+				<SiteChrome>
+					<Nav />
+				</SiteChrome>
 				<main id="main-content">{children}</main>
-				<Footer />
-				<WhatsAppFloat />
+				<SiteChrome>
+					<Footer />
+					<WhatsAppFloat />
+				</SiteChrome>
 				<EngagementTracker />
 				<OutboundTracker />
 				<Analytics />
