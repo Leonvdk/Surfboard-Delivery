@@ -122,8 +122,9 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		<section className="admin-list-page">
 			<header className="admin-page-header">
 				<h1>Bookings</h1>
-				<NotificationsToggle />
 			</header>
+
+			<NotificationsToggle />
 
 			{/* ── Today card ── */}
 			<div className="admin-today">

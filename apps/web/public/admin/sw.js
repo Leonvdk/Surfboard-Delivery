@@ -12,7 +12,7 @@
 // Version the cache name whenever the shell asset list changes so old
 // SWs get evicted on the next activate.
 
-const CACHE_NAME = "sra-admin-v2";
+const CACHE_NAME = "sra-admin-v3";
 const SHELL_PATHS = new Set([
 	"/admin/manifest.webmanifest",
 	"/admin/icon",
@@ -69,13 +69,17 @@ self.addEventListener("fetch", (event) => {
 // ─── Push handling ──────────────────────────────────────
 
 self.addEventListener("push", (event) => {
-	if (!event.data) return;
-
-	let payload;
-	try {
-		payload = event.data.json();
-	} catch {
-		payload = { title: "Surf Rental Admin", body: event.data.text(), url: "/admin" };
+	let payload = {};
+	if (event.data) {
+		try {
+			payload = event.data.json();
+		} catch {
+			payload = {
+				title: "Surf Rental Admin",
+				body: event.data.text(),
+				url: "/admin",
+			};
+		}
 	}
 
 	const title = payload.title || "Surf Rental Admin";

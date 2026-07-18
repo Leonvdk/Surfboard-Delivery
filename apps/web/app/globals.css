@@ -7337,25 +7337,85 @@ h1 {
 /* ─── Notifications toggle (bookings page header) ────── */
 
 .notif-toggle {
+  display: block;
+  background: var(--surface);
+  border: var(--border-light);
+  padding: 10px 12px;
+  max-width: 100%;
+  margin-bottom: var(--space-md);
+}
+
+.notif-toggle-summary {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  list-style: none;
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.notif-toggle--hint {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
+.notif-toggle-summary::-webkit-details-marker {
+  display: none;
+}
+
+.notif-toggle-summary::before {
+  content: "▸";
+  display: inline-block;
   color: var(--gray-500);
-  margin: 0;
-  max-width: 320px;
+  transition: transform 100ms ease;
 }
 
-.notif-toggle-error {
+.notif-toggle[open] .notif-toggle-summary::before {
+  transform: rotate(90deg);
+}
+
+.notif-toggle-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: var(--white);
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.notif-diag {
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
   font-family: var(--font-body);
   font-size: 0.75rem;
-  color: var(--accent);
+}
+
+.notif-diag dt {
+  color: var(--gray-500);
+}
+
+.notif-diag dd {
   margin: 0;
+  color: var(--black);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.notif-toggle-msg {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  background: var(--gray-100);
+  border-left: 3px solid var(--accent);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--black);
+  word-break: break-word;
 }
 
 /* ─── Pull-to-refresh badge (mobile / standalone) ────── */
