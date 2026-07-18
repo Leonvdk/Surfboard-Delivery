@@ -4,6 +4,13 @@ import { notFound } from "next/navigation";
 import { getDb, schema } from "../../../lib/db/client";
 import { updateBookingNotes, updateFinalTotal } from "../../_actions";
 import { StatusPicker } from "../../_components/status-picker";
+import {
+	boardLabel,
+	experienceLabel,
+	packageShort,
+	sexLabel,
+	summariseGear,
+} from "../../_lib/booking-labels";
 
 export const dynamic = "force-dynamic";
 
@@ -111,30 +118,90 @@ export default async function BookingDetailPage({
 				</article>
 			</div>
 
-			{booking.people && booking.people.length > 0 && (
-				<article className="admin-card">
-					<h2>People</h2>
-					<div className="admin-people">
-						{booking.people.map((p, i) => (
-							<div key={i} className="admin-person">
-								<div className="admin-person-name">{p.name || `Person ${i + 1}`}</div>
-								<dl className="admin-dl admin-dl--inline">
-									<dt>Sex</dt>
-									<dd>{p.sex || "—"}</dd>
-									<dt>Experience</dt>
-									<dd>{p.experience || "—"}</dd>
-									<dt>Package</dt>
-									<dd>{p.package || "—"}</dd>
-									<dt>Board</dt>
-									<dd>{p.board || "—"}</dd>
-									<dt>Wetsuit</dt>
-									<dd>{p.wetsuitSize || "—"}</dd>
-								</dl>
+			{(() => {
+				const gear = summariseGear(booking.people ?? null);
+				if (gear) {
+					return (
+						<article className="admin-card">
+							<h2>Gear</h2>
+							<div className="gear-summary">
+								<div className="gear-group">
+									<div className="gear-group-label">Packages</div>
+									<ul className="gear-list">
+										{gear.packages.map((row) => (
+											<li key={row.label}>
+												<span className="gear-count">{row.count}×</span>{" "}
+												{row.label}
+											</li>
+										))}
+									</ul>
+								</div>
+								{gear.boards.length > 0 && (
+									<div className="gear-group">
+										<div className="gear-group-label">Boards</div>
+										<ul className="gear-list">
+											{gear.boards.map((row) => (
+												<li key={row.label}>
+													<span className="gear-count">{row.count}×</span>{" "}
+													{row.label}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
+								{gear.wetsuits.length > 0 && (
+									<div className="gear-group">
+										<div className="gear-group-label">Wetsuits</div>
+										<ul className="gear-list">
+											{gear.wetsuits.map((row) => (
+												<li key={row.label}>
+													<span className="gear-count">{row.count}×</span>{" "}
+													{row.label}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
 							</div>
-						))}
-					</div>
-				</article>
-			)}
+
+							<h3>Per person</h3>
+							<div className="admin-people">
+								{booking.people!.map((p, i) => (
+									<div key={i} className="admin-person">
+										<div className="admin-person-name">
+											{p.name || `Person ${i + 1}`}
+										</div>
+										<dl className="admin-dl admin-dl--inline">
+											<dt>Sex</dt>
+											<dd>{sexLabel(p.sex)}</dd>
+											<dt>Experience</dt>
+											<dd>{experienceLabel(p.experience)}</dd>
+											<dt>Package</dt>
+											<dd>{packageShort(p.package)}</dd>
+											<dt>Board</dt>
+											<dd>{boardLabel(p.board)}</dd>
+											<dt>Wetsuit</dt>
+											<dd>{p.wetsuitSize || "—"}</dd>
+										</dl>
+									</div>
+								))}
+							</div>
+						</article>
+					);
+				}
+				// No per-person breakdown — imported bookings pre-parser change.
+				return (
+					<article className="admin-card">
+						<h2>Gear</h2>
+						<p className="admin-empty-inline">
+							Per-person breakdown isn&apos;t stored for this booking.
+							{booking.importedFromResend
+								? " It was imported from an email before the parser recorded gear details — re-run the import script with --reparse to fill it in."
+								: ""}
+						</p>
+					</article>
+				);
+			})()}
 
 			{booking.message && (
 				<article className="admin-card">
