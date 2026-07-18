@@ -2,21 +2,10 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDb, schema } from "../../../lib/db/client";
-import type { BookingStatus } from "../../../lib/db/schema";
-import {
-	updateBookingNotes,
-	updateBookingStatus,
-	updateFinalTotal,
-} from "./actions";
+import { updateBookingNotes, updateFinalTotal } from "../../_actions";
+import { StatusPicker } from "../../_components/status-picker";
 
 export const dynamic = "force-dynamic";
-
-const STATUSES: BookingStatus[] = [
-	"requested",
-	"confirmed",
-	"cancelled",
-	"completed",
-];
 
 function formatDate(dateStr: string): string {
 	if (!dateStr) return "";
@@ -96,28 +85,8 @@ export default async function BookingDetailPage({
 
 				<article className="admin-card">
 					<h2>Status</h2>
-					<form
-						action={async (formData: FormData) => {
-							"use server";
-							const next = formData.get("status") as BookingStatus;
-							await updateBookingStatus(id, next);
-						}}
-					>
-						<select
-							name="status"
-							defaultValue={booking.status}
-							className="admin-status-select"
-						>
-							{STATUSES.map((s) => (
-								<option key={s} value={s}>
-									{s.charAt(0).toUpperCase() + s.slice(1)}
-								</option>
-							))}
-						</select>
-						<button type="submit" className="admin-btn admin-btn--primary">
-							Update status
-						</button>
-					</form>
+					<p className="admin-card-hint">Click the badge to change.</p>
+					<StatusPicker bookingId={id} current={booking.status} />
 
 					<h3>Final price (€)</h3>
 					<form

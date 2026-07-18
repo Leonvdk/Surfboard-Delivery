@@ -6081,6 +6081,69 @@ h1 {
 .admin-status--completed { background: #c9daf8; color: #1c4587; }
 .admin-status--cancelled { background: #efefef; color: #666666; }
 
+/* Click-to-pick status widget (list rows + detail page) */
+.status-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.status-picker-trigger {
+  cursor: pointer;
+  font: inherit;
+  border-width: 1px;
+  border-style: solid;
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+
+.status-picker-trigger:hover {
+  transform: translateY(-1px);
+}
+
+.status-picker-trigger--pending {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.status-picker-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  background: var(--surface);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 140px;
+}
+
+.status-picker-option {
+  cursor: pointer;
+  font: inherit;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  padding: 4px 10px;
+  transition: transform 80ms ease;
+}
+
+.status-picker-option:hover {
+  transform: translateX(1px);
+}
+
+.status-picker-option--current {
+  outline: 2px solid var(--black);
+  outline-offset: 1px;
+}
+
+.admin-card-hint {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin: 0 0 var(--space-sm);
+}
+
 .admin-row-link {
   color: var(--accent);
   font-weight: 600;

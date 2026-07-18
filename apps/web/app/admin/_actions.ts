@@ -2,8 +2,8 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getDb, schema } from "../../../lib/db/client";
-import type { BookingStatus } from "../../../lib/db/schema";
+import { getDb, schema } from "../lib/db/client";
+import type { BookingStatus } from "../lib/db/schema";
 
 export async function updateBookingStatus(id: number, status: BookingStatus) {
 	const db = getDb();
