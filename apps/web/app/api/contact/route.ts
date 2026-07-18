@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
+import { getDb, schema } from "../../lib/db/client";
 
 let _resend: Resend | null = null;
 
@@ -272,6 +273,30 @@ export async function POST(request: Request) {
 				{ error: "Failed to send email", details: resendErr },
 				{ status: 500 },
 			);
+		}
+
+		// Persist to DB best-effort. If DATABASE_URL isn't set yet, skip silently
+		// — email delivery is the primary success path and should never be blocked
+		// by a database that's still being provisioned.
+		const db = getDb();
+		if (db) {
+			try {
+				await db.insert(schema.bookings).values({
+					name: data.name,
+					email: data.email,
+					checkin: data.checkin,
+					checkout: data.checkout,
+					accommodation: data.accommodation ?? null,
+					peopleCount: data.peopleCount,
+					people: data.people,
+					message: data.message ?? null,
+					estimatedTotal: data.estimatedTotal ?? null,
+					status: "requested",
+				});
+			} catch (dbErr) {
+				console.error("Booking DB insert error:", dbErr);
+				// Do not fail the request — the customer already got their email.
+			}
 		}
 
 		return NextResponse.json({ success: true });
