@@ -5903,9 +5903,16 @@ h1 {
   background: var(--surface);
   border-bottom: var(--border);
   padding: 0;
+  padding-top: env(safe-area-inset-top);
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.admin-shell {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .admin-nav-inner {
@@ -6972,35 +6979,47 @@ h1 {
   }
 }
 
-/* Revenue chart (line + hover) */
+/* Revenue chart (bars + hover) */
 .revenue-chart {
   position: relative;
   margin-top: var(--space-md);
   height: 200px;
 }
 
-.revenue-chart-svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.revenue-chart-hits {
-  position: absolute;
-  inset: 0;
+.revenue-chart-bars {
   display: flex;
-  align-items: stretch;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100%;
+  border-bottom: 1px solid var(--gray-200);
 }
 
-.revenue-chart-hit {
+.revenue-chart-bar-col {
+  flex: 1 1 0;
+  min-width: 0;
   height: 100%;
   background: transparent;
   border: none;
   padding: 0;
+  display: flex;
+  align-items: flex-end;
   cursor: crosshair;
 }
 
-.revenue-chart-hit:focus-visible {
+.revenue-chart-bar {
+  width: 100%;
+  min-height: 1px;
+  background: var(--accent);
+  transition: opacity 0.15s ease;
+}
+
+.revenue-chart-bar-col:hover .revenue-chart-bar,
+.revenue-chart-bar-col--hover .revenue-chart-bar,
+.revenue-chart-bar-col:focus-visible .revenue-chart-bar {
+  opacity: 0.7;
+}
+
+.revenue-chart-bar-col:focus-visible {
   outline: 1px dashed var(--accent);
   outline-offset: -2px;
 }
@@ -7042,4 +7061,207 @@ h1 {
   font-weight: 700;
   letter-spacing: -0.01em;
   font-size: 0.8125rem;
+}
+
+/* ─── Admin: mobile responsiveness ────────────────────────
+   Everything the admin panel needs to survive on a 375-wide
+   phone. Grouped here to keep desktop styles untouched. */
+
+@media (max-width: 768px) {
+  /* Nav: brand + logout on top row, section links on second row */
+  .admin-nav-inner {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    gap: 8px 12px;
+  }
+  .admin-nav-brand {
+    font-size: 0.9375rem;
+  }
+  .admin-nav-links {
+    order: 3;
+    width: 100%;
+    gap: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-nav-links::-webkit-scrollbar { display: none; }
+  .admin-nav-links a {
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    padding: 2px 0;
+  }
+  .admin-nav-logout {
+    margin-left: auto;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Main container: less padding, no overflow */
+  .admin-main {
+    padding: var(--space-lg) var(--space-md);
+    overflow-x: hidden;
+  }
+
+  /* Page header */
+  .admin-page-header {
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+  .admin-page-header h1 {
+    font-size: 1.375rem;
+  }
+  .admin-page-summary {
+    gap: 6px;
+    font-size: 0.75rem;
+    width: 100%;
+  }
+  .admin-page-summary span {
+    padding: 3px 8px;
+  }
+
+  /* Empty-state pages */
+  .admin-empty {
+    padding: var(--space-xl) var(--space-md);
+  }
+  .admin-empty h1 {
+    font-size: 1.25rem;
+  }
+  .admin-empty-inline {
+    padding: var(--space-md);
+    font-size: 0.875rem;
+  }
+
+  /* Today / next-7 rows: name+date on line 1, meta on line 2 */
+  .admin-today-card {
+    padding: var(--space-md);
+  }
+  .admin-today-link {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .admin-today-row-left {
+    min-width: 0;
+  }
+  .admin-today-row-right {
+    margin-left: 0;
+    justify-content: flex-start;
+    gap: 8px;
+    font-size: 0.75rem;
+  }
+  .admin-today-accommodation {
+    font-size: 0.75rem;
+  }
+
+  /* Filter row */
+  .bookings-filter {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bookings-filter-search {
+    width: 100%;
+  }
+  .bookings-filter-input {
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* Table: keep horizontal scroll but tighten padding */
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px;
+    font-size: 0.8125rem;
+  }
+  .admin-table th {
+    font-size: 0.6875rem;
+  }
+
+  /* Detail page */
+  .admin-detail-header h1 {
+    font-size: 1.375rem;
+    word-break: break-word;
+  }
+  .admin-detail-actions .admin-btn {
+    width: 100%;
+  }
+  .admin-detail-actions .quick-status {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Cards: less padding on phones */
+  .admin-card {
+    padding: var(--space-md);
+  }
+  .admin-card h2 {
+    font-size: 1rem;
+  }
+
+  /* Definition list: label on top, value below */
+  .admin-dl {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+  .admin-dl dt {
+    margin-top: 6px;
+  }
+  .admin-dl dt:first-of-type {
+    margin-top: 0;
+  }
+  .admin-dl--inline {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+  .admin-dl--inline dt {
+    margin-top: 0;
+  }
+
+  /* Delete-booking confirm row wraps sensibly */
+  .delete-booking-confirm {
+    width: 100%;
+  }
+  .delete-booking-confirm .admin-btn {
+    flex: 1;
+  }
+
+  /* Funnel + package mix */
+  .funnel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Calendar: controls centered, tighter grid handled elsewhere */
+  .admin-cal-controls {
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .admin-cal-controls a {
+    font-size: 0.8125rem;
+  }
+  .admin-cal-legend {
+    font-size: 0.6875rem;
+    gap: 4px;
+  }
+
+  /* Revenue chart: half height on phones */
+  .revenue-chart {
+    height: 140px;
+  }
+}
+
+/* Very narrow: phones with tight home-screen safe areas */
+@media (max-width: 380px) {
+  .admin-main {
+    padding: var(--space-md) 10px;
+  }
+  .admin-page-header h1 {
+    font-size: 1.25rem;
+  }
+  .admin-nav-links a {
+    font-size: 0.75rem;
+  }
+  .admin-nav-brand {
+    font-size: 0.875rem;
+  }
 }

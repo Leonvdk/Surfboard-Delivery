@@ -3,7 +3,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { AdminSession } from "./app/lib/auth/session";
 import { sessionOptions } from "./app/lib/auth/session";
 
-const PUBLIC_ADMIN_PATHS = ["/admin/login"];
+const PUBLIC_ADMIN_PATHS = [
+	"/admin/login",
+	"/admin/manifest.webmanifest",
+	"/admin/icon",
+	"/admin/icon-512",
+	"/admin/apple-icon",
+	"/admin/sw.js",
+];
 
 export async function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;

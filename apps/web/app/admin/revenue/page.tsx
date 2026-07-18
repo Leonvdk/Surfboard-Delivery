@@ -2,7 +2,7 @@ import { desc, isNull } from "drizzle-orm";
 import type Stripe from "stripe";
 import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
-import { RevenueLineChart } from "../_components/revenue-line-chart";
+import { RevenueBarChart } from "../_components/revenue-bar-chart";
 import {
 	bookingFunnelForRecentMonths,
 	monthlyRollup,
@@ -112,7 +112,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 			<article className="admin-card">
 				<h2>Daily net revenue</h2>
-				<RevenueLineChart trend={trendDays} />
+				<RevenueBarChart trend={trendDays} />
 			</article>
 
 			<div className="admin-detail-grid">
