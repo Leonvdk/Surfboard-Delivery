@@ -85,9 +85,32 @@ export function NotificationsToggle() {
 		void refresh();
 	}, [refresh]);
 
+	// Race a promise against a timeout so a call that hangs on iOS
+	// (the OS-level permission dialog can silently swallow the resolve
+	// callback if it was dismissed in a previous session) doesn't
+	// leave the panel stuck in "Requesting…" forever.
+	function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+		return new Promise<T>((resolve, reject) => {
+			const t = window.setTimeout(
+				() => reject(new Error(`${label} timed out after ${ms}ms`)),
+				ms,
+			);
+			p.then(
+				(v) => {
+					window.clearTimeout(t);
+					resolve(v);
+				},
+				(e) => {
+					window.clearTimeout(t);
+					reject(e);
+				},
+			);
+		});
+	}
+
 	async function subscribe() {
 		setBusy("subscribe");
-		setMessage("");
+		setMessage("Requesting OS permission…");
 		try {
 			if (!publicKey) {
 				setMessage("NEXT_PUBLIC_VAPID_PUBLIC_KEY is missing in the client bundle.");
@@ -102,27 +125,61 @@ export function NotificationsToggle() {
 				return;
 			}
 
-			// Ask for permission from inside the click handler. Await resolves
-			// on all modern engines (Safari 16.4+, Chrome, Firefox).
-			const perm = await Notification.requestPermission();
+			// iOS PWA quirk: if the OS permission dialog was dismissed on a
+			// previous install (swiped away, not answered), Notification
+			// .requestPermission() can resolve with the cached "default" —
+			// or hang. The workaround is to remove the app from Home Screen
+			// and re-add it. We race against a 15s timeout so the panel
+			// doesn't sit in "Requesting…" forever if the dialog never
+			// appears.
+			let perm: NotificationPermission;
+			try {
+				perm = await withTimeout(
+					Notification.requestPermission(),
+					15000,
+					"Notification.requestPermission",
+				);
+			} catch (err) {
+				setMessage(
+					`${err instanceof Error ? err.message : "permission request failed"}. ` +
+						"iOS caches the dialog dismissal — remove SR Admin from your " +
+						"home screen, re-add it via Safari's Share menu, then try again.",
+				);
+				return;
+			}
+
 			if (perm !== "granted") {
-				setMessage(`Permission is "${perm}" — allow it and try again.`);
+				setMessage(
+					perm === "denied"
+						? "Permission is denied. Open iOS Settings → Notifications → SR Admin and enable them, then retry."
+						: `Permission is "${perm}". iOS may have suppressed the dialog — remove and re-add SR Admin to your home screen and try again.`,
+				);
 				await refresh();
 				return;
 			}
 
-			const reg = await navigator.serviceWorker.ready;
+			setMessage("Permission granted. Creating subscription…");
+			const reg = await withTimeout(
+				navigator.serviceWorker.ready,
+				10000,
+				"serviceWorker.ready",
+			);
 
-			// Reuse any existing subscription — subscribing a second time on the
-			// same registration throws InvalidStateError on Safari.
+			// Reuse any existing subscription — subscribing a second time on
+			// the same registration throws InvalidStateError on Safari.
 			let sub = await reg.pushManager.getSubscription();
 			if (!sub) {
-				sub = await reg.pushManager.subscribe({
-					userVisibleOnly: true,
-					applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
-				});
+				sub = await withTimeout(
+					reg.pushManager.subscribe({
+						userVisibleOnly: true,
+						applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
+					}),
+					15000,
+					"pushManager.subscribe",
+				);
 			}
 
+			setMessage("Subscription created. Registering with server…");
 			const res = await fetch("/api/admin/push/subscribe", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -134,10 +191,12 @@ export function NotificationsToggle() {
 			});
 			if (!res.ok) {
 				const txt = await res.text().catch(() => "");
-				setMessage(`Server rejected subscription (HTTP ${res.status}): ${txt.slice(0, 200)}`);
+				setMessage(
+					`Server rejected subscription (HTTP ${res.status}): ${txt.slice(0, 200)}`,
+				);
 				return;
 			}
-			setMessage("Subscribed. Try the test push below.");
+			setMessage("Subscribed. Now tap “Send test push” to confirm.");
 		} catch (err) {
 			setMessage(
 				`Subscribe failed: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)}`,
