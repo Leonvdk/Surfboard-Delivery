@@ -159,11 +159,25 @@ export function NotificationsToggle() {
 			}
 
 			setMessage("Permission granted. Creating subscription…");
-			const reg = await withTimeout(
-				navigator.serviceWorker.ready,
-				10000,
-				"serviceWorker.ready",
+			// Use getRegistration (not `ready`) so we don't hang waiting for the
+			// SW to *control* this exact page. Next.js serves /admin without
+			// a trailing slash, but the SW's scope is /admin/, so it never
+			// claims control of the /admin page itself — `ready` on that
+			// combination waits forever. `getRegistration` just returns the
+			// registered SW object, which is all we need to subscribe.
+			let reg = await withTimeout(
+				navigator.serviceWorker.getRegistration("/admin/"),
+				5000,
+				"serviceWorker.getRegistration",
 			);
+			if (!reg) {
+				// Nothing registered yet — do it inline as a fallback.
+				reg = await withTimeout(
+					navigator.serviceWorker.register("/admin/sw.js", { scope: "/admin/" }),
+					10000,
+					"serviceWorker.register",
+				);
+			}
 
 			// Reuse any existing subscription — subscribing a second time on
 			// the same registration throws InvalidStateError on Safari.
@@ -211,7 +225,11 @@ export function NotificationsToggle() {
 		setBusy("unsubscribe");
 		setMessage("");
 		try {
-			const reg = await navigator.serviceWorker.ready;
+			const reg = await navigator.serviceWorker.getRegistration("/admin/");
+			if (!reg) {
+				setMessage("No service worker registered on this device.");
+				return;
+			}
 			const sub = await reg.pushManager.getSubscription();
 			if (sub) {
 				await fetch("/api/admin/push/unsubscribe", {
