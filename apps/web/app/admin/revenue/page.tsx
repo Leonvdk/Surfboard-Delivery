@@ -1,6 +1,13 @@
+import { desc } from "drizzle-orm";
 import type Stripe from "stripe";
+import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
 import { RevenueLineChart } from "../_components/revenue-line-chart";
+import {
+	bookingFunnelForRecentMonths,
+	monthlyRollup,
+	packageMix,
+} from "../_lib/insights";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +68,18 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		);
 	}
 
+	// Bookings-side insights (funnel, package mix, monthly rollup) — best-effort.
+	const db = getDb();
+	const allBookings = db
+		? await db
+				.select()
+				.from(schema.bookings)
+				.orderBy(desc(schema.bookings.createdAt))
+		: [];
+	const funnel = bookingFunnelForRecentMonths(allBookings);
+	const mix = packageMix(allBookings, 90);
+	const rollup = monthlyRollup(allBookings, 12);
+
 	const totalCents = charges.reduce((sum, c) => sum + c.amount, 0);
 	const refundedCents = charges.reduce((sum, c) => sum + c.amount_refunded, 0);
 	const netCents = totalCents - refundedCents;
@@ -92,6 +111,136 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			<article className="admin-card">
 				<h2>Daily net revenue</h2>
 				<RevenueLineChart trend={trendDays} />
+			</article>
+
+			<div className="admin-detail-grid">
+				<article className="admin-card">
+					<h2>Booking funnel</h2>
+					<p className="admin-card-hint">This month vs last.</p>
+					<div className="funnel-grid">
+						<div className="funnel-col">
+							<div className="funnel-col-label">{funnel.current.label}</div>
+							<div className="funnel-metric">
+								<span>Requested</span>
+								<strong>{funnel.current.requested}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>Confirmed</span>
+								<strong>{funnel.current.confirmed}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>Completed</span>
+								<strong>{funnel.current.completed}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>Cancelled</span>
+								<strong>{funnel.current.cancelled}</strong>
+							</div>
+							<div className="funnel-metric funnel-metric--rate">
+								<span>Confirm rate</span>
+								<strong>
+									{funnel.current.confirmRate != null
+										? `${Math.round(funnel.current.confirmRate * 100)}%`
+										: "—"}
+								</strong>
+							</div>
+						</div>
+						<div className="funnel-col funnel-col--dim">
+							<div className="funnel-col-label">{funnel.previous.label}</div>
+							<div className="funnel-metric">
+								<span>Requested</span>
+								<strong>{funnel.previous.requested}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>Confirmed</span>
+								<strong>{funnel.previous.confirmed}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>Completed</span>
+								<strong>{funnel.previous.completed}</strong>
+							</div>
+							<div className="funnel-metric">
+								<span>Cancelled</span>
+								<strong>{funnel.previous.cancelled}</strong>
+							</div>
+							<div className="funnel-metric funnel-metric--rate">
+								<span>Confirm rate</span>
+								<strong>
+									{funnel.previous.confirmRate != null
+										? `${Math.round(funnel.previous.confirmRate * 100)}%`
+										: "—"}
+								</strong>
+							</div>
+						</div>
+					</div>
+				</article>
+
+				<article className="admin-card">
+					<h2>Package mix</h2>
+					<p className="admin-card-hint">Last 90 days · across all guests.</p>
+					{mix.length === 0 ? (
+						<p className="admin-empty-inline">Not enough per-person data yet.</p>
+					) : (
+						<ul className="mix-list">
+							{mix.map((m) => (
+								<li key={m.key} className="mix-row">
+									<div className="mix-row-heading">
+										<span>{m.label}</span>
+										<span className="mix-row-pct">
+											{m.count} · {Math.round(m.pct)}%
+										</span>
+									</div>
+									<div className="mix-row-bar">
+										<div
+											className={`mix-row-bar-fill mix-row-bar-fill--${m.key}`}
+											style={{ width: `${m.pct}%` }}
+										/>
+									</div>
+								</li>
+							))}
+						</ul>
+					)}
+				</article>
+			</div>
+
+			<article className="admin-card">
+				<h2>Monthly rollup</h2>
+				<p className="admin-card-hint">Confirmed and completed bookings by check-in month.</p>
+				<div className="admin-table-wrap">
+					<table className="admin-table">
+						<thead>
+							<tr>
+								<th>Month</th>
+								<th>Bookings</th>
+								<th>Gear-nights</th>
+								<th>Avg party</th>
+								<th>Avg nights</th>
+								<th>Estimated</th>
+								<th>Final</th>
+							</tr>
+						</thead>
+						<tbody>
+							{rollup.length === 0 && (
+								<tr>
+									<td colSpan={7} className="admin-empty-inline">
+										No producing bookings yet.
+									</td>
+								</tr>
+							)}
+							{rollup.map((r) => (
+								<tr key={r.month}>
+									<td>{r.label}</td>
+									<td>{r.bookings}</td>
+									<td>{r.gearNights}</td>
+									<td>{r.avgPartySize.toFixed(1)}</td>
+									<td>{r.avgTripNights.toFixed(1)}</td>
+									<td>{r.estimateTotal > 0 ? `€${r.estimateTotal}` : "—"}</td>
+									<td>{r.finalTotal > 0 ? `€${r.finalTotal}` : "—"}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			</article>
 
 			<article className="admin-card">

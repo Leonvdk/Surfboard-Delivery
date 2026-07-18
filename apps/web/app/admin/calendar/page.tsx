@@ -109,6 +109,9 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 				<span className="cal-chip cal-chip--in_progress">In progress</span>
 				<span className="cal-chip cal-chip--completed">Completed</span>
 				<span className="cal-chip cal-chip--cancelled">Cancelled</span>
+				<span className="cal-chip cal-chip--legend-marker">
+					▶ delivery · ◀ pickup
+				</span>
 			</div>
 
 			<div className="admin-cal-grid">
@@ -125,15 +128,27 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 							<div key={cell.iso} className="admin-cal-cell">
 								<div className="admin-cal-day">{cell.day}</div>
 								<div className="admin-cal-events">
-									{dayBookings.slice(0, 3).map((b) => (
-										<Link
-											key={b.id}
-											href={`/admin/bookings/${b.id}`}
-											className={`cal-chip ${STATUS_CLASS[b.status]}`}
-										>
-											{b.name.split(" ")[0]} · {b.peopleCount}p
-										</Link>
-									))}
+									{dayBookings.slice(0, 3).map((b) => {
+										const isDelivery = b.checkin === cell.iso;
+										const isPickup = b.checkout === cell.iso;
+										const marker = isDelivery ? "▶ " : isPickup ? "◀ " : "";
+										return (
+											<Link
+												key={b.id}
+												href={`/admin/bookings/${b.id}`}
+												className={`cal-chip ${STATUS_CLASS[b.status]}${isDelivery || isPickup ? " cal-chip--edge" : ""}`}
+												title={b.ownerNotes ? `Note: ${b.ownerNotes.slice(0, 200)}` : undefined}
+											>
+												{marker}
+												{b.name.split(" ")[0]} · {b.peopleCount}p
+												{b.ownerNotes ? (
+													<span className="cal-chip-note" aria-hidden="true">
+														●
+													</span>
+												) : null}
+											</Link>
+										);
+									})}
 									{dayBookings.length > 3 && (
 										<span className="cal-chip cal-chip--more">
 											+{dayBookings.length - 3} more

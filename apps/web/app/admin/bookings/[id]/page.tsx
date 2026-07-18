@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDb, schema } from "../../../lib/db/client";
 import { updateBookingNotes, updateFinalTotal } from "../../_actions";
+import { DraftEmailButton } from "../../_components/draft-email-button";
+import { QuickStatusButtons } from "../../_components/quick-status-buttons";
 import { StatusPicker } from "../../_components/status-picker";
 import {
 	boardLabel,
@@ -11,19 +13,11 @@ import {
 	sexLabel,
 	summariseGear,
 } from "../../_lib/booking-labels";
+import { computeCancellationState } from "../../_lib/cancellation";
+import { formatLongDate, formatShortDate } from "../../_lib/dates";
+import { getRepeatCustomer } from "../../_lib/repeat-customer";
 
 export const dynamic = "force-dynamic";
-
-function formatDate(dateStr: string): string {
-	if (!dateStr) return "";
-	const d = new Date(dateStr);
-	if (Number.isNaN(d.getTime())) return dateStr;
-	return d.toLocaleDateString("en-GB", {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-	});
-}
 
 export default async function BookingDetailPage({
 	params,
@@ -52,6 +46,12 @@ export default async function BookingDetailPage({
 
 	if (!booking) notFound();
 
+	const repeat = await getRepeatCustomer(booking.id, booking.email);
+	const cancellationState =
+		booking.status === "requested"
+			? computeCancellationState(booking.createdAt, booking.checkin)
+			: null;
+
 	return (
 		<section className="admin-detail">
 			<Link href="/admin" className="admin-back">
@@ -60,21 +60,36 @@ export default async function BookingDetailPage({
 
 			<header className="admin-detail-header">
 				<h1>
-					{booking.name} <span className="admin-detail-id">#{booking.id}</span>
+					{booking.name}{" "}
+					<span className="admin-detail-id">#{booking.id}</span>
 				</h1>
 				<p className="admin-detail-email">
 					<a href={`mailto:${booking.email}`}>{booking.email}</a>
 				</p>
+				{repeat && repeat.priorCount > 0 && (
+					<p className="admin-detail-repeat">
+						🔁 <strong>Repeat customer</strong> — {repeat.priorCount + 1}
+						{ordinalSuffix(repeat.priorCount + 1)} trip
+						{repeat.lastCheckin
+							? ` · previous: ${formatShortDate(repeat.lastCheckin)}`
+							: ""}
+					</p>
+				)}
 			</header>
+
+			<div className="admin-detail-actions">
+				<QuickStatusButtons bookingId={id} current={booking.status} />
+				<DraftEmailButton booking={booking} />
+			</div>
 
 			<div className="admin-detail-grid">
 				<article className="admin-card">
 					<h2>Trip</h2>
 					<dl className="admin-dl">
 						<dt>Delivery</dt>
-						<dd>{formatDate(booking.checkin)}</dd>
+						<dd>{formatLongDate(booking.checkin)}</dd>
 						<dt>Pickup</dt>
-						<dd>{formatDate(booking.checkout)}</dd>
+						<dd>{formatLongDate(booking.checkout)}</dd>
 						<dt>Accommodation</dt>
 						<dd>{booking.accommodation || "—"}</dd>
 						<dt>People</dt>
@@ -86,7 +101,13 @@ export default async function BookingDetailPage({
 								: "—"}
 						</dd>
 						<dt>Submitted</dt>
-						<dd>{formatDate(booking.createdAt.toISOString())}</dd>
+						<dd>
+							{booking.createdAt.toLocaleDateString("en-GB", {
+								day: "numeric",
+								month: "long",
+								year: "numeric",
+							})}
+						</dd>
 					</dl>
 				</article>
 
@@ -94,6 +115,19 @@ export default async function BookingDetailPage({
 					<h2>Status</h2>
 					<p className="admin-card-hint">Click the badge to change.</p>
 					<StatusPicker bookingId={id} current={booking.status} />
+
+					{cancellationState && (
+						<div
+							className={`cancellation-badge cancellation-badge--${cancellationState.phase}`}
+						>
+							<div className="cancellation-badge-label">
+								{cancellationState.label}
+							</div>
+							<div className="cancellation-badge-detail">
+								{cancellationState.detail}
+							</div>
+						</div>
+					)}
 
 					<h3>Final price (€)</h3>
 					<form
@@ -166,7 +200,7 @@ export default async function BookingDetailPage({
 
 							<h3>Per person</h3>
 							<div className="admin-people">
-								{booking.people!.map((p, i) => (
+								{booking.people?.map((p, i) => (
 									<div key={i} className="admin-person">
 										<div className="admin-person-name">
 											{p.name || `Person ${i + 1}`}
@@ -189,7 +223,6 @@ export default async function BookingDetailPage({
 						</article>
 					);
 				}
-				// No per-person breakdown — imported bookings pre-parser change.
 				return (
 					<article className="admin-card">
 						<h2>Gear</h2>
@@ -233,4 +266,10 @@ export default async function BookingDetailPage({
 			</article>
 		</section>
 	);
+}
+
+function ordinalSuffix(n: number): string {
+	const s = ["th", "st", "nd", "rd"];
+	const v = n % 100;
+	return s[(v - 20) % 10] ?? s[v] ?? s[0]!;
 }
