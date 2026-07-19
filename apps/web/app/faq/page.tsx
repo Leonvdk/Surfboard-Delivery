@@ -23,7 +23,7 @@ const faqs = [
 	{
 		question: "What is the minimum rental period?",
 		answer:
-			"We have a one-week minimum rental. This allows us to offer competitive prices and provide a personal delivery service. For shorter stays, we recommend the surf huts at Arrifana beach for daily rentals.",
+			"Three days. Both the delivery day and the pickup day count as billable days, so a Monday delivery and Wednesday pickup is 3 days. Free delivery and pickup are included even at the 3-day minimum, with no order minimum.",
 	},
 	{
 		question: "Where do you deliver?",

@@ -57,21 +57,28 @@ export const packages: Record<PackageTier, PackageInfo> = {
 	},
 };
 
+// Prices set 2026-07-19 after competitive research vs local Costa
+// Vicentina rentals (Algarve Adventure, Arrifana Surf Lodge, FlynSurf,
+// Lemontree, SUP Sagres). Daily rates undercut every published market
+// number so short/casual stays are the cheapest in region; weekly
+// caps are close to Arrifana Surf Lodge / Algarve Adventure and use
+// our free-delivery-no-minimum story to justify the small premium
+// over pure delivery competitors.
 export const prices: Record<PackageTier, Record<Duration, PricePoint>> = {
 	boardOnly: {
-		daily: { amount: 25, period: "per day", dailyEquivalent: 25 },
-		weekly: { amount: 85, period: "per week", dailyEquivalent: 12 },
-		extended: { amount: 145, period: "2 weeks", dailyEquivalent: 10 },
+		daily: { amount: 18, period: "per day", dailyEquivalent: 18 },
+		weekly: { amount: 100, period: "per week", dailyEquivalent: 12 },
+		extended: { amount: 170, period: "2 weeks", dailyEquivalent: 11 },
 	},
 	fullPackage: {
-		daily: { amount: 35, period: "per day", dailyEquivalent: 35 },
-		weekly: { amount: 120, period: "per week", dailyEquivalent: 17 },
-		extended: { amount: 199, period: "2 weeks", dailyEquivalent: 14 },
+		daily: { amount: 28, period: "per day", dailyEquivalent: 28 },
+		weekly: { amount: 150, period: "per week", dailyEquivalent: 18 },
+		extended: { amount: 250, period: "2 weeks", dailyEquivalent: 16 },
 	},
 	premium: {
-		daily: { amount: 45, period: "per day", dailyEquivalent: 45 },
-		weekly: { amount: 150, period: "per week", dailyEquivalent: 21 },
-		extended: { amount: 249, period: "2 weeks", dailyEquivalent: 18 },
+		daily: { amount: 38, period: "per day", dailyEquivalent: 38 },
+		weekly: { amount: 225, period: "per week", dailyEquivalent: 27 },
+		extended: { amount: 380, period: "2 weeks", dailyEquivalent: 25 },
 	},
 };
 
@@ -104,8 +111,8 @@ export function calcPackagePrice(tier: PackageTier, days: number): number {
 	const extendedDaily = prices[tier].extended.dailyEquivalent ?? 0;
 
 	// Short stays prorate at the daily rate, but never charge more than the
-	// full-week bundle — as soon as N daily > weekly, the customer just gets
-	// the weekly. (For board only that kicks in at 4 days: 4×€25 = €100 > €85.)
+	// full-week bundle — as soon as N × daily > weekly, the customer just gets
+	// the weekly. (For board only that kicks in at day 6: 6×€18 = €108 > €100.)
 	if (clamped <= 7) return Math.min(clamped * dailyAmount, weeklyAmount);
 	// Second week: stack extra days at the weekly-daily rate, capped at the
 	// 2-week bundle so the price never crosses the extended discount.
