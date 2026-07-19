@@ -663,6 +663,14 @@ h1 {
   align-items: center;
 }
 
+.hero-microcopy {
+  margin-top: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  max-width: 42ch;
+}
+
 .hero-visual {
   display: flex;
   justify-content: flex-end;
@@ -982,6 +990,57 @@ h1 {
 
 @media (max-width: 480px) {
   .hero-calc { max-width: 100%; }
+}
+
+/* ═══════════════════════════════════════════════
+   Trust strip (below hero)
+   ═══════════════════════════════════════════════ */
+
+.trust-strip {
+  background: var(--black);
+  color: var(--white);
+  border-bottom: var(--border);
+}
+
+.trust-strip-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-md) 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md) var(--space-xl);
+}
+
+.trust-strip-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 0.01em;
+}
+
+.trust-strip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .trust-strip-list {
+    padding: var(--space-sm) 0;
+    gap: 8px var(--space-md);
+    justify-content: flex-start;
+  }
+  .trust-strip-item {
+    font-size: 0.75rem;
+  }
 }
 
 /* ═══════════════════════════════════════════════

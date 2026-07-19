@@ -63,7 +63,12 @@ const faqs = [
 	{
 		question: "How do I pay?",
 		answer:
-			"We accept MBWay, bank transfer, and cash. Payment is due on delivery. No deposit required.",
+			"After we confirm your booking we'll send a secure payment link — pay by card, Apple Pay, iDEAL, Wero, or MB WAY. Cash on arrival is also possible if you'd prefer. No deposit and no upfront charge; you pay once everything is confirmed.",
+	},
+	{
+		question: "What if the board isn't right for me?",
+		answer:
+			"Level-match guarantee: if the board we send doesn't fit you after day one, we swap it for another shape or size from our fleet — free, no questions. Just message us on WhatsApp and we'll drop the replacement on the next delivery run.",
 	},
 	{
 		question: "What's your cancellation policy?",

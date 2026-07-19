@@ -43,8 +43,9 @@ export const packages: Record<PackageTier, PackageInfo> = {
 	premium: {
 		name: "Premium Package",
 		description:
-			"Everything you need for a complete surf trip — board, wetsuit, changing mat, and roof rack pads delivered to your door.",
+			"Everything you need for a complete surf trip — plus mid-stay board swap so you can level up as you progress.",
 		features: [
+			"Mid-stay board swap — go up or down a size as your surfing changes",
 			"Surfboard of your choice",
 			"Wetsuit (season-appropriate)",
 			"Leash & wax included",
@@ -53,7 +54,7 @@ export const packages: Record<PackageTier, PackageInfo> = {
 			"Free delivery & pickup",
 			"Local surf spot tips",
 		],
-		whoIsItFor: "Families with a rental car",
+		whoIsItFor: "Families & progressing surfers with a rental car",
 	},
 };
 

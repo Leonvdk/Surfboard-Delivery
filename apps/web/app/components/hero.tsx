@@ -12,8 +12,9 @@ export function Hero() {
 							Surfboards.<br />Wetsuits.<br /><em>Delivered.</em>
 						</h1>
 						<p className="hero-desc">
-							Premium surfboards for every skill level, delivered to your Airbnb.
-							Choose your shape, book in seconds, gear secured.
+							Tell us your level and dates — we&apos;ll pick the right board
+							and wetsuit and drop them at your Airbnb. No shop queue, no
+							wrong board on day one.
 						</p>
 						<div className="hero-actions">
 							<TrackedCtaLink href="/contact" className="btn btn-primary" ctaText="Book now" ctaLocation="hero">
@@ -27,6 +28,10 @@ export function Hero() {
 								How it works
 							</TrackedCtaLink>
 						</div>
+						<p className="hero-microcopy">
+							No minimum order · reply within 24h in 5 languages · pay on
+							arrival possible
+						</p>
 					</div>
 					<div className="hero-visual">
 						<HeroCalculator />

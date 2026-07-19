@@ -6,6 +6,7 @@ import { Hero } from "./components/hero";
 import NewsletterPopup from "./components/newsletter-popup";
 import { Reveal } from "./components/reveal";
 import { StarRating } from "./components/star-rating";
+import { TrustStrip } from "./components/trust-strip";
 import { prices } from "./lib/pricing";
 
 export const metadata: Metadata = {
@@ -23,6 +24,8 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
+
+			<TrustStrip />
 
 			{/* Metrics */}
 			<section className="metrics" aria-label="Key figures">
@@ -218,21 +221,24 @@ export default function Home() {
 								<div className="step">
 									<div className="step-number">01</div>
 									<div>
-										<h3 className="step-title">Choose your board</h3>
+										<h3 className="step-title">Tell us your level</h3>
 										<p className="step-desc">
-											Browse our boards online and tell us your level.
-											We'll recommend the right shape for the conditions
-											and deliver it to your door.
+											Answer a few questions — height, weight, experience,
+											dates — and we&apos;ll match you to the right board and
+											wetsuit for the conditions you&apos;ll actually surf. No
+											fleet browsing, no guessing.
 										</p>
 									</div>
 								</div>
 								<div className="step">
 									<div className="step-number">02</div>
 									<div>
-										<h3 className="step-title">Book and pay</h3>
+										<h3 className="step-title">We reply, you pay</h3>
 										<p className="step-desc">
-											Reserve for an hour, a day, or a full week. Transparent
-											pricing, no hidden fees. Pay online or on-site.
+											Within 24 hours we confirm gear and dates. Then a
+											secure payment link — card, Apple Pay, iDEAL, Wero, MB
+											WAY — or pay in cash on arrival. No deposit, no
+											upfront charge. Cancel free within 72h.
 										</p>
 									</div>
 								</div>
