@@ -17,7 +17,12 @@ import {
 	trackWetsuitCalcResult,
 } from "../lib/analytics";
 import { DateRangePicker } from "./date-range-picker";
-import { calcPackagePrice, formatDurationLabel, type PackageTier } from "../lib/pricing";
+import {
+	calcPackagePrice,
+	DAILY_MINIMUM_DAYS,
+	formatDurationLabel,
+	type PackageTier,
+} from "../lib/pricing";
 
 /* ── Board calculator logic ── */
 
@@ -777,10 +782,14 @@ export function BookingForm() {
 		}
 		const ci = new Date(`${checkin}T00:00:00`);
 		const co = new Date(`${checkout}T00:00:00`);
-		const span = Math.round((co.getTime() - ci.getTime()) / (1000 * 60 * 60 * 24));
-		if (span < 5) {
+		const nights = Math.round((co.getTime() - ci.getTime()) / (1000 * 60 * 60 * 24));
+		// Both endpoints count as billable days (matches calcDays / picker).
+		const days = nights + 1;
+		if (days < DAILY_MINIMUM_DAYS) {
 			setStatus("error");
-			setErrorMsg("Minimum rental period is 5 days. Please select a longer stay.");
+			setErrorMsg(
+				`Minimum rental period is ${DAILY_MINIMUM_DAYS} days. Please select a longer stay.`,
+			);
 			return;
 		}
 
