@@ -330,31 +330,19 @@ export function NotificationsBell() {
 					<div className="notif-popover-header">Push notifications</div>
 
 					{diag.locallySubscribed ? (
-						<>
-							<p className="notif-popover-status notif-popover-status--on">
-								Enabled on this device.
-							</p>
-							<div className="notif-popover-actions">
-								<button
-									type="button"
-									className="admin-btn"
-									onClick={sendTest}
-									disabled={busy !== "idle"}
-								>
-									{busy === "test" ? "Sending…" : "Send test push"}
-								</button>
-							</div>
-							<button
-								type="button"
-								className="notif-popover-disable"
-								onClick={unsubscribe}
-								disabled={busy !== "idle"}
-							>
-								{busy === "unsubscribe"
-									? "Disabling…"
-									: "Disable notifications"}
-							</button>
-						</>
+						// When notifications are on there's nothing to configure —
+						// the presence of the "Disable notifications" link is
+						// itself the "on" signal. No status line, no test button.
+						<button
+							type="button"
+							className="notif-popover-disable"
+							onClick={unsubscribe}
+							disabled={busy !== "idle"}
+						>
+							{busy === "unsubscribe"
+								? "Disabling…"
+								: "Disable notifications"}
+						</button>
 					) : (
 						<>
 							<p className="notif-popover-status">
