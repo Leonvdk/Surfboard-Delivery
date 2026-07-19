@@ -86,6 +86,13 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		)
 		.sort((a, b) => a.checkin.localeCompare(b.checkin));
 
+	// Bookings that need a yes/no decision from Leon. This is the primary
+	// "in-app notification" surface — visible on every home-screen open,
+	// not only when a push landed.
+	const needsDecision = allBookings
+		.filter((b) => b.status === "requested")
+		.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
 	// Filter for the full list section. Soft-deleted rows are always excluded.
 	const filteredWhere = [
 		isNull(schema.bookings.deletedAt),
@@ -125,6 +132,33 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 			</header>
 
 			<NotificationsToggle />
+
+			{needsDecision.length > 0 && (
+				<article className="admin-attention">
+					<div className="admin-attention-header">
+						<span className="admin-attention-kicker">Needs decision</span>
+						<span className="admin-attention-count">{needsDecision.length}</span>
+					</div>
+					<p className="admin-attention-lead">
+						{needsDecision.length === 1
+							? "1 new booking request is waiting for you."
+							: `${needsDecision.length} new booking requests are waiting for you.`}
+					</p>
+					<ul className="admin-today-list">
+						{needsDecision.slice(0, 5).map((b) => (
+							<TodayRow key={b.id} b={b} kind="requested" />
+						))}
+					</ul>
+					{needsDecision.length > 5 && (
+						<Link
+							href="/admin?status=requested"
+							className="admin-attention-more"
+						>
+							See all {needsDecision.length} →
+						</Link>
+					)}
+				</article>
+			)}
 
 			{/* ── Today card ── */}
 			<div className="admin-today">
@@ -251,7 +285,7 @@ function TodayRow({
 	kind,
 }: {
 	b: Booking;
-	kind: "delivery" | "pickup" | "upcoming";
+	kind: "delivery" | "pickup" | "upcoming" | "requested";
 }) {
 	const dateStr =
 		kind === "pickup"
@@ -264,7 +298,7 @@ function TodayRow({
 				className="admin-today-link"
 			>
 				<div className="admin-today-row-left">
-					{kind === "upcoming" && (
+					{(kind === "upcoming" || kind === "requested") && (
 						<span className="admin-today-date">{dateStr}</span>
 					)}
 					<span className="admin-today-name">

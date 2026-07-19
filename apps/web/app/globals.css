@@ -5919,7 +5919,18 @@ h1 {
 .admin-shell {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
+  /* Flex column + min-height:100dvh so the sticky tab bar has a
+     real "bottom" to anchor to inside iOS Safari's PWA. `position:
+     fixed` gets rendered against the layout viewport, which iOS
+     shifts around during scroll — sticky against a full-height
+     flex container is the pattern that stays put. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.admin-main {
+  flex: 1 1 auto;
 }
 
 .admin-nav-inner {
@@ -6229,6 +6240,64 @@ h1 {
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--accent);
+}
+
+/* ─── In-app "Needs decision" panel ─────────────────────
+   Surfaces requested bookings at the top of the admin home so Leon
+   sees them even when he opens the PWA cold (no push). */
+
+.admin-attention {
+  position: relative;
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface);
+  border: var(--border);
+  border-left: 6px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-attention-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.admin-attention-kicker {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.admin-attention-count {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.admin-attention-lead {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--black);
+}
+
+.admin-attention-more {
+  display: inline-block;
+  margin-top: var(--space-sm);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.admin-attention-more:hover {
+  text-decoration: underline;
 }
 
 /* ─── Today / next-7 dashboard ──────────────────────── */
@@ -6841,7 +6910,14 @@ h1 {
   font-weight: 600;
   border: var(--border);
   background: var(--surface);
+  color: var(--black);
   cursor: pointer;
+  /* iOS Safari applies -apple-system-blue as the default button text
+     color and quietly rejects `color:` overrides on some builds.
+     Disable the native button styling so `color:` sticks. */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: currentColor;
 }
 
 .admin-btn:hover { background: var(--gray-100); }
@@ -6852,6 +6928,16 @@ h1 {
 }
 
 .admin-btn--primary:hover { background: var(--accent-hover); color: var(--white); }
+
+/* Same defensive rules on the "Yes, delete" and the login submit —
+   both use their own bg colors that iOS was overpainting white. */
+.delete-booking-confirm-yes,
+.admin-login-submit,
+.bookings-filter-submit {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: currentColor;
+}
 
 /* Login page */
 .admin-login {
@@ -7516,13 +7602,15 @@ h1 {
     padding: 12px 16px;
   }
 
-  /* Bottom tab bar */
+  /* Bottom tab bar. Sticky bottom (not fixed) so the bar stays
+     anchored to viewport bottom without iOS's fixed-position
+     jitter, and doesn't punch through the safe-area home indicator. */
   .admin-tabbar {
     display: block;
-    position: fixed;
+    position: sticky;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
     z-index: 90;
     background: var(--surface);
     border-top: var(--border);
@@ -7568,14 +7656,25 @@ h1 {
     stroke: var(--accent);
     stroke-width: 2;
   }
-  .admin-tabbar-link--active::before {
-    content: "";
+  /* Shared indicator: a single bar that slides between tabs on
+     navigation via translate3d, animated with CSS transitions. */
+  .admin-tabbar-list {
+    position: relative;
+  }
+  .admin-tabbar-indicator {
     position: absolute;
     top: -1.5px;
-    left: 30%;
-    right: 30%;
+    left: 0;
     height: 2px;
     background: var(--accent);
+    pointer-events: none;
+    transition:
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, width;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .admin-tabbar-indicator { transition: none; }
   }
 
   /* Add scroll-space so content isn't hidden behind the tab bar */
@@ -7617,16 +7716,13 @@ h1 {
 
   .admin-tabbar {
     display: block;
-    position: fixed;
+    position: sticky;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
     z-index: 90;
     background: var(--surface);
     border-top: var(--border);
     padding-bottom: env(safe-area-inset-bottom);
-  }
-  .admin-main {
-    padding-bottom: 96px;
   }
 }

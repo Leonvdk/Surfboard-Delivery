@@ -224,8 +224,11 @@ function calcDays(checkin: string, checkout: string): number | null {
 	if (!checkin || !checkout) return null;
 	const d1 = new Date(checkin);
 	const d2 = new Date(checkout);
-	const diff = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
-	return diff > 0 ? diff : null;
+	const nights = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+	// Both the delivery day and the pickup day count as billable days —
+	// customers use the gear across all of them. So Jul 21 → Jul 24 = 4 days,
+	// not 3. A same-day return (checkin = checkout) is still 1 day.
+	return nights >= 0 ? nights + 1 : null;
 }
 
 function packageIncludesWetsuit(pkg: string, options: FormPackageInfo[]): boolean {

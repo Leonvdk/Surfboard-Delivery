@@ -8,7 +8,7 @@ const MONTH_NAMES = [
 ];
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
-const MIN_DAYS = 5;
+const MIN_DAYS = 3;
 const MIN_ADVANCE_DAYS = 2;
 
 function toDateStr(d: Date): string {
@@ -26,7 +26,11 @@ function isSameDay(a: Date, b: Date): boolean {
 }
 
 function daysBetween(a: Date, b: Date): number {
-	return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
+	// Days that include both endpoints (delivery + pickup). Mirrors
+	// calcDays() in booking-form so the picker's warning threshold and
+	// the price estimate speak the same language.
+	const nights = Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
+	return nights >= 0 ? nights + 1 : 0;
 }
 
 function getMonthDays(year: number, month: number): Date[] {
@@ -154,7 +158,7 @@ export function DateRangePicker({
 				<span className="drp-trigger-mid">
 				{startDate && endDate && (
 					<span className="drp-trigger-nights">
-						{days} night{days !== 1 ? "s" : ""}
+						{days} day{days !== 1 ? "s" : ""}
 					</span>
 				)}
 				<span className="drp-trigger-arrow">→</span>

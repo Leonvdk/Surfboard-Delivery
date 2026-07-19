@@ -96,17 +96,24 @@ export const TIERS: PackageTier[] = ["boardOnly", "fullPackage", "premium"];
 export const FEATURED_TIER: PackageTier = "fullPackage";
 
 export function calcPackagePrice(tier: PackageTier, days: number): number {
+	const clamped = Math.max(DAILY_MINIMUM_DAYS, days);
+	const dailyAmount = prices[tier].daily.amount;
 	const weeklyAmount = prices[tier].weekly.amount;
 	const extendedAmount = prices[tier].extended.amount;
 	const weeklyDaily = prices[tier].weekly.dailyEquivalent ?? 0;
 	const extendedDaily = prices[tier].extended.dailyEquivalent ?? 0;
 
-	if (days <= 7) return weeklyAmount;
-	if (days <= 14) {
-		// Cap at the 2-week price so the discount applies as soon as prorated ≥ extended.
-		return Math.min(weeklyAmount + (days - 7) * weeklyDaily, extendedAmount);
+	// Short stays prorate at the daily rate, but never charge more than the
+	// full-week bundle — as soon as N daily > weekly, the customer just gets
+	// the weekly. (For board only that kicks in at 4 days: 4×€25 = €100 > €85.)
+	if (clamped <= 7) return Math.min(clamped * dailyAmount, weeklyAmount);
+	// Second week: stack extra days at the weekly-daily rate, capped at the
+	// 2-week bundle so the price never crosses the extended discount.
+	if (clamped <= 14) {
+		return Math.min(weeklyAmount + (clamped - 7) * weeklyDaily, extendedAmount);
 	}
-	return extendedAmount + (days - 14) * extendedDaily;
+	// 15+ days: extended bundle plus additional days at the extended daily rate.
+	return extendedAmount + (clamped - 14) * extendedDaily;
 }
 
 export function formatDurationLabel(days: number | null): string {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 interface Tab {
 	href: string;
@@ -63,13 +64,65 @@ const TABS: Tab[] = [
 	},
 ];
 
+// useLayoutEffect on the server logs a warning; fall through to useEffect
+// when window isn't available. The measurement obviously only matters on
+// the client, so no visible skew.
+const useIsomorphicLayoutEffect =
+	typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 export function AdminTabBar() {
 	const pathname = usePathname();
+	const listRef = useRef<HTMLUListElement>(null);
+	const [indicator, setIndicator] = useState<{
+		left: number;
+		width: number;
+	} | null>(null);
+
+	const activeIndex = TABS.findIndex((t) => t.match(pathname));
+
+	useIsomorphicLayoutEffect(() => {
+		const list = listRef.current;
+		if (!list) return;
+		const items = list.querySelectorAll<HTMLLIElement>(".admin-tabbar-item");
+		const activeItem = items[activeIndex];
+		if (!activeItem) return;
+
+		// Capture narrowed references so the closures below don't need
+		// their own null checks (and TS stops complaining about them).
+		const listEl: HTMLUListElement = list;
+		const itemEl: HTMLLIElement = activeItem;
+
+		function measure() {
+			const listRect = listEl.getBoundingClientRect();
+			const itemRect = itemEl.getBoundingClientRect();
+			// Narrow the marker so it hovers over the tab's icon+label instead
+			// of spanning the full column — matches the previous ::before rule
+			// (left: 30%; right: 30%).
+			const insetRatio = 0.3;
+			const inset = itemRect.width * insetRatio;
+			setIndicator({
+				left: itemRect.left - listRect.left + inset,
+				width: itemRect.width - inset * 2,
+			});
+		}
+
+		measure();
+		// Recompute on resize / orientation change so the marker doesn't
+		// end up at a stale x-offset.
+		const ro = new ResizeObserver(measure);
+		ro.observe(listEl);
+		window.addEventListener("resize", measure);
+		return () => {
+			ro.disconnect();
+			window.removeEventListener("resize", measure);
+		};
+	}, [activeIndex]);
+
 	if (pathname === "/admin/login") return null;
 
 	return (
 		<nav className="admin-tabbar" aria-label="Admin sections">
-			<ul className="admin-tabbar-list">
+			<ul className="admin-tabbar-list" ref={listRef}>
 				{TABS.map((tab) => {
 					const active = tab.match(pathname);
 					return (
@@ -85,6 +138,16 @@ export function AdminTabBar() {
 						</li>
 					);
 				})}
+				{indicator && (
+					<span
+						className="admin-tabbar-indicator"
+						aria-hidden="true"
+						style={{
+							transform: `translate3d(${indicator.left}px, 0, 0)`,
+							width: `${indicator.width}px`,
+						}}
+					/>
+				)}
 			</ul>
 		</nav>
 	);
