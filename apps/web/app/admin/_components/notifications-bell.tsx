@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Diag {
 	standalone: boolean;
@@ -33,13 +33,36 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
 	return arr;
 }
 
-export function NotificationsToggle() {
+const BellIcon = ({ silent }: { silent: boolean }) => (
+	<svg
+		width={20}
+		height={20}
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth={1.8}
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		aria-hidden="true"
+	>
+		<path d="M6 8a6 6 0 0 1 12 0v5l1.5 3h-15L6 13Z" />
+		<path d="M10 19a2 2 0 0 0 4 0" />
+		{silent && <path d="M4 4l16 16" />}
+	</svg>
+);
+
+export function NotificationsBell() {
 	const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
-	const [diag, setDiag] = useState<Diag>({ ...initialDiag, vapidLen: publicKey.length });
-	const [busy, setBusy] = useState<"idle" | "subscribe" | "unsubscribe" | "test">(
-		"idle",
-	);
+	const [diag, setDiag] = useState<Diag>({
+		...initialDiag,
+		vapidLen: publicKey.length,
+	});
+	const [busy, setBusy] = useState<
+		"idle" | "subscribe" | "unsubscribe" | "test"
+	>("idle");
 	const [message, setMessage] = useState<string>("");
+	const [open, setOpen] = useState(false);
+	const wrapperRef = useRef<HTMLDivElement>(null);
 
 	const refresh = useCallback(async () => {
 		const next: Diag = { ...initialDiag, vapidLen: publicKey.length };
@@ -47,7 +70,6 @@ export function NotificationsToggle() {
 
 		next.standalone =
 			window.matchMedia?.("(display-mode: standalone)")?.matches === true ||
-			// Safari's non-standard nav flag for home-screen apps
 			(navigator as { standalone?: boolean }).standalone === true;
 
 		next.swSupported = "serviceWorker" in navigator;
@@ -85,10 +107,28 @@ export function NotificationsToggle() {
 		void refresh();
 	}, [refresh]);
 
-	// Race a promise against a timeout so a call that hangs on iOS
-	// (the OS-level permission dialog can silently swallow the resolve
-	// callback if it was dismissed in a previous session) doesn't
-	// leave the panel stuck in "Requesting…" forever.
+	// Close the popover on outside tap or Escape.
+	useEffect(() => {
+		if (!open) return;
+		function onDown(e: MouseEvent | TouchEvent) {
+			const t = e.target as Node | null;
+			if (t && wrapperRef.current && !wrapperRef.current.contains(t)) {
+				setOpen(false);
+			}
+		}
+		function onKey(e: KeyboardEvent) {
+			if (e.key === "Escape") setOpen(false);
+		}
+		document.addEventListener("mousedown", onDown);
+		document.addEventListener("touchstart", onDown, { passive: true });
+		document.addEventListener("keydown", onKey);
+		return () => {
+			document.removeEventListener("mousedown", onDown);
+			document.removeEventListener("touchstart", onDown);
+			document.removeEventListener("keydown", onKey);
+		};
+	}, [open]);
+
 	function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 		return new Promise<T>((resolve, reject) => {
 			const t = window.setTimeout(
@@ -125,13 +165,6 @@ export function NotificationsToggle() {
 				return;
 			}
 
-			// iOS PWA quirk: if the OS permission dialog was dismissed on a
-			// previous install (swiped away, not answered), Notification
-			// .requestPermission() can resolve with the cached "default" —
-			// or hang. The workaround is to remove the app from Home Screen
-			// and re-add it. We race against a 15s timeout so the panel
-			// doesn't sit in "Requesting…" forever if the dialog never
-			// appears.
 			let perm: NotificationPermission;
 			try {
 				perm = await withTimeout(
@@ -159,19 +192,12 @@ export function NotificationsToggle() {
 			}
 
 			setMessage("Permission granted. Creating subscription…");
-			// Use getRegistration (not `ready`) so we don't hang waiting for the
-			// SW to *control* this exact page. Next.js serves /admin without
-			// a trailing slash, but the SW's scope is /admin/, so it never
-			// claims control of the /admin page itself — `ready` on that
-			// combination waits forever. `getRegistration` just returns the
-			// registered SW object, which is all we need to subscribe.
 			let reg = await withTimeout(
 				navigator.serviceWorker.getRegistration("/admin/"),
 				5000,
 				"serviceWorker.getRegistration",
 			);
 			if (!reg) {
-				// Nothing registered yet — do it inline as a fallback.
 				reg = await withTimeout(
 					navigator.serviceWorker.register("/admin/sw.js", { scope: "/admin/" }),
 					10000,
@@ -179,8 +205,6 @@ export function NotificationsToggle() {
 				);
 			}
 
-			// Reuse any existing subscription — subscribing a second time on
-			// the same registration throws InvalidStateError on Safari.
 			let sub = await reg.pushManager.getSubscription();
 			if (!sub) {
 				sub = await withTimeout(
@@ -193,7 +217,7 @@ export function NotificationsToggle() {
 				);
 			}
 
-			setMessage("Subscription created. Registering with server…");
+			setMessage("Registering with server…");
 			const res = await fetch("/api/admin/push/subscribe", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -205,12 +229,10 @@ export function NotificationsToggle() {
 			});
 			if (!res.ok) {
 				const txt = await res.text().catch(() => "");
-				setMessage(
-					`Server rejected subscription (HTTP ${res.status}): ${txt.slice(0, 200)}`,
-				);
+				setMessage(`Server rejected subscription (HTTP ${res.status}): ${txt.slice(0, 200)}`);
 				return;
 			}
-			setMessage("Subscribed. Now tap “Send test push” to confirm.");
+			setMessage("Subscribed. Tap Test to confirm delivery.");
 		} catch (err) {
 			setMessage(
 				`Subscribe failed: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)}`,
@@ -239,7 +261,7 @@ export function NotificationsToggle() {
 				}).catch(() => {});
 				await sub.unsubscribe();
 			}
-			setMessage("Unsubscribed on this device.");
+			setMessage("Notifications disabled on this device.");
 		} catch (err) {
 			setMessage(err instanceof Error ? err.message : "unknown error");
 		} finally {
@@ -262,9 +284,9 @@ export function NotificationsToggle() {
 				setMessage(`Test send failed (HTTP ${res.status}): ${data.error ?? ""}`);
 			} else {
 				setMessage(
-					`Test push dispatched to ${data.sent ?? 0} subscription(s). ${
-						data.pruned ? `Pruned ${data.pruned} dead. ` : ""
-					}Check your home screen.`,
+					`Test push dispatched to ${data.sent ?? 0} subscription(s). ` +
+						(data.pruned ? `Pruned ${data.pruned} dead. ` : "") +
+						"Check your home screen.",
 				);
 			}
 		} catch (err) {
@@ -281,75 +303,113 @@ export function NotificationsToggle() {
 		diag.permission !== "denied" &&
 		diag.vapidLen > 0;
 
+	// Show a small orange dot when there's something Leon should know
+	// about — either notifications are off, or the OS blocked them.
+	const showBellDot =
+		!diag.locallySubscribed || diag.permission === "denied";
+
 	return (
-		<details className="notif-toggle">
-			<summary className="notif-toggle-summary">
-				Push notifications
-				{diag.serverCount != null && (
-					<span className="notif-toggle-badge">{diag.serverCount}</span>
-				)}
-			</summary>
+		<div className="notif-bell-wrap" ref={wrapperRef}>
+			<button
+				type="button"
+				className="notif-bell"
+				aria-label="Push notifications"
+				aria-expanded={open}
+				onClick={() => setOpen((v) => !v)}
+			>
+				<BellIcon silent={!diag.locallySubscribed} />
+				{showBellDot && <span className="notif-bell-dot" aria-hidden="true" />}
+			</button>
 
-			<dl className="notif-diag">
-				<dt>Standalone (installed PWA)</dt>
-				<dd>{diag.standalone ? "yes" : "no — add to home screen first"}</dd>
-				<dt>Service Worker</dt>
-				<dd>
-					{diag.swSupported
-						? diag.swActive
-							? "active"
-							: "registered but not active"
-						: "not supported"}
-				</dd>
-				<dt>PushManager</dt>
-				<dd>{diag.pushSupported ? "supported" : "not supported"}</dd>
-				<dt>Permission</dt>
-				<dd>{diag.permission}</dd>
-				<dt>Subscription (this device)</dt>
-				<dd>{diag.locallySubscribed ? "yes" : "no"}</dd>
-				<dt>Subscriptions (server)</dt>
-				<dd>{diag.serverCount ?? "?"}</dd>
-				<dt>VAPID key in bundle</dt>
-				<dd>{diag.vapidLen > 0 ? `yes (${diag.vapidLen} chars)` : "MISSING"}</dd>
-			</dl>
+			{open && (
+				<div
+					className="notif-popover"
+					role="dialog"
+					aria-label="Push notifications"
+				>
+					<div className="notif-popover-header">Push notifications</div>
 
-			<div className="notif-actions">
-				{diag.locallySubscribed ? (
-					<>
-						<button
-							type="button"
-							className="admin-btn"
-							onClick={sendTest}
-							disabled={busy !== "idle"}
-						>
-							{busy === "test" ? "Sending…" : "Send test push"}
-						</button>
-						<button
-							type="button"
-							className="admin-btn"
-							onClick={unsubscribe}
-							disabled={busy !== "idle"}
-						>
-							{busy === "unsubscribe" ? "…" : "Turn off"}
-						</button>
-					</>
-				) : (
-					<button
-						type="button"
-						className="admin-btn admin-btn--primary"
-						onClick={subscribe}
-						disabled={busy !== "idle" || !canSubscribe}
-					>
-						{busy === "subscribe"
-							? "Requesting…"
-							: canSubscribe
-								? "Enable push notifications"
-								: "Unavailable (see status above)"}
-					</button>
-				)}
-			</div>
+					{diag.locallySubscribed ? (
+						<>
+							<p className="notif-popover-status notif-popover-status--on">
+								Enabled on this device.
+							</p>
+							<div className="notif-popover-actions">
+								<button
+									type="button"
+									className="admin-btn"
+									onClick={sendTest}
+									disabled={busy !== "idle"}
+								>
+									{busy === "test" ? "Sending…" : "Send test push"}
+								</button>
+							</div>
+							<button
+								type="button"
+								className="notif-popover-disable"
+								onClick={unsubscribe}
+								disabled={busy !== "idle"}
+							>
+								{busy === "unsubscribe"
+									? "Disabling…"
+									: "Disable notifications"}
+							</button>
+						</>
+					) : (
+						<>
+							<p className="notif-popover-status">
+								{diag.permission === "denied"
+									? "Blocked by iOS. Turn on in Settings → Notifications → SR Admin."
+									: "Not enabled on this device."}
+							</p>
+							<div className="notif-popover-actions">
+								<button
+									type="button"
+									className="admin-btn admin-btn--primary"
+									onClick={subscribe}
+									disabled={busy !== "idle" || !canSubscribe}
+								>
+									{busy === "subscribe"
+										? "Requesting…"
+										: canSubscribe
+											? "Enable notifications"
+											: "Unavailable"}
+								</button>
+							</div>
+							{!canSubscribe && (
+								<dl className="notif-popover-diag">
+									<dt>Standalone (PWA)</dt>
+									<dd>
+										{diag.standalone
+											? "yes"
+											: "no — add to home screen first"}
+									</dd>
+									<dt>Service Worker</dt>
+									<dd>
+										{diag.swSupported
+											? diag.swActive
+												? "active"
+												: "registered"
+											: "unsupported"}
+									</dd>
+									<dt>PushManager</dt>
+									<dd>{diag.pushSupported ? "supported" : "unsupported"}</dd>
+									<dt>Permission</dt>
+									<dd>{diag.permission}</dd>
+									<dt>VAPID key</dt>
+									<dd>
+										{diag.vapidLen > 0
+											? `${diag.vapidLen} chars`
+											: "missing"}
+									</dd>
+								</dl>
+							)}
+						</>
+					)}
 
-			{message && <p className="notif-toggle-msg">{message}</p>}
-		</details>
+					{message && <p className="notif-popover-msg">{message}</p>}
+				</div>
+			)}
+		</div>
 	);
 }

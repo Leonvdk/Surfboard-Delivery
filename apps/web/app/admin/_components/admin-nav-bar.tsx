@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NotificationsBell } from "./notifications-bell";
 
 interface Props {
 	logout: () => Promise<void>;
@@ -57,11 +58,14 @@ export function AdminNavBar({ logout }: Props) {
 						</Link>
 					</li>
 				</ul>
-				<form action={logout}>
-					<button type="submit" className="admin-nav-logout">
-						Log out
-					</button>
-				</form>
+				<div className="admin-nav-tail">
+					<NotificationsBell />
+					<form action={logout}>
+						<button type="submit" className="admin-nav-logout">
+							Log out
+						</button>
+					</form>
+				</div>
 			</div>
 		</nav>
 	);

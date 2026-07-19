@@ -5919,25 +5919,16 @@ h1 {
 .admin-shell {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  /* Flex column + min-height:100dvh so the sticky tab bar has a
-     real "bottom" to anchor to inside iOS Safari's PWA. `position:
-     fixed` gets rendered against the layout viewport, which iOS
-     shifts around during scroll — sticky against a full-height
-     flex container is the pattern that stays put. */
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
   width: 100%;
   /* Defense in depth: any child that runs wide (a long unbreakable
      string, an oversized table cell) must not push the whole shell
-     past the viewport. Body already sets overflow-x hidden, but the
-     shell has its own flex context — belt-and-braces. */
+     past the viewport. */
   overflow-x: hidden;
   max-width: 100vw;
+  min-height: 100vh;
 }
 
 .admin-main {
-  flex: 1 1 auto;
   min-width: 0;
   width: 100%;
 }
@@ -5998,8 +5989,14 @@ h1 {
   background: var(--accent);
 }
 
-.admin-nav-logout {
+.admin-nav-tail {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-nav-logout {
   background: none;
   border: none;
   padding: 6px 12px;
@@ -7429,86 +7426,137 @@ h1 {
   }
 }
 
-/* ─── Notifications toggle (bookings page header) ────── */
+/* ─── Notifications bell + popover (in admin nav) ────── */
 
-.notif-toggle {
-  display: block;
-  background: var(--surface);
-  border: var(--border-light);
-  padding: 10px 12px;
-  max-width: 100%;
-  margin-bottom: var(--space-md);
-}
-
-.notif-toggle-summary {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.875rem;
-  cursor: pointer;
-  list-style: none;
+.notif-bell-wrap {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
-.notif-toggle-summary::-webkit-details-marker {
-  display: none;
+.notif-bell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--gray-700);
+  cursor: pointer;
+  position: relative;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: currentColor;
 }
 
-.notif-toggle-summary::before {
-  content: "▸";
-  display: inline-block;
-  color: var(--gray-500);
-  transition: transform 100ms ease;
-}
+.notif-bell:hover { color: var(--accent); }
 
-.notif-toggle[open] .notif-toggle-summary::before {
-  transform: rotate(90deg);
-}
-
-.notif-toggle-badge {
-  margin-left: auto;
+.notif-bell-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
   background: var(--accent);
-  color: var(--white);
-  padding: 2px 8px;
+  border: 1.5px solid var(--surface);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.notif-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  min-width: 260px;
+  max-width: 320px;
+  padding: var(--space-md);
+  background: var(--surface);
+  border: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.notif-popover-header {
+  font-family: var(--font-display);
   font-size: 0.75rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  margin-bottom: 6px;
 }
 
-.notif-diag {
-  margin: 10px 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 12px;
+.notif-popover-status {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--black);
+}
+
+.notif-popover-status--on {
+  color: var(--black);
+  font-weight: 600;
+}
+
+.notif-popover-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.notif-popover-disable {
+  display: block;
+  margin-top: 12px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--gray-500);
   font-family: var(--font-body);
   font-size: 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-text-fill-color: currentColor;
 }
 
-.notif-diag dt {
+.notif-popover-disable:hover {
+  color: var(--accent);
+}
+
+.notif-popover-disable:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.notif-popover-diag {
+  margin: var(--space-sm) 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
   color: var(--gray-500);
 }
 
-.notif-diag dd {
+.notif-popover-diag dt { color: var(--gray-500); }
+.notif-popover-diag dd {
   margin: 0;
   color: var(--black);
   font-weight: 600;
   word-break: break-word;
 }
 
-.notif-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.notif-toggle-msg {
-  margin: 8px 0 0;
+.notif-popover-msg {
+  margin: var(--space-sm) 0 0;
   padding: 6px 10px;
   background: var(--gray-100);
   border-left: 3px solid var(--accent);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--black);
   word-break: break-word;
 }
@@ -7611,23 +7659,30 @@ h1 {
     padding: 12px 16px;
   }
 
-  /* Bottom tab bar. Sticky bottom (not fixed) so the bar stays
-     anchored to viewport bottom without iOS's fixed-position
-     jitter, and doesn't punch through the safe-area home indicator.
-     `width: 100%` + `max-width: 100vw` keeps it locked to the
-     viewport even if a wide child upstream tried to shift it. */
+  /* Bottom tab bar — pinned to the viewport bottom always.
+     `position: fixed` (not sticky) so a short page like /admin's
+     empty state doesn't leave the bar sitting mid-page at the end
+     of the content. `bottom: 0` + safe-area padding keeps it above
+     the home indicator. */
   .admin-tabbar {
     display: block;
-    position: sticky;
-    bottom: 0;
+    position: fixed;
     left: 0;
     right: 0;
+    bottom: 0;
     width: 100%;
     max-width: 100vw;
     z-index: 90;
     background: var(--surface);
     border-top: var(--border);
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Reserve room at the end of every admin page so content doesn't
+     hide behind the fixed tab bar. Height = ~52 tab link + 12 gutter
+     + safe-area home indicator. */
+  .admin-main {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
   .admin-tabbar-list {
     list-style: none;
@@ -7671,11 +7726,12 @@ h1 {
   }
   /* Shared indicator: a single bar that slides between tabs on
      navigation via translate3d, animated with CSS transitions.
-     `overflow: hidden` clips the indicator if its computed position
-     ever exceeds the list width. */
+     `overflow-x: hidden` clips only horizontal overflow (indicator
+     x-position past the edge). Vertical stays visible so the
+     indicator itself, which sits just above the border-top, renders. */
   .admin-tabbar-list {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
   }
   .admin-tabbar-indicator {
     position: absolute;
@@ -7691,11 +7747,6 @@ h1 {
   }
   @media (prefers-reduced-motion: reduce) {
     .admin-tabbar-indicator { transition: none; }
-  }
-
-  /* Add scroll-space so content isn't hidden behind the tab bar */
-  .admin-main {
-    padding-bottom: 88px;
   }
 
   /* Detail-page cards feel more like sections in an app */
@@ -7732,10 +7783,10 @@ h1 {
 
   .admin-tabbar {
     display: block;
-    position: sticky;
-    bottom: 0;
+    position: fixed;
     left: 0;
     right: 0;
+    bottom: 0;
     z-index: 90;
     background: var(--surface);
     border-top: var(--border);
