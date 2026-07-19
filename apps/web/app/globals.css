@@ -493,7 +493,7 @@ h1 {
   font-weight: 600 !important;
   font-size: 0.8rem !important;
   color: var(--white) !important;
-  background: var(--black);
+  background: var(--accent);
   padding: 10px 24px;
   border: var(--border);
   cursor: pointer;
@@ -502,7 +502,7 @@ h1 {
 }
 
 .nav-cta:hover {
-  background: var(--accent);
+  background: var(--accent-hover);
   color: var(--white) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(212, 80, 30, 0.25);
