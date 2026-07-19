@@ -57,9 +57,9 @@ export function NotificationsBell() {
 		...initialDiag,
 		vapidLen: publicKey.length,
 	});
-	const [busy, setBusy] = useState<
-		"idle" | "subscribe" | "unsubscribe" | "test"
-	>("idle");
+	const [busy, setBusy] = useState<"idle" | "subscribe" | "unsubscribe">(
+		"idle",
+	);
 	const [message, setMessage] = useState<string>("");
 	const [open, setOpen] = useState(false);
 	const wrapperRef = useRef<HTMLDivElement>(null);
@@ -232,7 +232,9 @@ export function NotificationsBell() {
 				setMessage(`Server rejected subscription (HTTP ${res.status}): ${txt.slice(0, 200)}`);
 				return;
 			}
-			setMessage("Subscribed. Tap Test to confirm delivery.");
+			// On success, clear the message. The UI itself is the signal:
+			// bell dot goes away, popover flips to the "Disable" state.
+			setMessage("");
 		} catch (err) {
 			setMessage(
 				`Subscribe failed: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)}`,
@@ -261,34 +263,9 @@ export function NotificationsBell() {
 				}).catch(() => {});
 				await sub.unsubscribe();
 			}
-			setMessage("Notifications disabled on this device.");
-		} catch (err) {
-			setMessage(err instanceof Error ? err.message : "unknown error");
-		} finally {
-			setBusy("idle");
-			await refresh();
-		}
-	}
-
-	async function sendTest() {
-		setBusy("test");
-		setMessage("");
-		try {
-			const res = await fetch("/api/admin/push/test", { method: "POST" });
-			const data = (await res.json().catch(() => ({}))) as {
-				sent?: number;
-				pruned?: number;
-				error?: string;
-			};
-			if (!res.ok) {
-				setMessage(`Test send failed (HTTP ${res.status}): ${data.error ?? ""}`);
-			} else {
-				setMessage(
-					`Test push dispatched to ${data.sent ?? 0} subscription(s). ` +
-						(data.pruned ? `Pruned ${data.pruned} dead. ` : "") +
-						"Check your home screen.",
-				);
-			}
+			// Same rule as subscribe — the UI's flip back to the "Enable"
+			// button is the confirmation. No lingering status text.
+			setMessage("");
 		} catch (err) {
 			setMessage(err instanceof Error ? err.message : "unknown error");
 		} finally {
