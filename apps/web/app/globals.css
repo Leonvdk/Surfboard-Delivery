@@ -556,11 +556,14 @@ h1 {
   right: 0;
   background: var(--bg);
   border-bottom: var(--border);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
   padding: var(--space-lg);
+  padding-bottom: calc(var(--space-lg) + 8px);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   animation: mobile-menu-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  z-index: 100;
 }
 
 .nav-mobile-menu a {
@@ -591,10 +594,17 @@ h1 {
 .nav-mobile-menu .nav-cta {
   display: block;
   text-align: center;
-  margin-top: var(--space-sm);
-  border-bottom: none;
-  padding: 12px 24px;
+  margin: var(--space-sm) 0 4px;
+  border: var(--border);
+  border-bottom: var(--border);
+  box-shadow: 4px 4px 0 var(--black);
+  padding: 14px 24px;
   animation-delay: 300ms;
+}
+
+.nav-mobile-menu .nav-cta:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .nav-mobile-menu .nav-cta:hover {

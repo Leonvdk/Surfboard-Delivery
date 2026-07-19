@@ -8,7 +8,7 @@ import { trackCtaClick } from "../lib/analytics";
 const LINKS = [
 	{ href: "/surf-gear", label: "Boards" },
 	{ href: "/pricing", label: "Pricing" },
-	{ href: "/how-it-works", label: "Process" },
+	{ href: "/how-it-works", label: "How it works" },
 	{ href: "/reviews", label: "Reviews" },
 	{ href: "/blog", label: "Blog" },
 ] as const;
