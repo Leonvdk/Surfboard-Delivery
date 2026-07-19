@@ -1210,7 +1210,9 @@ h1 {
     line-height: 1.15;
   }
   .trust-strip-card-desc {
-    display: none;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    margin-top: 4px;
   }
   .trust-strip-signoff {
     flex-direction: column;
