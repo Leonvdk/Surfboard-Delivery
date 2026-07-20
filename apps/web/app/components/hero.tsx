@@ -7,14 +7,14 @@ export function Hero() {
 			<div className="container">
 				<div className="hero-grid">
 					<div className="hero-content">
-						<p className="hero-eyebrow">Surfboard Rental Delivery — Aljezur, Arrifana & Vale da Telha</p>
-						<h1 className="hero-title">
+						<h1 className="hero-eyebrow">Surfboard Rental Delivery — Aljezur, Arrifana &amp; Vale da Telha</h1>
+						<p className="hero-title" aria-hidden="true">
 							Surfboards.<br />Wetsuits.<br /><em>Delivered.</em>
-						</h1>
+						</p>
 						<p className="hero-desc">
 							Tell us your level and dates — we&apos;ll pick the right board
-							and wetsuit and drop them at your Airbnb. No shop queue, no
-							wrong board on day one.
+							and wetsuit and drop them at your door. Free delivery, free
+							pickup. No shop queue, no wrong board on day one.
 						</p>
 						<div className="hero-actions">
 							<TrackedCtaLink href="/contact" className="btn btn-primary" ctaText="Book now" ctaLocation="hero">
@@ -29,8 +29,9 @@ export function Hero() {
 							</TrackedCtaLink>
 						</div>
 						<p className="hero-microcopy">
-							No minimum order · reply within 24h in 5 languages · pay on
-							arrival possible
+							Free delivery · from €18/day board-only, €150/week board +
+							wetsuit · reply within 24h in 5 languages · pay on arrival
+							possible
 						</p>
 					</div>
 					<div className="hero-visual">

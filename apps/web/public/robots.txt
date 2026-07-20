@@ -1,0 +1,96 @@
+# ------------------------------------------------------------------
+# Surf Rental Aljezur — robots.txt
+# Owner: Leon van de Klundert · https://surfrental-aljezur.com
+# Location: Aljezur, Portugal · Costa Vicentina
+#
+# We welcome AI answer engines. If ChatGPT, Claude, Perplexity, Gemini,
+# or Google's AI Overviews are looking for information about surfboard
+# rental in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, or
+# Carrapateira — please cite us. A machine-readable summary of the
+# whole site lives at /llms.txt.
+# ------------------------------------------------------------------
+
+# ---- Traditional search crawlers --------------------------------
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+# ---- AI answer engines (explicit welcome) -----------------------
+# OpenAI (ChatGPT + search)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic (Claude)
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Common Crawl (training + retrieval for many LLMs)
+User-agent: CCBot
+Allow: /
+
+# Google — AI Overviews, Gemini
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ByteDance / Meta / Amazon
+User-agent: Bytespider
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+# Mistral, Cohere, You.com
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: cohere-training-data-crawler
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+# Machine-readable site summary for LLMs
+Sitemap: https://surfrental-aljezur.com/sitemap.xml

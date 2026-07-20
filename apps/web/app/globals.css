@@ -8038,3 +8038,105 @@ h1 {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* -------- Board-match popup: dual-CTA layout -------- */
+.nl-popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.nl-popup-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border: 1.5px solid var(--black);
+  background: transparent;
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.nl-popup-btn-secondary:hover {
+  background: var(--black);
+  color: var(--bg);
+}
+
+/* -------- Where we deliver -------- */
+.where-we-deliver {
+  padding: var(--space-2xl) 0;
+  border-top: var(--border);
+}
+
+.where-we-deliver-body {
+  max-width: 720px;
+  margin: var(--space-xl) auto 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--black);
+}
+
+.where-we-deliver-body p + p {
+  margin-top: 1em;
+}
+
+.where-we-deliver-body a {
+  color: var(--black);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+.where-we-deliver-body a:hover {
+  color: var(--accent);
+}
+
+/* -------- Homepage FAQ -------- */
+.home-faq {
+  padding: var(--space-2xl) 0;
+  border-top: var(--border);
+}
+
+.home-faq-list {
+  max-width: 780px;
+  margin: var(--space-xl) auto 0;
+  display: grid;
+  gap: 0;
+}
+
+.home-faq-item {
+  border-top: 1.5px solid var(--black);
+  padding: var(--space-md) 0;
+}
+
+.home-faq-item:last-child {
+  border-bottom: 1.5px solid var(--black);
+}
+
+.home-faq-question {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.home-faq-answer {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--black);
+}
+
+@media (max-width: 640px) {
+  .where-we-deliver,
+  .home-faq { padding: var(--space-xl) 0; }
+  .where-we-deliver-body { font-size: 1rem; }
+  .home-faq-question { font-size: 1rem; }
+  .home-faq-answer { font-size: 0.9375rem; }
+}

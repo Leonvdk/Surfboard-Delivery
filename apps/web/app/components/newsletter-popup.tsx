@@ -1,19 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	trackNewsletterPopupDismissed,
 	trackNewsletterPopupShown,
-	trackNewsletterPopupSubmitted,
 } from "../lib/analytics";
 
-const SCROLL_THRESHOLD = 0.35;
-const MIN_TIME_ON_PAGE_MS = 12_000;
+/**
+ * Board-match popup. Not a newsletter — we don't run one. This is a
+ * secondary conversion prompt that fires when someone has been on the
+ * page long enough to be considering a booking. Component name kept as
+ * NewsletterPopup so existing analytics events and imports don't break;
+ * the tracked events are still useful as "engagement popup" signal.
+ */
+
+const SCROLL_THRESHOLD = 0.5;
+const MIN_TIME_ON_PAGE_MS = 25_000;
 const STORAGE_KEY = "nl_popup_dismissed";
 const DISMISS_DAYS = 14;
-
-type Status = "idle" | "submitting" | "success" | "error";
 
 export default function NewsletterPopup() {
 	const pathname = usePathname();
@@ -23,11 +29,6 @@ export default function NewsletterPopup() {
 	const timerMetRef = useRef(false);
 	const scrollMetRef = useRef(false);
 	const shownTracked = useRef(false);
-
-	const [firstName, setFirstName] = useState("");
-	const [email, setEmail] = useState("");
-	const [status, setStatus] = useState<Status>("idle");
-	const [errorMsg, setErrorMsg] = useState("");
 
 	const wasPreviouslyDismissed = useCallback(() => {
 		try {
@@ -100,51 +101,13 @@ export default function NewsletterPopup() {
 		return () => window.removeEventListener("keydown", onKey);
 	}, [visible, dismiss]);
 
-	const handleSubmit = useCallback(
-		async (e: React.FormEvent) => {
-			e.preventDefault();
-			if (!firstName.trim() || !email.trim()) return;
-
-			setStatus("submitting");
-			setErrorMsg("");
-
-			try {
-				const res = await fetch("/api/newsletter", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						firstName: firstName.trim(),
-						email: email.trim(),
-					}),
-				});
-
-				if (!res.ok) {
-					const data = await res.json().catch(() => null);
-					throw new Error(data?.error || "Something went wrong");
-				}
-
-				setStatus("success");
-				trackNewsletterPopupSubmitted(pathname);
-				try {
-					localStorage.setItem(STORAGE_KEY, String(Date.now()));
-				} catch {}
-			} catch (err) {
-				setStatus("error");
-				setErrorMsg(
-					err instanceof Error ? err.message : "Something went wrong",
-				);
-			}
-		},
-		[firstName, email, pathname],
-	);
-
 	if (!visible) return null;
 
 	return (
 		<aside
 			className={`nl-popup ${closing ? "nl-popup--closing" : ""}`}
 			role="complementary"
-			aria-label="Newsletter signup"
+			aria-label="Find your board"
 		>
 			<button
 				className="nl-popup-close"
@@ -167,79 +130,44 @@ export default function NewsletterPopup() {
 				</svg>
 			</button>
 
-			{status === "success" ? (
-				<div className="nl-popup-success">
-					<span className="nl-popup-success-icon" aria-hidden="true">
-						🤙
-					</span>
-					<p className="nl-popup-success-title">You&apos;re in the lineup!</p>
-					<p className="nl-popup-success-desc">
-						Surf tips, local conditions &amp; deals — headed your way.
-					</p>
-				</div>
-			) : (
-				<>
-					<p className="nl-popup-kicker">Stay in the loop</p>
-					<p className="nl-popup-headline">
-						Surf conditions, local tips &amp; exclusive deals
-					</p>
+			<p className="nl-popup-kicker">Still deciding?</p>
+			<p className="nl-popup-headline">
+				Find <em>your</em> board in 30&nbsp;seconds.
+			</p>
+			<p className="nl-popup-note">
+				Tell us your level, height, and dates. We&apos;ll match you to the
+				right board — free delivery, wrong-fit swap on day two.
+			</p>
 
-					<form
-						className="nl-popup-form"
-						onSubmit={handleSubmit}
-						noValidate
+			<div className="nl-popup-actions">
+				<Link
+					href="/contact"
+					className="nl-popup-btn"
+					onClick={dismiss}
+				>
+					Match my board
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2.5"
+						strokeLinecap="round"
+						strokeLinejoin="round"
 					>
-						<input
-							type="text"
-							placeholder="First name"
-							value={firstName}
-							onChange={(e) => setFirstName(e.target.value)}
-							required
-							className="nl-popup-input"
-							autoComplete="given-name"
-						/>
-						<input
-							type="email"
-							placeholder="Email address"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-							className="nl-popup-input"
-							autoComplete="email"
-						/>
-						<button
-							type="submit"
-							className="nl-popup-btn"
-							disabled={status === "submitting"}
-						>
-							{status === "submitting" ? "Joining…" : "Subscribe"}
-							{status !== "submitting" && (
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<line x1="5" y1="12" x2="19" y2="12" />
-									<polyline points="12 5 19 12 12 19" />
-								</svg>
-							)}
-						</button>
-					</form>
-
-					{status === "error" && (
-						<p className="nl-popup-error">{errorMsg}</p>
-					)}
-
-					<p className="nl-popup-note">
-						No spam — just waves. Unsubscribe anytime.
-					</p>
-				</>
-			)}
+						<line x1="5" y1="12" x2="19" y2="12" />
+						<polyline points="12 5 19 12 12 19" />
+					</svg>
+				</Link>
+				<Link
+					href="/surf-gear"
+					className="nl-popup-btn-secondary"
+					onClick={dismiss}
+				>
+					See all boards
+				</Link>
+			</div>
 		</aside>
 	);
 }

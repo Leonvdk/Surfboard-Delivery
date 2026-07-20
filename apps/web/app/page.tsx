@@ -3,18 +3,48 @@ import Image from "next/image";
 import Link from "next/link";
 import { CtaSection } from "./components/cta-section";
 import { Hero } from "./components/hero";
+import { JsonLd } from "./components/json-ld";
 import NewsletterPopup from "./components/newsletter-popup";
 import { Reveal } from "./components/reveal";
 import { StarRating } from "./components/star-rating";
 import { TrustStrip } from "./components/trust-strip";
+import { faqJsonLd } from "./lib/jsonld";
 import { prices } from "./lib/pricing";
 
 export const metadata: Metadata = {
-	title: "Surf Rental Aljezur — Surfboard & Wetsuit Rental Delivered to Your Door",
+	title: "Surfboard Rental Aljezur & Arrifana — Delivered",
 	description:
-		"Rent surfboards and wetsuits delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha. Free delivery and pickup on the Costa Vicentina.",
+		"Surfboard and wetsuit rental delivered across Aljezur, Arrifana, Vale da Telha, and Monte Clérigo. From €18/day or €100/week board-only, €150/week board + wetsuit. Three-day minimum. Free delivery and pickup.",
 	alternates: { canonical: "/" },
 };
+
+const HOMEPAGE_FAQS = [
+	{
+		question: "How much does it cost to rent a surfboard in Aljezur?",
+		answer:
+			"Board-only rental is €18 per day or €100 per week. Board + wetsuit is €28 per day or €150 per week. The premium package (board + wetsuit + free mid-stay board swap) is €38 per day or €225 per week. Three-day minimum. Free delivery and pickup.",
+	},
+	{
+		question: "Do you deliver surfboards to my Airbnb?",
+		answer:
+			"Yes. We deliver and collect surfboards and wetsuits anywhere in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira. Free delivery and pickup, no minimum order.",
+	},
+	{
+		question: "Is there a minimum rental period?",
+		answer:
+			"Three days. Both the delivery day and the pickup day count as billable days. Most people rent for a full week — that's when the weekly rate kicks in and the price per day drops significantly.",
+	},
+	{
+		question: "What if I book the wrong board?",
+		answer:
+			"We swap it, free, on day two. Tell us the surf feels wrong and we'll bring you a different board and take the first one back. No charge, no debate. That's our level-match guarantee.",
+	},
+	{
+		question: "How do I pay?",
+		answer:
+			"Card, Apple Pay, iDEAL, Wero, MB WAY, or cash on arrival. No deposit, no upfront charge — we send a secure payment link after we confirm your dates. Cancel free within 72 hours of booking.",
+	},
+];
 
 const boardFromPrice = Math.ceil(
 	prices.boardOnly.extended.amount / 14,
@@ -59,7 +89,7 @@ export default function Home() {
 					<Reveal>
 						<div className="section-header section-header--center">
 							<p className="section-eyebrow">The collection</p>
-							<h2 className="section-title">Four shapes. Every wave.</h2>
+							<h2 className="section-title">Four soft-top rental boards. Every skill level.</h2>
 							<p className="section-desc">
 								Each board is cleaned, waxed, and inspected before every rental.
 								Pick the shape that matches your experience.
@@ -212,7 +242,7 @@ export default function Home() {
 							<div className="section-header">
 								<p className="section-eyebrow">The process</p>
 								<h2 className="section-title">
-									Booking to<br />securing your waves<br />in 10 minutes.
+									From booking to paddling out<br />in Aljezur —<br />in 10 minutes.
 								</h2>
 							</div>
 						</Reveal>
@@ -254,8 +284,8 @@ export default function Home() {
 								</div>
 							</div>
 							<div className="how-cta">
-								<Link href="/surf-gear" className="btn btn-primary">
-									Rent a surfboard
+								<Link href="/contact" className="btn btn-primary">
+									Request your board
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 										<line x1="5" y1="12" x2="19" y2="12" />
 										<polyline points="12 5 19 12 12 19" />
@@ -273,7 +303,7 @@ export default function Home() {
 					<Reveal>
 						<div className="section-header section-header--center">
 							<p className="section-eyebrow">What riders say</p>
-							<h2 className="section-title">Trusted by surfers across Europe.</h2>
+							<h2 className="section-title">Trusted by surfers renting on the Costa Vicentina.</h2>
 						</div>
 					</Reveal>
 					<Reveal stagger>
@@ -329,11 +359,70 @@ export default function Home() {
 				</div>
 			</section>
 
+			{/* Where we deliver */}
+			<section className="where-we-deliver" aria-labelledby="where-we-deliver-title">
+				<div className="container">
+					<Reveal>
+						<div className="section-header section-header--center">
+							<p className="section-eyebrow">Service area</p>
+							<h2 id="where-we-deliver-title" className="section-title">
+								Where we deliver on the Costa Vicentina.
+							</h2>
+						</div>
+					</Reveal>
+					<Reveal>
+						<div className="where-we-deliver-body">
+							<p>
+								Surf Rental Aljezur is run by <strong>Leon van de Klundert</strong>,
+								who lives in Aljezur and delivers surfboards and wetsuits across
+								the western Algarve. Free delivery and pickup to your Airbnb,
+								guesthouse, or campervan in{" "}
+								<strong>Aljezur</strong>, <strong>Arrifana</strong>,{" "}
+								<strong>Vale da Telha</strong>, <strong>Monte Clérigo</strong>,{" "}
+								and <strong>Carrapateira</strong>.
+							</p>
+							<p>
+								Most of our renters surf <Link href="/surf-spots">Praia da
+								Arrifana</Link>, <Link href="/surf-spots">Praia do Amado</Link>,{" "}
+								<Link href="/surf-spots">Praia da Bordeira</Link>, or{" "}
+								<Link href="/surf-spots">Praia da Amoreira</Link> — all within
+								a fifteen-minute drive of Aljezur. Tell us which beach you&apos;re
+								headed to and we&apos;ll match the board to the swell.
+							</p>
+						</div>
+					</Reveal>
+				</div>
+			</section>
+
+			{/* FAQ */}
+			<section className="home-faq" aria-labelledby="home-faq-title">
+				<div className="container">
+					<Reveal>
+						<div className="section-header section-header--center">
+							<p className="section-eyebrow">Frequently asked</p>
+							<h2 id="home-faq-title" className="section-title">
+								Answers before you book.
+							</h2>
+						</div>
+					</Reveal>
+					<Reveal>
+						<dl className="home-faq-list">
+							{HOMEPAGE_FAQS.map((faq) => (
+								<div key={faq.question} className="home-faq-item">
+									<dt className="home-faq-question">{faq.question}</dt>
+									<dd className="home-faq-answer">{faq.answer}</dd>
+								</div>
+							))}
+						</dl>
+					</Reveal>
+				</div>
+			</section>
+
+			<JsonLd data={faqJsonLd(HOMEPAGE_FAQS)} />
+
 			<CtaSection
 				heading="Need help choosing?"
 				text="Tell us your level, your dates, and what you want to surf — we'll put together the perfect setup."
-				buttonText="Find your board"
-				buttonHref="/surf-gear#guide-heading"
 			/>
 
 			<NewsletterPopup />
