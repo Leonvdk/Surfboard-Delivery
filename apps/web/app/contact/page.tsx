@@ -23,10 +23,13 @@ export default function ContactPage() {
 				<div className="container">
 					<Reveal>
 						<div>
-							<h1>Book your surf gear</h1>
+							<h1>Book surf rental delivery in Aljezur — reply within 24h</h1>
 							<p className="page-hero-sub">
-								Send us your trip details and we&apos;ll get back to you within
-								24 hours with a gear recommendation and booking confirmation.
+								Tell us your dates, accommodation address, height, weight,
+								and experience level. We reply within 24 hours in EN · NL ·
+								DE · FR · PT with a board-and-wetsuit match, total price,
+								and delivery confirmation. Pay on arrival or by card — no
+								deposit, cancel free within 72 hours.
 							</p>
 						</div>
 					</Reveal>

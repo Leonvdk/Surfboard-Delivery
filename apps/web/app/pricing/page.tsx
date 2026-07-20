@@ -39,12 +39,12 @@ const pricingFaqs = [
 export const metadata: Metadata = {
 	title: "Pricing — Daily & Weekly Surf Rental Packages",
 	description:
-		"Surfboard and wetsuit rental from \u20AC25/day or \u20AC85/week. Board only, full package, or premium bundle with changing mat & roof rack — free delivery in Aljezur, Arrifana, and Vale da Telha.",
+		"Surfboard and wetsuit rental from \u20AC18/day or \u20AC100/week board-only, \u20AC28/day or \u20AC150/week with wetsuit. Three-day minimum. Free delivery in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira.",
 	alternates: { canonical: "/pricing" },
 	openGraph: {
 		title: "Pricing — Daily & Weekly Surf Rental Packages | Surf Rental Aljezur",
 		description:
-			"Surfboard and wetsuit rental packages from \u20AC25/day or \u20AC85/week with free delivery on the Costa Vicentina.",
+			"Surfboard and wetsuit rental from \u20AC18/day or \u20AC100/week with free delivery on the Costa Vicentina. Three-day minimum.",
 		url: `${SITE_URL}/pricing`,
 	},
 };
@@ -59,11 +59,15 @@ export default function PricingPage() {
 				<div className="container">
 					<Reveal>
 						<div>
-							<h1>Simple, transparent pricing</h1>
+							<h1>Surf rental prices in Aljezur — from €18/day, €100/week</h1>
 							<p className="page-hero-sub">
-								Daily or weekly — pick the duration that fits your trip. Every rental
-								includes free delivery and pickup to your accommodation. Not sure which
-								gear to pick? Check our{" "}
+								Board-only rental is <strong>€18/day or €100/week</strong>.
+								Board + wetsuit is <strong>€28/day or €150/week</strong>.
+								Premium (board + wetsuit + free mid-stay board swap) is
+								<strong> €38/day or €225/week</strong>. Three-day minimum,
+								free delivery and pickup across Aljezur, Arrifana, Vale da
+								Telha, Monte Clérigo, and Carrapateira. Not sure which gear
+								to pick? Check our{" "}
 								<Link href="/surf-gear">boards &amp; wetsuits</Link> page.
 							</p>
 						</div>

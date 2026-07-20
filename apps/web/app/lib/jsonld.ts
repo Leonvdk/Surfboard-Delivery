@@ -11,22 +11,48 @@ const AGGREGATE_RATING = {
 export function localBusinessJsonLd() {
 	return {
 		"@context": "https://schema.org",
-		"@type": "LocalBusiness",
+		"@type": ["LocalBusiness", "SportingGoodsStore"],
 		"@id": `${SITE_URL}/#business`,
 		name: "Surf Rental Aljezur",
 		description:
-			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
+			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
 		logo: `${SITE_URL}/images/logo.png`,
 		image: `${SITE_URL}/images/meta.jpg`,
 		email: "hello@surfrental-aljezur.com",
 		telephone: "+31613262259",
+		founder: { "@id": `${SITE_URL}/#leon` },
 		aggregateRating: AGGREGATE_RATING,
 		contactPoint: {
 			"@type": "ContactPoint",
 			telephone: "+31613262259",
 			contactType: "reservations",
-			availableLanguage: ["English", "Dutch", "Portuguese"],
+			availableLanguage: ["English", "Dutch", "Portuguese", "German", "French"],
+		},
+		openingHoursSpecification: [
+			{
+				"@type": "OpeningHoursSpecification",
+				dayOfWeek: [
+					"Monday",
+					"Tuesday",
+					"Wednesday",
+					"Thursday",
+					"Friday",
+					"Saturday",
+					"Sunday",
+				],
+				opens: "08:00",
+				closes: "20:00",
+			},
+		],
+		serviceArea: {
+			"@type": "GeoCircle",
+			geoMidpoint: {
+				"@type": "GeoCoordinates",
+				latitude: 37.3178,
+				longitude: -8.8037,
+			},
+			geoRadius: "15000",
 		},
 		areaServed: [
 			{
@@ -57,11 +83,21 @@ export function localBusinessJsonLd() {
 					addressCountry: "PT",
 				},
 			},
+			{
+				"@type": "Place",
+				name: "Carrapateira",
+				address: {
+					"@type": "PostalAddress",
+					addressLocality: "Carrapateira",
+					addressCountry: "PT",
+				},
+			},
 		],
 		address: {
 			"@type": "PostalAddress",
 			addressLocality: "Aljezur",
 			addressRegion: "Faro",
+			postalCode: "8670",
 			addressCountry: "PT",
 		},
 		geo: {
@@ -69,9 +105,58 @@ export function localBusinessJsonLd() {
 			latitude: 37.3178,
 			longitude: -8.8037,
 		},
-		priceRange: "€€",
+		priceRange: "€18–€38 per day",
 		currenciesAccepted: "EUR",
-		paymentAccepted: "Cash, MBWay, Bank Transfer",
+		paymentAccepted:
+			"Cash, Card, Apple Pay, iDEAL, Wero, MB WAY, Bank Transfer",
+		sameAs: [
+			// TODO(Leon): fill in as public profiles come online. GBP goes in
+			// its own knowledge-graph link, not here.
+			"https://www.instagram.com/surfrental.aljezur/",
+			"https://www.facebook.com/surfrental.aljezur/",
+		],
+		hasOfferCatalog: {
+			"@type": "OfferCatalog",
+			name: "Surfboard & Wetsuit Rental Packages",
+			itemListElement: [
+				{
+					"@type": "Offer",
+					itemOffered: {
+						"@type": "Service",
+						name: "Board Only Rental",
+						serviceType: "Surfboard rental",
+						provider: { "@id": `${SITE_URL}/#business` },
+						areaServed: "Costa Vicentina, Portugal",
+					},
+					price: "18",
+					priceCurrency: "EUR",
+				},
+				{
+					"@type": "Offer",
+					itemOffered: {
+						"@type": "Service",
+						name: "Full Package Rental (Board + Wetsuit)",
+						serviceType: "Surfboard and wetsuit rental",
+						provider: { "@id": `${SITE_URL}/#business` },
+						areaServed: "Costa Vicentina, Portugal",
+					},
+					price: "28",
+					priceCurrency: "EUR",
+				},
+				{
+					"@type": "Offer",
+					itemOffered: {
+						"@type": "Service",
+						name: "Premium Package Rental (Board + Wetsuit + Mid-Stay Swap)",
+						serviceType: "Surfboard and wetsuit rental with mid-stay board swap",
+						provider: { "@id": `${SITE_URL}/#business` },
+						areaServed: "Costa Vicentina, Portugal",
+					},
+					price: "38",
+					priceCurrency: "EUR",
+				},
+			],
+		},
 		makesOffer: [
 			{
 				"@type": "Offer",

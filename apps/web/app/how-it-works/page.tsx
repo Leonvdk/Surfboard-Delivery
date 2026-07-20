@@ -50,10 +50,14 @@ export default function HowItWorksPage() {
 				<div className="container">
 					<Reveal>
 						<div>
-							<h1>How it works</h1>
+							<h1>How Surf Rental Aljezur works — three steps, ~10 minutes</h1>
 							<p className="page-hero-sub">
-								No surf shop queues. No wrestling boards onto your car. We handle the logistics so you
-								can focus on the waves.
+								Send your dates and accommodation address. We reply within
+								24 hours with a gear match. On check-in day we deliver your
+								surfboard and wetsuit to your door in Aljezur, Arrifana,
+								Vale da Telha, Monte Clérigo, or Carrapateira. Pay on
+								arrival or by card. We pick up before checkout. No surf
+								shop queues, no car racks, no deposit.
 							</p>
 						</div>
 					</Reveal>

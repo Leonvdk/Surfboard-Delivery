@@ -9,7 +9,7 @@ import { SITE_URL } from "../lib/metadata";
 export const metadata: Metadata = {
 	title: "Surf Gear — Boards & Wetsuits",
 	description:
-		"Find the right surfboard and wetsuit for your level. We carry shortboards, funboards, and longboards with seasonal wetsuits — delivered free to your door in Aljezur.",
+		"Four soft-top surfboards (6'6 shortboard, 7'0 & 7'8 funboards, 8'6 longboard) plus seasonal wetsuits (3/2 summer, 4/3 winter), from €18/day board-only or €28/day with wetsuit. Free delivery in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira.",
 	alternates: { canonical: "/surf-gear" },
 	openGraph: {
 		title: "Surf Gear — Boards & Wetsuits | Surf Rental Aljezur",
@@ -71,10 +71,15 @@ export default function SurfGearPage() {
 								Which surfboard is right for my level?
 							</h1>
 						<p className="section-desc">
-							Not sure which board to pick? We carry four shapes — all soft
-							tops — to cover every skill level, from your first wave to
-							advanced sessions. We also provide seasonal wetsuits so you can
-							focus on the surf.
+							We rent four soft-top surfboards in Aljezur, delivered free
+							to your door: an <strong>8&#8217;6 longboard</strong> and
+							<strong> 7&#8217;8 funboard</strong> for beginners, a
+							<strong> 7&#8217;0 funboard</strong> for intermediates, and a
+							<strong> 6&#8217;6 shortboard</strong> for experienced surfers.
+							Every rental includes leash and wax; seasonal wetsuits (3/2 in
+							summer, 4/3 in winter) are available with any package. Use the
+							calculator below and we&apos;ll match the board to your height,
+							weight, and level.
 						</p>
 						<div className="hero-btn-row">
 							<a href="#the-quiver" className="btn btn-outline scroll-down-btn boards-btn">
