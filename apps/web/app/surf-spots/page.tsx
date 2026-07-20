@@ -85,6 +85,15 @@ const spots = [
 	},
 ];
 
+function spotSlug(name: string) {
+	return name
+		.normalize("NFD")
+		.replace(/\p{Diacritic}/gu, "")
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
 export default function SurfSpotsPage() {
 	return (
 		<>
@@ -146,7 +155,7 @@ export default function SurfSpotsPage() {
 				<section
 					key={spot.name}
 					className={`section ${index % 2 === 1 ? "section-alt" : ""}`}
-					aria-labelledby={`spot-${spot.name.toLowerCase().replace(/[^a-z]/g, "-")}`}
+					aria-labelledby={`spot-${spotSlug(spot.name)}`}
 				>
 					<div className="container">
 						<Reveal>
@@ -155,7 +164,7 @@ export default function SurfSpotsPage() {
 									<span className="spot-level">{spot.level}</span>
 									<h2
 										className="section-title"
-										id={`spot-${spot.name.toLowerCase().replace(/[^a-z]/g, "-")}`}
+										id={`spot-${spotSlug(spot.name)}`}
 									>
 										{spot.name}
 									</h2>

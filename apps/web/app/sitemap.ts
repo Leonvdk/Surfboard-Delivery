@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts, getAllTags } from "./lib/blog";
+import { DELIVERY_TOWNS } from "./lib/delivery-towns";
 import { SITE_URL } from "./lib/metadata";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -105,6 +106,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		},
 	];
 
+	const deliveryPages: MetadataRoute.Sitemap = [
+		{
+			url: `${SITE_URL}/deliver-to`,
+			lastModified,
+			changeFrequency: "monthly",
+			priority: 0.8,
+		},
+		...DELIVERY_TOWNS.map((town) => ({
+			url: `${SITE_URL}/deliver-to/${town.slug}`,
+			lastModified,
+			changeFrequency: "monthly" as const,
+			priority: 0.8,
+		})),
+	];
+
 	const blogPages: MetadataRoute.Sitemap = posts
 		.filter((post) => post.date && !Number.isNaN(Date.parse(post.date)))
 		.filter((post) => !post.noindex)
@@ -122,5 +138,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		priority: 0.4,
 	}));
 
-	return [...staticPages, ...blogPages, ...tagPages];
+	return [...staticPages, ...deliveryPages, ...blogPages, ...tagPages];
 }

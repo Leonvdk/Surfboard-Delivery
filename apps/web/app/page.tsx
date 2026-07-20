@@ -14,7 +14,7 @@ import { prices } from "./lib/pricing";
 export const metadata: Metadata = {
 	title: "Surfboard Rental Aljezur & Arrifana — Delivered",
 	description:
-		"Surfboard and wetsuit rental delivered across Aljezur, Arrifana, Vale da Telha, and Monte Clérigo. From €18/day or €100/week board-only, €150/week board + wetsuit. Three-day minimum. Free delivery and pickup.",
+		"Surfboard and wetsuit rental delivered across Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira. From €18/day or €100/week board-only, €150/week board + wetsuit. Three-day minimum. Free delivery and pickup.",
 	alternates: { canonical: "/" },
 };
 
@@ -377,9 +377,11 @@ export default function Home() {
 								who lives in Aljezur and delivers surfboards and wetsuits across
 								the western Algarve. Free delivery and pickup to your Airbnb,
 								guesthouse, or campervan in{" "}
-								<strong>Aljezur</strong>, <strong>Arrifana</strong>,{" "}
-								<strong>Vale da Telha</strong>, <strong>Monte Clérigo</strong>,{" "}
-								and <strong>Carrapateira</strong>.
+								<Link href="/deliver-to/aljezur">Aljezur</Link>,{" "}
+								<Link href="/deliver-to/arrifana">Arrifana</Link>,{" "}
+								<Link href="/deliver-to/vale-da-telha">Vale da Telha</Link>,{" "}
+								<Link href="/deliver-to/monte-clerigo">Monte Clérigo</Link>,{" "}
+								and <Link href="/deliver-to/carrapateira">Carrapateira</Link>.
 							</p>
 							<p>
 								Most of our renters surf <Link href="/surf-spots">Praia da
