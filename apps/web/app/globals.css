@@ -3298,13 +3298,18 @@ h1 {
    allows) but the text column stays wide and text is never pushed. */
 @media (min-width: 641px) {
   .owner-vouch {
-    /* Photo column wide enough that the landscape cutout keeps
-       ≥ 80% of card height across typical desktop widths.
-       (At 62% column, image height ≈ col × 0.712; text column
-       stays wide enough to not force too much wrapping.) */
-    grid-template-columns: 62% 1fr;
+    /* Text column fixed at 50% on the right; image slot takes
+       the other half. Image is sized independently of the grid
+       cell (height on the cutout itself), so the board can
+       bleed left of the card and — if the image is taller than
+       the text — top of the card too. */
+    grid-template-columns: 1fr 50%;
     gap: var(--space-lg);
     min-height: 200px;
+    /* Allow left bleed; keep top, right, and bottom clipped to the
+       card. Image is capped at max-height 100% so it never exceeds
+       the card vertically. */
+    clip-path: inset(0 0 0 -400px);
   }
   /* text overrides live in the later @media block so they win
      the cascade — see below. */
@@ -3388,33 +3393,35 @@ h1 {
   line-height: 1.5;
 }
 
-/* Desktop: cutout stays fully inside the card — bottom-anchored,
-   right-aligned to the photo column, capped by card width so
-   nothing bleeds out. Text is tightened (smaller quote font +
-   tighter padding + right-side padding restored) so the card
-   height stays close to the image height — keeps the image at
-   ≥ 80% of card height across typical desktop widths. */
+/* Desktop: cutout is sized independently of the grid cell so it
+   can bleed past the card's left and top edges. Bottom-right
+   anchored: right edge sits at the photo-column right (against
+   the text column), bottom edge at the card floor. Height is a
+   fixed px value (scales via the 900+ bump below) so a landscape
+   source (1000×712) reliably grows wider than the photo column
+   and pushes his surfboard out to the left. */
 @media (min-width: 641px) {
   .owner-vouch-cutout {
     left: auto;
     right: 0;
-    width: 100%;
-    height: auto;
-    max-width: 100%;
+    top: auto;
+    bottom: 0;
+    /* Height wants to be tall (280 / 320 on larger screens) but
+       max-height 100% caps it at the card's own height — so no
+       vertical bleed. When card height is smaller than the ideal
+       height, image shrinks to fit, and its width shrinks with
+       it via the aspect ratio, reducing the left bleed too. */
+    height: 320px;
+    width: auto;
+    max-width: none;
     max-height: 100%;
   }
   .owner-vouch-body {
-    padding: var(--space-sm) var(--space-md) var(--space-sm) 0;
+    /* Text column has half the card now — copy sits at its
+       natural size, no tightening needed. */
+    padding: var(--space-md) var(--space-md) var(--space-md) 0;
+    gap: 8px;
   }
-  .owner-vouch-quote {
-    font-size: 0.9375rem;
-    line-height: 1.4;
-  }
-  .owner-vouch-meta {
-    font-size: 0.6875rem;
-    line-height: 1.4;
-  }
-  .owner-vouch-body { gap: 6px; }
 }
 
 @media (max-width: 480px) {
