@@ -601,6 +601,12 @@ export function BookingForm() {
 	// happen?" gap the Swiss customers described.
 	const [requestRef, setRequestRef] = useState<string>("");
 	const [submittedAt, setSubmittedAt] = useState<Date | null>(null);
+	// When Leon is travelling the API returns an awayNotice with a "back
+	// on" date. We show it on the success screen so the customer knows
+	// exactly when to expect a personal reply instead of a silent gap.
+	const [awayNotice, setAwayNotice] = useState<{
+		backOnPretty: string;
+	} | null>(null);
 
 	const formRef = useRef<HTMLFormElement>(null);
 	const formStartTime = useRef(Date.now());
@@ -867,9 +873,15 @@ export function BookingForm() {
 
 			const okData = (await res.json().catch(() => null)) as {
 				requestRef?: string;
+				awayNotice?: { active: boolean; backOn: string; backOnPretty: string } | null;
 			} | null;
 			setRequestRef(okData?.requestRef ?? "");
 			setSubmittedAt(new Date());
+			setAwayNotice(
+				okData?.awayNotice?.active
+					? { backOnPretty: okData.awayNotice.backOnPretty }
+					: null,
+			);
 
 			trackBookingSubmitted({
 				people_count: peopleCount,
@@ -957,7 +969,15 @@ export function BookingForm() {
 					)}
 				</dl>
 
-				{reply && <p className="form-success-reply">{reply}</p>}
+				{awayNotice ? (
+					<p className="form-success-reply form-success-reply--away">
+						Leon is travelling until <strong>{awayNotice.backOnPretty}</strong>.
+						Your request is logged — you&apos;ll get a personal reply from his
+						phone the moment he&apos;s back (usually within 24h of return).
+					</p>
+				) : (
+					reply && <p className="form-success-reply">{reply}</p>
+				)}
 
 				<ol className="form-success-timeline">
 					<li>

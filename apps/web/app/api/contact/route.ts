@@ -14,6 +14,39 @@ function getResend() {
 const BUSINESS_EMAIL = "hello@surfrental-aljezur.com";
 const FROM_EMAIL = "Surf Rental Aljezur <hello@surfrental-aljezur.com>";
 
+/**
+ * Away-window mechanic. When Leon is travelling (e.g. August) we don't
+ * want inquiries to feel ghosted for 3+ weeks. Two env vars gate it:
+ *   LEON_AWAY_FROM = "2026-08-01"
+ *   LEON_AWAY_UNTIL = "2026-08-28"
+ * If both are set and today is in the range (inclusive), the customer
+ * email and the success-screen JSON both include an honest "Leon's
+ * back on X" message with the personal reply-by date. Ghosting kills
+ * trust; a clear expectation preserves it.
+ */
+function getAwayNotice(): { active: boolean; backOn: string } | null {
+	const from = process.env.LEON_AWAY_FROM;
+	const until = process.env.LEON_AWAY_UNTIL;
+	if (!from || !until) return null;
+	const today = new Date().toISOString().slice(0, 10);
+	if (today < from || today > until) return { active: false, backOn: until };
+	return { active: true, backOn: until };
+}
+
+function formatBackOn(iso: string): string {
+	try {
+		const d = new Date(`${iso}T00:00:00Z`);
+		return d.toLocaleDateString("en-GB", {
+			day: "numeric",
+			month: "long",
+			year: "numeric",
+			timeZone: "UTC",
+		});
+	} catch {
+		return iso;
+	}
+}
+
 interface PersonData {
 	name: string;
 	sex: string;
@@ -129,15 +162,25 @@ Reply directly to this email to reach the customer.`;
 }
 
 function buildCustomerEmail(data: BookingRequest): { subject: string; text: string; html: string } {
-	const subject = "We received your booking request — Surf Rental Aljezur";
+	const away = getAwayNotice();
+	const isAway = away?.active === true;
+	const backOnPretty = away ? formatBackOn(away.backOn) : "";
+
+	const subject = isAway
+		? `We received your booking — personal reply from Leon by ${backOnPretty}`
+		: "We received your booking request — Surf Rental Aljezur";
 
 	const customerTotalLine = data.estimatedTotal != null
 		? `Estimated total: €${data.estimatedTotal} (final pricing confirmed in our reply)`
 		: "We'll include pricing in our personalized reply.";
 
+	const replyPromise = isAway
+		? `Leon is travelling until ${backOnPretty}. Your request is saved and you'll get a personal reply from his phone the moment he's back — usually within 24h of return.`
+		: "We'll get back to you within 24 hours with availability and a gear recommendation.";
+
 	const text = `Hi ${data.name},
 
-Thanks for your booking request! We've received your details and will get back to you within 24 hours with availability and a gear recommendation.
+Thanks for your booking request! ${replyPromise}
 
 Your request summary:
   Delivery: ${data.checkin}
@@ -167,8 +210,15 @@ See you in the water!
     <!-- Personal message -->
     <div style="margin-bottom:32px;">
       <h2 style="margin:0 0 16px;font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">Hey ${data.name}!</h2>
-      <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#1A1A1A;">Thanks so much for reaching out — we're stoked you're planning a surf trip to Aljezur! We've received your request and are already looking into the best gear setup for you.</p>
+      <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#1A1A1A;">Thanks so much for reaching out — we're stoked you're planning a surf trip to Aljezur! We've received your request and it's safely on the list.</p>
+      ${isAway ? `
+      <div style="margin:16px 0;padding:16px 20px;background:#FFF3EF;border-left:3px solid #D4501E;">
+        <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#1A1A1A;">Quick heads-up — Leon's away right now.</p>
+        <p style="margin:0;font-size:14px;line-height:1.55;color:#1A1A1A;">Leon is travelling until <strong>${backOnPretty}</strong>. Your request is saved and you'll get a personal reply from his phone the moment he's back (usually within 24h of return). No auto-responder from a team — he answers every one himself.</p>
+      </div>
+      ` : `
       <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#1A1A1A;">We'll personally review your booking and get back to you within 24 hours with availability, a tailored gear recommendation, and everything you need to know before your trip.</p>
+      `}
       <p style="margin:0;font-size:15px;line-height:1.7;color:#1A1A1A;">In the meantime, the waves are looking good — you're going to have a great time.</p>
     </div>
 
@@ -337,7 +387,12 @@ export async function POST(request: Request) {
 				? `SR-${String(bookingId).padStart(5, "0")}`
 				: `SR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
-		return NextResponse.json({ success: true, requestRef });
+		const away = getAwayNotice();
+		const awayNotice = away?.active
+			? { active: true as const, backOn: away.backOn, backOnPretty: formatBackOn(away.backOn) }
+			: null;
+
+		return NextResponse.json({ success: true, requestRef, awayNotice });
 	} catch (err) {
 		console.error("Contact API error:", err);
 		return NextResponse.json(
