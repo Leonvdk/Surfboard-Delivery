@@ -34,7 +34,7 @@ export function OwnerVouch() {
 						// file is ~85KB so responsive srcsets aren't needed here.
 						<img
 							src="/images/leon-cutout.webp"
-							alt="Leon van de Klundert — owner of Surf Rental Aljezur"
+							alt="Léon — owner of Surf Rental Aljezur"
 							className="owner-vouch-cutout"
 							onError={() => setFailed(true)}
 						/>
@@ -42,7 +42,7 @@ export function OwnerVouch() {
 				</div>
 				<div className="owner-vouch-body">
 					<p className="owner-vouch-name">
-						Leon van de Klundert · owner
+						Léon · Owner · Surfer
 					</p>
 					<p className="owner-vouch-quote">
 						“I read every request personally and reply from my phone —
