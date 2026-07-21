@@ -3277,6 +3277,16 @@ h1 {
   position: relative;
   clip-path: inset(0 -400px);
 }
+/* Desktop / tablet: widen the photo column so the 1:1 cutout can
+   grow tall enough to reach at least ~70% of the card height. On
+   mobile the earlier media query keeps the column narrower so the
+   text has room. */
+@media (min-width: 641px) {
+  .owner-vouch {
+    grid-template-columns: 46% 1fr;
+    min-height: 340px;
+  }
+}
 /* Photo column — no background fill so the transparent cutout can
    bleed cleanly out the left; the visible slice on the card feels
    like a magazine cut-in. */
