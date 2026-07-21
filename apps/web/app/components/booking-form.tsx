@@ -255,6 +255,36 @@ function emptyPerson(): Person {
 	return { name: "", sex: "", experience: "", package: "", board: "", wetsuitSize: "" };
 }
 
+// Human-readable "we'll reply by X" string in Portugal time. During
+// operating hours (08–20 Lisbon) → "by ~{HH:MM} today, usually within
+// 3 hours". Outside those hours → "first thing tomorrow morning".
+// The concrete window is the trust anchor that replaces "we'll get
+// back within 24 hours" (a ceiling that reads like a stall).
+function replyByLabel(submittedAt: Date): string {
+	const parts = new Intl.DateTimeFormat("en-GB", {
+		timeZone: "Europe/Lisbon",
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	}).formatToParts(submittedAt);
+	const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
+
+	if (hour >= 8 && hour < 17) {
+		const target = new Date(submittedAt.getTime() + 3 * 60 * 60 * 1000);
+		const hh = new Intl.DateTimeFormat("en-GB", {
+			timeZone: "Europe/Lisbon",
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		}).format(target);
+		return `Reply expected by ~${hh} today (Portugal time, GMT+1). Usually within 3 hours.`;
+	}
+	if (hour >= 17 && hour < 20) {
+		return "Reply expected by 20:00 Portugal time tonight (GMT+1). Usually within 3 hours.";
+	}
+	return "You're outside our reply hours (08:00–20:00 Portugal, GMT+1). Reply expected first thing tomorrow morning.";
+}
+
 /* ── Board calculator modal ── */
 
 function BoardCalcModal({
@@ -566,6 +596,11 @@ export function BookingForm() {
 	const [wetsuitCalcOpen, setWetsuitCalcOpen] = useState<number | null>(null);
 	const [status, setStatus] = useState<FormStatus>("idle");
 	const [errorMsg, setErrorMsg] = useState("");
+	// Shown on the success screen so the customer can quote it back on
+	// WhatsApp / email if we go silent — closes the "did anything actually
+	// happen?" gap the Swiss customers described.
+	const [requestRef, setRequestRef] = useState<string>("");
+	const [submittedAt, setSubmittedAt] = useState<Date | null>(null);
 
 	const formRef = useRef<HTMLFormElement>(null);
 	const formStartTime = useRef(Date.now());
@@ -830,6 +865,12 @@ export function BookingForm() {
 				throw new Error(data?.error || "Something went wrong");
 			}
 
+			const okData = (await res.json().catch(() => null)) as {
+				requestRef?: string;
+			} | null;
+			setRequestRef(okData?.requestRef ?? "");
+			setSubmittedAt(new Date());
+
 			trackBookingSubmitted({
 				people_count: peopleCount,
 				nights: days,
@@ -851,6 +892,30 @@ export function BookingForm() {
 	};
 
 	if (status === "success") {
+		const packagesLabel = people
+			.map((p, i) => {
+				const opt = pkgOptions.find((o) => o.value === p.package);
+				const label = opt ? opt.label.split(" — ")[0] : "TBD";
+				return people.length > 1 ? `Person ${i + 1}: ${label}` : label;
+			})
+			.join(" · ");
+		const submittedName =
+			formRef.current?.querySelector<HTMLInputElement>(
+				"input[name='name']",
+			)?.value ?? "";
+		const submittedAcc =
+			formRef.current?.querySelector<HTMLInputElement>(
+				"input[name='accommodation']",
+			)?.value ?? "";
+		const firstName = submittedName.split(" ")[0] || "there";
+
+		const whatsappBase = "https://wa.me/31613262259";
+		const whatsappMsg = requestRef
+			? `Hi Leon — following up on my booking request ${requestRef} (${firstName}, ${checkin} → ${checkout}).`
+			: `Hi Leon — following up on my booking request (${firstName}, ${checkin} → ${checkout}).`;
+		const whatsappHref = `${whatsappBase}?text=${encodeURIComponent(whatsappMsg)}`;
+		const reply = submittedAt ? replyByLabel(submittedAt) : "";
+
 		return (
 			<div className="form-success">
 				<div className="form-success-icon">
@@ -859,20 +924,76 @@ export function BookingForm() {
 						<polyline points="22 4 12 14.01 9 11.01" />
 					</svg>
 				</div>
-				<h3 className="form-success-title">Request received!</h3>
-				{estimate.allSelected && (
-					<div className="form-success-price">
-						<span className="form-success-price-label">Estimated total</span>
-						<span className="form-success-price-amount">&euro;{estimate.total}</span>
-					</div>
+				<h3 className="form-success-title">
+					Thanks {firstName} — request logged.
+				</h3>
+				{requestRef && (
+					<p className="form-success-ref">
+						Reference:{" "}
+						<strong className="form-success-ref-code">{requestRef}</strong>
+					</p>
 				)}
-				<p className="form-success-text">
-					Thanks — we&apos;ve sent you a confirmation email with your booking
-					details. We&apos;ll get back to you within 24 hours with availability,
-					a gear recommendation, and final pricing.
-				</p>
+
+				<dl className="form-success-echo">
+					<dt>Dates</dt>
+					<dd>
+						{checkin} → {checkout}
+					</dd>
+					<dt>People</dt>
+					<dd>{peopleCount}</dd>
+					<dt>Package</dt>
+					<dd>{packagesLabel}</dd>
+					{submittedAcc && (
+						<>
+							<dt>Delivery</dt>
+							<dd>{submittedAcc}</dd>
+						</>
+					)}
+					{estimate.allSelected && (
+						<>
+							<dt>Estimate</dt>
+							<dd>&euro;{estimate.total}</dd>
+						</>
+					)}
+				</dl>
+
+				{reply && <p className="form-success-reply">{reply}</p>}
+
+				<ol className="form-success-timeline">
+					<li>
+						<span className="form-success-step-num">1</span>
+						<span>Leon reads your request and matches gear.</span>
+					</li>
+					<li>
+						<span className="form-success-step-num">2</span>
+						<span>You get a personal reply with confirmed price.</span>
+					</li>
+					<li>
+						<span className="form-success-step-num">3</span>
+						<span>You confirm — pay by link or on arrival.</span>
+					</li>
+					<li>
+						<span className="form-success-step-num">4</span>
+						<span>We deliver on your check-in day.</span>
+					</li>
+				</ol>
+
+				<a
+					href={whatsappHref}
+					className="form-success-whatsapp"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+						<path d="M16.003 3C9.373 3 3.998 8.375 3.998 15.006c0 2.117.556 4.184 1.61 6.005L4 29l8.198-2.148a12.03 12.03 0 0 0 3.805.62h.005c6.63 0 12.005-5.376 12.005-12.006C28.013 8.375 22.632 3 16.003 3zm0 21.808h-.004a9.98 9.98 0 0 1-3.617-.68l-.259-.104-4.867 1.274 1.302-4.746-.169-.271a9.951 9.951 0 0 1-1.52-5.276c.001-5.504 4.48-9.98 9.987-9.98 2.667 0 5.174 1.04 7.06 2.926a9.9 9.9 0 0 1 2.923 7.058c-.001 5.504-4.481 9.98-9.836 9.98zm5.474-7.472c-.3-.15-1.774-.876-2.048-.977-.275-.101-.475-.15-.674.15-.2.301-.774.977-.948 1.176-.174.2-.35.226-.649.075-.3-.15-1.266-.466-2.412-1.487-.891-.795-1.492-1.777-1.667-2.077-.174-.301-.019-.463.131-.612.135-.135.3-.351.45-.526.15-.176.2-.301.3-.502.1-.2.05-.376-.025-.526-.075-.15-.674-1.626-.923-2.226-.244-.585-.492-.505-.674-.514l-.575-.011a1.104 1.104 0 0 0-.798.376c-.275.301-1.048 1.024-1.048 2.5s1.073 2.899 1.222 3.099c.15.2 2.11 3.222 5.114 4.518.716.309 1.274.492 1.71.63.72.229 1.373.196 1.89.119.577-.087 1.774-.725 2.024-1.426.25-.7.25-1.301.174-1.426-.075-.125-.275-.2-.575-.35z" />
+					</svg>
+					Message Leon on WhatsApp{requestRef ? ` with ${requestRef}` : ""}
+				</a>
+
 				<p className="form-success-sub">
-					Check your spam folder if you don&apos;t see our email.
+					You&apos;ll also get a confirmation email at the address you
+					provided. If it doesn&apos;t arrive within a few minutes, WhatsApp
+					us — we&apos;ll take it from there.
 				</p>
 			</div>
 		);
@@ -1142,17 +1263,38 @@ export function BookingForm() {
 					<p>{errorMsg || "Something went wrong. Please try again or contact us via WhatsApp."}</p>
 				</div>
 			)}
+
+			<div className="submit-reassure">
+				<div className="submit-reassure-line">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+						<rect x="3" y="6" width="18" height="13" rx="1" />
+						<path d="M3 10h18" />
+						<line x1="7" y1="15" x2="10" y2="15" />
+					</svg>
+					<span>
+						<strong>No card charged now.</strong> Leon confirms availability
+						first, then you pay by link or on arrival.
+					</span>
+				</div>
+				<div className="submit-reassure-line">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+						<circle cx="12" cy="12" r="9" />
+						<path d="M12 7v5l3 2" />
+					</svg>
+					<span>
+						<strong>Personal reply usually within 3 hours</strong> · Mon–Sun
+						08:00–20:00 Portugal (GMT+1).
+					</span>
+				</div>
+			</div>
+
 			<button
 				type="submit"
 				className="btn btn-primary btn-full"
 				disabled={status === "submitting"}
 			>
-				{status === "submitting" ? "Sending..." : "Send booking request"}
+				{status === "submitting" ? "Sending..." : "Send request — no payment now"}
 			</button>
-			<p className="form-note">
-				This is a booking request, not a live reservation. We&apos;ll confirm
-				availability and details via email within 24 hours.
-			</p>
 			</form>
 
 			<BoardCalcModal

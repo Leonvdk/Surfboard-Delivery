@@ -53,7 +53,10 @@ export function Footer() {
 					</div>
 				</div>
 				<div className="footer-bottom">
-					<div>&copy; {new Date().getFullYear()} Surf Rental Aljezur</div>
+					<div>
+						&copy; {new Date().getFullYear()} Surf Rental Aljezur ·
+						Operating on the Costa Vicentina since September 2025
+					</div>
 				</div>
 			</div>
 		</footer>

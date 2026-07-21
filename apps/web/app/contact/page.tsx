@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BookingForm } from "../components/booking-form";
+import { OwnerVouch } from "../components/owner-vouch";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { SITE_URL } from "../lib/metadata";
 
@@ -23,13 +24,14 @@ export default function ContactPage() {
 				<div className="container">
 					<Reveal>
 						<div>
-							<h1>Book surf rental delivery in Aljezur — reply within 24h</h1>
+							<h1>Book surf rental delivery in Aljezur — reply usually within 3h</h1>
 							<p className="page-hero-sub">
 								Tell us your dates, accommodation address, height, weight,
-								and experience level. We reply within 24 hours in EN · NL ·
-								DE · FR · PT with a board-and-wetsuit match, total price,
-								and delivery confirmation. Pay on arrival or by card — no
-								deposit, cancel free within 72 hours.
+								and experience level. Leon reads every request personally
+								and replies within a few hours (08:00–20:00 Portugal, GMT+1)
+								in EN · NL · DE · FR · PT with a board-and-wetsuit match,
+								total price, and delivery confirmation. Pay on arrival or
+								by card — no deposit, cancel free within 72 hours.
 							</p>
 						</div>
 					</Reveal>
@@ -48,6 +50,7 @@ export default function ContactPage() {
 							<h2 id="contact-heading" className="sr-only">
 								Contact form
 							</h2>
+							<OwnerVouch />
 							<BookingForm />
 						</div>
 
@@ -102,6 +105,9 @@ export default function ContactPage() {
 										<a href="mailto:hello@surfrental-aljezur.com">Ask us</a>.
 									</p>
 								</div>
+								<p className="contact-since">
+									Operating on the Costa Vicentina since September 2025.
+								</p>
 							</aside>
 						</Reveal>
 					</div>

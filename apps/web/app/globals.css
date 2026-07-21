@@ -3111,6 +3111,218 @@ h1 {
 .form-success-sub {
   font-size: 0.8125rem;
   color: var(--gray-500);
+  max-width: 480px;
+  margin: var(--space-md) auto 0;
+  line-height: 1.5;
+}
+
+/* Reference code the customer can quote back on WhatsApp / email. */
+.form-success-ref {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  margin: 0 auto var(--space-md);
+}
+.form-success-ref-code {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--black);
+  background: var(--gray-100);
+  padding: 2px 8px;
+  border: 1px solid var(--gray-200, #e5e5e5);
+}
+
+/* Echo of the fields the customer just submitted — kills "did anything
+   actually happen?" doubt at zero cost. */
+.form-success-echo {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0 auto var(--space-md);
+  max-width: 480px;
+  text-align: left;
+  font-size: 0.875rem;
+}
+.form-success-echo dt {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  align-self: center;
+}
+.form-success-echo dd {
+  margin: 0;
+  color: var(--black);
+  font-weight: 500;
+}
+
+.form-success-reply {
+  max-width: 480px;
+  margin: 0 auto var(--space-md);
+  padding: 10px 14px;
+  background: var(--gray-100);
+  border-left: 3px solid var(--accent);
+  font-size: 0.875rem;
+  text-align: left;
+  color: var(--black);
+}
+
+.form-success-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto var(--space-lg);
+  max-width: 480px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+.form-success-timeline li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  color: var(--black);
+}
+.form-success-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--black);
+  color: var(--surface);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.form-success-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #25D366;
+  color: #fff;
+  border: 1.5px solid var(--black);
+  box-shadow: 3px 3px 0 var(--black);
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+.form-success-whatsapp:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--black);
+}
+.form-success-whatsapp:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--black);
+}
+
+/* Reassurance block above the submit button. Replaces the old
+   post-submit .form-note — the assurance moves to before the click,
+   where the doubt actually happens. */
+.submit-reassure {
+  margin: var(--space-md) 0;
+  padding: 12px 14px;
+  background: var(--gray-100);
+  border-left: 3px solid var(--black);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.submit-reassure-line {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--black);
+}
+.submit-reassure-line svg {
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+/* Owner-vouches strip above the booking form. Human face + name +
+   1-line promise = the trust anchor that comes BEFORE the form. */
+.owner-vouch {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  background: var(--surface);
+  border: var(--border);
+  box-shadow: 3px 3px 0 var(--black);
+  align-items: start;
+}
+.owner-vouch-photo {
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border: 1.5px solid var(--black);
+  background: var(--gray-100);
+}
+.owner-vouch-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Monogram fallback when /images/leon.jpg isn't published yet. */
+.owner-vouch-mono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--black);
+  background: var(--gray-100);
+}
+.owner-vouch-name {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  margin: 0 0 4px;
+}
+.owner-vouch-quote {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--black);
+  margin: 0 0 6px;
+}
+.owner-vouch-meta {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .owner-vouch {
+    grid-template-columns: 56px 1fr;
+    gap: var(--space-sm);
+  }
+  .owner-vouch-photo { width: 56px; height: 56px; }
+  .owner-vouch-quote { font-size: 0.875rem; }
+}
+
+/* Small "operating since" line at the bottom of the contact sidebar. */
+.contact-since {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  text-align: center;
+  margin: var(--space-md) 0 0;
 }
 
 /* ---- Package price tag (inline after select) ---- */

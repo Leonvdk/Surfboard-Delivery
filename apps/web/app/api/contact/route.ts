@@ -328,7 +328,16 @@ export async function POST(request: Request) {
 			}
 		}
 
-		return NextResponse.json({ success: true });
+		// Friendly reference shown on the success screen so the customer can
+		// quote it back on WhatsApp / email if we go silent. Falls back to
+		// a timestamp-based code when there's no DB row (e.g. dev without
+		// DATABASE_URL) so the screen never renders an empty ref.
+		const requestRef =
+			bookingId != null
+				? `SR-${String(bookingId).padStart(5, "0")}`
+				: `SR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
+		return NextResponse.json({ success: true, requestRef });
 	} catch (err) {
 		console.error("Contact API error:", err);
 		return NextResponse.json(

@@ -2,7 +2,10 @@
 
 import { usePathname } from "next/navigation";
 
-const HIDDEN_PATHS = ["/contact"];
+// Was previously hidden on /contact — but the moment Leon's Swiss
+// customers wanted a human most was the submit-anxiety moment on that
+// exact page, so the float stays visible everywhere on the public site.
+const HIDDEN_PATHS: string[] = [];
 
 export function WhatsAppFloat() {
 	const pathname = usePathname();
