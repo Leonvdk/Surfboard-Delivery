@@ -98,12 +98,21 @@ export default async function BookingDetailPage({
 						<dd>{booking.accommodation || "—"}</dd>
 						<dt>People</dt>
 						<dd>{booking.peopleCount}</dd>
-						<dt>Estimate</dt>
-						<dd>
-							{booking.estimatedTotal != null
-								? `€${booking.estimatedTotal}`
-								: "—"}
-						</dd>
+						{booking.finalTotal != null ? (
+							<>
+								<dt>Final price</dt>
+								<dd>€{booking.finalTotal}</dd>
+							</>
+						) : (
+							<>
+								<dt>Estimate</dt>
+								<dd>
+									{booking.estimatedTotal != null
+										? `€${booking.estimatedTotal}`
+										: "—"}
+								</dd>
+							</>
+						)}
 						<dt>Submitted</dt>
 						<dd>
 							{booking.createdAt.toLocaleDateString("en-GB", {
