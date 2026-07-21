@@ -4,16 +4,15 @@ import Image from "next/image";
 import { useState } from "react";
 
 /**
- * Owner-vouches strip. Sits directly above the booking form so the
- * customer sees a human (Leon) before they type anything. Puts a face
- * on the "we reply within 3 hours" promise so the flow doesn't feel
- * like a lead-capture funnel — closes the "too good to be true"
- * moment Swiss customers described on 2026-07-21.
+ * Owner-vouches card. Full-height cutout of Leon on one side, quote
+ * + name + rating on the other. Designed for a transparent-background
+ * PNG at /images/leon-cutout.png — the figure stands at the bottom of
+ * the photo slot so it reads like a real person standing next to the
+ * copy. Falls back to an "L" monogram until the cutout is published.
  *
- * Photo lives at /images/leon.jpg. If the file is missing or fails
- * to load, we fall back to a big "L" monogram so the layout still
- * reads intentional. Swap in a real portrait when Leon has one; no
- * code changes required.
+ * The card lives directly under the submit button on /contact — the
+ * moment the customer just decided to send the request, they meet
+ * the person on the other end.
  */
 export function OwnerVouch() {
 	const [failed, setFailed] = useState(false);
@@ -27,10 +26,10 @@ export function OwnerVouch() {
 					</span>
 				) : (
 					<Image
-						src="/images/leon.jpg"
+						src="/images/leon-cutout.png"
 						alt="Leon van de Klundert — owner of Surf Rental Aljezur"
-						width={72}
-						height={72}
+						fill
+						sizes="(max-width: 640px) 40vw, 200px"
 						onError={() => setFailed(true)}
 						unoptimized
 					/>
@@ -41,12 +40,13 @@ export function OwnerVouch() {
 					Leon van de Klundert · owner
 				</p>
 				<p className="owner-vouch-quote">
-					“I read every request personally and usually reply within a few
-					hours. You&apos;ll pay only after I confirm gear and dates —
-					never before.”
+					“I read every request personally and reply from my phone —
+					usually within a few hours. You&apos;ll only pay after I
+					confirm gear and dates.”
 				</p>
 				<p className="owner-vouch-meta">
-					4.9★ across 8 reviews · reply in EN · NL · DE · FR · PT
+					4.9★ across 8 reviews · Aljezur since Sept 2025 · replies in
+					EN · NL · DE · FR · PT
 				</p>
 			</div>
 		</aside>

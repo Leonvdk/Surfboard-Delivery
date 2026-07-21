@@ -50,8 +50,8 @@ export default function ContactPage() {
 							<h2 id="contact-heading" className="sr-only">
 								Contact form
 							</h2>
-							<OwnerVouch />
 							<BookingForm />
+							<OwnerVouch />
 						</div>
 
 						<Reveal stagger>
