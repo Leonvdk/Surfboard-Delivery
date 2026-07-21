@@ -3416,9 +3416,9 @@ h1 {
   .owner-vouch-photo {
     order: 2;
     /* Give the stacked image a defined area at the bottom of the
-       card so it renders at a comfortable, consistent size. */
+       card so it renders at a comfortable, consistent size.
+       No divider line — the copy flows straight into the photo. */
     height: 220px;
-    border-top: 1.5px solid var(--black);
     overflow: hidden;
     background: linear-gradient(180deg, var(--surface) 0%, var(--gray-100) 100%);
   }
