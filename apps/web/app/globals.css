@@ -3300,11 +3300,11 @@ h1 {
   transform: translateX(-40%);
   pointer-events: none;
   z-index: 1;
-  /* Hard shadow of the same silhouette, offset down-right to match
-     the design system's other hard shadows (cards, buttons all use
-     positive x/y, zero blur). Same visual as duplicating the image
-     and colouring the copy solid black, but done in one CSS line. */
-  filter: drop-shadow(10px 10px 0 var(--black));
+  /* Silhouette shadow of the cutout, offset down-right. Slight
+     blur (~6px) softens the edge so the figure reads as lit rather
+     than photocopied — hard 0-blur made it fight the card's own
+     hard shadow. Direction still matches (positive x + y). */
+  filter: drop-shadow(10px 10px 6px rgba(26, 26, 26, 0.55));
 }
 /* Monogram fallback when the cutout image is missing. */
 .owner-vouch-mono {
