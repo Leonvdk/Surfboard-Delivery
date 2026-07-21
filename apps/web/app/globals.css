@@ -3291,11 +3291,14 @@ h1 {
    allows) but the text column stays wide and text is never pushed. */
 @media (min-width: 641px) {
   .owner-vouch {
-    grid-template-columns: 38% 1fr;
-    /* Wider gap so the image (which bleeds left past the card
-       edge) has visible breathing room from the copy. */
+    /* Wider photo column so the landscape cutout has real presence
+       while still fitting inside the card. */
+    grid-template-columns: 55% 1fr;
     gap: var(--space-xl);
-    min-height: 300px;
+    /* Card height matches image height (photo column width /
+       aspect) so the figure fills the card top-to-bottom with
+       no empty band above his head. */
+    min-height: 240px;
   }
   .owner-vouch-body {
     padding: var(--space-lg) var(--space-lg) var(--space-md) 0;
@@ -3380,17 +3383,21 @@ h1 {
   line-height: 1.5;
 }
 
-/* Desktop: switch the cutout to right-anchored, height-driven so
-   the figure fills the card vertically and bleeds LEFT of the card
-   instead of pushing the text column. Placed after the base rule
-   above so the cascade actually applies these overrides. */
+/* Desktop: cutout stays fully inside the card — bottom-anchored,
+   right-aligned to the photo column, capped by card width so
+   nothing bleeds out. The natural landscape aspect (1000×712)
+   means the figure fills the card width and leaves some room
+   above, rather than the card bottom clipping his legs — a
+   perfect "legs cut off by the floor" needs a portrait crop of
+   the source image. */
 @media (min-width: 641px) {
   .owner-vouch-cutout {
     left: auto;
     right: 0;
-    width: auto;
-    height: 100%;
-    max-width: none;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 
