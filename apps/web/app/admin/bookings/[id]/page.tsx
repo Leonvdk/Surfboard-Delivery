@@ -172,43 +172,48 @@ export default async function BookingDetailPage({
 						<article className="admin-card">
 							<h2>Gear</h2>
 							<div className="gear-summary">
-								<div className="gear-group">
-									<div className="gear-group-label">Packages</div>
-									<ul className="gear-list">
-										{gear.packages.map((row) => (
-											<li key={row.label}>
-												<span className="gear-count">{row.count}×</span>{" "}
-												{row.label}
-											</li>
-										))}
-									</ul>
-								</div>
-								{gear.boards.length > 0 && (
-									<div className="gear-group">
-										<div className="gear-group-label">Boards</div>
-										<ul className="gear-list">
-											{gear.boards.map((row) => (
-												<li key={row.label}>
-													<span className="gear-count">{row.count}×</span>{" "}
-													{row.label}
-												</li>
-											))}
-										</ul>
-									</div>
-								)}
-								{gear.wetsuits.length > 0 && (
-									<div className="gear-group">
-										<div className="gear-group-label">Wetsuits</div>
-										<ul className="gear-list">
-											{gear.wetsuits.map((row) => (
-												<li key={row.label}>
-													<span className="gear-count">{row.count}×</span>{" "}
-													{row.label}
-												</li>
-											))}
-										</ul>
-									</div>
-								)}
+								{gear.packages.map((pkg) => (
+									<section key={pkg.key} className="gear-package">
+										<header className="gear-package-header">
+											<span className="gear-count">{pkg.count}×</span>
+											<span className="gear-package-label">{pkg.label}</span>
+										</header>
+										{(pkg.boards.length > 0 || pkg.wetsuits.length > 0) && (
+											<div className="gear-package-children">
+												{pkg.boards.length > 0 && (
+													<div className="gear-group">
+														<div className="gear-group-label">Boards</div>
+														<ul className="gear-list">
+															{pkg.boards.map((row) => (
+																<li key={row.label}>
+																	<span className="gear-count">
+																		{row.count}×
+																	</span>{" "}
+																	{row.label}
+																</li>
+															))}
+														</ul>
+													</div>
+												)}
+												{pkg.wetsuits.length > 0 && (
+													<div className="gear-group">
+														<div className="gear-group-label">Wetsuits</div>
+														<ul className="gear-list">
+															{pkg.wetsuits.map((row) => (
+																<li key={row.label}>
+																	<span className="gear-count">
+																		{row.count}×
+																	</span>{" "}
+																	{row.label}
+																</li>
+															))}
+														</ul>
+													</div>
+												)}
+											</div>
+										)}
+									</section>
+								))}
 							</div>
 
 							<h3>Per person</h3>

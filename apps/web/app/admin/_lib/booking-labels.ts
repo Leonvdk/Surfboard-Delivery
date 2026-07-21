@@ -67,17 +67,36 @@ export function sexLabel(value: string): string {
 	return SEX_LABEL[value] ?? value;
 }
 
+export interface GearRow {
+	label: string;
+	count: number;
+}
+
+export interface GearPackageGroup {
+	key: string;
+	label: string;
+	count: number;
+	boards: GearRow[];
+	wetsuits: GearRow[];
+}
+
+const PACKAGE_ORDER = ["premium", "full", "board", "custom"] as const;
+
 /**
- * Aggregate what needs to physically go out the door for this booking. Counts
- * packages, boards, and wetsuit sizes across all people so Leon can see the
- * total gear list at a glance.
+ * Aggregate what needs to physically go out the door for this booking. Groups
+ * boards and wetsuits UNDER the package they belong to so Leon sees the parent
+ * (package) and its children (actual items) as a hierarchy.
  */
-export function summariseGear(people: BookingPerson[] | null) {
+export function summariseGear(
+	people: BookingPerson[] | null,
+): { packages: GearPackageGroup[] } | null {
 	if (!people || people.length === 0) return null;
 
-	const packages = new Map<string, number>();
-	const boards = new Map<string, number>();
-	const wetsuits = new Map<string, number>();
+	// key → { count, boards Map, wetsuits Map }
+	const byPackage = new Map<
+		string,
+		{ count: number; boards: Map<string, number>; wetsuits: Map<string, number> }
+	>();
 
 	for (const p of people) {
 		// Use the effective package — if the customer picked Board Only but a
@@ -89,19 +108,35 @@ export function summariseGear(people: BookingPerson[] | null) {
 		else if (declared === "full") pkg = "full";
 		else if (p.wetsuitSize && p.wetsuitSize.trim() !== "") pkg = "full";
 		else pkg = "board";
-		packages.set(pkg, (packages.get(pkg) ?? 0) + 1);
-		if (p.board) boards.set(p.board, (boards.get(p.board) ?? 0) + 1);
-		if (p.wetsuitSize) wetsuits.set(p.wetsuitSize, (wetsuits.get(p.wetsuitSize) ?? 0) + 1);
+
+		const entry =
+			byPackage.get(pkg) ??
+			{ count: 0, boards: new Map<string, number>(), wetsuits: new Map<string, number>() };
+		entry.count += 1;
+		if (p.board) entry.boards.set(p.board, (entry.boards.get(p.board) ?? 0) + 1);
+		if (p.wetsuitSize)
+			entry.wetsuits.set(p.wetsuitSize, (entry.wetsuits.get(p.wetsuitSize) ?? 0) + 1);
+		byPackage.set(pkg, entry);
 	}
 
-	const asRows = (map: Map<string, number>, format: (k: string) => string) =>
+	const asRows = (map: Map<string, number>, format: (k: string) => string): GearRow[] =>
 		Array.from(map.entries())
 			.sort((a, b) => b[1] - a[1])
 			.map(([key, count]) => ({ label: format(key), count }));
 
-	return {
-		packages: asRows(packages, packageShort),
-		boards: asRows(boards, boardLabel),
-		wetsuits: asRows(wetsuits, (k) => k),
-	};
+	const packages: GearPackageGroup[] = Array.from(byPackage.entries())
+		.map(([key, entry]) => ({
+			key,
+			label: packageShort(key),
+			count: entry.count,
+			boards: asRows(entry.boards, boardLabel),
+			wetsuits: asRows(entry.wetsuits, (k) => k),
+		}))
+		.sort((a, b) => {
+			const ai = PACKAGE_ORDER.indexOf(a.key as (typeof PACKAGE_ORDER)[number]);
+			const bi = PACKAGE_ORDER.indexOf(b.key as (typeof PACKAGE_ORDER)[number]);
+			return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+		});
+
+	return { packages };
 }

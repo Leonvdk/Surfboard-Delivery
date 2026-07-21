@@ -6450,15 +6450,50 @@ h1 {
 }
 
 .gear-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Package is the parent — solid outer container with the package name
+   set as the visual anchor. Children (Boards, Wetsuits) sit inside it
+   and are visibly subordinate. */
+.gear-package {
+  border: var(--border-light);
+  background: var(--gray-100);
+}
+
+.gear-package-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px var(--space-md);
+  background: var(--surface);
+  border-bottom: var(--border-light);
+}
+
+.gear-package:only-child .gear-package-header,
+.gear-package .gear-package-header {
+  /* keep the divider unless there are no children below */
+}
+
+.gear-package-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--black);
+}
+
+.gear-package-children {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-md);
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
 }
 
 .gear-group {
-  padding: var(--space-sm) var(--space-md);
-  background: var(--gray-100);
-  border: var(--border-light);
+  /* no outer chrome now — the parent supplies the background. Children
+     are labelled inline and indented visually via the grid. */
 }
 
 .gear-group-label {

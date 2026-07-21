@@ -15,20 +15,19 @@ function buildConfirmationBody(b: Booking): string {
 
 	const gearLines: string[] = [];
 	if (gear) {
-		if (gear.packages.length) {
-			gearLines.push(
-				"Packages: " + gear.packages.map((r) => `${r.count}× ${r.label}`).join(", "),
-			);
-		}
-		if (gear.boards.length) {
-			gearLines.push(
-				"Boards: " + gear.boards.map((r) => `${r.count}× ${r.label}`).join(", "),
-			);
-		}
-		if (gear.wetsuits.length) {
-			gearLines.push(
-				"Wetsuits: " + gear.wetsuits.map((r) => `${r.count}× ${r.label}`).join(", "),
-			);
+		for (const pkg of gear.packages) {
+			const parts: string[] = [];
+			if (pkg.boards.length) {
+				parts.push(pkg.boards.map((r) => `${r.count}× ${r.label}`).join(", "));
+			}
+			if (pkg.wetsuits.length) {
+				parts.push(
+					"wetsuits " +
+						pkg.wetsuits.map((r) => `${r.count}× ${r.label}`).join(", "),
+				);
+			}
+			const detail = parts.length ? ` — ${parts.join("; ")}` : "";
+			gearLines.push(`${pkg.count}× ${pkg.label}${detail}`);
 		}
 	}
 
