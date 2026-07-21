@@ -3262,7 +3262,14 @@ h1 {
      leaving the left/right sides unclipped so the figure bleeds. */
 .owner-vouch-frame {
   margin-top: var(--space-lg);
+  margin-left: auto;
+  margin-right: auto;
   box-shadow: 4px 4px 0 var(--black);
+  /* Centered at 3/4 width so image + text each have breathing
+     room on their own line and the card doesn't hog the form
+     column. Mobile media query below overrides to 100% width
+     when the layout stacks. */
+  width: 75%;
 }
 .owner-vouch {
   display: grid;
@@ -3285,7 +3292,13 @@ h1 {
 @media (min-width: 641px) {
   .owner-vouch {
     grid-template-columns: 38% 1fr;
+    /* Wider gap so the image (which bleeds left past the card
+       edge) has visible breathing room from the copy. */
+    gap: var(--space-xl);
     min-height: 300px;
+  }
+  .owner-vouch-body {
+    padding: var(--space-lg) var(--space-lg) var(--space-md) 0;
   }
   /* .owner-vouch-cutout desktop overrides live AFTER the base
      rule below so the cascade applies them — otherwise the base
@@ -3382,12 +3395,44 @@ h1 {
 }
 
 @media (max-width: 480px) {
+  /* Mobile: card is full width, text and image stack vertically
+     (text first, image below) so neither has to fight for room.
+     The 3/4-width desktop centering doesn't help on a phone. */
+  .owner-vouch-frame {
+    width: 100%;
+  }
   .owner-vouch {
-    grid-template-columns: 42% 1fr;
-    min-height: 260px;
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 0;
+    /* Nothing bleeds sideways here; drop the horizontal clip
+       expansion so nothing gets accidentally hidden. */
+    clip-path: none;
   }
   .owner-vouch-body {
-    padding: var(--space-md) var(--space-md) var(--space-md) 0;
+    order: 1;
+    padding: var(--space-md);
+  }
+  .owner-vouch-photo {
+    order: 2;
+    /* Give the stacked image a defined area at the bottom of the
+       card so it renders at a comfortable, consistent size. */
+    height: 220px;
+    border-top: 1.5px solid var(--black);
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--gray-100) 100%);
+  }
+  .owner-vouch-cutout {
+    /* Flow layout, centered under the copy, bottom-aligned. */
+    position: absolute;
+    left: 50%;
+    right: auto;
+    bottom: 0;
+    transform: translateX(-50%);
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
   }
   .owner-vouch-quote { font-size: 0.9375rem; }
   .owner-vouch-mono { font-size: 3.5rem; }
