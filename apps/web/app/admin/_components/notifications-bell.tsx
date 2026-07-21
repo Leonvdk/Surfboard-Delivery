@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Diag {
@@ -11,6 +12,16 @@ interface Diag {
 	locallySubscribed: boolean;
 	serverCount: number | null;
 	vapidLen: number;
+}
+
+interface NotificationItem {
+	kind: "requested" | "delivery-today" | "pickup-today" | "delivery-soon";
+	priority: number;
+	bookingId: number;
+	href: string;
+	title: string;
+	body: string;
+	dateIso: string;
 }
 
 const initialDiag: Diag = {
@@ -63,6 +74,31 @@ export function NotificationsBell() {
 	const [message, setMessage] = useState<string>("");
 	const [open, setOpen] = useState(false);
 	const wrapperRef = useRef<HTMLDivElement>(null);
+	const [items, setItems] = useState<NotificationItem[] | null>(null);
+	const [itemsError, setItemsError] = useState<string | null>(null);
+	const [itemsLoading, setItemsLoading] = useState(false);
+
+	const loadItems = useCallback(async () => {
+		setItemsLoading(true);
+		setItemsError(null);
+		try {
+			const res = await fetch("/api/admin/notifications", {
+				cache: "no-store",
+			});
+			if (!res.ok) {
+				setItemsError(`HTTP ${res.status}`);
+				setItems([]);
+				return;
+			}
+			const data = (await res.json()) as { items: NotificationItem[] };
+			setItems(data.items);
+		} catch (err) {
+			setItemsError(err instanceof Error ? err.message : "load failed");
+			setItems([]);
+		} finally {
+			setItemsLoading(false);
+		}
+	}, []);
 
 	const refresh = useCallback(async () => {
 		const next: Diag = { ...initialDiag, vapidLen: publicKey.length };
@@ -105,7 +141,14 @@ export function NotificationsBell() {
 
 	useEffect(() => {
 		void refresh();
-	}, [refresh]);
+		void loadItems();
+	}, [refresh, loadItems]);
+
+	// Reload items every time the popover opens — cheap query, keeps
+	// things fresh without a poll timer eating battery.
+	useEffect(() => {
+		if (open) void loadItems();
+	}, [open, loadItems]);
 
 	// Close the popover on outside tap or Escape.
 	useEffect(() => {
@@ -280,10 +323,11 @@ export function NotificationsBell() {
 		diag.permission !== "denied" &&
 		diag.vapidLen > 0;
 
-	// Show a small orange dot when there's something Leon should know
-	// about — either notifications are off, or the OS blocked them.
+	// Bell dot lights up when there's something to attend to — a pending
+	// request, a delivery/pickup today, or the push setup is broken.
+	const hasItems = (items?.length ?? 0) > 0;
 	const showBellDot =
-		!diag.locallySubscribed || diag.permission === "denied";
+		hasItems || !diag.locallySubscribed || diag.permission === "denied";
 
 	return (
 		<div className="notif-bell-wrap" ref={wrapperRef}>
@@ -302,14 +346,49 @@ export function NotificationsBell() {
 				<div
 					className="notif-popover"
 					role="dialog"
-					aria-label="Push notifications"
+					aria-label="Notifications"
 				>
-					<div className="notif-popover-header">Push notifications</div>
+					<div className="notif-popover-header">Notifications</div>
+
+					{itemsLoading && items === null ? (
+						<p className="notif-popover-status">Loading…</p>
+					) : itemsError ? (
+						<p className="notif-popover-status">
+							Couldn&apos;t load: {itemsError}
+						</p>
+					) : hasItems ? (
+						<ul className="notif-list">
+							{items?.map((it) => (
+								<li key={`${it.kind}-${it.bookingId}`}>
+									<Link
+										href={it.href}
+										className={`notif-item notif-item--${it.kind}`}
+										onClick={() => setOpen(false)}
+									>
+										<span className="notif-item-dot" aria-hidden="true" />
+										<span className="notif-item-body">
+											<span className="notif-item-title">{it.title}</span>
+											<span className="notif-item-desc">{it.body}</span>
+										</span>
+										<span className="notif-item-chev" aria-hidden="true">
+											→
+										</span>
+									</Link>
+								</li>
+							))}
+						</ul>
+					) : (
+						<p className="notif-popover-empty">
+							You&apos;re all caught up. No requests waiting, no
+							deliveries or pickups today.
+						</p>
+					)}
+
+					<div className="notif-popover-divider" />
+
+					<div className="notif-popover-push-header">Push notifications</div>
 
 					{diag.locallySubscribed ? (
-						// When notifications are on there's nothing to configure —
-						// the presence of the "Disable notifications" link is
-						// itself the "on" signal. No status line, no test button.
 						<button
 							type="button"
 							className="notif-popover-disable"
@@ -318,7 +397,7 @@ export function NotificationsBell() {
 						>
 							{busy === "unsubscribe"
 								? "Disabling…"
-								: "Disable notifications"}
+								: "Disable push notifications"}
 						</button>
 					) : (
 						<>
@@ -337,7 +416,7 @@ export function NotificationsBell() {
 									{busy === "subscribe"
 										? "Requesting…"
 										: canSubscribe
-											? "Enable notifications"
+											? "Enable push notifications"
 											: "Unavailable"}
 								</button>
 							</div>

@@ -7806,6 +7806,103 @@ h1 {
   word-break: break-word;
 }
 
+/* ─── Notification list inside the bell popover ────── */
+
+.notif-popover-empty {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  line-height: 1.4;
+}
+
+.notif-list {
+  list-style: none;
+  margin: 0 0 var(--space-sm);
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notif-list li + li { margin-top: 4px; }
+
+.notif-item {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--gray-200, #e5e5e5);
+  color: var(--black);
+  text-decoration: none;
+  font-family: var(--font-body);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.notif-item:hover,
+.notif-item:focus-visible {
+  background: var(--gray-100);
+  border-color: var(--black);
+}
+
+.notif-item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gray-500);
+}
+
+.notif-item--requested .notif-item-dot { background: var(--accent); }
+.notif-item--delivery-today .notif-item-dot { background: #16a34a; }
+.notif-item--pickup-today .notif-item-dot { background: #2563eb; }
+.notif-item--delivery-soon .notif-item-dot { background: var(--gray-500); }
+
+.notif-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.notif-item-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-item-desc {
+  font-size: 0.6875rem;
+  color: var(--gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-item-chev {
+  color: var(--gray-500);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.notif-popover-divider {
+  border-top: 1px solid var(--gray-200, #e5e5e5);
+  margin: var(--space-sm) 0;
+}
+
+.notif-popover-push-header {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+}
+
 /* ─── Pull-to-refresh badge (mobile / standalone) ────── */
 
 .ptr {
