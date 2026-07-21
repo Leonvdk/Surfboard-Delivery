@@ -15,13 +15,47 @@ interface Diag {
 }
 
 interface NotificationItem {
-	kind: "requested" | "delivery-today" | "pickup-today" | "delivery-soon";
+	kind: "requested" | "delivery-today" | "pickup-today";
 	priority: number;
 	bookingId: number;
 	href: string;
 	title: string;
 	body: string;
 	dateIso: string;
+	notifiedAt: string;
+}
+
+const SEEN_STORAGE_KEY = "sra_notifications_seen_at";
+
+function readSeenAt(): string {
+	if (typeof window === "undefined") return "";
+	try {
+		return localStorage.getItem(SEEN_STORAGE_KEY) ?? "";
+	} catch {
+		return "";
+	}
+}
+
+function writeSeenAt(iso: string) {
+	if (typeof window === "undefined") return;
+	try {
+		localStorage.setItem(SEEN_STORAGE_KEY, iso);
+	} catch {
+		// storage may be blocked in some private-browsing modes; ignore
+	}
+}
+
+function applyAppBadge(count: number) {
+	if (typeof navigator === "undefined") return;
+	const nav = navigator as Navigator & {
+		setAppBadge?: (n?: number) => Promise<void>;
+		clearAppBadge?: () => Promise<void>;
+	};
+	if (count > 0 && nav.setAppBadge) {
+		nav.setAppBadge(count).catch(() => {});
+	} else if (nav.clearAppBadge) {
+		nav.clearAppBadge().catch(() => {});
+	}
 }
 
 const initialDiag: Diag = {
@@ -42,6 +76,32 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
 	const arr = new Uint8Array(raw.length);
 	for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
 	return arr;
+}
+
+// Same triangle used in the calendar chip edge markers, kept here so
+// the notifications list and the calendar speak the same visual
+// language: right = delivery, left = pickup.
+function NotifKindIcon({ kind }: { kind: NotificationItem["kind"] }) {
+	if (kind === "requested") {
+		return (
+			<span
+				className="notif-item-dot notif-item-dot--requested"
+				aria-hidden="true"
+			/>
+		);
+	}
+	const points = kind === "delivery-today" ? "1,1 8,4.5 1,8" : "8,1 1,4.5 8,8";
+	return (
+		<svg
+			width={11}
+			height={11}
+			viewBox="0 0 9 9"
+			className={`notif-item-marker notif-item-marker--${kind}`}
+			aria-hidden="true"
+		>
+			<polygon points={points} fill="currentColor" />
+		</svg>
+	);
 }
 
 const BellIcon = ({ silent }: { silent: boolean }) => (
@@ -77,6 +137,9 @@ export function NotificationsBell() {
 	const [items, setItems] = useState<NotificationItem[] | null>(null);
 	const [itemsError, setItemsError] = useState<string | null>(null);
 	const [itemsLoading, setItemsLoading] = useState(false);
+	// Persisted "last time Leon opened the notifications panel" — anything
+	// notified after this counts as unseen and drives the badge + dot.
+	const [seenAt, setSeenAt] = useState<string>("");
 
 	const loadItems = useCallback(async () => {
 		setItemsLoading(true);
@@ -142,13 +205,32 @@ export function NotificationsBell() {
 	useEffect(() => {
 		void refresh();
 		void loadItems();
+		setSeenAt(readSeenAt());
 	}, [refresh, loadItems]);
 
-	// Reload items every time the popover opens — cheap query, keeps
-	// things fresh without a poll timer eating battery.
+	// When the popover opens: mark everything as seen NOW, close the
+	// badge on the OS icon, and drop the red dot on the bell.
 	useEffect(() => {
-		if (open) void loadItems();
+		if (!open) return;
+		void loadItems();
+		const nowIso = new Date().toISOString();
+		writeSeenAt(nowIso);
+		setSeenAt(nowIso);
 	}, [open, loadItems]);
+
+	// Count of items that arrived after `seenAt`.
+	const unseenCount = (items ?? []).filter(
+		(it) => !seenAt || it.notifiedAt > seenAt,
+	).length;
+
+	// Drive the OS app-icon badge from unseenCount — but only after we
+	// have a definitive answer from the server. `items === null` means
+	// "still fetching"; don't clear the badge Leon just saw during that
+	// window or it'll flash empty on cold PWA open.
+	useEffect(() => {
+		if (items === null) return;
+		applyAppBadge(unseenCount);
+	}, [items, unseenCount]);
 
 	// Close the popover on outside tap or Escape.
 	useEffect(() => {
@@ -323,11 +405,13 @@ export function NotificationsBell() {
 		diag.permission !== "denied" &&
 		diag.vapidLen > 0;
 
-	// Bell dot lights up when there's something to attend to — a pending
-	// request, a delivery/pickup today, or the push setup is broken.
+	// Bell dot lights up ONLY for things Leon hasn't seen yet — opening
+	// the popover clears both the dot and the app-icon badge. Push-setup
+	// warnings still surface here because the fix lives inside the same
+	// popover.
 	const hasItems = (items?.length ?? 0) > 0;
 	const showBellDot =
-		hasItems || !diag.locallySubscribed || diag.permission === "denied";
+		unseenCount > 0 || !diag.locallySubscribed || diag.permission === "denied";
 
 	return (
 		<div className="notif-bell-wrap" ref={wrapperRef}>
@@ -365,7 +449,7 @@ export function NotificationsBell() {
 										className={`notif-item notif-item--${it.kind}`}
 										onClick={() => setOpen(false)}
 									>
-										<span className="notif-item-dot" aria-hidden="true" />
+										<NotifKindIcon kind={it.kind} />
 										<span className="notif-item-body">
 											<span className="notif-item-title">{it.title}</span>
 											<span className="notif-item-desc">{it.body}</span>

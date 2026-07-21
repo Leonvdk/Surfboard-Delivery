@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getAdminSession } from "../../../lib/auth/session";
 import { getDb, schema } from "../../../lib/db/client";
 import type { BookingStatus } from "../../../lib/db/schema";
-import { addDaysIso, todayIso } from "../../../admin/_lib/dates";
+import { todayIso } from "../../../admin/_lib/dates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,13 +11,36 @@ export const dynamic = "force-dynamic";
 const ACTIVE: BookingStatus[] = ["requested", "confirmed", "in_progress"];
 
 export interface NotificationItem {
-	kind: "requested" | "delivery-today" | "pickup-today" | "delivery-soon";
+	kind: "requested" | "delivery-today" | "pickup-today";
 	priority: number;
 	bookingId: number;
 	href: string;
 	title: string;
 	body: string;
 	dateIso: string;
+	/**
+	 * When this notification became visible in the panel. For requested
+	 * bookings that's when the booking arrived. For date-based items
+	 * (today's delivery, today's pickup, next-3-day deliveries) it's the
+	 * later of the booking's creation and the Europe/Lisbon start of the
+	 * relevant date — so a booking made three weeks ago whose delivery
+	 * falls today counts as "new" once today starts, not three weeks ago.
+	 * The client compares this against its localStorage-stored
+	 * `seenAt` to decide the badge and dot.
+	 */
+	notifiedAt: string;
+}
+
+// Lisbon-relative "start of day" as an ISO string, so we can compare
+// against timestamps without pulling in a TZ library.
+function lisbonDayStartIso(iso: string): string {
+	// iso is YYYY-MM-DD. Portugal is UTC or UTC+1; using 00:00 UTC is
+	// close enough for a "did this qualify since X?" comparison.
+	return `${iso}T00:00:00.000Z`;
+}
+
+function laterIso(a: string, b: string): string {
+	return a > b ? a : b;
 }
 
 /**
@@ -36,7 +59,6 @@ export async function GET() {
 	}
 
 	const today = todayIso();
-	const in3Days = addDaysIso(today, 3);
 
 	const rows = await db
 		.select({
@@ -53,11 +75,13 @@ export async function GET() {
 		.orderBy(desc(schema.bookings.createdAt));
 
 	const items: NotificationItem[] = [];
+	const todayStartIso = lisbonDayStartIso(today);
 
 	for (const b of rows) {
 		const href = `/admin/bookings/${b.id}`;
 		const who = b.name;
 		const where = b.accommodation ? ` · ${b.accommodation}` : "";
+		const createdIso = b.createdAt.toISOString();
 
 		if (b.status === "requested") {
 			items.push({
@@ -67,7 +91,8 @@ export async function GET() {
 				href,
 				title: `New request · ${who}`,
 				body: `Check-in ${b.checkin}${where}`,
-				dateIso: b.createdAt.toISOString(),
+				dateIso: createdIso,
+				notifiedAt: createdIso,
 			});
 			continue;
 		}
@@ -83,6 +108,7 @@ export async function GET() {
 				title: `Delivery today · ${who}`,
 				body: `${b.checkin} → ${b.checkout}${where}`,
 				dateIso: b.checkin,
+				notifiedAt: laterIso(createdIso, todayStartIso),
 			});
 		} else if (b.checkout === today) {
 			items.push({
@@ -93,18 +119,12 @@ export async function GET() {
 				title: `Pickup today · ${who}`,
 				body: `Booked ${b.checkin} → ${b.checkout}${where}`,
 				dateIso: b.checkout,
-			});
-		} else if (b.checkin > today && b.checkin <= in3Days) {
-			items.push({
-				kind: "delivery-soon",
-				priority: 3,
-				bookingId: b.id,
-				href,
-				title: `Delivery ${b.checkin} · ${who}`,
-				body: `${b.checkin} → ${b.checkout}${where}`,
-				dateIso: b.checkin,
+				notifiedAt: laterIso(createdIso, todayStartIso),
 			});
 		}
+		// Future deliveries (checkin > today) intentionally do not become
+		// notifications. Leon looks at the calendar for those; the panel is
+		// only for "act today" items.
 	}
 
 	items.sort((a, b) => {

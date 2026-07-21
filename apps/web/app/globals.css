@@ -7863,7 +7863,7 @@ h1 {
 
 .notif-item {
   display: grid;
-  grid-template-columns: 8px 1fr auto;
+  grid-template-columns: 14px 1fr auto;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
@@ -7881,17 +7881,24 @@ h1 {
   border-color: var(--black);
 }
 
+/* Requested (new) — filled dot, brand accent. */
 .notif-item-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--gray-500);
+  justify-self: center;
 }
 
-.notif-item--requested .notif-item-dot { background: var(--accent); }
-.notif-item--delivery-today .notif-item-dot { background: #16a34a; }
-.notif-item--pickup-today .notif-item-dot { background: #2563eb; }
-.notif-item--delivery-soon .notif-item-dot { background: var(--gray-500); }
+.notif-item-dot--requested { background: var(--accent); }
+
+/* Delivery / pickup — same triangle glyphs as the calendar chips,
+   coloured with the brand accent so the app stays visually
+   consistent between the two surfaces. */
+.notif-item-marker {
+  color: var(--accent);
+  justify-self: center;
+}
 
 .notif-item-body {
   display: flex;
