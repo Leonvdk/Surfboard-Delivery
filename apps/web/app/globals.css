@@ -3251,20 +3251,31 @@ h1 {
 /* Owner-vouches card. Sits directly under the submit button so the
    customer meets the person they just decided to trust. Cutout of
    Leon anchored to the bottom-left of the photo column and bleeding
-   ~40% of its own width past the card's left edge. */
+   ~40% of its own width past the card's left edge.
+
+   Two-element construction:
+   - .owner-vouch-frame carries the card's own hard box-shadow (so
+     that shadow doesn't get clipped by the inner clip-path).
+   - .owner-vouch is the visible card and carries `clip-path: inset(
+     0 -400px)` — clips top and bottom exactly to the card border so
+     the cutout's own drop-shadow can't spill below the card, while
+     leaving the left/right sides unclipped so the figure bleeds. */
+.owner-vouch-frame {
+  margin-top: var(--space-lg);
+  box-shadow: 4px 4px 0 var(--black);
+}
 .owner-vouch {
   display: grid;
   grid-template-columns: 38% 1fr;
   gap: var(--space-md);
-  margin-top: var(--space-lg);
   padding: 0;
   background: var(--surface);
   border: var(--border);
-  box-shadow: 4px 4px 0 var(--black);
   min-height: 320px;
   align-items: stretch;
   overflow: visible;
   position: relative;
+  clip-path: inset(0 -400px);
 }
 /* Photo column — no background fill so the transparent cutout can
    bleed cleanly out the left; the visible slice on the card feels
