@@ -24,7 +24,9 @@ export default function ContactPage() {
 				<div className="container">
 					<Reveal>
 						<div>
-							<h1>Book surf rental delivery in Aljezur — reply usually within 3h</h1>
+							<h1>
+								Book surf rental delivery in <em>Aljezur</em> — reply usually within 3h
+							</h1>
 							<p className="page-hero-sub">
 								Tell us your dates, accommodation address, height, weight,
 								and experience level. Leon reads every request personally

@@ -1995,6 +1995,13 @@ h1 {
   letter-spacing: -0.02em;
   margin-bottom: var(--space-md);
 }
+/* Same red-accent pattern as the homepage hero — <em> flips off
+   italic and paints the accent word in --accent so every big
+   heading on the site speaks the same brand voice. */
+.page-hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
 
 .page-hero-sub {
   font-size: clamp(1rem, 1.5vw, 1.125rem);
@@ -3291,18 +3298,16 @@ h1 {
    allows) but the text column stays wide and text is never pushed. */
 @media (min-width: 641px) {
   .owner-vouch {
-    /* Wider photo column so the landscape cutout has real presence
-       while still fitting inside the card. */
-    grid-template-columns: 55% 1fr;
-    gap: var(--space-xl);
-    /* Card height matches image height (photo column width /
-       aspect) so the figure fills the card top-to-bottom with
-       no empty band above his head. */
-    min-height: 240px;
+    /* Photo column wide enough that the landscape cutout keeps
+       ≥ 80% of card height across typical desktop widths.
+       (At 62% column, image height ≈ col × 0.712; text column
+       stays wide enough to not force too much wrapping.) */
+    grid-template-columns: 62% 1fr;
+    gap: var(--space-lg);
+    min-height: 200px;
   }
-  .owner-vouch-body {
-    padding: var(--space-lg) var(--space-lg) var(--space-md) 0;
-  }
+  /* text overrides live in the later @media block so they win
+     the cascade — see below. */
   /* .owner-vouch-cutout desktop overrides live AFTER the base
      rule below so the cascade applies them — otherwise the base
      rule (defined later in this file) wins on ties. */
@@ -3385,11 +3390,10 @@ h1 {
 
 /* Desktop: cutout stays fully inside the card — bottom-anchored,
    right-aligned to the photo column, capped by card width so
-   nothing bleeds out. The natural landscape aspect (1000×712)
-   means the figure fills the card width and leaves some room
-   above, rather than the card bottom clipping his legs — a
-   perfect "legs cut off by the floor" needs a portrait crop of
-   the source image. */
+   nothing bleeds out. Text is tightened (smaller quote font +
+   tighter padding + right-side padding restored) so the card
+   height stays close to the image height — keeps the image at
+   ≥ 80% of card height across typical desktop widths. */
 @media (min-width: 641px) {
   .owner-vouch-cutout {
     left: auto;
@@ -3399,6 +3403,18 @@ h1 {
     max-width: 100%;
     max-height: 100%;
   }
+  .owner-vouch-body {
+    padding: var(--space-sm) var(--space-md) var(--space-sm) 0;
+  }
+  .owner-vouch-quote {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+  .owner-vouch-meta {
+    font-size: 0.6875rem;
+    line-height: 1.4;
+  }
+  .owner-vouch-body { gap: 6px; }
 }
 
 @media (max-width: 480px) {
