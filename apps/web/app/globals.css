@@ -3249,8 +3249,9 @@ h1 {
 }
 
 /* Owner-vouches card. Sits directly under the submit button so the
-   customer meets the person they just decided to trust. Full-height
-   cutout of Leon on one side, quote + name + rating on the other. */
+   customer meets the person they just decided to trust. Cutout of
+   Leon anchored to the bottom-left of the photo column and bleeding
+   ~40% of its own width past the card's left edge. */
 .owner-vouch {
   display: grid;
   grid-template-columns: 38% 1fr;
@@ -3262,25 +3263,34 @@ h1 {
   box-shadow: 4px 4px 0 var(--black);
   min-height: 320px;
   align-items: stretch;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
-/* Photo column — the cutout is bottom-anchored inside a
-   soft-tinted floor so the figure reads like it's standing on
-   the card rather than floating in the middle. */
+/* Photo column — no background fill so the transparent cutout can
+   bleed cleanly out the left; the visible slice on the card feels
+   like a magazine cut-in. */
 .owner-vouch-photo {
   position: relative;
-  background:
-    linear-gradient(180deg, var(--surface) 0%, var(--gray-100) 100%);
-  border-right: 1.5px solid var(--black);
-  overflow: hidden;
+  overflow: visible;
 }
-/* next/image with fill positions its <img> absolutely; align the
-   cutout to the bottom of the column so shoes touch the floor. */
-.owner-vouch-photo img {
-  object-fit: contain;
-  object-position: center bottom;
+/* Cutout: absolute, bottom-aligned, translated 40% of its own width
+   to the left so it hangs off the card's left edge. Height matches
+   the card so his feet reach the bottom border and the visible slice
+   scales with the card. */
+.owner-vouch-cutout {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  width: auto;
+  /* Override the global `img { max-width: 100% }` reset — otherwise
+     the cutout gets clamped to the photo column width and shrinks. */
+  max-width: none;
+  transform: translateX(-40%);
+  pointer-events: none;
+  z-index: 1;
 }
-/* Monogram fallback when /images/leon-cutout.png isn't published yet. */
+/* Monogram fallback when the cutout image is missing. */
 .owner-vouch-mono {
   position: absolute;
   inset: 0;
@@ -3291,6 +3301,7 @@ h1 {
   font-size: 5rem;
   font-weight: 700;
   color: var(--gray-500);
+  background: var(--gray-100);
 }
 .owner-vouch-body {
   padding: var(--space-lg) var(--space-md) var(--space-md) 0;
@@ -3298,6 +3309,8 @@ h1 {
   flex-direction: column;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  z-index: 2;
 }
 .owner-vouch-name {
   font-family: var(--font-display);
