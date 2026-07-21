@@ -3277,15 +3277,19 @@ h1 {
   position: relative;
   clip-path: inset(0 -400px);
 }
-/* Desktop / tablet: widen the photo column enough that a 1:1
-   cutout can reach the full card height without bleeding into the
-   text column. min-height matched to the typical text-driven
-   height so the image rides the card floor edge-to-edge. */
+/* Desktop / tablet: keep the photo column narrow so the text has
+   comfortable width. The image reaches full card height by anchoring
+   its right edge to the photo column border and growing leftward —
+   spillover bleeds out past the card's left edge (which clip-path
+   allows) but the text column stays wide and text is never pushed. */
 @media (min-width: 641px) {
   .owner-vouch {
-    grid-template-columns: 58% 1fr;
+    grid-template-columns: 38% 1fr;
     min-height: 300px;
   }
+  /* .owner-vouch-cutout desktop overrides live AFTER the base
+     rule below so the cascade applies them — otherwise the base
+     rule (defined later in this file) wins on ties. */
 }
 /* Photo column — no background fill so the transparent cutout can
    bleed cleanly out the left; the visible slice on the card feels
@@ -3301,13 +3305,14 @@ h1 {
 .owner-vouch-cutout {
   position: absolute;
   bottom: 0;
+  /* Mobile default: fit inside the photo column, width-driven.
+     Desktop rule below flips to right-anchored + height-driven so
+     the figure reaches full card height and spills left of the
+     card without ever narrowing the text column. Natural aspect
+     ratio comes from the image file itself. */
   left: 0;
-  /* Fill the card vertically; aspect ratio then determines width.
-     max-width: 100% keeps the figure inside the photo column so
-     the grid gap remains the padding between him and the copy. */
-  height: 100%;
-  width: auto;
-  aspect-ratio: 1;
+  width: 100%;
+  height: auto;
   max-width: 100%;
   max-height: 100%;
   pointer-events: none;
@@ -3360,6 +3365,20 @@ h1 {
   color: var(--gray-500);
   margin: 0;
   line-height: 1.5;
+}
+
+/* Desktop: switch the cutout to right-anchored, height-driven so
+   the figure fills the card vertically and bleeds LEFT of the card
+   instead of pushing the text column. Placed after the base rule
+   above so the cascade actually applies these overrides. */
+@media (min-width: 641px) {
+  .owner-vouch-cutout {
+    left: auto;
+    right: 0;
+    width: auto;
+    height: 100%;
+    max-width: none;
+  }
 }
 
 @media (max-width: 480px) {
