@@ -3174,13 +3174,6 @@ h1 {
   text-align: left;
   color: var(--black);
 }
-/* Warmer amber tint when Leon is travelling so it reads as a
-   heads-up rather than a routine timeline. */
-.form-success-reply--away {
-  background: #FFF3EF;
-  border-left-color: var(--accent);
-  line-height: 1.55;
-}
 
 .form-success-timeline {
   list-style: none;

@@ -148,24 +148,26 @@ If we execute this plan cleanly:
 
 ### August 2026 — the away-playbook
 
-Leon is away most of August. What has to work automatically:
+Leon is away most of August. What matters is that customers
+never notice — no auto-responder, no "we're travelling" copy,
+no "the team" pretending to reply. The site behaves normally;
+Leon replies from his phone when he can, and the machinery keeps
+things moving in the background:
 
-1. **Auto-responder on `/contact`**: any booking request in August
-   auto-confirms within 60 seconds with a message like:
-   > "Thanks {name} — your request landed. Leon is away 1-27 Aug
-   > returning weekend of 30-31 Aug. He'll match you to gear the
-   > moment he's back. Meanwhile: expect a personal reply from
-   > his phone by Sunday 31 Aug 20:00. Reference {SR-####}."
-   This shifts customer expectation without losing the booking.
+1. **Reply from the phone during the week**. Even 20 minutes at
+   the end of a day covers most of a day's inquiries. The
+   confirmation email and the success screen already promise a
+   "personal reply from Leon" without a specific SLA on the
+   public surface — that's the honest baseline, no change
+   needed.
 
 2. **Review request cron** fires 24h after every `endDate`
    automatically. This works even if Leon isn't around.
 
-3. **Nothing else changes**. Don't run outreach campaigns. Don't
-   push new content. Don't chase.
+3. **Nothing outbound**. Don't run outreach campaigns. Don't
+   push new content beyond the pre-scheduled ones. Don't chase.
 
-4. **Pre-published content**: I'll queue 3 posts to publish on
-   set dates so the blog looks alive:
+4. **Pre-published content** so the blog looks alive:
    - "Surfing Aljezur in September: our shoulder-season guide"
      (pub 5 Aug)
    - "Q3 2026 rental season report" (pub 20 Aug, first-party data)
@@ -210,8 +212,6 @@ Leon back. Highest-ROI weeks of the year:
 
 - [ ] **Claim GBP** — hardest lever, needs verification (5-10 days
       by postcard). Start today so it's live by mid-Aug.
-- [ ] **Push the auto-responder** live: I'll wire it, Leon signs
-      off the copy tone.
 - [ ] **Sign off review-request templates** (already drafted at
       `outreach/review-request-templates.md`).
 - [ ] **Give me the GBP review URL** once verified — I plug it
@@ -220,7 +220,6 @@ Leon back. Highest-ROI weeks of the year:
 
 ### For me (this session or the next)
 
-- [ ] Ship the auto-responder for `/contact` (Aug window).
 - [ ] Ship the review-request cron (fires 24h after `endDate`).
 - [ ] Draft the 3 August posts as scheduled MDX with `publishedAt`
       dates (needs a small blog-scheduler change).
@@ -228,14 +227,16 @@ Leon back. Highest-ROI weeks of the year:
 - [ ] Set up the weekly business-report cron (email digest to
       Leon Sundays).
 
-### For automation while Leon is away
+### Internal-only "Leon is away" support (never shown to customers)
 
-- Daily push notification if any booking hasn't been acknowledged
-  by the auto-responder (health check).
-- Weekly email digest: bookings received, review count, top
-  organic pages.
-- Auto-cancel any booking not acknowledged within 5 days (opens
-  slot for next customer).
+- Weekly Sunday-evening email digest to Leon: bookings received,
+  review count, top organic pages. Whether he's in Aljezur or on
+  a train in Poland, the inbox tells him what to reply to.
+- Push notification the moment a new booking lands so he can
+  reply during a break, from anywhere.
+- Optional admin flag to mute the "you have an unresponded
+  request" reminder during the away window — otherwise the
+  admin panel keeps nagging.
 
 ---
 
@@ -246,8 +247,7 @@ Ranked by ROI × build cost.
 | # | Automation | Trigger | Effort | Status |
 |---|---|---|---|---|
 | 1 | **Review request** | 24h after `endDate` | S | Not built — waiting for GBP URL |
-| 2 | **August auto-responder** | New booking request during Leon-away window | S | Not built — this session |
-| 3 | **Weekly business report** | Sunday 20:00 Lisbon | S | Not built |
+| 2 | **Weekly business report** | Sunday 20:00 Lisbon | S | Not built |
 | 4 | **Sitemap ping** | New content deployed | XS | Existing? Verify |
 | 5 | **Content-freshness reminder** | Monthly, list top 10 posts | S | Not built |
 | 6 | **GSC near-miss export** | Bi-weekly | M | Requires GSC API auth |
@@ -256,7 +256,9 @@ Ranked by ROI × build cost.
 | 9 | **Season-report SQL generator** | Manual trigger | S | Not built (script) |
 | 10 | **New-booking push if not opened in 24h** | Cron | S | Not built |
 
-Ship this month: 1, 2, 3, 7. Deferred: 4, 5, 6, 8, 9, 10 to Sep.
+Ship this month: 2, 6 (weekly digest + GBP-post reminder). The
+review-request cron ships the day Leon hands over the GBP review
+URL. Deferred: 3, 4, 5, 7, 8, 9 to Sep.
 
 ---
 
