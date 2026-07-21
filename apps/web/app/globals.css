@@ -3289,11 +3289,11 @@ h1 {
   transform: translateX(-40%);
   pointer-events: none;
   z-index: 1;
-  /* Hard shadow of the same silhouette, offset 10px up + 10px left,
-     zero blur. Reads as a solid black "photocopy" behind the figure
-     — same visual as duplicating the image and colouring the copy
-     solid black, but done in one line with no extra DOM node. */
-  filter: drop-shadow(-10px -10px 0 var(--black));
+  /* Hard shadow of the same silhouette, offset down-right to match
+     the design system's other hard shadows (cards, buttons all use
+     positive x/y, zero blur). Same visual as duplicating the image
+     and colouring the copy solid black, but done in one CSS line. */
+  filter: drop-shadow(10px 10px 0 var(--black));
 }
 /* Monogram fallback when the cutout image is missing. */
 .owner-vouch-mono {
