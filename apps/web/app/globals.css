@@ -3292,12 +3292,15 @@ h1 {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 100%;
-  width: auto;
-  /* Override the global `img { max-width: 100% }` reset — otherwise
-     the cutout gets clamped to the photo column width and shrinks. */
-  max-width: none;
-  transform: translateX(-40%);
+  /* Fit width to the photo column and let height follow the
+     aspect ratio; the grid gap between the photo column and the
+     text column becomes the padding between the cutout and the
+     copy, so his figure hugs the right column without ever
+     overlapping the text. */
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
   pointer-events: none;
   z-index: 1;
   /* Silhouette shadow of the cutout, offset down-right. Slight
