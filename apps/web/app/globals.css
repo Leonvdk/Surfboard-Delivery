@@ -3424,10 +3424,11 @@ h1 {
   }
 }
 
-@media (max-width: 480px) {
-  /* Mobile: card is full width, text and image stack vertically
-     (text first, image below) so neither has to fight for room.
-     The 3/4-width desktop centering doesn't help on a phone. */
+@media (max-width: 640px) {
+  /* Anything narrower than the desktop breakpoint stacks: card
+     is full width, text and image stack vertically (text first,
+     image below) so the two-column layout never gets cramped.
+     Matches the 641px desktop breakpoint above — no dead zone. */
   .owner-vouch-frame {
     width: 100%;
   }
