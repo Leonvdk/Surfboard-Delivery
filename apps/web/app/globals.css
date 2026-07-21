@@ -3277,14 +3277,14 @@ h1 {
   position: relative;
   clip-path: inset(0 -400px);
 }
-/* Desktop / tablet: widen the photo column so the 1:1 cutout can
-   grow tall enough to reach at least ~70% of the card height. On
-   mobile the earlier media query keeps the column narrower so the
-   text has room. */
+/* Desktop / tablet: widen the photo column enough that a 1:1
+   cutout can reach the full card height without bleeding into the
+   text column. min-height matched to the typical text-driven
+   height so the image rides the card floor edge-to-edge. */
 @media (min-width: 641px) {
   .owner-vouch {
-    grid-template-columns: 46% 1fr;
-    min-height: 340px;
+    grid-template-columns: 58% 1fr;
+    min-height: 300px;
   }
 }
 /* Photo column — no background fill so the transparent cutout can
@@ -3302,13 +3302,12 @@ h1 {
   position: absolute;
   bottom: 0;
   left: 0;
-  /* Fit width to the photo column and let height follow the
-     aspect ratio; the grid gap between the photo column and the
-     text column becomes the padding between the cutout and the
-     copy, so his figure hugs the right column without ever
-     overlapping the text. */
-  width: 100%;
-  height: auto;
+  /* Fill the card vertically; aspect ratio then determines width.
+     max-width: 100% keeps the figure inside the photo column so
+     the grid gap remains the padding between him and the copy. */
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1;
   max-width: 100%;
   max-height: 100%;
   pointer-events: none;
