@@ -16,7 +16,7 @@ export function WhatsAppFloat() {
 	return (
 		<div className="whatsapp-float">
 			<a
-				href="https://wa.me/351929244395?text=Hi%20Surf%20Rental%20Aljezur%2C%20I%27d%20like%20to%20ask%20about..."
+				href="https://wa.me/351929244395"
 				className="whatsapp-float-link"
 				aria-label="Message us on WhatsApp"
 				target="_blank"

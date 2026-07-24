@@ -209,13 +209,16 @@ function getPackageOptions(days: number | null): FormPackageInfo[] {
 
 function calcEstimatedTotal(
 	people: Person[],
-	pkgOptions: FormPackageInfo[],
+	tripDays: number | null,
+	tripCheckin: string,
+	tripCheckout: string,
 ): { total: number; allSelected: boolean; selectedCount: number } {
 	let total = 0;
 	let selectedCount = 0;
 	for (const person of people) {
 		if (!person.package) continue;
-		const opt = pkgOptions.find((o) => o.value === person.package);
+		const personDays = effectiveDaysForPerson(person, tripDays, tripCheckin, tripCheckout);
+		const opt = getPackageOptions(personDays).find((o) => o.value === person.package);
 		if (opt?.pricePerPerson != null) {
 			total += opt.pricePerPerson;
 			selectedCount++;
@@ -223,6 +226,38 @@ function calcEstimatedTotal(
 	}
 	const allSelected = selectedCount === people.length && people.length > 0;
 	return { total, allSelected, selectedCount };
+}
+
+// Effective days for a person = their own custom range if both dates are
+// filled in, otherwise the trip-level `tripDays`. Kept null when the
+// trip dates aren't filled in yet, matching the "no dates yet" pricing
+// placeholder used across the form.
+function effectiveDaysForPerson(
+	person: Person,
+	tripDays: number | null,
+	tripCheckin: string,
+	tripCheckout: string,
+): number | null {
+	if (person.checkin && person.checkout) {
+		return calcDays(person.checkin, person.checkout);
+	}
+	if (tripCheckin && tripCheckout) return tripDays;
+	return null;
+}
+
+function personEffectiveDates(
+	person: Person,
+	tripCheckin: string,
+	tripCheckout: string,
+): { checkin: string; checkout: string } {
+	return {
+		checkin: person.checkin || tripCheckin,
+		checkout: person.checkout || tripCheckout,
+	};
+}
+
+function hasDateOverride(person: Person): boolean {
+	return Boolean(person.checkin && person.checkout);
 }
 
 function calcDays(checkin: string, checkout: string): number | null {
@@ -249,10 +284,30 @@ type Person = {
 	package: string;
 	board: string;
 	wetsuitSize: string;
+	// Empty string when using the trip-level dates. When both are filled
+	// in the person's package is priced off this range instead.
+	checkin: string;
+	checkout: string;
+	// UI flag: true once the customer has opened the "custom dates" panel
+	// for this person. Kept separate from checkin/checkout so the panel
+	// can be visible with empty inputs (before the customer picks a range).
+	// hasDateOverride() below only returns true when both dates are set —
+	// that's what drives pricing, payload, and validation.
+	useCustomDates: boolean;
 };
 
 function emptyPerson(): Person {
-	return { name: "", sex: "", experience: "", package: "", board: "", wetsuitSize: "" };
+	return {
+		name: "",
+		sex: "",
+		experience: "",
+		package: "",
+		board: "",
+		wetsuitSize: "",
+		checkin: "",
+		checkout: "",
+		useCustomDates: false,
+	};
 }
 
 // Human-readable "we'll reply by X" string in Portugal time. During
@@ -529,7 +584,7 @@ function WetsuitCalcModal({
 
 /* ── Collapsed person summary helpers ── */
 
-function personSummaryLabel(person: Person, pkgOptions: FormPackageInfo[]): string {
+function personSummaryLabel(person: Person, personDays: number | null): string {
 	const parts: string[] = [];
 	const sexLabel = SEX_OPTIONS.find((o) => o.value === person.sex)?.label;
 	if (sexLabel && person.sex) parts.push(sexLabel);
@@ -537,9 +592,10 @@ function personSummaryLabel(person: Person, pkgOptions: FormPackageInfo[]): stri
 	if (expLabel && person.experience) parts.push(expLabel);
 	const boardLabel = BOARD_OPTIONS.find((o) => o.value === person.board)?.label;
 	if (boardLabel && person.board) parts.push(boardLabel);
-	const pkgLabel = pkgOptions.find((o) => o.value === person.package);
+	const pkgLabel = getPackageOptions(personDays).find((o) => o.value === person.package);
 	if (pkgLabel) parts.push(pkgLabel.label.split(" — ")[0]!);
 	if (person.wetsuitSize) parts.push(`Wetsuit ${person.wetsuitSize}`);
+	if (hasDateOverride(person)) parts.push(`Custom dates: ${person.checkin} → ${person.checkout}`);
 	return parts.length > 0 ? parts.join(" · ") : "Not filled in yet";
 }
 
@@ -740,8 +796,14 @@ export function BookingForm() {
 	}, []);
 
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
+	// Base pkgOptions (trip-level days) — used only for the URL-prefill lookup
+	// and as a fallback when no per-person override is set. All per-person
+	// rendering uses getPackageOptions(personEffectiveDays) instead.
 	const pkgOptions = useMemo(() => getPackageOptions(days), [days]);
-	const estimate = useMemo(() => calcEstimatedTotal(people, pkgOptions), [people, pkgOptions]);
+	const estimate = useMemo(
+		() => calcEstimatedTotal(people, days, checkin, checkout),
+		[people, days, checkin, checkout],
+	);
 
 	/* Funnel milestones — each fires once via fireStep(). */
 	useEffect(() => {
@@ -805,6 +867,36 @@ export function BookingForm() {
 		});
 	};
 
+	const setPersonCheckin = (index: number, value: string) => updatePerson(index, "checkin", value);
+	const setPersonCheckout = (index: number, value: string) => updatePerson(index, "checkout", value);
+
+	const clearPersonDates = (index: number) => {
+		setPeople((prev) => {
+			const next = [...prev];
+			const current = next[index];
+			if (!current) return prev;
+			next[index] = { ...current, checkin: "", checkout: "", useCustomDates: false };
+			return next;
+		});
+	};
+
+	const beginPersonDateOverride = (index: number) => {
+		setPeople((prev) => {
+			const next = [...prev];
+			const current = next[index];
+			if (!current) return prev;
+			// Seed from trip-level dates so the customer only needs to change what
+			// differs. If trip dates aren't filled in yet, leave the picker blank.
+			next[index] = {
+				...current,
+				checkin: current.checkin || checkin || "",
+				checkout: current.checkout || checkout || "",
+				useCustomDates: true,
+			};
+			return next;
+		});
+	};
+
 	const wetsuitCalcSex = wetsuitCalcOpen !== null ? (people[wetsuitCalcOpen]?.sex as Sex) : ("" as Sex);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -828,6 +920,28 @@ export function BookingForm() {
 			return;
 		}
 
+		// Per-person overrides get the same 3-day floor so a customer can't
+		// smuggle in a 1-day board via the "different dates" toggle.
+		for (let i = 0; i < people.length; i++) {
+			const person = people[i]!;
+			if (!person.checkin && !person.checkout) continue;
+			if (!person.checkin || !person.checkout) {
+				setStatus("error");
+				setErrorMsg(
+					`${personDisplayName(person, i)}: pick both a start and end date for the custom range, or use the trip dates.`,
+				);
+				return;
+			}
+			const personDays = calcDays(person.checkin, person.checkout);
+			if (personDays == null || personDays < DAILY_MINIMUM_DAYS) {
+				setStatus("error");
+				setErrorMsg(
+					`${personDisplayName(person, i)}: minimum rental period is ${DAILY_MINIMUM_DAYS} days.`,
+				);
+				return;
+			}
+		}
+
 		setStatus("submitting");
 		setErrorMsg("");
 
@@ -848,6 +962,10 @@ export function BookingForm() {
 				package: p.package,
 				board: p.board,
 				wetsuitSize: p.wetsuitSize,
+				// Only send when this person diverges from the trip range,
+				// so the API can tell "same as trip" from "customer overrode".
+				checkin: hasDateOverride(p) ? p.checkin : null,
+				checkout: hasDateOverride(p) ? p.checkout : null,
 			})),
 			message: formData.get("message") as string,
 			estimatedTotal: estimate.allSelected ? estimate.total : null,
@@ -875,7 +993,10 @@ export function BookingForm() {
 				people_count: peopleCount,
 				nights: days,
 				packages: people
-					.map((p) => pkgOptions.find((o) => o.value === p.package)?.tier ?? "unset")
+					.map((p) => {
+						const pd = effectiveDaysForPerson(p, days, checkin, checkout);
+						return getPackageOptions(pd).find((o) => o.value === p.package)?.tier ?? "unset";
+					})
 					.join(","),
 				has_wetsuit: people.some((p) => packageIncludesWetsuit(p.package, pkgOptions)),
 				prefilled: didPrefill.current,
@@ -894,7 +1015,8 @@ export function BookingForm() {
 	if (status === "success") {
 		const packagesLabel = people
 			.map((p, i) => {
-				const opt = pkgOptions.find((o) => o.value === p.package);
+				const pd = effectiveDaysForPerson(p, days, checkin, checkout);
+				const opt = getPackageOptions(pd).find((o) => o.value === p.package);
 				const label = opt ? opt.label.split(" — ")[0] : "TBD";
 				return people.length > 1 ? `Person ${i + 1}: ${label}` : label;
 			})
@@ -1039,8 +1161,13 @@ export function BookingForm() {
 				<div className="person-list">
 					{people.map((person, i) => {
 						const isOpen = expandedPerson === i;
-						const showWetsuit = packageIncludesWetsuit(person.package, pkgOptions);
+						const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
+						const personPkgOptions = getPackageOptions(personDays);
+						const showWetsuit = packageIncludesWetsuit(person.package, personPkgOptions);
 						const wetsuitOpts = getWetsuitOptions(person.sex as Sex);
+						// Panel is shown as soon as the customer opts in — even before
+						// both dates are picked — so the picker isn't hidden mid-flow.
+						const showOverridePanel = person.useCustomDates || hasDateOverride(person);
 
 						if (!isOpen) {
 							return (
@@ -1051,7 +1178,7 @@ export function BookingForm() {
 											<polyline points="6 9 12 15 18 9" />
 										</svg>
 									</div>
-									<p className="person-collapsed-summary">{personSummaryLabel(person, pkgOptions)}</p>
+									<p className="person-collapsed-summary">{personSummaryLabel(person, personDays)}</p>
 								</div>
 							);
 						}
@@ -1123,6 +1250,36 @@ export function BookingForm() {
 											))}
 										</select>
 									</div>
+								<div className="form-group person-date-override">
+									{showOverridePanel ? (
+										<>
+											<div className="person-date-override-label">
+												<span>Custom dates for this board</span>
+												<button
+													type="button"
+													className="person-date-override-reset"
+													onClick={() => clearPersonDates(i)}
+												>
+													Use trip dates
+												</button>
+											</div>
+											<DateRangePicker
+												checkin={person.checkin}
+												checkout={person.checkout}
+												onCheckinChange={(v) => setPersonCheckin(i, v)}
+												onCheckoutChange={(v) => setPersonCheckout(i, v)}
+											/>
+										</>
+									) : (
+										<button
+											type="button"
+											className="person-date-override-toggle"
+											onClick={() => beginPersonDateOverride(i)}
+										>
+											Want different dates for this board?
+										</button>
+									)}
+								</div>
 								<div className="form-group">
 									<label htmlFor={`package-${i}`}>Package</label>
 									<select
@@ -1133,16 +1290,16 @@ export function BookingForm() {
 										onChange={(e) => updatePerson(i, "package", e.target.value)}
 									>
 										<option value="">Select a package</option>
-										{pkgOptions.map((o) => (
+										{personPkgOptions.map((o) => (
 											<option key={o.value} value={o.value}>{o.label}</option>
 										))}
 									</select>
 									{(() => {
-										const sel = pkgOptions.find((o) => o.value === person.package);
+										const sel = personPkgOptions.find((o) => o.value === person.package);
 										if (!sel?.pricePerPerson) return null;
 										return (
 											<span className="package-price-tag">
-												&euro;{sel.pricePerPerson} {formatDurationLabel(days)} per person
+												&euro;{sel.pricePerPerson} {formatDurationLabel(personDays)} per person
 											</span>
 										);
 									})()}
@@ -1232,11 +1389,15 @@ export function BookingForm() {
 					{estimate.allSelected && people.length > 1 && (
 						<div className="estimate-breakdown">
 							{people.map((person, i) => {
-								const opt = pkgOptions.find((o) => o.value === person.package);
+								const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
+								const opt = getPackageOptions(personDays).find((o) => o.value === person.package);
 								if (!opt?.pricePerPerson) return null;
+								const suffix = hasDateOverride(person)
+									? ` · ${person.checkin} → ${person.checkout}`
+									: "";
 								return (
 									<div key={i} className="estimate-line">
-										<span>Person {i + 1} &middot; {opt.label.split(" — ")[0]}</span>
+										<span>Person {i + 1} &middot; {opt.label.split(" — ")[0]}{suffix}</span>
 										<span>&euro;{opt.pricePerPerson}</span>
 									</div>
 								);

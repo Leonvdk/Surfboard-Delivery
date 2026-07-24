@@ -89,10 +89,15 @@ export default async function BookingDetailPage({
 			<div className="admin-detail-grid">
 				<article className="admin-card">
 					<h2>Trip</h2>
+					{booking.people?.some((p) => p.checkin || p.checkout) && (
+						<p className="admin-stagger-badge">
+							⚠️ Staggered dates — some people have their own delivery/pickup window (see Per person below).
+						</p>
+					)}
 					<dl className="admin-dl">
-						<dt>Delivery</dt>
+						<dt>Delivery (envelope)</dt>
 						<dd>{formatLongDate(booking.checkin)}</dd>
-						<dt>Pickup</dt>
+						<dt>Pickup (envelope)</dt>
 						<dd>{formatLongDate(booking.checkout)}</dd>
 						<dt>Accommodation</dt>
 						<dd>{booking.accommodation || "—"}</dd>
@@ -218,25 +223,39 @@ export default async function BookingDetailPage({
 
 							<h3>Per person</h3>
 							<div className="admin-people">
-								{booking.people?.map((p, i) => (
-									<div key={i} className="admin-person">
-										<div className="admin-person-name">
-											{p.name || `Person ${i + 1}`}
+								{booking.people?.map((p, i) => {
+									const hasOwnDates = Boolean(p.checkin && p.checkout);
+									return (
+										<div key={i} className="admin-person">
+											<div className="admin-person-name">
+												{p.name || `Person ${i + 1}`}
+												{hasOwnDates && (
+													<span className="admin-person-custom-dates">custom dates</span>
+												)}
+											</div>
+											<dl className="admin-dl admin-dl--inline">
+												<dt>Sex</dt>
+												<dd>{sexLabel(p.sex)}</dd>
+												<dt>Experience</dt>
+												<dd>{experienceLabel(p.experience)}</dd>
+												<dt>Package</dt>
+												<dd>{packageShort(p.package)}</dd>
+												<dt>Board</dt>
+												<dd>{boardLabel(p.board)}</dd>
+												<dt>Wetsuit</dt>
+												<dd>{p.wetsuitSize || "—"}</dd>
+												{hasOwnDates && (
+													<>
+														<dt>Delivery</dt>
+														<dd>{formatLongDate(p.checkin!)}</dd>
+														<dt>Pickup</dt>
+														<dd>{formatLongDate(p.checkout!)}</dd>
+													</>
+												)}
+											</dl>
 										</div>
-										<dl className="admin-dl admin-dl--inline">
-											<dt>Sex</dt>
-											<dd>{sexLabel(p.sex)}</dd>
-											<dt>Experience</dt>
-											<dd>{experienceLabel(p.experience)}</dd>
-											<dt>Package</dt>
-											<dd>{packageShort(p.package)}</dd>
-											<dt>Board</dt>
-											<dd>{boardLabel(p.board)}</dd>
-											<dt>Wetsuit</dt>
-											<dd>{p.wetsuitSize || "—"}</dd>
-										</dl>
-									</div>
-								))}
+									);
+								})}
 							</div>
 						</article>
 					);

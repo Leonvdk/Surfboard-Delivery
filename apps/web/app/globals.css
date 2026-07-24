@@ -3488,6 +3488,66 @@ h1 {
   letter-spacing: -0.01em;
 }
 
+/* ---- Per-person date override ---- */
+/* Small brand-red link that customers click when one person in the party
+   needs a different rental window (e.g. one board Aug 1→8, one Aug 1→15).
+   When active the person's package price recomputes off their own days. */
+
+.person-date-override {
+  margin: 0;
+}
+
+.person-date-override-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.person-date-override-toggle:hover {
+  opacity: 0.75;
+}
+
+.person-date-override-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-bottom: 6px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.person-date-override-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--gray-500);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.person-date-override-reset:hover {
+  color: var(--black);
+}
+
 /* ---- Estimated total ---- */
 
 .estimate-summary {
@@ -7526,6 +7586,32 @@ h1 {
   font-family: var(--font-display);
   font-weight: 700;
   margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-person-custom-dates {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.admin-stagger-badge {
+  margin: 0 0 var(--space-sm);
+  padding: 10px 14px;
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  border-left: 3px solid var(--accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--black);
 }
 
 .admin-message {

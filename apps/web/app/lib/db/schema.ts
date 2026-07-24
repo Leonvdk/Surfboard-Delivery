@@ -26,6 +26,13 @@ export interface BookingPerson {
 	package: string;
 	board: string;
 	wetsuitSize: string;
+	// When present, this person's gear runs on their own date window
+	// instead of the trip-level checkin/checkout. Optional so historic
+	// rows (and same-dates-for-everyone bookings) don't need to store
+	// them. The trip-level columns remain the envelope (min/max) so
+	// the calendar/dashboard indexes keep working.
+	checkin?: string;
+	checkout?: string;
 }
 
 export const bookings = pgTable(
