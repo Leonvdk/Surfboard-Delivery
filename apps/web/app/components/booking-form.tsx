@@ -909,7 +909,7 @@ export function BookingForm() {
 			)?.value ?? "";
 		const firstName = submittedName.split(" ")[0] || "there";
 
-		const whatsappBase = "https://wa.me/31613262259";
+		const whatsappBase = "https://wa.me/351929244395";
 		const whatsappMsg = requestRef
 			? `Hi Leon — following up on my booking request ${requestRef} (${firstName}, ${checkin} → ${checkout}).`
 			: `Hi Leon — following up on my booking request (${firstName}, ${checkin} → ${checkout}).`;

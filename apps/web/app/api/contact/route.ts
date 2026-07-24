@@ -149,7 +149,7 @@ Your request summary:
 
 ${data.people.map((p, i) => formatPerson(p, i)).join("\n\n")}
 
-If you have any questions in the meantime, reply to this email or reach us on WhatsApp at +31 6 13262259.
+If you have any questions in the meantime, reply to this email or reach us on WhatsApp at +351 929 244 395.
 
 See you in the water!
 — The Surf Rental team`;
@@ -211,7 +211,7 @@ See you in the water!
     </div>
 
     <!-- Contact -->
-    <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#1A1A1A;">Questions before we get back to you? Just reply to this email or send us a message on <a href="https://wa.me/31613262259" style="color:#D4501E;font-weight:600;text-decoration:none;">WhatsApp</a>.</p>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#1A1A1A;">Questions before we get back to you? Just reply to this email or send us a message on <a href="https://wa.me/351929244395" style="color:#D4501E;font-weight:600;text-decoration:none;">WhatsApp</a>.</p>
 
     <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#1A1A1A;">See you in the water!<br/><strong style="font-weight:800;">Leon</strong><br/><span style="color:#555555;">Surf Rental Aljezur</span></p>
 

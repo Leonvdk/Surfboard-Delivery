@@ -71,11 +71,11 @@ export default function ContactPage() {
 										<dt>Phone / WhatsApp</dt>
 										<dd>
 											<a
-												href="https://wa.me/31613262259"
+												href="https://wa.me/351929244395"
 												target="_blank"
 												rel="noopener noreferrer"
 											>
-												+31 6 13262259
+												+351 929 244 395
 											</a>
 										</dd>
 									</dl>

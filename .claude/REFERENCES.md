@@ -6,7 +6,7 @@
 - **Boards:** 6'6 Shortboard, 7'0 Funboard, 7'8 Funboard, 8'6 Longboard
 - **Packages:** Board Only (€25/day), Full Package with wetsuit (€35/day), Premium (€45/day), discount on longer stays
 - **Discounts:** Weekly and 2-week rates available; group discount 12% for 3–5 people
-- **Contact:** hello@surfrental-aljezur.com | WhatsApp: +31 6 13262259
+- **Contact:** hello@surfrental-aljezur.com | WhatsApp: +351 929 244 395
 - **Rating:** 4.9/5.0 | Annual sessions: 2,400+
 - **USP:** Free delivery and pickup to accommodation — no queues, no carrying boards
 

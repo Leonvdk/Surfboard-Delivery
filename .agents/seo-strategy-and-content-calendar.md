@@ -414,7 +414,7 @@ Ensure Name, Address, Phone are identical everywhere:
 ```
 Name: Surf Rental Aljezur
 Address: Aljezur, Faro, Portugal
-Phone: +31613262259
+Phone: +351929244395
 Email: hello@surfrental-aljezur.com
 Website: https://surfrental-aljezur.com
 ```
