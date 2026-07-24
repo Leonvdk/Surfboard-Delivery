@@ -45,18 +45,28 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
 	}
 
-	if (event.type !== "checkout.session.completed") {
-		// Only checkout.session.completed is subscribed; tolerate others.
+	// Subscribed events: completed, async_payment_succeeded,
+	// async_payment_failed, expired.
+	// - completed with payment_status "paid" → cards/wallets, settle now.
+	// - completed with "unpaid" → an async method (Multibanco/SEPA — common
+	//   for Portuguese customers) started; funds arrive later via
+	//   async_payment_succeeded, so just acknowledge.
+	// - async_payment_succeeded → the delayed funds landed; treat as paid.
+	// - async_payment_failed → the customer thinks they paid but the debit
+	//   bounced; push a warning so Leon follows up.
+	// - expired → routine (payment links mint a session per visit); ignore.
+	const isPaidEvent =
+		(event.type === "checkout.session.completed" &&
+			(event.data.object as Stripe.Checkout.Session).payment_status ===
+				"paid") ||
+		event.type === "checkout.session.async_payment_succeeded";
+	const isFailedEvent = event.type === "checkout.session.async_payment_failed";
+
+	if (!isPaidEvent && !isFailedEvent) {
 		return NextResponse.json({ received: true });
 	}
 
 	const session = event.data.object as Stripe.Checkout.Session;
-	if (session.payment_status !== "paid") {
-		// Async payment methods complete later via checkout.session
-		// .async_payment_succeeded — not enabled on our links (cards/wallets
-		// settle immediately), so just acknowledge.
-		return NextResponse.json({ received: true });
-	}
 
 	// Find the booking: session metadata first, payment-link metadata as
 	// fallback (Stripe copies link metadata onto sessions, but don't bet on it).
@@ -96,6 +106,23 @@ export async function POST(request: Request) {
 		.limit(1);
 	if (!booking) {
 		console.error(`Stripe payment for unknown booking #${bookingId}`);
+		return NextResponse.json({ received: true });
+	}
+
+	if (isFailedEvent) {
+		// No DB change — the booking simply isn't paid. Warn Leon: the
+		// customer likely believes they paid (Multibanco/SEPA bounce).
+		try {
+			const { sendPushToAll } = await import("../../../lib/push");
+			await sendPushToAll({
+				title: "⚠️ Payment failed",
+				body: `${booking.name} · SR-${String(bookingId).padStart(5, "0")} — delayed payment bounced, follow up`,
+				url: `/admin/bookings/${bookingId}`,
+				tag: `payment-failed-${bookingId}`,
+			});
+		} catch (pushErr) {
+			console.error("Payment-failed push error:", pushErr);
+		}
 		return NextResponse.json({ received: true });
 	}
 
