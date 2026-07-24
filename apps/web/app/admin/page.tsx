@@ -134,6 +134,9 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		<section className="admin-list-page">
 			<header className="admin-page-header">
 				<h1>Bookings</h1>
+				<Link href="/admin/bookings/new" className="admin-btn admin-btn--primary">
+					+ New booking
+				</Link>
 			</header>
 
 			{needsDecision.length > 0 && (

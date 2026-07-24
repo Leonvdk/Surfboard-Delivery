@@ -65,6 +65,10 @@ export const bookings = pgTable(
 
 		stripeChargeId: text("stripe_charge_id"),
 		stripeCustomerId: text("stripe_customer_id"),
+		// Permanent Stripe Payment Link URL sent with the confirmation email
+		// for admin-created bookings. Null when Stripe wasn't available (or
+		// the customer pays on arrival).
+		stripePaymentLinkUrl: text("stripe_payment_link_url"),
 
 		importedFromResend: timestamp("imported_from_resend"),
 

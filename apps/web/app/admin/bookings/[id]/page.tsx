@@ -137,6 +137,21 @@ export default async function BookingDetailPage({
 								</dd>
 							</>
 						)}
+						{booking.stripePaymentLinkUrl && (
+							<>
+								<dt>Payment link</dt>
+								<dd>
+									<a
+										href={booking.stripePaymentLinkUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="admin-row-link"
+									>
+										Open Stripe link →
+									</a>
+								</dd>
+							</>
+						)}
 						<dt>Submitted</dt>
 						<dd>
 							{booking.createdAt.toLocaleDateString("en-GB", {
