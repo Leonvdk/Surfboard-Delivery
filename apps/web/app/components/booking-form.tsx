@@ -284,16 +284,12 @@ type Person = {
 	package: string;
 	board: string;
 	wetsuitSize: string;
-	// Empty string when using the trip-level dates. When both are filled
-	// in the person's package is priced off this range instead.
+	// Per-person override. Empty string means "use trip-level dates";
+	// the setter below strips values that match the trip range so this
+	// stays empty for the common case (everyone on the same dates).
+	// When both are set, this person is priced off their own range.
 	checkin: string;
 	checkout: string;
-	// UI flag: true once the customer has opened the "custom dates" panel
-	// for this person. Kept separate from checkin/checkout so the panel
-	// can be visible with empty inputs (before the customer picks a range).
-	// hasDateOverride() below only returns true when both dates are set —
-	// that's what drives pricing, payload, and validation.
-	useCustomDates: boolean;
 };
 
 function emptyPerson(): Person {
@@ -306,7 +302,6 @@ function emptyPerson(): Person {
 		wetsuitSize: "",
 		checkin: "",
 		checkout: "",
-		useCustomDates: false,
 	};
 }
 
@@ -867,35 +862,30 @@ export function BookingForm() {
 		});
 	};
 
-	const setPersonCheckin = (index: number, value: string) => updatePerson(index, "checkin", value);
-	const setPersonCheckout = (index: number, value: string) => updatePerson(index, "checkout", value);
+	// Store per-person dates only when they differ from the trip range —
+	// stripping matches back to "" keeps hasDateOverride == "both filled"
+	// and means the auto-sync loop below doesn't have to compare on every render.
+	const setPersonCheckin = (index: number, value: string) =>
+		updatePerson(index, "checkin", value && value === checkin ? "" : value);
+	const setPersonCheckout = (index: number, value: string) =>
+		updatePerson(index, "checkout", value && value === checkout ? "" : value);
 
-	const clearPersonDates = (index: number) => {
-		setPeople((prev) => {
-			const next = [...prev];
-			const current = next[index];
-			if (!current) return prev;
-			next[index] = { ...current, checkin: "", checkout: "", useCustomDates: false };
-			return next;
-		});
-	};
-
-	const beginPersonDateOverride = (index: number) => {
-		setPeople((prev) => {
-			const next = [...prev];
-			const current = next[index];
-			if (!current) return prev;
-			// Seed from trip-level dates so the customer only needs to change what
-			// differs. If trip dates aren't filled in yet, leave the picker blank.
-			next[index] = {
-				...current,
-				checkin: current.checkin || checkin || "",
-				checkout: current.checkout || checkout || "",
-				useCustomDates: true,
-			};
-			return next;
-		});
-	};
+	// When the trip range changes, purge any person override that used to
+	// match the OLD trip dates — otherwise a customer who picked matching
+	// dates yesterday would suddenly appear to have an override today.
+	const prevTripRef = useRef({ checkin, checkout });
+	useEffect(() => {
+		const prev = prevTripRef.current;
+		if (prev.checkin === checkin && prev.checkout === checkout) return;
+		setPeople((current) =>
+			current.map((p) =>
+				p.checkin === prev.checkin && p.checkout === prev.checkout
+					? { ...p, checkin: "", checkout: "" }
+					: p,
+			),
+		);
+		prevTripRef.current = { checkin, checkout };
+	}, [checkin, checkout]);
 
 	const wetsuitCalcSex = wetsuitCalcOpen !== null ? (people[wetsuitCalcOpen]?.sex as Sex) : ("" as Sex);
 
@@ -1165,9 +1155,7 @@ export function BookingForm() {
 						const personPkgOptions = getPackageOptions(personDays);
 						const showWetsuit = packageIncludesWetsuit(person.package, personPkgOptions);
 						const wetsuitOpts = getWetsuitOptions(person.sex as Sex);
-						// Panel is shown as soon as the customer opts in — even before
-						// both dates are picked — so the picker isn't hidden mid-flow.
-						const showOverridePanel = person.useCustomDates || hasDateOverride(person);
+						const overrideActive = hasDateOverride(person);
 
 						if (!isOpen) {
 							return (
@@ -1250,35 +1238,22 @@ export function BookingForm() {
 											))}
 										</select>
 									</div>
-								<div className="form-group person-date-override">
-									{showOverridePanel ? (
-										<>
-											<div className="person-date-override-label">
-												<span>Custom dates for this board</span>
-												<button
-													type="button"
-													className="person-date-override-reset"
-													onClick={() => clearPersonDates(i)}
-												>
-													Use trip dates
-												</button>
-											</div>
-											<DateRangePicker
-												checkin={person.checkin}
-												checkout={person.checkout}
-												onCheckinChange={(v) => setPersonCheckin(i, v)}
-												onCheckoutChange={(v) => setPersonCheckout(i, v)}
-											/>
-										</>
-									) : (
-										<button
-											type="button"
-											className="person-date-override-toggle"
-											onClick={() => beginPersonDateOverride(i)}
-										>
-											Want different dates for this board?
-										</button>
-									)}
+								<div className={`form-group person-date-picker${overrideActive ? " person-date-picker--custom" : ""}`}>
+									{/* Compact per-person date range — pre-filled with the trip
+										dates. Picking a different range here prices that person
+										off their own days. Values matching the trip range are
+										stripped by the setters, so 'override' means 'diverges'. */}
+									<DateRangePicker
+										checkin={person.checkin || checkin}
+										checkout={person.checkout || checkout}
+										onCheckinChange={(v) => setPersonCheckin(i, v)}
+										onCheckoutChange={(v) => setPersonCheckout(i, v)}
+									/>
+									<p className="person-date-picker-hint">
+										{overrideActive
+											? "Custom dates for this board — click to change or match the trip."
+											: "Using trip dates — click to pick a different range for this board."}
+									</p>
 								</div>
 								<div className="form-group">
 									<label htmlFor={`package-${i}`}>Package</label>

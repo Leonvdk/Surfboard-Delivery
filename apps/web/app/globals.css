@@ -3488,64 +3488,45 @@ h1 {
   letter-spacing: -0.01em;
 }
 
-/* ---- Per-person date override ---- */
-/* Small brand-red link that customers click when one person in the party
-   needs a different rental window (e.g. one board Aug 1→8, one Aug 1→15).
-   When active the person's package price recomputes off their own days. */
+/* ---- Per-person date picker (inline, compact) ---- */
+/* Each person always renders a date-range picker pre-filled with the
+   trip dates. Clicking picks a different range for just that person;
+   their package price then recomputes off their own days. Matching the
+   trip range in the picker restores the "using trip dates" hint. */
 
-.person-date-override {
+.person-date-picker {
   margin: 0;
 }
 
-.person-date-override-toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--accent);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
+.person-date-picker .drp-label {
+  /* The main picker's own label ("Rental dates") reads redundant inline
+     under a Person card — the hint below already describes what this is. */
+  display: none;
 }
 
-.person-date-override-toggle:hover {
-  opacity: 0.75;
+.person-date-picker .drp-trigger {
+  padding: 10px 14px;
+  font-size: 0.9375rem;
 }
 
-.person-date-override-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-sm);
-  margin-bottom: 6px;
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--accent);
+.person-date-picker .drp-trigger-sub {
+  font-size: 0.6875rem;
 }
 
-.person-date-override-reset {
-  background: none;
-  border: none;
-  padding: 0;
+.person-date-picker-hint {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
   color: var(--gray-500);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
+  line-height: 1.5;
 }
 
-.person-date-override-reset:hover {
-  color: var(--black);
+.person-date-picker--custom .person-date-picker-hint {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.person-date-picker--custom .drp-trigger {
+  border-color: var(--accent);
 }
 
 /* ---- Estimated total ---- */
