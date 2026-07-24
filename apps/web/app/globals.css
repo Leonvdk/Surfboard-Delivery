@@ -2761,6 +2761,74 @@ h1 {
   letter-spacing: 0.08em;
 }
 
+/* ---- Label row with ⓘ tooltip ---- */
+
+.form-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.form-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.form-tooltip-trigger:hover,
+.form-tooltip-trigger:focus-visible {
+  color: var(--accent);
+}
+
+.form-tooltip-bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--black);
+  box-shadow: 3px 3px 0 var(--black);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--black);
+  text-transform: none;
+  letter-spacing: normal;
+  z-index: 30;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms ease;
+}
+
+/* Keep the bubble on-screen near the left page edge on small viewports. */
+@media (max-width: 480px) {
+  .form-tooltip-bubble {
+    left: auto;
+    right: -12px;
+    transform: none;
+  }
+}
+
+.form-tooltip:hover .form-tooltip-bubble,
+.form-tooltip-trigger:focus-visible + .form-tooltip-bubble,
+.form-tooltip-bubble--open {
+  opacity: 1;
+  visibility: visible;
+}
+
 .form-group input,
 .form-group select,
 .form-group textarea {

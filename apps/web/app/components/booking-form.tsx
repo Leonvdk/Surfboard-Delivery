@@ -656,6 +656,20 @@ export function BookingForm() {
 	const [wetsuitCalcOpen, setWetsuitCalcOpen] = useState<number | null>(null);
 	const [status, setStatus] = useState<FormStatus>("idle");
 	const [errorMsg, setErrorMsg] = useState("");
+	// ⓘ tooltip next to the phone label — click/tap toggles (mobile has no
+	// hover), desktop hover is handled purely in CSS. Tap-outside closes:
+	// iOS Safari doesn't focus buttons on tap, so onBlur alone won't fire.
+	const [phoneTipOpen, setPhoneTipOpen] = useState(false);
+	useEffect(() => {
+		if (!phoneTipOpen) return;
+		const close = (e: PointerEvent) => {
+			if (!(e.target as Element | null)?.closest?.(".form-tooltip")) {
+				setPhoneTipOpen(false);
+			}
+		};
+		document.addEventListener("pointerdown", close);
+		return () => document.removeEventListener("pointerdown", close);
+	}, [phoneTipOpen]);
 	// Shown on the success screen so the customer can quote it back on
 	// WhatsApp / email if we go silent — closes the "did anything actually
 	// happen?" gap the Swiss customers described.
@@ -1151,9 +1165,34 @@ export function BookingForm() {
 					<input type="email" id="email" name="email" required autoComplete="email" />
 				</div>
 				<div className="form-group">
-					<label htmlFor="phone">
-						Phone / WhatsApp <span className="form-optional">(optional)</span>
-					</label>
+					<div className="form-label-row">
+						<label htmlFor="phone">
+							Phone / WhatsApp <span className="form-optional">(optional)</span>
+						</label>
+						<span className="form-tooltip">
+							<button
+								type="button"
+								className="form-tooltip-trigger"
+								aria-label="Why we ask for your phone number"
+								aria-expanded={phoneTipOpen}
+								onClick={() => setPhoneTipOpen((o) => !o)}
+								onBlur={() => setPhoneTipOpen(false)}
+							>
+								<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+									<circle cx="12" cy="12" r="9.5" />
+									<line x1="12" y1="11" x2="12" y2="16.5" />
+									<circle cx="12" cy="7.5" r="0.5" fill="currentColor" />
+								</svg>
+							</button>
+							<span
+								className={`form-tooltip-bubble${phoneTipOpen ? " form-tooltip-bubble--open" : ""}`}
+								role="tooltip"
+							>
+								We need your phone number for delivery and pickup. You
+								don&apos;t have to leave it here, but we will ask for it later.
+							</span>
+						</span>
+					</div>
 					<input
 						type="tel"
 						id="phone"
