@@ -51,6 +51,18 @@ const TABS: Tab[] = [
 		),
 	},
 	{
+		href: "/admin/boards",
+		label: "Boards",
+		match: (p) => p.startsWith("/admin/boards"),
+		icon: (
+			// Surfboard silhouette: pointed nose, rounded tail, center stringer.
+			<svg {...iconProps}>
+				<path d="M12 2.5c3 3 4.5 7.5 4.5 11.5 0 3.5-2 7.5-4.5 7.5s-4.5-4-4.5-7.5c0-4 1.5-8.5 4.5-11.5z" />
+				<path d="M12 6v12" />
+			</svg>
+		),
+	},
+	{
 		href: "/admin/revenue",
 		label: "Revenue",
 		match: (p) => p.startsWith("/admin/revenue"),

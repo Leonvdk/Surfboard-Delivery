@@ -34,6 +34,7 @@ interface PersonData {
 interface BookingRequest {
 	name: string;
 	email: string;
+	phone?: string | null;
 	checkin: string;
 	checkout: string;
 	accommodation: string;
@@ -157,7 +158,7 @@ function buildBusinessEmail(
 	const text = `New booking request
 
 Name: ${data.name}
-Email: ${data.email}
+Email: ${data.email}${data.phone ? `\nPhone: ${data.phone}` : ""}
 Delivery (party): ${data.checkin}
 Pickup (party): ${data.checkout}${hasStagger ? `\nWindow envelope: ${envelope.checkin} → ${envelope.checkout} (some people have custom dates — see below)` : ""}
 Accommodation: ${data.accommodation}
@@ -189,6 +190,7 @@ Reply directly to this email to reach the customer.`;
       <table style="width:100%;border-collapse:collapse;">
         ${row("Name", data.name)}
         ${row("Email", `<a href="mailto:${data.email}" style="color:#D4501E;text-decoration:none;">${data.email}</a>`)}
+        ${data.phone ? row("Phone", `<a href="https://wa.me/${data.phone.replace(/[^\d]/g, "")}" style="color:#D4501E;text-decoration:none;">${data.phone}</a>`) : ""}
         ${row(hasStagger ? "Party delivery" : "Delivery", data.checkin)}
         ${row(hasStagger ? "Party pickup" : "Pickup", data.checkout)}
         ${hasStagger ? row("Window envelope", `${envelope.checkin} → ${envelope.checkout}`) : ""}
@@ -407,6 +409,7 @@ export async function POST(request: Request) {
 					.values({
 						name: data.name,
 						email: data.email,
+						phone: data.phone?.trim() || null,
 						// Store the envelope on the top-level columns so calendar,
 						// dashboard buckets, and the delivery-reminder cron keep
 						// working. Per-person dates live inside `people` below.

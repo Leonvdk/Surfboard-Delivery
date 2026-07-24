@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build",
+    "build": "node scripts/apply-migrations.mjs && next build",
     "start": "next start",
     "check-types": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",

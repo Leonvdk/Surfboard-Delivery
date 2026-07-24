@@ -610,6 +610,7 @@ type FormDraft = {
 	people: Person[];
 	name: string;
 	email: string;
+	phone: string;
 	accommodation: string;
 	message: string;
 	allowIndividualDates: boolean;
@@ -683,6 +684,7 @@ export function BookingForm() {
 		const form = formRef.current;
 		if (d.name) (form.elements.namedItem("name") as HTMLInputElement | null)?.setAttribute("value", d.name);
 		if (d.email) (form.elements.namedItem("email") as HTMLInputElement | null)?.setAttribute("value", d.email);
+		if (d.phone) (form.elements.namedItem("phone") as HTMLInputElement | null)?.setAttribute("value", d.phone);
 		if (d.accommodation) (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.setAttribute("value", d.accommodation);
 		if (d.message) {
 			const el = form.elements.namedItem("message") as HTMLTextAreaElement | null;
@@ -713,6 +715,7 @@ export function BookingForm() {
 		saveDraft({
 			name,
 			email,
+			phone: (form.elements.namedItem("phone") as HTMLInputElement | null)?.value || "",
 			accommodation: (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.value || "",
 			message: (form.elements.namedItem("message") as HTMLTextAreaElement | null)?.value || "",
 		});
@@ -959,6 +962,7 @@ export function BookingForm() {
 		const payload = {
 			name: formData.get("name") as string,
 			email: formData.get("email") as string,
+			phone: ((formData.get("phone") as string) || "").trim() || null,
 			checkin,
 			checkout,
 			accommodation: formData.get("accommodation") as string,
@@ -1145,6 +1149,18 @@ export function BookingForm() {
 				<div className="form-group">
 					<label htmlFor="email">Email</label>
 					<input type="email" id="email" name="email" required autoComplete="email" />
+				</div>
+				<div className="form-group">
+					<label htmlFor="phone">
+						Phone / WhatsApp <span className="form-optional">(optional)</span>
+					</label>
+					<input
+						type="tel"
+						id="phone"
+						name="phone"
+						autoComplete="tel"
+						placeholder="e.g. +49 170 1234567"
+					/>
 				</div>
 			<DateRangePicker
 				checkin={checkin}

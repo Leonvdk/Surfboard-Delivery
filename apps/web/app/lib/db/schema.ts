@@ -1,4 +1,5 @@
 import {
+	type AnyPgColumn,
 	index,
 	integer,
 	jsonb,
@@ -44,6 +45,9 @@ export const bookings = pgTable(
 
 		name: text("name").notNull(),
 		email: text("email").notNull(),
+		// Optional — collected on the booking form so Leon can jump straight
+		// to WhatsApp from the admin detail page. Digits + leading + only.
+		phone: text("phone"),
 
 		checkin: text("checkin").notNull(),
 		checkout: text("checkout").notNull(),
@@ -80,6 +84,89 @@ export const bookings = pgTable(
 
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
+
+/* ── Board inventory ─────────────────────────────────────────────── */
+
+export const boardStatusEnum = pgEnum("board_status", [
+	"active",
+	"repair",
+	"retired",
+]);
+
+export type BoardStatus = (typeof boardStatusEnum.enumValues)[number];
+
+/**
+ * The physical fleet — one row per physical board, so each board carries
+ * its own cost, dings, and assignment history. `repair`/`retired` boards
+ * drop out of availability but keep their history. Spend tracking is just
+ * SUM(purchase_cost) over rows.
+ */
+export const boards = pgTable(
+	"boards",
+	{
+		id: serial("id").primaryKey(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at").defaultNow().notNull(),
+
+		// Leon's label, e.g. "7'8 Funboard — blue NSP"
+		name: text("name").notNull(),
+		// Matches the booking-form values: 6'6, 7'0, 7'8, 8'6
+		size: text("size").notNull(),
+		// Euros paid. Nullable — some boards predate cost tracking.
+		purchaseCost: integer("purchase_cost"),
+		purchaseDate: text("purchase_date"),
+		status: boardStatusEnum("status").default("active").notNull(),
+		notes: text("notes"),
+	},
+	(t) => ({
+		statusIdx: index("boards_status_idx").on(t.status),
+	}),
+);
+
+export type Board = typeof boards.$inferSelect;
+export type NewBoard = typeof boards.$inferInsert;
+
+/**
+ * Which board is out on which booking, for which window. A mid-booking
+ * swap = two rows on the same person: the old one truncated to the swap
+ * day, the new one starting there, linked via swappedFromId so the detail
+ * page can render "7'0 → 7'8 on Aug 12". Dates are inclusive ISO strings,
+ * matching the bookings billing rule (delivery and pickup day both count).
+ */
+export const boardAssignments = pgTable(
+	"board_assignments",
+	{
+		id: serial("id").primaryKey(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+
+		bookingId: integer("booking_id")
+			.notNull()
+			.references(() => bookings.id, { onDelete: "cascade" }),
+		// Index into the booking's `people` jsonb array.
+		personIndex: integer("person_index").notNull(),
+		boardId: integer("board_id")
+			.notNull()
+			.references(() => boards.id),
+
+		startDate: text("start_date").notNull(),
+		endDate: text("end_date").notNull(),
+
+		swappedFromId: integer("swapped_from_id").references(
+			(): AnyPgColumn => boardAssignments.id,
+		),
+		notes: text("notes"),
+	},
+	(t) => ({
+		boardStartIdx: index("board_assignments_board_start_idx").on(
+			t.boardId,
+			t.startDate,
+		),
+		bookingIdx: index("board_assignments_booking_idx").on(t.bookingId),
+	}),
+);
+
+export type BoardAssignment = typeof boardAssignments.$inferSelect;
+export type NewBoardAssignment = typeof boardAssignments.$inferInsert;
 
 /**
  * Web-push subscriptions from Leon's installed admin PWA. One row per

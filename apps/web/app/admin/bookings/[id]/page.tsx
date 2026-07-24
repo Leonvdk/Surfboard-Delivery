@@ -12,7 +12,9 @@ import {
 	sexLabel,
 	summariseGear,
 } from "../../_lib/booking-labels";
+import { BoardAssignmentPanel } from "../../_components/board-assignment";
 import { getCachedBookings } from "../../_lib/bookings-cache";
+import { getCachedFleet } from "../../_lib/boards-cache";
 import { computeCancellationState } from "../../_lib/cancellation";
 import { formatLongDate, formatShortDate } from "../../_lib/dates";
 import { getRepeatCustomer } from "../../_lib/repeat-customer";
@@ -21,10 +23,13 @@ export const dynamic = "force-dynamic";
 
 export default async function BookingDetailPage({
 	params,
+	searchParams,
 }: {
 	params: Promise<{ id: string }>;
+	searchParams: Promise<{ boardError?: string }>;
 }) {
 	const { id: idStr } = await params;
+	const { boardError } = await searchParams;
 	const id = Number.parseInt(idStr, 10);
 	if (Number.isNaN(id)) notFound();
 
@@ -42,6 +47,7 @@ export default async function BookingDetailPage({
 	if (!booking) notFound();
 
 	const repeat = getRepeatCustomer(allBookings, booking.id, booking.email);
+	const fleetData = await getCachedFleet();
 	const cancellationState =
 		booking.status === "requested"
 			? computeCancellationState(booking.createdAt, booking.checkin)
@@ -61,6 +67,21 @@ export default async function BookingDetailPage({
 				<p className="admin-detail-email">
 					<a href={`mailto:${booking.email}`}>{booking.email}</a>
 				</p>
+				{booking.phone && (
+					<p className="admin-detail-phone">
+						<a
+							href={`https://wa.me/${booking.phone.replace(/[^\d]/g, "")}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="admin-whatsapp-link"
+						>
+							<svg width="15" height="15" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+								<path d="M16.003 3C9.373 3 3.998 8.375 3.998 15.006c0 2.117.556 4.184 1.61 6.005L4 29l8.198-2.148a12.03 12.03 0 0 0 3.805.62h.005c6.63 0 12.005-5.376 12.005-12.006C28.013 8.375 22.632 3 16.003 3z" />
+							</svg>
+							{booking.phone} · WhatsApp
+						</a>
+					</p>
+				)}
 				{repeat && repeat.priorCount > 0 && (
 					<p className="admin-detail-repeat">
 						🔁 <strong>Repeat customer</strong> — {repeat.priorCount + 1}
@@ -77,6 +98,12 @@ export default async function BookingDetailPage({
 				<DraftEmailButton booking={booking} />
 				<DeleteBookingButton bookingId={id} customerName={booking.name} />
 			</div>
+
+			{boardError && (
+				<div className="admin-board-error" role="alert">
+					⚠️ {boardError}
+				</div>
+			)}
 
 			<div className="admin-detail-grid">
 				<article className="admin-card">
@@ -245,6 +272,14 @@ export default async function BookingDetailPage({
 													</>
 												)}
 											</dl>
+											{fleetData && (
+												<BoardAssignmentPanel
+													booking={booking}
+													person={p}
+													personIndex={i}
+													data={fleetData}
+												/>
+											)}
 										</div>
 									);
 								})}

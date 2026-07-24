@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
 import { getCachedBookings } from "../_lib/bookings-cache";
+import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,27 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	const bookings = allBookings.filter(
 		(b) => !(b.checkout < monthStart || b.checkin >= monthEnd),
 	);
+
+	// Fleet availability strip data: active boards + their busy windows
+	// clipped to this month.
+	const fleetData = await getCachedFleet();
+	const activeFleet = (fleetData?.fleet ?? []).filter(
+		(b) => b.status === "active",
+	);
+	const busyByBoard = new Map<number, Array<{ start: string; end: string; bookingId: number; bookingName: string }>>();
+	if (fleetData) {
+		for (const a of blockingAssignments(fleetData.assignments)) {
+			if (a.endDate < monthStart || a.startDate >= monthEnd) continue;
+			const list = busyByBoard.get(a.boardId) ?? [];
+			list.push({
+				start: a.startDate,
+				end: a.endDate,
+				bookingId: a.bookingId,
+				bookingName: a.bookingName,
+			});
+			busyByBoard.set(a.boardId, list);
+		}
+	}
 
 	// Build the day grid (Monday-first weeks)
 	const firstOfMonth = new Date(Date.UTC(year, month - 1, 1));
@@ -170,6 +192,64 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 					})}
 				</div>
 			</div>
+
+			{activeFleet.length > 0 && (
+				<div className="admin-board-strip">
+					<div className="admin-list-heading">
+						<h2>Board availability</h2>
+					</div>
+					<div className="admin-board-strip-scroll">
+						<table className="admin-board-strip-table">
+							<thead>
+								<tr>
+									<th className="admin-board-strip-name" />
+									{Array.from({ length: daysInMonth }, (_, i) => (
+										<th key={i + 1} className="admin-board-strip-day">
+											{i + 1}
+										</th>
+									))}
+								</tr>
+							</thead>
+							<tbody>
+								{activeFleet.map((board) => {
+									const busy = busyByBoard.get(board.id) ?? [];
+									return (
+										<tr key={board.id}>
+											<td className="admin-board-strip-name">
+												<Link
+													href={`/admin/boards/${board.id}`}
+													className="admin-row-link"
+												>
+													{board.name}
+												</Link>
+											</td>
+											{Array.from({ length: daysInMonth }, (_, i) => {
+												const iso = `${year}-${pad(month)}-${pad(i + 1)}`;
+												const hit = busy.find(
+													(w) => w.start <= iso && iso <= w.end,
+												);
+												return hit ? (
+													<td
+														key={iso}
+														className="admin-board-strip-cell admin-board-strip-cell--busy"
+														title={`${hit.bookingName} · #${hit.bookingId}`}
+													/>
+												) : (
+													<td key={iso} className="admin-board-strip-cell" />
+												);
+											})}
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+					<p className="admin-card-hint">
+						Orange = out on a booking. Hover a bar for the booking. Repair /
+						retired boards aren&apos;t shown.
+					</p>
+				</div>
+			)}
 		</section>
 	);
 }

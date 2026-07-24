@@ -3,6 +3,7 @@ import type { Booking, BookingStatus } from "../lib/db/schema";
 import { BookingsFilter } from "./_components/bookings-filter";
 import { StatusPicker } from "./_components/status-picker";
 import { getCachedBookings } from "./_lib/bookings-cache";
+import { getCachedFleet } from "./_lib/boards-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +86,26 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		.filter((b) => b.status === "requested")
 		.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
+	// Confirmed / in-progress bookings that still have people without a
+	// board assigned. Boards are the physical constraint — an unassigned
+	// confirmed booking is a double-booking risk, so it gets flagged here.
+	const fleetData = await getCachedFleet();
+	const missingBoards =
+		fleetData && fleetData.fleet.length > 0
+			? allBookings.filter((b) => {
+					if (b.status !== "confirmed" && b.status !== "in_progress")
+						return false;
+					if (b.checkout < today) return false;
+					if (!b.people || b.people.length === 0) return false;
+					return b.people.some(
+						(_, i) =>
+							!fleetData.assignments.some(
+								(a) => a.bookingId === b.id && a.personIndex === i,
+							),
+					);
+				})
+			: [];
+
 	// Filter for the full list section — in JS over the cached dataset. This
 	// used to be a second full DB roundtrip per page load; at Leon's volume
 	// (hundreds of rows) an in-memory filter is faster than any query.
@@ -139,6 +160,26 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 							See all {needsDecision.length} →
 						</Link>
 					)}
+				</article>
+			)}
+
+			{missingBoards.length > 0 && (
+				<article className="admin-attention admin-attention--boards">
+					<div className="admin-attention-header">
+						<span className="admin-attention-kicker">Boards not assigned</span>
+						<span className="admin-attention-count">{missingBoards.length}</span>
+					</div>
+					<p className="admin-attention-lead">
+						{missingBoards.length === 1
+							? "1 confirmed booking still has people without a board."
+							: `${missingBoards.length} confirmed bookings still have people without a board.`}{" "}
+						Assign boards on the booking page to avoid double-booking the fleet.
+					</p>
+					<ul className="admin-today-list">
+						{missingBoards.slice(0, 5).map((b) => (
+							<TodayRow key={b.id} b={b} kind="upcoming" />
+						))}
+					</ul>
 				</article>
 			)}
 
