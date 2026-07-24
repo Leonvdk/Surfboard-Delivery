@@ -3488,6 +3488,62 @@ h1 {
   letter-spacing: -0.01em;
 }
 
+/* ---- "Some boards need different rental dates" toggle ---- */
+/* Sits directly under the trip DateRangePicker. Off by default —
+   most bookings share one date range. When checked, each Person card
+   reveals its own inline date picker. */
+
+.individual-dates-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 0;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--black);
+  user-select: none;
+}
+
+.individual-dates-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--black);
+  background: var(--surface);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: grid;
+  place-content: center;
+  transition: background 150ms ease;
+}
+
+.individual-dates-toggle input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.individual-dates-toggle input[type="checkbox"]:checked::after {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.individual-dates-note {
+  margin: 0 0 var(--space-md);
+  padding: 12px 14px;
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  border-left: 3px solid var(--accent);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--black);
+}
+
 /* ---- Per-person date picker (inline, compact) ---- */
 /* Each person always renders a date-range picker pre-filled with the
    trip dates. Clicking picks a different range for just that person;

@@ -612,6 +612,7 @@ type FormDraft = {
 	email: string;
 	accommodation: string;
 	message: string;
+	allowIndividualDates: boolean;
 };
 
 function saveDraft(draft: Partial<FormDraft>) {
@@ -640,6 +641,13 @@ export function BookingForm() {
 	const [peopleCount, setPeopleCount] = useState(draft.current?.people?.length || 1);
 	const [people, setPeople] = useState<Person[]>(
 		draft.current?.people?.length ? draft.current.people : [emptyPerson()],
+	);
+	// Off by default — most bookings run everyone on the same dates. When the
+	// customer flips this on, each Person card reveals its own date picker
+	// pre-filled with the trip range; overrides get cleared when it's turned
+	// back off so nothing stale leaks into the payload.
+	const [allowIndividualDates, setAllowIndividualDates] = useState<boolean>(
+		Boolean(draft.current?.allowIndividualDates),
 	);
 	const [expandedPerson, setExpandedPerson] = useState(0);
 	const [editingName, setEditingName] = useState<number | null>(null);
@@ -684,8 +692,18 @@ export function BookingForm() {
 
 	/* Save controlled state to sessionStorage */
 	useEffect(() => {
-		saveDraft({ checkin, checkout, people });
-	}, [checkin, checkout, people]);
+		saveDraft({ checkin, checkout, people, allowIndividualDates });
+	}, [checkin, checkout, people, allowIndividualDates]);
+
+	// When the customer switches the toggle off, purge any per-person date
+	// overrides so nothing lingers in the payload after they change their
+	// mind about split dates.
+	const handleAllowIndividualDatesChange = (next: boolean) => {
+		setAllowIndividualDates(next);
+		if (!next) {
+			setPeople((prev) => prev.map((p) => ({ ...p, checkin: "", checkout: "" })));
+		}
+	};
 
 	const saveTextFields = useCallback(() => {
 		if (!formRef.current) return;
@@ -1134,6 +1152,19 @@ export function BookingForm() {
 				onCheckinChange={setCheckin}
 				onCheckoutChange={setCheckout}
 			/>
+				<label className="individual-dates-toggle">
+					<input
+						type="checkbox"
+						checked={allowIndividualDates}
+						onChange={(e) => handleAllowIndividualDatesChange(e.target.checked)}
+					/>
+					<span>Some boards need different rental dates</span>
+				</label>
+				{allowIndividualDates && (
+					<p className="individual-dates-note">
+						The dates you picked above apply to everyone. Edit each board&apos;s dates individually below.
+					</p>
+				)}
 				<div className="form-group">
 					<label htmlFor="accommodation">Accommodation address or name</label>
 					<input type="text" id="accommodation" name="accommodation" placeholder="e.g. Casa Sol, Vale da Telha" required />
@@ -1201,18 +1232,20 @@ export function BookingForm() {
 											</button>
 										</legend>
 									)}
-									<div className={`person-date-picker person-date-picker--header${overrideActive ? " person-date-picker--custom" : ""}`}>
-										{/* Sits inline with the person name so each person's rental
-											window is visible without opening a "custom dates" panel.
-											Pre-filled with the trip range; values equal to it are
-											stripped by the setters, so "override" means "diverges". */}
-										<DateRangePicker
-											checkin={person.checkin || checkin}
-											checkout={person.checkout || checkout}
-											onCheckinChange={(v) => setPersonCheckin(i, v)}
-											onCheckoutChange={(v) => setPersonCheckout(i, v)}
-										/>
-									</div>
+									{allowIndividualDates && (
+										<div className={`person-date-picker person-date-picker--header${overrideActive ? " person-date-picker--custom" : ""}`}>
+											{/* Only rendered when the customer opted into per-person dates
+												via the checkbox under the main trip range. Pre-filled with
+												the trip dates; values equal to them are stripped by the
+												setters so "override" always means "diverges". */}
+											<DateRangePicker
+												checkin={person.checkin || checkin}
+												checkout={person.checkout || checkout}
+												onCheckinChange={(v) => setPersonCheckin(i, v)}
+												onCheckoutChange={(v) => setPersonCheckout(i, v)}
+											/>
+										</div>
+									)}
 									{people.length > 1 && (
 										<button type="button" className="person-remove" onClick={() => handleRemovePerson(i)} aria-label={`Remove person ${i + 1}`}>
 											<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
