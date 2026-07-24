@@ -3519,22 +3519,6 @@ h1 {
   box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* Hint line rendered directly under the picker input, inside the same
-   flex column so it lines up with the input on desktop and follows it
-   when the picker wraps below the name on narrow viewports. Subtle
-   grey by default; goes accent-red when custom dates are active. */
-.person-date-picker-hint {
-  margin: 6px 0 0;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: var(--gray-500);
-}
-
-.person-date-picker-hint--custom {
-  color: var(--accent);
-  font-weight: 600;
-}
-
 /* ---- Estimated total ---- */
 
 .estimate-summary {

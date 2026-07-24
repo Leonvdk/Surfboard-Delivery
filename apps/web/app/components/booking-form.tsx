@@ -1212,13 +1212,6 @@ export function BookingForm() {
 											onCheckinChange={(v) => setPersonCheckin(i, v)}
 											onCheckoutChange={(v) => setPersonCheckout(i, v)}
 										/>
-										{/* Hint lives INSIDE the picker container so it aligns under
-											the input on desktop instead of drifting under the name. */}
-										<p className={`person-date-picker-hint${overrideActive ? " person-date-picker-hint--custom" : ""}`}>
-											{overrideActive
-												? "Custom dates for this board — pick the trip range again to reset."
-												: "Using the trip dates — pick a different range if this board needs its own."}
-										</p>
 									</div>
 									{people.length > 1 && (
 										<button type="button" className="person-remove" onClick={() => handleRemovePerson(i)} aria-label={`Remove person ${i + 1}`}>
