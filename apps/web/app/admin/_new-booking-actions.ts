@@ -8,6 +8,7 @@ import type { BookingPerson } from "../lib/db/schema";
 import {
 	buildBookingConfirmationEmail,
 	type ConfirmationLine,
+	defaultEmailCopy,
 } from "../lib/emails/booking-confirmation";
 import { calcPackagePrice, DAILY_MINIMUM_DAYS, type PackageTier } from "../lib/pricing";
 import { createBookingPaymentLink } from "../lib/stripe-payment-link";
@@ -236,7 +237,12 @@ export async function createAdminBooking(
 
 export async function sendBookingConfirmation(
 	bookingId: number,
-	opts: { includePaymentLink: boolean },
+	opts: {
+		includePaymentLink: boolean;
+		/** Edited on the review-send screen; falls back to the defaults. */
+		greeting?: string;
+		intro?: string;
+	},
 ): Promise<{ ok: boolean; error?: string }> {
 	const db = getDb();
 	if (!db) return { ok: false, error: "Database not configured." };
@@ -265,8 +271,14 @@ export async function sendBookingConfirmation(
 		note: "",
 	});
 
+	const firstName = booking.name.split(" ")[0] || booking.name;
+	const paymentLinkUrl = opts.includePaymentLink
+		? (booking.stripePaymentLinkUrl ?? null)
+		: null;
+	const defaults = defaultEmailCopy(firstName, paymentLinkUrl != null);
+
 	const emailContent = buildBookingConfirmationEmail({
-		customerName: booking.name.split(" ")[0] || booking.name,
+		customerName: firstName,
 		requestRef: `SR-${String(booking.id).padStart(5, "0")}`,
 		checkin: booking.checkin,
 		checkout: booking.checkout,
@@ -274,9 +286,9 @@ export async function sendBookingConfirmation(
 		people: booking.people ?? [],
 		lines,
 		totalEuros: total,
-		paymentLinkUrl: opts.includePaymentLink
-			? (booking.stripePaymentLinkUrl ?? null)
-			: null,
+		paymentLinkUrl,
+		greeting: opts.greeting?.trim() || defaults.greeting,
+		intro: opts.intro?.trim() || defaults.intro,
 		note: booking.message ?? undefined,
 	});
 

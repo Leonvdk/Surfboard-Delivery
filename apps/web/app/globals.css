@@ -7998,6 +7998,25 @@ h1 {
   margin-top: var(--space-md);
 }
 
+/* Editable email headline + intro on the review-send screen */
+.admin-email-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  background: var(--gray-100);
+  border: var(--border-light);
+}
+
+.admin-email-copy label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
 .admin-btn--primary {
   background: var(--accent);
   color: #fff;

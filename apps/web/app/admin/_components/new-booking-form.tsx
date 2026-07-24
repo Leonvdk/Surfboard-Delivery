@@ -7,6 +7,7 @@ import {
 	DAILY_MINIMUM_DAYS,
 	type PackageTier,
 } from "../../lib/pricing";
+import { defaultEmailCopy } from "../../lib/emails/booking-confirmation";
 import {
 	createAdminBooking,
 	type NewBookingPerson,
@@ -80,8 +81,14 @@ type Phase =
 
 export function NewBookingForm() {
 	const router = useRouter();
-	const [name, setName] = useState("");
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");
+	// Editable email copy on the review-send screen. Seeded with the
+	// defaults when the booking is created (they depend on link presence).
+	const [emailGreeting, setEmailGreeting] = useState("");
+	const [emailIntro, setEmailIntro] = useState("");
+	const name = `${firstName.trim()} ${lastName.trim()}`.trim();
 	const [phone, setPhone] = useState("");
 	const [accommodation, setAccommodation] = useState("");
 	const [checkin, setCheckin] = useState("");
@@ -149,6 +156,12 @@ export function NewBookingForm() {
 			setPhase({ step: "error", message: result.error ?? "Something went wrong." });
 			return;
 		}
+		const copy = defaultEmailCopy(
+			firstName.trim() || "there",
+			Boolean(result.paymentLinkUrl),
+		);
+		setEmailGreeting(copy.greeting);
+		setEmailIntro(copy.intro);
 		setPhase({
 			step: "confirm-send",
 			bookingId: result.bookingId,
@@ -162,6 +175,8 @@ export function NewBookingForm() {
 		setPhase({ step: "sending", bookingId });
 		const result = await sendBookingConfirmation(bookingId, {
 			includePaymentLink,
+			greeting: emailGreeting,
+			intro: emailIntro,
 		});
 		if (!result.ok) {
 			setPhase({ step: "error", message: result.error ?? "Email failed." });
@@ -178,6 +193,29 @@ export function NewBookingForm() {
 				<h2>
 					{info?.requestRef ? `${info.requestRef} created` : "Booking created"}
 				</h2>
+
+				<div className="admin-email-copy">
+					<label>
+						Email headline
+						<input
+							className="admin-input"
+							value={emailGreeting}
+							onChange={(e) => setEmailGreeting(e.target.value)}
+							disabled={sending}
+						/>
+					</label>
+					<label>
+						Intro text
+						<textarea
+							className="admin-textarea"
+							rows={3}
+							value={emailIntro}
+							onChange={(e) => setEmailIntro(e.target.value)}
+							disabled={sending}
+						/>
+					</label>
+				</div>
+
 				{info?.paymentLinkUrl ? (
 					<>
 						<p>
@@ -259,8 +297,12 @@ export function NewBookingForm() {
 				<div className="admin-board-form">
 					<div className="admin-board-form-grid">
 						<label>
-							Name
-							<input className="admin-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
+							First name
+							<input className="admin-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Anna" />
+						</label>
+						<label>
+							Last name
+							<input className="admin-input" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Schmidt" />
 						</label>
 						<label>
 							Email
@@ -398,7 +440,7 @@ export function NewBookingForm() {
 			<button
 				type="button"
 				className="admin-btn admin-btn--primary admin-new-booking-submit"
-				disabled={phase.step === "creating" || effectiveTotal <= 0 || !name.trim() || !email.trim()}
+				disabled={phase.step === "creating" || effectiveTotal <= 0 || !firstName.trim() || !email.trim()}
 				onClick={handleCreate}
 			>
 				{phase.step === "creating"

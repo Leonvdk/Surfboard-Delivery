@@ -24,8 +24,32 @@ export interface BookingConfirmationArgs {
 	lines: ConfirmationLine[];
 	totalEuros: number;
 	paymentLinkUrl: string | null;
+	/** Headline of the email, e.g. "You're almost booked, Anna! 🤙".
+	 * Editable by Leon on the review-send screen. */
+	greeting: string;
+	/** Paragraph under the headline. Editable by Leon before sending. */
+	intro: string;
 	/** Extra free-text from Leon, rendered as a personal note. */
 	note?: string;
+}
+
+/** Default copy for the review-send screen — adapts to link presence
+ * ("hit pay" makes no sense in a pay-on-delivery email). */
+export function defaultEmailCopy(
+	firstName: string,
+	hasPaymentLink: boolean,
+): { greeting: string; intro: string } {
+	return hasPaymentLink
+		? {
+				greeting: `You're almost booked, ${firstName}! 🤙`,
+				intro:
+					"Thanks for booking with us. To reserve your gear: check the info below, hit pay and we'll get the boards to your accommodation — you just paddle out.",
+			}
+		: {
+				greeting: `You're almost booked, ${firstName}! 🤙`,
+				intro:
+					"Thanks for booking with us. Check the info below — we'll get the boards to your accommodation and you pay on delivery. You just paddle out.",
+			};
 }
 
 const PACKAGE_LABEL: Record<string, string> = {
@@ -84,16 +108,16 @@ export function buildBookingConfirmationEmail(args: BookingConfirmationArgs): {
 	text: string;
 	html: string;
 } {
-	const subject = `Your booking is confirmed — Surf Rental Aljezur (${args.requestRef})`;
+	const subject = `Your booking — Surf Rental Aljezur (${args.requestRef})`;
 	const trip = { checkin: args.checkin, checkout: args.checkout };
 
 	const payText = args.paymentLinkUrl
 		? `You can pay online here (secure Stripe checkout):\n${args.paymentLinkUrl}\n\nPrefer to pay on delivery? That works too — cash or card when we drop off your gear.`
 		: `Payment: on delivery — cash or card when we drop off your gear. Easy.`;
 
-	const text = `Hi ${args.customerName},
+	const text = `${args.greeting}
 
-Great news — your booking is confirmed! Here's everything we agreed on:
+${args.intro}
 
   Reference: ${args.requestRef}
   Delivery: ${args.checkin}
@@ -118,8 +142,8 @@ See you in the water!
     </div>
 
     <div style="margin-bottom:32px;">
-      <h2 style="margin:0 0 16px;font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">You're booked, ${escapeHtml(args.customerName)}! 🤙</h2>
-      <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#1A1A1A;">Your gear is reserved. We'll deliver everything to your accommodation on your delivery day — you just paddle out.</p>
+      <h2 style="margin:0 0 16px;font-size:24px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">${escapeHtml(args.greeting)}</h2>
+      <p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#1A1A1A;">${escapeHtml(args.intro)}</p>
       ${args.note ? `<p style="margin:0;font-size:15px;line-height:1.7;color:#1A1A1A;">${escapeHtml(args.note)}</p>` : ""}
     </div>
 
