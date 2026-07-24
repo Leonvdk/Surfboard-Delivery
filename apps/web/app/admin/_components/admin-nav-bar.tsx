@@ -47,6 +47,18 @@ export function AdminNavBar({ logout }: Props) {
 					</li>
 					<li>
 						<Link
+							href="/admin/boards"
+							className={
+								pathname.startsWith("/admin/boards")
+									? "admin-nav-link admin-nav-link--active"
+									: "admin-nav-link"
+							}
+						>
+							Fleet
+						</Link>
+					</li>
+					<li>
+						<Link
 							href="/admin/revenue"
 							className={
 								pathname.startsWith("/admin/revenue")

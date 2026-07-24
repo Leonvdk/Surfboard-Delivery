@@ -1,17 +1,24 @@
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { BoardStatus } from "../../../lib/db/schema";
-import { setBoardStatus, updateBoard } from "../../_board-actions";
-import { getCachedFleet } from "../../_lib/boards-cache";
+import { getDb, schema } from "../../../lib/db/client";
 import { formatShortDate } from "../../_lib/dates";
 
 export const dynamic = "force-dynamic";
 
-const STATUSES: Array<{ value: BoardStatus; label: string }> = [
-	{ value: "active", label: "Active" },
-	{ value: "repair", label: "In repair" },
-	{ value: "retired", label: "Retired" },
-];
+/**
+ * Board history page. Reads the DB directly — NOT the cached fleet: a
+ * freshly created board could be missing from a stale cache entry, which
+ * made this page notFound() right after adding a board (the "edit → 404"
+ * Leon hit). Editing itself now happens in the modal on /admin/boards;
+ * this page is the assignment-history view.
+ */
+
+const STATUS_LABEL: Record<string, string> = {
+	active: "Active",
+	repair: "In repair",
+	retired: "Retired",
+};
 
 export default async function BoardDetailPage({
 	params,
@@ -22,8 +29,8 @@ export default async function BoardDetailPage({
 	const id = Number.parseInt(idStr, 10);
 	if (Number.isNaN(id)) notFound();
 
-	const data = await getCachedFleet();
-	if (!data) {
+	const db = getDb();
+	if (!db) {
 		return (
 			<section className="admin-empty">
 				<h1>Database not configured</h1>
@@ -32,14 +39,34 @@ export default async function BoardDetailPage({
 		);
 	}
 
-	const board = data.fleet.find((b) => b.id === id);
+	const [board] = await db
+		.select()
+		.from(schema.boards)
+		.where(eq(schema.boards.id, id))
+		.limit(1);
 	if (!board) notFound();
 
-	const history = data.assignments
-		.filter((a) => a.boardId === id)
-		.sort((a, b) => b.startDate.localeCompare(a.startDate));
+	const history = await db
+		.select({
+			id: schema.boardAssignments.id,
+			bookingId: schema.boardAssignments.bookingId,
+			startDate: schema.boardAssignments.startDate,
+			endDate: schema.boardAssignments.endDate,
+			swappedFromId: schema.boardAssignments.swappedFromId,
+			notes: schema.boardAssignments.notes,
+			bookingName: schema.bookings.name,
+			bookingStatus: schema.bookings.status,
+		})
+		.from(schema.boardAssignments)
+		.innerJoin(
+			schema.bookings,
+			eq(schema.boardAssignments.bookingId, schema.bookings.id),
+		)
+		.where(eq(schema.boardAssignments.boardId, id));
 
-	const updateWithId = updateBoard.bind(null, id);
+	const sorted = [...history].sort((a, b) =>
+		b.startDate.localeCompare(a.startDate),
+	);
 
 	return (
 		<section className="admin-detail">
@@ -53,106 +80,46 @@ export default async function BoardDetailPage({
 				</h1>
 			</header>
 
-			<div className="admin-detail-grid">
-				<article className="admin-card">
-					<h2>Details</h2>
-					<form action={updateWithId} className="admin-board-form">
-						<label>
-							Name
-							<input
-								type="text"
-								name="name"
-								required
-								defaultValue={board.name}
-								className="admin-input"
-							/>
-						</label>
-						<div className="admin-board-form-grid">
-							<label>
-								Size
-								<select
-									name="size"
-									required
-									defaultValue={board.size}
-									className="admin-input"
-								>
-									<option value="6'6">6&apos;6</option>
-									<option value="7'0">7&apos;0</option>
-									<option value="7'8">7&apos;8</option>
-									<option value="8'6">8&apos;6</option>
-								</select>
-							</label>
-							<label>
-								Cost (€)
-								<input
-									type="number"
-									name="purchaseCost"
-									min="0"
-									defaultValue={board.purchaseCost ?? ""}
-									className="admin-input"
-								/>
-							</label>
-							<label>
-								Purchased on
-								<input
-									type="date"
-									name="purchaseDate"
-									defaultValue={board.purchaseDate ?? ""}
-									className="admin-input"
-								/>
-							</label>
-						</div>
-						<label>
-							Notes
-							<textarea
-								name="notes"
-								rows={3}
-								defaultValue={board.notes ?? ""}
-								className="admin-textarea"
-								placeholder="Dings, quirks, repairs..."
-							/>
-						</label>
-						<button type="submit" className="admin-btn">
-							Save
-						</button>
-					</form>
-				</article>
-
-				<article className="admin-card">
-					<h2>Status</h2>
-					<p className="admin-card-hint">
-						Repair and retired boards drop out of availability but keep their
-						history.
-					</p>
-					<div className="admin-board-status-row">
-						{STATUSES.map((s) => {
-							const setStatus = setBoardStatus.bind(null, id, s.value);
-							const isCurrent = board.status === s.value;
-							return (
-								<form key={s.value} action={setStatus}>
-									<button
-										type="submit"
-										className={`admin-btn admin-board-status-btn${isCurrent ? " admin-board-status-btn--current" : ""}`}
-										disabled={isCurrent}
-									>
-										{s.label}
-									</button>
-								</form>
-							);
-						})}
-					</div>
-				</article>
-			</div>
+			<article className="admin-card">
+				<h2>Details</h2>
+				<dl className="admin-dl">
+					<dt>Size</dt>
+					<dd>{board.size}</dd>
+					<dt>Status</dt>
+					<dd>
+						<span className={`admin-board-status admin-board-status--${board.status}`}>
+							{STATUS_LABEL[board.status] ?? board.status}
+						</span>
+					</dd>
+					<dt>Cost</dt>
+					<dd>{board.purchaseCost != null ? `€${board.purchaseCost}` : "—"}</dd>
+					<dt>Purchased</dt>
+					<dd>{board.purchaseDate ? formatShortDate(board.purchaseDate) : "—"}</dd>
+					{board.notes && (
+						<>
+							<dt>Notes</dt>
+							<dd>{board.notes}</dd>
+						</>
+					)}
+				</dl>
+				<p className="admin-card-hint">
+					Edit this board from the{" "}
+					<Link href="/admin/boards" className="admin-row-link">
+						fleet list
+					</Link>{" "}
+					— the Edit button opens it in a modal.
+				</p>
+			</article>
 
 			<article className="admin-card">
 				<h2>Assignment history</h2>
-				{history.length === 0 ? (
+				{sorted.length === 0 ? (
 					<p className="admin-empty-inline">
 						This board hasn&apos;t been on any bookings yet.
 					</p>
 				) : (
 					<ul className="admin-board-history">
-						{history.map((a) => (
+						{sorted.map((a) => (
 							<li key={a.id} className="admin-board-history-row">
 								<span className="admin-board-history-dates">
 									{formatShortDate(a.startDate)} → {formatShortDate(a.endDate)}
@@ -169,9 +136,7 @@ export default async function BoardDetailPage({
 								{a.swappedFromId != null && (
 									<span className="admin-board-swap-flag">swapped in</span>
 								)}
-								{a.notes && (
-									<span className="admin-cell-muted">{a.notes}</span>
-								)}
+								{a.notes && <span className="admin-cell-muted">{a.notes}</span>}
 							</li>
 						))}
 					</ul>

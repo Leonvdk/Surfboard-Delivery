@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { BoardStatus } from "../../lib/db/schema";
 import { createBoard } from "../_board-actions";
+import { BoardEditButton } from "../_components/board-edit-modal";
 import {
 	getCachedFleet,
 	isOutToday,
@@ -103,7 +104,13 @@ export default async function AdminBoardsPage() {
 									<tr key={b.id}>
 										<td>
 											<div className="admin-cell-strong">
-												{b.name}
+												<Link
+													href={`/admin/boards/${b.id}`}
+													className="admin-board-name-link"
+													title="Assignment history"
+												>
+													{b.name}
+												</Link>
 												{b.notes ? (
 													<span
 														className="admin-note-dot"
@@ -144,9 +151,17 @@ export default async function AdminBoardsPage() {
 										</td>
 										<td>{b.purchaseCost != null ? `€${b.purchaseCost}` : "—"}</td>
 										<td>
-											<Link href={`/admin/boards/${b.id}`} className="admin-row-link">
-												Edit&nbsp;→
-											</Link>
+											<BoardEditButton
+												board={{
+													id: b.id,
+													name: b.name,
+													size: b.size,
+													purchaseCost: b.purchaseCost,
+													purchaseDate: b.purchaseDate,
+													status: b.status,
+													notes: b.notes,
+												}}
+											/>
 										</td>
 									</tr>
 								);

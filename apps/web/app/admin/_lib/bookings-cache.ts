@@ -30,6 +30,7 @@ function rehydrate(row: Booking): Booking {
 			? new Date(row.importedFromResend)
 			: null,
 		deletedAt: row.deletedAt ? new Date(row.deletedAt) : null,
+		paidAt: row.paidAt ? new Date(row.paidAt) : null,
 	};
 }
 

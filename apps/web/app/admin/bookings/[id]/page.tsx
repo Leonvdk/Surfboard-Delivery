@@ -13,6 +13,7 @@ import {
 	summariseGear,
 } from "../../_lib/booking-labels";
 import { BoardAssignmentPanel } from "../../_components/board-assignment";
+import { BookingProgress } from "../../_components/booking-progress";
 import { getCachedBookings } from "../../_lib/bookings-cache";
 import { getCachedFleet } from "../../_lib/boards-cache";
 import { computeCancellationState } from "../../_lib/cancellation";
@@ -93,6 +94,8 @@ export default async function BookingDetailPage({
 				)}
 			</header>
 
+			<BookingProgress booking={booking} />
+
 			<div className="admin-detail-actions">
 				<QuickStatusButtons bookingId={id} current={booking.status} />
 				<DraftEmailButton booking={booking} />
@@ -149,6 +152,22 @@ export default async function BookingDetailPage({
 									>
 										Open Stripe link →
 									</a>
+								</dd>
+							</>
+						)}
+						{booking.paidAt && (
+							<>
+								<dt>Paid</dt>
+								<dd>
+									💶{" "}
+									{booking.paidAmountCents != null
+										? `€${(booking.paidAmountCents / 100).toFixed(2).replace(/\.00$/, "")} · `
+										: ""}
+									{booking.paidAt.toLocaleDateString("en-GB", {
+										day: "numeric",
+										month: "short",
+									})}{" "}
+									via Stripe
 								</dd>
 							</>
 						)}
