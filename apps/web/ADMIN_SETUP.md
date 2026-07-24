@@ -9,18 +9,21 @@ The `/admin` dashboard lets you see and manage bookings, view a booking calendar
 1. Vercel dashboard → your `surf-rental-aljezur` project → **Storage** tab → **Create Database** → **Neon** → follow the flow. Free tier is enough for this business's volume.
 2. Vercel automatically adds `DATABASE_URL` to Production, Preview, and Development env vars. Nothing else to set on the DB side.
 
-### 2. Run the initial migration
+### 2. Migrations run themselves
 
-Locally, with `DATABASE_URL` set (copy it from the Vercel dashboard env vars):
+Migrations apply automatically at the start of every Vercel build:
+`scripts/apply-migrations.mjs` executes every `drizzle/*.sql` statement
+idempotently (skips "already exists", fails the build on real errors).
+You never run them by hand — `DATABASE_URL` is a sensitive Vercel var
+that can't be pulled to a local machine anyway.
 
-```bash
-cd apps/web
-pnpm db:push
-```
+Changing the schema: edit `app/lib/db/schema.ts`, run `pnpm db:generate`,
+commit the generated SQL + `drizzle/meta` files, push. The next deploy
+applies it. Keep changes additive (new tables / nullable columns).
 
-That applies the `bookings` table to Neon. Idempotent — safe to run again.
-
-If you prefer to keep migration files under source control (`drizzle/*.sql`), use `pnpm db:generate` + `pnpm db:migrate` instead.
+⚠️ `DATABASE_URL` must stay listed in the root `turbo.json` under
+`tasks.build.passThroughEnv` — turbo's strict env mode otherwise strips
+it from the build and migrations silently skip.
 
 ### 3. Choose your admin password
 
