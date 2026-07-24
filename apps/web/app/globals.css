@@ -3491,42 +3491,48 @@ h1 {
 /* ---- Per-person date picker (inline, compact) ---- */
 /* Each person always renders a date-range picker pre-filled with the
    trip dates. Clicking picks a different range for just that person;
-   their package price then recomputes off their own days. Matching the
-   trip range in the picker restores the "using trip dates" hint. */
+   their package price then recomputes off their own days. */
 
 .person-date-picker {
   margin: 0;
 }
 
 .person-date-picker .drp-label {
-  /* The main picker's own label ("Rental dates") reads redundant inline
-     under a Person card — the hint below already describes what this is. */
+  /* The main picker's own label ("Rental dates") is redundant inside a
+     Person card — the hint text below already describes what this is. */
   display: none;
 }
 
 .person-date-picker .drp-trigger {
-  padding: 10px 14px;
-  font-size: 0.9375rem;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  gap: 8px;
 }
 
 .person-date-picker .drp-trigger-sub {
-  font-size: 0.6875rem;
-}
-
-.person-date-picker-hint {
-  margin: 6px 0 0;
-  font-size: 0.8125rem;
-  color: var(--gray-500);
-  line-height: 1.5;
-}
-
-.person-date-picker--custom .person-date-picker-hint {
-  color: var(--accent);
-  font-weight: 600;
+  font-size: 0.625rem;
+  letter-spacing: 0.05em;
 }
 
 .person-date-picker--custom .drp-trigger {
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Hint line rendered directly under the picker input, inside the same
+   flex column so it lines up with the input on desktop and follows it
+   when the picker wraps below the name on narrow viewports. Subtle
+   grey by default; goes accent-red when custom dates are active. */
+.person-date-picker-hint {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--gray-500);
+}
+
+.person-date-picker-hint--custom {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* ---- Estimated total ---- */
@@ -3758,13 +3764,44 @@ h1 {
 
 .person-expanded-header {
   display: flex;
-  align-items: center;
+  /* flex-start so the hint that lives beneath the picker doesn't push
+     the name and remove-button off-axis vertically. */
+  align-items: flex-start;
   justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
   margin-bottom: var(--space-md);
 }
 
 .person-expanded-header .person-legend {
   padding: 0;
+  flex: 0 0 auto;
+}
+
+/* The per-person date picker sits inline with the name so each person's
+   rental window is always visible without opening a "custom dates" panel.
+   On desktop it takes the middle of the header row; on narrow viewports
+   it wraps below the name and expands to the full row width. */
+.person-expanded-header .person-date-picker--header {
+  flex: 1 1 260px;
+  min-width: 220px;
+  max-width: 340px;
+}
+
+.person-expanded-header .person-remove {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+@media (max-width: 520px) {
+  .person-expanded-header .person-date-picker--header {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .person-expanded-header .person-remove {
+    order: 2;
+  }
 }
 
 .person-remove {

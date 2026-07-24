@@ -1201,6 +1201,25 @@ export function BookingForm() {
 											</button>
 										</legend>
 									)}
+									<div className={`person-date-picker person-date-picker--header${overrideActive ? " person-date-picker--custom" : ""}`}>
+										{/* Sits inline with the person name so each person's rental
+											window is visible without opening a "custom dates" panel.
+											Pre-filled with the trip range; values equal to it are
+											stripped by the setters, so "override" means "diverges". */}
+										<DateRangePicker
+											checkin={person.checkin || checkin}
+											checkout={person.checkout || checkout}
+											onCheckinChange={(v) => setPersonCheckin(i, v)}
+											onCheckoutChange={(v) => setPersonCheckout(i, v)}
+										/>
+										{/* Hint lives INSIDE the picker container so it aligns under
+											the input on desktop instead of drifting under the name. */}
+										<p className={`person-date-picker-hint${overrideActive ? " person-date-picker-hint--custom" : ""}`}>
+											{overrideActive
+												? "Custom dates for this board — pick the trip range again to reset."
+												: "Using the trip dates — pick a different range if this board needs its own."}
+										</p>
+									</div>
 									{people.length > 1 && (
 										<button type="button" className="person-remove" onClick={() => handleRemovePerson(i)} aria-label={`Remove person ${i + 1}`}>
 											<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1238,23 +1257,6 @@ export function BookingForm() {
 											))}
 										</select>
 									</div>
-								<div className={`form-group person-date-picker${overrideActive ? " person-date-picker--custom" : ""}`}>
-									{/* Compact per-person date range — pre-filled with the trip
-										dates. Picking a different range here prices that person
-										off their own days. Values matching the trip range are
-										stripped by the setters, so 'override' means 'diverges'. */}
-									<DateRangePicker
-										checkin={person.checkin || checkin}
-										checkout={person.checkout || checkout}
-										onCheckinChange={(v) => setPersonCheckin(i, v)}
-										onCheckoutChange={(v) => setPersonCheckout(i, v)}
-									/>
-									<p className="person-date-picker-hint">
-										{overrideActive
-											? "Custom dates for this board — click to change or match the trip."
-											: "Using trip dates — click to pick a different range for this board."}
-									</p>
-								</div>
 								<div className="form-group">
 									<label htmlFor={`package-${i}`}>Package</label>
 									<select
