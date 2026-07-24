@@ -1,8 +1,7 @@
-import { desc, isNull } from "drizzle-orm";
 import type Stripe from "stripe";
-import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
 import { RevenueBarChart } from "../_components/revenue-bar-chart";
+import { getCachedBookings } from "../_lib/bookings-cache";
 import {
 	bookingFunnelForRecentMonths,
 	monthlyRollup,
@@ -68,16 +67,9 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		);
 	}
 
-	// Bookings-side insights (funnel, package mix, monthly rollup) — best-effort.
-	// Soft-deleted rows are excluded.
-	const db = getDb();
-	const allBookings = db
-		? await db
-				.select()
-				.from(schema.bookings)
-				.where(isNull(schema.bookings.deletedAt))
-				.orderBy(desc(schema.bookings.createdAt))
-		: [];
+	// Bookings-side insights (funnel, package mix, monthly rollup) — served
+	// from the shared cached dataset, no extra DB roundtrip.
+	const allBookings = (await getCachedBookings()) ?? [];
 	const funnel = bookingFunnelForRecentMonths(allBookings);
 	const mix = packageMix(allBookings, 90);
 	const rollup = monthlyRollup(allBookings, 12);

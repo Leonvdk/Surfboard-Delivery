@@ -1,9 +1,8 @@
-import { and, desc, ilike, inArray, isNull, or } from "drizzle-orm";
 import Link from "next/link";
-import { getDb, schema } from "../lib/db/client";
 import type { Booking, BookingStatus } from "../lib/db/schema";
 import { BookingsFilter } from "./_components/bookings-filter";
 import { StatusPicker } from "./_components/status-picker";
+import { getCachedBookings } from "./_lib/bookings-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 
 export const dynamic = "force-dynamic";
@@ -45,8 +44,10 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		).find((s) => s === rawStatus) ?? null;
 	const q = (params.q ?? "").trim();
 
-	const db = getDb();
-	if (!db) {
+	// One cached dataset serves the whole page — no per-navigation Neon
+	// roundtrips. Mutations revalidate the tag so freshness is unaffected.
+	const allBookings = await getCachedBookings();
+	if (!allBookings) {
 		return (
 			<section className="admin-empty">
 				<h1>Database not configured</h1>
@@ -54,14 +55,6 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 			</section>
 		);
 	}
-
-	// Load all bookings once — at Leon's volume this is a few hundred rows max.
-	// Soft-deleted rows are always excluded.
-	const allBookings = await db
-		.select()
-		.from(schema.bookings)
-		.where(isNull(schema.bookings.deletedAt))
-		.orderBy(desc(schema.bookings.createdAt));
 
 	const today = todayIso();
 	const inSevenDays = addDaysIso(today, 7);
@@ -92,28 +85,20 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 		.filter((b) => b.status === "requested")
 		.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-	// Filter for the full list section. Soft-deleted rows are always excluded.
-	const filteredWhere = [
-		isNull(schema.bookings.deletedAt),
-	] as ReturnType<typeof inArray>[];
-	if (statusFilter) {
-		filteredWhere.push(inArray(schema.bookings.status, [statusFilter]));
-	}
-	if (q) {
-		filteredWhere.push(
-			or(
-				ilike(schema.bookings.name, `%${q}%`),
-				ilike(schema.bookings.email, `%${q}%`),
-				ilike(schema.bookings.accommodation, `%${q}%`),
-			) as ReturnType<typeof inArray>,
-		);
-	}
-	const filteredBookings = await db
-		.select()
-		.from(schema.bookings)
-		.where(and(...filteredWhere))
-		.orderBy(desc(schema.bookings.createdAt))
-		.limit(200);
+	// Filter for the full list section — in JS over the cached dataset. This
+	// used to be a second full DB roundtrip per page load; at Leon's volume
+	// (hundreds of rows) an in-memory filter is faster than any query.
+	const qLower = q.toLowerCase();
+	const filteredBookings = allBookings
+		.filter((b) => (statusFilter ? b.status === statusFilter : true))
+		.filter((b) =>
+			qLower
+				? b.name.toLowerCase().includes(qLower) ||
+					b.email.toLowerCase().includes(qLower) ||
+					(b.accommodation ?? "").toLowerCase().includes(qLower)
+				: true,
+		)
+		.slice(0, 200);
 
 	// Counts per status for the filter chips
 	const counts = allBookings.reduce(

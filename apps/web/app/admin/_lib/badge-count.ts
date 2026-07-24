@@ -1,5 +1,4 @@
-import { and, eq, isNull, or } from "drizzle-orm";
-import { getDb, schema } from "../../lib/db/client";
+import { getCachedBookings } from "./bookings-cache";
 
 function todayInLisbon(): string {
 	const parts = new Intl.DateTimeFormat("en-GB", {
@@ -19,30 +18,17 @@ function todayInLisbon(): string {
  *   - all requested bookings (not yet confirmed → needs a decision)
  *   - plus today's deliveries that haven't started yet (needs to go out)
  * Excludes soft-deleted rows and cancelled/completed statuses.
+ * Reads the shared cached dataset — no extra DB roundtrip.
  */
 export async function computeBadgeCount(): Promise<number> {
-	const db = getDb();
-	if (!db) return 0;
+	const bookings = await getCachedBookings();
+	if (!bookings) return 0;
 	const today = todayInLisbon();
 
-	const rows = await db
-		.select({ status: schema.bookings.status, checkin: schema.bookings.checkin })
-		.from(schema.bookings)
-		.where(
-			and(
-				isNull(schema.bookings.deletedAt),
-				or(
-					eq(schema.bookings.status, "requested"),
-					and(
-						eq(schema.bookings.checkin, today),
-						or(
-							eq(schema.bookings.status, "confirmed"),
-							eq(schema.bookings.status, "in_progress"),
-						),
-					),
-				),
-			),
-		);
-
-	return rows.length;
+	return bookings.filter(
+		(b) =>
+			b.status === "requested" ||
+			(b.checkin === today &&
+				(b.status === "confirmed" || b.status === "in_progress")),
+	).length;
 }

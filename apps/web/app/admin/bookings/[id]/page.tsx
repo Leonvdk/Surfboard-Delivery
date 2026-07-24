@@ -1,7 +1,5 @@
-import { and, eq, isNull } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getDb, schema } from "../../../lib/db/client";
 import { updateBookingNotes, updateFinalTotal } from "../../_actions";
 import { DeleteBookingButton } from "../../_components/delete-booking-button";
 import { DraftEmailButton } from "../../_components/draft-email-button";
@@ -14,6 +12,7 @@ import {
 	sexLabel,
 	summariseGear,
 } from "../../_lib/booking-labels";
+import { getCachedBookings } from "../../_lib/bookings-cache";
 import { computeCancellationState } from "../../_lib/cancellation";
 import { formatLongDate, formatShortDate } from "../../_lib/dates";
 import { getRepeatCustomer } from "../../_lib/repeat-customer";
@@ -29,8 +28,8 @@ export default async function BookingDetailPage({
 	const id = Number.parseInt(idStr, 10);
 	if (Number.isNaN(id)) notFound();
 
-	const db = getDb();
-	if (!db) {
+	const allBookings = await getCachedBookings();
+	if (!allBookings) {
 		return (
 			<section className="admin-empty">
 				<h1>Database not configured</h1>
@@ -39,17 +38,10 @@ export default async function BookingDetailPage({
 		);
 	}
 
-	const [booking] = await db
-		.select()
-		.from(schema.bookings)
-		.where(
-			and(eq(schema.bookings.id, id), isNull(schema.bookings.deletedAt)),
-		)
-		.limit(1);
-
+	const booking = allBookings.find((b) => b.id === id);
 	if (!booking) notFound();
 
-	const repeat = await getRepeatCustomer(booking.id, booking.email);
+	const repeat = getRepeatCustomer(allBookings, booking.id, booking.email);
 	const cancellationState =
 		booking.status === "requested"
 			? computeCancellationState(booking.createdAt, booking.checkin)

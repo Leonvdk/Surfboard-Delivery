@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb, schema } from "../../lib/db/client";
 import { calcPackagePrice, DAILY_MINIMUM_DAYS, type PackageTier } from "../../lib/pricing";
@@ -429,6 +430,13 @@ export async function POST(request: Request) {
 					})
 					.returning({ id: schema.bookings.id });
 				bookingId = row?.id ?? null;
+				// Bust the admin panel's cached bookings dataset so the new
+				// request shows up on Leon's next open, not after the TTL.
+				try {
+					revalidateTag("bookings", "max");
+				} catch {
+					/* revalidation is best-effort */
+				}
 			} catch (dbErr) {
 				console.error("Booking DB insert error:", dbErr);
 				// Do not fail the request — the customer already got their email.

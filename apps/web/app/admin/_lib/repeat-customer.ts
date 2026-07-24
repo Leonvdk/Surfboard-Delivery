@@ -1,5 +1,4 @@
-import { and, isNull, ne, sql } from "drizzle-orm";
-import { getDb, schema } from "../../lib/db/client";
+import type { Booking } from "../../lib/db/schema";
 
 export interface RepeatCustomerInfo {
 	priorCount: number;
@@ -7,41 +6,31 @@ export interface RepeatCustomerInfo {
 }
 
 /**
- * Given a booking id + email, returns how many *other* bookings this email
- * already has in the system, plus the most-recent prior checkin.
- * Case-insensitive match. Returns null when the DB isn't configured.
+ * Given the cached bookings list, a booking id, and an email, returns how
+ * many *other* bookings this email already has, plus the most-recent prior
+ * checkin. Case-insensitive match. Pure function — no DB roundtrip; the
+ * detail page already holds the full cached dataset.
  */
-export async function getRepeatCustomer(
+export function getRepeatCustomer(
+	allBookings: Booking[],
 	currentBookingId: number,
 	email: string,
-): Promise<RepeatCustomerInfo | null> {
-	const db = getDb();
-	if (!db) return null;
+): RepeatCustomerInfo {
+	const emailLower = email.toLowerCase();
+	const others = allBookings.filter(
+		(b) => b.id !== currentBookingId && b.email.toLowerCase() === emailLower,
+	);
 
-	const rows = await db
-		.select({
-			checkin: schema.bookings.checkin,
-			id: schema.bookings.id,
-		})
-		.from(schema.bookings)
-		.where(
-			and(
-				sql`lower(${schema.bookings.email}) = lower(${email})`,
-				ne(schema.bookings.id, currentBookingId),
-				isNull(schema.bookings.deletedAt),
-			),
-		);
+	if (others.length === 0) return { priorCount: 0, lastCheckin: null };
 
-	if (rows.length === 0) return { priorCount: 0, lastCheckin: null };
-
-	const sortedByCheckin = rows
-		.map((r) => r.checkin)
+	const sortedByCheckin = others
+		.map((b) => b.checkin)
 		.filter((c): c is string => typeof c === "string" && c.length > 0)
 		.sort()
 		.reverse();
 
 	return {
-		priorCount: rows.length,
+		priorCount: others.length,
 		lastCheckin: sortedByCheckin[0] ?? null,
 	};
 }

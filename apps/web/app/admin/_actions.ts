@@ -1,10 +1,11 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "../lib/db/client";
 import type { BookingStatus } from "../lib/db/schema";
+import { BOOKINGS_TAG } from "./_lib/bookings-cache";
 
 export async function updateBookingStatus(id: number, status: BookingStatus) {
 	const db = getDb();
@@ -13,6 +14,7 @@ export async function updateBookingStatus(id: number, status: BookingStatus) {
 		.update(schema.bookings)
 		.set({ status, updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
+	updateTag(BOOKINGS_TAG);
 	revalidatePath("/admin");
 	revalidatePath(`/admin/bookings/${id}`);
 	revalidatePath("/admin/calendar");
@@ -25,6 +27,7 @@ export async function updateBookingNotes(id: number, ownerNotes: string) {
 		.update(schema.bookings)
 		.set({ ownerNotes, updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
+	updateTag(BOOKINGS_TAG);
 	revalidatePath(`/admin/bookings/${id}`);
 }
 
@@ -35,6 +38,7 @@ export async function updateFinalTotal(id: number, finalTotal: number | null) {
 		.update(schema.bookings)
 		.set({ finalTotal, updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
+	updateTag(BOOKINGS_TAG);
 	revalidatePath(`/admin/bookings/${id}`);
 	revalidatePath("/admin/revenue");
 }
@@ -51,6 +55,7 @@ export async function deleteBooking(id: number) {
 		.update(schema.bookings)
 		.set({ deletedAt: new Date(), updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
+	updateTag(BOOKINGS_TAG);
 	revalidatePath("/admin");
 	revalidatePath("/admin/calendar");
 	revalidatePath("/admin/revenue");

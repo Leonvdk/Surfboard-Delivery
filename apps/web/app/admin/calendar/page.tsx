@@ -1,7 +1,6 @@
-import { and, gte, isNull, lte, or } from "drizzle-orm";
 import Link from "next/link";
-import { getDb, schema } from "../../lib/db/client";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
+import { getCachedBookings } from "../_lib/bookings-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -60,8 +59,8 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	const nextMonth = month === 12 ? { y: year + 1, m: 1 } : { y: year, m: month + 1 };
 	const monthEnd = `${nextMonth.y}-${pad(nextMonth.m)}-01`;
 
-	const db = getDb();
-	if (!db) {
+	const allBookings = await getCachedBookings();
+	if (!allBookings) {
 		return (
 			<section className="admin-empty">
 				<h1>Database not configured</h1>
@@ -70,24 +69,13 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 		);
 	}
 
-	// Bookings whose window overlaps the calendar's month.
-	// Soft-deleted rows are excluded.
-	const bookings = await db
-		.select()
-		.from(schema.bookings)
-		.where(
-			and(
-				isNull(schema.bookings.deletedAt),
-				or(
-					gte(schema.bookings.checkin, monthStart),
-					lte(schema.bookings.checkin, monthEnd),
-				),
-				or(
-					gte(schema.bookings.checkout, monthStart),
-					lte(schema.bookings.checkout, monthEnd),
-				),
-			),
-		);
+	// Bookings whose window overlaps the calendar's month, filtered in JS
+	// over the shared cached dataset. (The old SQL or() month filter was a
+	// tautology that matched every row anyway — this is both faster and
+	// actually correct.)
+	const bookings = allBookings.filter(
+		(b) => !(b.checkout < monthStart || b.checkin >= monthEnd),
+	);
 
 	// Build the day grid (Monday-first weeks)
 	const firstOfMonth = new Date(Date.UTC(year, month - 1, 1));
