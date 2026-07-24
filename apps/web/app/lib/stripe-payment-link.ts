@@ -27,6 +27,13 @@ export interface PaymentLinkLine {
 	amountEuros: number;
 }
 
+export interface PaymentLinkResult {
+	url: string | null;
+	/** Why there's no url — surfaced in the admin review-send dialog so
+	 * permission/key problems are diagnosable without digging in logs. */
+	error?: string;
+}
+
 export async function createBookingPaymentLink(args: {
 	bookingId: number;
 	requestRef: string;
@@ -34,15 +41,17 @@ export async function createBookingPaymentLink(args: {
 	/** When Leon adjusted the total away from the computed sum, we charge
 	 * his number: a single adjustment line makes up the difference. */
 	finalTotalEuros: number;
-}): Promise<string | null> {
+}): Promise<PaymentLinkResult> {
 	const stripe = getStripe();
-	if (!stripe) return null;
+	if (!stripe) {
+		return { url: null, error: "STRIPE_SECRET_KEY is not set in Vercel." };
+	}
 
 	const validLines = args.lines.filter(
 		(l) => Number.isFinite(l.amountEuros) && l.amountEuros > 0 && l.label.trim(),
 	);
 	if (!Number.isFinite(args.finalTotalEuros) || args.finalTotalEuros <= 0) {
-		return null;
+		return { url: null, error: "Final total must be a positive amount." };
 	}
 
 	const computedSum = validLines.reduce((s, l) => s + l.amountEuros, 0);
@@ -76,6 +85,11 @@ export async function createBookingPaymentLink(args: {
 			]
 		: chargeLines;
 
+	// Track which call fails so a permission error names the scope to fix:
+	// prices.create needs Products: Write, paymentLinks.create needs
+	// Payment Links: Write — a restricted key must have BOTH.
+	let stage: "creating prices (needs Products: Write)" | "creating the payment link (needs Payment Links: Write)" =
+		"creating prices (needs Products: Write)";
 	try {
 		const priceIds: string[] = [];
 		for (const line of finalLines) {
@@ -89,6 +103,7 @@ export async function createBookingPaymentLink(args: {
 			priceIds.push(price.id);
 		}
 
+		stage = "creating the payment link (needs Payment Links: Write)";
 		const link = await stripe.paymentLinks.create({
 			line_items: priceIds.map((price) => ({ price, quantity: 1 })),
 			metadata: {
@@ -100,11 +115,10 @@ export async function createBookingPaymentLink(args: {
 			// lands in the existing revenue dashboard via charges.list.
 		});
 
-		return link.url;
+		return { url: link.url };
 	} catch (err) {
-		// Most likely: key lacks write permissions (restricted read-only
-		// revenue key) or network trouble. Caller falls back to no-link flow.
 		console.error("Stripe payment link creation failed:", err);
-		return null;
+		const message = err instanceof Error ? err.message : String(err);
+		return { url: null, error: `Stripe failed while ${stage}: ${message}` };
 	}
 }

@@ -73,6 +73,7 @@ type Phase =
 			bookingId: number;
 			requestRef: string;
 			paymentLinkUrl: string | null;
+			paymentLinkError: string | null;
 	  }
 	| { step: "sending"; bookingId: number }
 	| { step: "error"; message: string };
@@ -153,6 +154,7 @@ export function NewBookingForm() {
 			bookingId: result.bookingId,
 			requestRef: result.requestRef ?? "",
 			paymentLinkUrl: result.paymentLinkUrl ?? null,
+			paymentLinkError: result.paymentLinkError ?? null,
 		});
 	};
 
@@ -205,10 +207,14 @@ export function NewBookingForm() {
 				) : (
 					<>
 						<p>
-							⚠️ <strong>No payment link.</strong> Stripe isn&apos;t connected (or the
-							key can&apos;t create payment links), so the email will say{" "}
+							⚠️ <strong>No payment link.</strong> The email will say{" "}
 							<em>pay on delivery</em> — no pay-online button. Send anyway?
 						</p>
+						{info?.paymentLinkError && (
+							<p className="admin-card-hint admin-send-link">
+								Stripe said: {info.paymentLinkError}
+							</p>
+						)}
 						<div className="admin-send-actions">
 							<button
 								type="button"

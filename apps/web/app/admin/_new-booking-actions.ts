@@ -71,6 +71,8 @@ export interface CreateBookingResult {
 	bookingId?: number;
 	requestRef?: string;
 	paymentLinkUrl?: string | null;
+	/** Why Stripe produced no link — shown in the review-send dialog. */
+	paymentLinkError?: string;
 }
 
 function calcDays(checkin: string, checkout: string): number | null {
@@ -199,10 +201,11 @@ export async function createAdminBooking(
 	if (!row) return { ok: false, error: "Insert failed — try again." };
 	const requestRef = `SR-${String(row.id).padStart(5, "0")}`;
 
-	// Best-effort payment link. Null = Stripe unavailable/misconfigured —
-	// the client then shows the "send without payment link?" confirm.
+	// Best-effort payment link. A null url = Stripe unavailable or refused —
+	// the client shows the "send without payment link?" confirm with the
+	// reason so key/permission problems are visible without log-digging.
 	const { lines } = computeLines(payload);
-	const paymentLinkUrl = await createBookingPaymentLink({
+	const linkResult = await createBookingPaymentLink({
 		bookingId: row.id,
 		requestRef,
 		lines: lines
@@ -211,10 +214,10 @@ export async function createAdminBooking(
 		finalTotalEuros: finalTotal,
 	});
 
-	if (paymentLinkUrl) {
+	if (linkResult.url) {
 		await db
 			.update(schema.bookings)
-			.set({ stripePaymentLinkUrl: paymentLinkUrl })
+			.set({ stripePaymentLinkUrl: linkResult.url })
 			.where(eq(schema.bookings.id, row.id));
 	}
 
@@ -222,7 +225,13 @@ export async function createAdminBooking(
 	revalidatePath("/admin");
 	revalidatePath("/admin/calendar");
 
-	return { ok: true, bookingId: row.id, requestRef, paymentLinkUrl };
+	return {
+		ok: true,
+		bookingId: row.id,
+		requestRef,
+		paymentLinkUrl: linkResult.url,
+		paymentLinkError: linkResult.error,
+	};
 }
 
 export async function sendBookingConfirmation(
