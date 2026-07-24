@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { BoardStatus } from "../../lib/db/schema";
+import type { BoardStatus, GearKind } from "../../lib/db/schema";
 import { setBoardStatus, updateBoard } from "../_board-actions";
+import { BOARD_SIZES, WETSUIT_SIZES } from "../_lib/gear-sizes";
 
 /**
  * Edit-a-board modal, opened from the fleet list — no navigation, per
@@ -14,6 +15,7 @@ import { setBoardStatus, updateBoard } from "../_board-actions";
 
 export interface EditableBoard {
 	id: number;
+	kind: GearKind;
 	name: string;
 	size: string;
 	purchaseCost: number | null;
@@ -102,20 +104,27 @@ export function BoardEditButton({ board }: { board: EditableBoard }) {
 										/>
 									</label>
 									<div className="admin-board-form-grid">
-										<label>
-											Size
-											<select
-												name="size"
-												required
-												defaultValue={board.size}
-												className="admin-input"
-											>
-												<option value="6'6">6&apos;6</option>
-												<option value="7'0">7&apos;0</option>
-												<option value="7'8">7&apos;8</option>
-												<option value="8'6">8&apos;6</option>
-											</select>
-										</label>
+										{board.kind === "other" ? (
+											<input type="hidden" name="size" value={board.size} />
+										) : (
+											<label>
+												Size
+												<select
+													name="size"
+													required
+													defaultValue={board.size}
+													className="admin-input"
+												>
+													{(board.kind === "board" ? BOARD_SIZES : WETSUIT_SIZES).map(
+														(s) => (
+															<option key={s} value={s}>
+																{s}
+															</option>
+														),
+													)}
+												</select>
+											</label>
+										)}
 										<label>
 											Cost (€)
 											<input

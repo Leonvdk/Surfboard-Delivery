@@ -103,11 +103,17 @@ export const boardStatusEnum = pgEnum("board_status", [
 
 export type BoardStatus = (typeof boardStatusEnum.enumValues)[number];
 
+export const gearKindEnum = pgEnum("gear_kind", ["board", "wetsuit", "other"]);
+
+export type GearKind = (typeof gearKindEnum.enumValues)[number];
+
 /**
- * The physical fleet — one row per physical board, so each board carries
- * its own cost, dings, and assignment history. `repair`/`retired` boards
- * drop out of availability but keep their history. Spend tracking is just
- * SUM(purchase_cost) over rows.
+ * The physical fleet — one row per physical item, so each carries its
+ * own cost, dings, and (for boards) assignment history. Kind splits the
+ * inventory into boards / wetsuits / other gear (ponchos, changing mats,
+ * roof racks); only kind=board participates in availability and
+ * assignments. `repair`/`retired` items drop out of availability but
+ * keep their history. Spend tracking is SUM(purchase_cost) over rows.
  */
 export const boards = pgTable(
 	"boards",
@@ -116,9 +122,11 @@ export const boards = pgTable(
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at").defaultNow().notNull(),
 
+		kind: gearKindEnum("kind").default("board").notNull(),
 		// Leon's label, e.g. "7'8 Funboard — blue NSP"
 		name: text("name").notNull(),
-		// Matches the booking-form values: 6'6, 7'0, 7'8, 8'6
+		// Boards: 6'6 / 7'0 / 7'8 / 8'6 (booking-form values).
+		// Wetsuits: XS–XL or kid height ranges. Other gear: free text / empty.
 		size: text("size").notNull(),
 		// Euros paid. Nullable — some boards predate cost tracking.
 		purchaseCost: integer("purchase_cost"),
@@ -175,6 +183,34 @@ export const boardAssignments = pgTable(
 
 export type BoardAssignment = typeof boardAssignments.$inferSelect;
 export type NewBoardAssignment = typeof boardAssignments.$inferInsert;
+
+/* ── Expenses ────────────────────────────────────────────────────── */
+
+/**
+ * Manual operating expenses (paying a driver, fuel, repairs, wax…).
+ * Gear purchases live on the fleet rows as purchaseCost — the revenue
+ * page combines both so Leon sees whether the business actually makes
+ * money. Amounts in whole euros, matching the rest of the app.
+ */
+export const expenses = pgTable(
+	"expenses",
+	{
+		id: serial("id").primaryKey(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		// The day the money left, ISO date string.
+		date: text("date").notNull(),
+		label: text("label").notNull(),
+		amount: integer("amount").notNull(),
+		category: text("category"),
+		notes: text("notes"),
+	},
+	(t) => ({
+		dateIdx: index("expenses_date_idx").on(t.date),
+	}),
+);
+
+export type Expense = typeof expenses.$inferSelect;
+export type NewExpense = typeof expenses.$inferInsert;
 
 /**
  * Web-push subscriptions from Leon's installed admin PWA. One row per

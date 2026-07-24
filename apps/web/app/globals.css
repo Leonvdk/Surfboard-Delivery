@@ -8081,6 +8081,53 @@ h1 {
   border-left: 3px solid var(--accent);
 }
 
+/* ---- Profit & loss tiles ---- */
+
+.admin-pl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.admin-pl-tile {
+  padding: var(--space-md);
+  border: var(--border-light);
+  background: var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-pl-tile strong {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.admin-pl-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+}
+
+.admin-pl-tile--result {
+  border: 1.5px solid var(--black);
+  background: var(--surface);
+  box-shadow: 3px 3px 0 var(--black);
+}
+
+.admin-pl-tile--result strong {
+  color: #2e7d32;
+}
+
+.admin-pl-tile--negative strong {
+  color: var(--accent);
+}
+
 /* ---- Board edit modal helpers ---- */
 
 .admin-row-link--btn {

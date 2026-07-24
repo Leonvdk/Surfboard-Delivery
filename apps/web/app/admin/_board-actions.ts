@@ -4,8 +4,9 @@ import { eq } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "../lib/db/client";
-import type { BoardStatus } from "../lib/db/schema";
+import type { BoardStatus, GearKind } from "../lib/db/schema";
 import { BOARDS_TAG, findConflict, getCachedFleet } from "./_lib/boards-cache";
+import { isValidSize } from "./_lib/gear-sizes";
 
 /**
  * Board-inventory mutations. Same conventions as _actions.ts: server
@@ -17,8 +18,8 @@ import { BOARDS_TAG, findConflict, getCachedFleet } from "./_lib/boards-cache";
  * driver has no transactions), but the admin panel has exactly one user.
  */
 
-const BOARD_SIZES = new Set(["6'6", "7'0", "7'8", "8'6"]);
 const BOARD_STATUSES = new Set<BoardStatus>(["active", "repair", "retired"]);
+const GEAR_KINDS = new Set<GearKind>(["board", "wetsuit", "other"]);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function revalidateBoardSurfaces() {
@@ -32,15 +33,18 @@ export async function createBoard(formData: FormData) {
 	const db = getDb();
 	if (!db) throw new Error("Database not configured");
 
+	const kindRaw = ((formData.get("kind") as string) ?? "board").trim() as GearKind;
+	const kind: GearKind = GEAR_KINDS.has(kindRaw) ? kindRaw : "board";
 	const name = ((formData.get("name") as string) ?? "").trim();
 	const size = ((formData.get("size") as string) ?? "").trim();
 	const costRaw = ((formData.get("purchaseCost") as string) ?? "").trim();
 	const purchaseDate = ((formData.get("purchaseDate") as string) ?? "").trim();
 	const notes = ((formData.get("notes") as string) ?? "").trim();
 
-	if (!name || !BOARD_SIZES.has(size)) return;
+	if (!name || !isValidSize(kind, size)) return;
 
 	await db.insert(schema.boards).values({
+		kind,
 		name,
 		size,
 		purchaseCost: costRaw ? Number.parseInt(costRaw, 10) || null : null,
@@ -54,13 +58,18 @@ export async function updateBoard(id: number, formData: FormData) {
 	const db = getDb();
 	if (!db) throw new Error("Database not configured");
 
+	// Kind is fixed at creation; look it up so size validation matches.
+	const data = await getCachedFleet();
+	const kind: GearKind =
+		data?.fleet.find((b) => b.id === id)?.kind ?? "board";
+
 	const name = ((formData.get("name") as string) ?? "").trim();
 	const size = ((formData.get("size") as string) ?? "").trim();
 	const costRaw = ((formData.get("purchaseCost") as string) ?? "").trim();
 	const purchaseDate = ((formData.get("purchaseDate") as string) ?? "").trim();
 	const notes = ((formData.get("notes") as string) ?? "").trim();
 
-	if (!name || !BOARD_SIZES.has(size)) return;
+	if (!name || !isValidSize(kind, size)) return;
 
 	await db
 		.update(schema.boards)
@@ -119,7 +128,7 @@ export async function assignBoard(
 	if (!data) throw new Error("Database not configured");
 
 	const board = data.fleet.find((b) => b.id === boardId);
-	if (!board || board.status !== "active") {
+	if (!board || board.kind !== "board" || board.status !== "active") {
 		redirect(
 			`/admin/bookings/${bookingId}?boardError=${encodeURIComponent(
 				"That board isn't active — check its status on the Boards page.",
@@ -185,7 +194,7 @@ export async function swapBoard(assignmentId: number, formData: FormData) {
 	}
 
 	const board = data.fleet.find((b) => b.id === newBoardId);
-	if (!board || board.status !== "active") {
+	if (!board || board.kind !== "board" || board.status !== "active") {
 		redirect(
 			`${backTo}?boardError=${encodeURIComponent(
 				"That board isn't active — check its status on the Boards page.",

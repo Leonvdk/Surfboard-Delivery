@@ -82,7 +82,7 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	// clipped to this month.
 	const fleetData = await getCachedFleet();
 	const activeFleet = (fleetData?.fleet ?? []).filter(
-		(b) => b.status === "active",
+		(b) => b.kind === "board" && b.status === "active",
 	);
 	const busyByBoard = new Map<number, Array<{ start: string; end: string; bookingId: number; bookingName: string }>>();
 	if (fleetData) {

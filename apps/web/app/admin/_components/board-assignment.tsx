@@ -40,10 +40,10 @@ export function BoardAssignmentPanel({
 
 	const assignWithIds = assignBoard.bind(null, booking.id, personIndex);
 	const sameSize = data.fleet.filter(
-		(b) => b.status === "active" && b.size === person.board,
+		(b) => b.kind === "board" && b.status === "active" && b.size === person.board,
 	);
 	const otherActive = data.fleet.filter(
-		(b) => b.status === "active" && b.size !== person.board,
+		(b) => b.kind === "board" && b.status === "active" && b.size !== person.board,
 	);
 	// Matching-size boards first; everything else after, flagged.
 	const ordered = [...sameSize, ...otherActive];
@@ -132,7 +132,7 @@ function AssignmentChain({
 			: current.startDate;
 
 	const swapCandidates = data.fleet.filter(
-		(b) => b.status === "active" && b.id !== current.boardId,
+		(b) => b.kind === "board" && b.status === "active" && b.id !== current.boardId,
 	);
 
 	return (

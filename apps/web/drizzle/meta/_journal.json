@@ -36,6 +36,20 @@
       "when": 1784936175198,
       "tag": "0004_chubby_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784936963323,
+      "tag": "0005_loud_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784937059249,
+      "tag": "0006_first_warstar",
+      "breakpoints": true
     }
   ]
 }

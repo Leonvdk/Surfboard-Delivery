@@ -91,7 +91,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 	// confirmed booking is a double-booking risk, so it gets flagged here.
 	const fleetData = await getCachedFleet();
 	const missingBoards =
-		fleetData && fleetData.fleet.length > 0
+		fleetData && fleetData.fleet.some((f) => f.kind === "board")
 			? allBookings.filter((b) => {
 					if (b.status !== "confirmed" && b.status !== "in_progress")
 						return false;

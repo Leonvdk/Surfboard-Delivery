@@ -1,7 +1,12 @@
+import { desc } from "drizzle-orm";
 import type Stripe from "stripe";
+import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
 import { RevenueBarChart } from "../_components/revenue-bar-chart";
+import { addExpense, deleteExpense } from "../_expense-actions";
 import { getCachedBookings } from "../_lib/bookings-cache";
+import { getCachedFleet } from "../_lib/boards-cache";
+import { formatShortDate, todayIso } from "../_lib/dates";
 import {
 	bookingFunnelForRecentMonths,
 	monthlyRollup,
@@ -70,6 +75,28 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	// Bookings-side insights (funnel, package mix, monthly rollup) — served
 	// from the shared cached dataset, no extra DB roundtrip.
 	const allBookings = (await getCachedBookings()) ?? [];
+
+	// Expenses + gear investment → the "do we actually make money" view.
+	// Caveat shown in the UI: Stripe only sees online payments, so cash /
+	// pay-on-delivery revenue isn't part of the P&L number.
+	const db = getDb();
+	const allExpenses = db
+		? await db
+				.select()
+				.from(schema.expenses)
+				.orderBy(desc(schema.expenses.date), desc(schema.expenses.id))
+		: [];
+	const fleetData = await getCachedFleet();
+	const gearInvested = (fleetData?.fleet ?? []).reduce(
+		(s, b) => s + (b.purchaseCost ?? 0),
+		0,
+	);
+	const periodStartIso = new Date(startTime * 1000).toISOString().slice(0, 10);
+	const periodExpensesTotal = allExpenses
+		.filter((e) => e.date >= periodStartIso)
+		.reduce((s, e) => s + e.amount, 0);
+	const allExpensesTotal = allExpenses.reduce((s, e) => s + e.amount, 0);
+	const today = todayIso();
 	const funnel = bookingFunnelForRecentMonths(allBookings);
 	const mix = packageMix(allBookings, 90);
 	const rollup = monthlyRollup(allBookings, 12);
@@ -77,6 +104,8 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	const totalCents = charges.reduce((sum, c) => sum + c.amount, 0);
 	const refundedCents = charges.reduce((sum, c) => sum + c.amount_refunded, 0);
 	const netCents = totalCents - refundedCents;
+	// Operating result for the selected window: Stripe net − manual expenses.
+	const resultCents = netCents - periodExpensesTotal * 100;
 
 	// Group charges by day for the trend
 	const byDay = new Map<string, number>();
@@ -105,6 +134,140 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			<article className="admin-card">
 				<h2>Daily net revenue</h2>
 				<RevenueBarChart trend={trendDays} />
+			</article>
+
+			<article className="admin-card">
+				<h2>Profit &amp; loss · last {days} days</h2>
+				<div className="admin-pl-grid">
+					<div className="admin-pl-tile">
+						<span className="admin-pl-label">Revenue (Stripe net)</span>
+						<strong>{formatEuros(netCents)}</strong>
+					</div>
+					<div className="admin-pl-tile">
+						<span className="admin-pl-label">Expenses</span>
+						<strong>−€{periodExpensesTotal}</strong>
+					</div>
+					<div
+						className={`admin-pl-tile admin-pl-tile--result${resultCents < 0 ? " admin-pl-tile--negative" : ""}`}
+					>
+						<span className="admin-pl-label">Result</span>
+						<strong>{formatEuros(resultCents)}</strong>
+					</div>
+				</div>
+				<p className="admin-card-hint">
+					All-time: €{gearInvested} invested in gear (from the Fleet page) ·
+					€{allExpensesTotal} manual expenses logged. Stripe only sees online
+					payments — cash / pay-on-delivery revenue isn&apos;t counted here.
+				</p>
+			</article>
+
+			<article className="admin-card">
+				<h2>Expenses</h2>
+				<form action={addExpense} className="admin-board-form admin-expense-form">
+					<div className="admin-board-form-grid">
+						<label>
+							Date
+							<input
+								type="date"
+								name="date"
+								required
+								defaultValue={today}
+								className="admin-input"
+							/>
+						</label>
+						<label>
+							What
+							<input
+								type="text"
+								name="label"
+								required
+								placeholder="e.g. Paid João for deliveries"
+								className="admin-input"
+							/>
+						</label>
+						<label>
+							Amount (€)
+							<input
+								type="number"
+								name="amount"
+								required
+								min="1"
+								placeholder="e.g. 40"
+								className="admin-input"
+							/>
+						</label>
+						<label>
+							Category
+							<input
+								type="text"
+								name="category"
+								placeholder="delivery / fuel / repair…"
+								className="admin-input"
+								list="expense-categories"
+							/>
+							<datalist id="expense-categories">
+								<option value="delivery" />
+								<option value="fuel" />
+								<option value="repair" />
+								<option value="wax & leashes" />
+								<option value="marketing" />
+								<option value="other" />
+							</datalist>
+						</label>
+					</div>
+					<button type="submit" className="admin-btn">
+						Add expense
+					</button>
+				</form>
+
+				{allExpenses.length === 0 ? (
+					<p className="admin-empty-inline">
+						No expenses logged yet — add the first one above.
+					</p>
+				) : (
+					<div className="admin-table-wrap">
+						<table className="admin-table">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>What</th>
+									<th>Category</th>
+									<th>Amount</th>
+									<th />
+								</tr>
+							</thead>
+							<tbody>
+								{allExpenses.map((e) => {
+									const deleteWithId = deleteExpense.bind(null, e.id);
+									return (
+										<tr key={e.id}>
+											<td>{formatShortDate(e.date)}</td>
+											<td>
+												<div className="admin-cell-strong">{e.label}</div>
+												{e.notes && (
+													<div className="admin-cell-muted">{e.notes}</div>
+												)}
+											</td>
+											<td>{e.category ?? "—"}</td>
+											<td>€{e.amount}</td>
+											<td>
+												<form action={deleteWithId}>
+													<button
+														type="submit"
+														className="admin-board-remove"
+														aria-label={`Delete expense: ${e.label}`}
+													>
+														delete
+													</button>
+												</form>
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+				)}
 			</article>
 
 			<div className="admin-detail-grid">
