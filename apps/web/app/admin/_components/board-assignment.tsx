@@ -66,6 +66,11 @@ export function BoardAssignmentPanel({
 					<option value="" disabled>
 						Assign a board
 					</option>
+					{/* Busy boards stay selectable — the flag is computed for the
+						DEFAULT window, but the date inputs are editable and a
+						narrower range may be perfectly fine. The server action
+						validates the submitted dates and hard-blocks real
+						conflicts with a named-booking error. */}
 					{ordered.map((b) => {
 						const conflict = findConflict(
 							data.assignments,
@@ -75,10 +80,10 @@ export function BoardAssignmentPanel({
 						);
 						const sizeFlag = b.size !== person.board && person.board ? " · other size" : "";
 						return (
-							<option key={b.id} value={b.id} disabled={Boolean(conflict)}>
+							<option key={b.id} value={b.id}>
 								{b.name}
 								{sizeFlag}
-								{conflict ? ` — busy (${conflict.bookingName})` : ""}
+								{conflict ? ` — busy ${conflict.startDate} → ${conflict.endDate} (${conflict.bookingName})` : ""}
 							</option>
 						);
 					})}
@@ -159,6 +164,9 @@ function AssignmentChain({
 							<option value="" disabled>
 								New board
 							</option>
+							{/* Same rule as the assign picker: busy is a warning for
+								the default swap date, not a hard block — the owner can
+								move the swap date and the server validates for real. */}
 							{swapCandidates.map((b) => {
 								const conflict = findConflict(
 									data.assignments,
@@ -168,9 +176,9 @@ function AssignmentChain({
 									current.id,
 								);
 								return (
-									<option key={b.id} value={b.id} disabled={Boolean(conflict)}>
+									<option key={b.id} value={b.id}>
 										{b.name}
-										{conflict ? ` — busy (${conflict.bookingName})` : ""}
+										{conflict ? ` — busy ${conflict.startDate} → ${conflict.endDate} (${conflict.bookingName})` : ""}
 									</option>
 								);
 							})}

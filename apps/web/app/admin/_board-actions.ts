@@ -225,18 +225,50 @@ export async function swapBoard(assignmentId: number, formData: FormData) {
 	revalidatePath(backTo);
 }
 
-/** Remove an assignment (wrong pick, customer downgraded, etc.). */
+/**
+ * Remove an assignment (wrong pick, customer downgraded, or undoing a
+ * mistaken swap). Removing a swapped-in row restores the swapped-from
+ * assignment's original end date — swapBoard truncated it to the swap
+ * day, and the removed row's endDate IS that original end. Without the
+ * restore, the customer would still physically hold the old board while
+ * the calendar shows it free (double-booking risk). If the restore
+ * recreates an overlap with something assigned in the meantime, we
+ * restore anyway: it mirrors physical reality, and the calendar making
+ * the clash visible is the point.
+ */
 export async function removeAssignment(assignmentId: number) {
 	const db = getDb();
 	if (!db) throw new Error("Database not configured");
 
 	const data = await getCachedFleet();
-	const bookingId = data?.assignments.find((a) => a.id === assignmentId)
-		?.bookingId;
+	const removed = data?.assignments.find((a) => a.id === assignmentId);
+	const bookingId = removed?.bookingId;
 
-	await db
-		.delete(schema.boardAssignments)
-		.where(eq(schema.boardAssignments.id, assignmentId));
+	let failed = false;
+	try {
+		if (removed?.swappedFromId != null) {
+			await db
+				.update(schema.boardAssignments)
+				.set({ endDate: removed.endDate })
+				.where(eq(schema.boardAssignments.id, removed.swappedFromId));
+		}
+		await db
+			.delete(schema.boardAssignments)
+			.where(eq(schema.boardAssignments.id, assignmentId));
+	} catch (err) {
+		// Most likely a 23503: a later swap row references this one
+		// (stale page on another device). Surface it instead of crashing.
+		console.error("removeAssignment error:", err);
+		failed = true;
+	}
+
 	revalidateBoardSurfaces();
+	if (failed && bookingId != null) {
+		redirect(
+			`/admin/bookings/${bookingId}?boardError=${encodeURIComponent(
+				"Couldn't remove — a later swap builds on this assignment. Remove the newest link in the chain first.",
+			)}`,
+		);
+	}
 	if (bookingId != null) revalidatePath(`/admin/bookings/${bookingId}`);
 }

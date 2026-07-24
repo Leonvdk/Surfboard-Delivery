@@ -327,6 +327,17 @@ export async function POST(request: Request) {
 			);
 		}
 
+		// Normalize: a per-person "override" identical to the trip range is
+		// not a real split — drop it so the emails/push don't cry STAGGERED
+		// over dates that don't diverge. (The client strips these at set
+		// time, but an old override can survive a later trip-date edit that
+		// lands on the same range.)
+		data.people = (data.people ?? []).map((p) =>
+			p.checkin === data.checkin && p.checkout === data.checkout
+				? { ...p, checkin: null, checkout: null }
+				: p,
+		);
+
 		// Enforce the same 3-day minimum on any per-person override that the
 		// client-side form does. Bad payloads (short overrides, half-filled
 		// ranges) get rejected before we send an email that quotes a wrong price.
