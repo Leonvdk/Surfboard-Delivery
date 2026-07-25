@@ -73,6 +73,11 @@ export const bookings = pgTable(
 		// completes. Drives the "payment confirmed" stage + the push to Leon.
 		paidAt: timestamp("paid_at"),
 		paidAmountCents: integer("paid_amount_cents"),
+		// Proof that the confirmation email actually went out. Resend sends
+		// server-side, so these never appear in Leon's mail client Sent
+		// folder — the admin shows this timestamp + provider id instead.
+		confirmationSentAt: timestamp("confirmation_sent_at"),
+		confirmationEmailId: text("confirmation_email_id"),
 
 		importedFromResend: timestamp("imported_from_resend"),
 

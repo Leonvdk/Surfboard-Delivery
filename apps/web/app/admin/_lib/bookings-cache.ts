@@ -31,6 +31,9 @@ function rehydrate(row: Booking): Booking {
 			: null,
 		deletedAt: row.deletedAt ? new Date(row.deletedAt) : null,
 		paidAt: row.paidAt ? new Date(row.paidAt) : null,
+		confirmationSentAt: row.confirmationSentAt
+			? new Date(row.confirmationSentAt)
+			: null,
 	};
 }
 

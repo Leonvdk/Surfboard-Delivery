@@ -223,6 +223,11 @@ export function NewBookingForm() {
 							confirmation email with the <strong>€{effectiveTotal}</strong> pay-online button?
 						</p>
 						<p className="admin-card-hint admin-send-link">{info.paymentLinkUrl}</p>
+						<p className="admin-card-hint">
+							A copy is BCC&apos;d to hello@surfrental-aljezur.com — these send
+							via Resend, so they never appear in your mail client&apos;s Sent
+							folder.
+						</p>
 						<div className="admin-send-actions">
 							<button
 								type="button"
@@ -253,6 +258,11 @@ export function NewBookingForm() {
 								Stripe said: {info.paymentLinkError}
 							</p>
 						)}
+						<p className="admin-card-hint">
+							A copy is BCC&apos;d to hello@surfrental-aljezur.com — these send
+							via Resend, so they never appear in your mail client&apos;s Sent
+							folder.
+						</p>
 						<div className="admin-send-actions">
 							<button
 								type="button"

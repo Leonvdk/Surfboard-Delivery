@@ -292,11 +292,16 @@ export async function sendBookingConfirmation(
 		note: booking.message ?? undefined,
 	});
 
+	let emailId: string | null = null;
 	try {
 		const resend = new Resend(process.env.RESEND_API_KEY);
 		const result = await resend.emails.send({
 			from: FROM_EMAIL,
 			to: booking.email,
+			// Copy to the business inbox: Resend sends server-side, so
+			// without this nothing lands in Leon's mail client and there's
+			// no human-visible record of what the customer received.
+			bcc: BUSINESS_EMAIL,
 			replyTo: BUSINESS_EMAIL,
 			subject: emailContent.subject,
 			text: emailContent.text,
@@ -306,9 +311,28 @@ export async function sendBookingConfirmation(
 			console.error("Confirmation email error:", result.error);
 			return { ok: false, error: `Email failed: ${result.error.message}` };
 		}
+		emailId = result.data?.id ?? null;
 	} catch (err) {
 		console.error("Confirmation email error:", err);
 		return { ok: false, error: "Email failed — check RESEND_API_KEY." };
+	}
+
+	// Record proof of send so the booking page can show it — Resend
+	// accepted the message at this timestamp with this provider id.
+	try {
+		await db
+			.update(schema.bookings)
+			.set({
+				confirmationSentAt: new Date(),
+				confirmationEmailId: emailId,
+				updatedAt: new Date(),
+			})
+			.where(eq(schema.bookings.id, bookingId));
+		updateTag(BOOKINGS_TAG);
+	} catch (dbErr) {
+		// The email did go out; a failed bookkeeping write shouldn't
+		// report failure to Leon.
+		console.error("Confirmation stamp error:", dbErr);
 	}
 
 	revalidatePath(`/admin/bookings/${bookingId}`);

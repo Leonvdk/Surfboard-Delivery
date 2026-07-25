@@ -156,6 +156,26 @@ export default async function BookingDetailPage({
 								</dd>
 							</>
 						)}
+						{booking.confirmationSentAt && (
+							<>
+								<dt>Confirmation email</dt>
+								<dd>
+									✅ Sent{" "}
+									{booking.confirmationSentAt.toLocaleString("en-GB", {
+										day: "numeric",
+										month: "short",
+										hour: "2-digit",
+										minute: "2-digit",
+									})}
+									<div className="admin-cell-muted">
+										Copy in {"hello@surfrental-aljezur.com"}
+										{booking.confirmationEmailId
+											? ` · id ${booking.confirmationEmailId.slice(0, 8)}`
+											: ""}
+									</div>
+								</dd>
+							</>
+						)}
 						{booking.paidAt && (
 							<>
 								<dt>Paid</dt>
