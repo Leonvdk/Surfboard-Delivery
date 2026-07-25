@@ -8550,10 +8550,30 @@ h1 {
 }
 
 /* Revenue chart (bars + hover) */
+/* Compact card variant — for secondary panels like the revenue trend
+   that shouldn't eat the top of the screen. */
+.admin-card--compact {
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.admin-card--compact h2 {
+  font-size: 0.9375rem;
+  margin-bottom: 4px;
+}
+
 .revenue-chart {
   position: relative;
-  margin-top: var(--space-md);
-  height: 200px;
+  /* Half the old 200px — the trend is worth a glance, not half the
+     screen above the fold. Tooltip on hover carries the detail. */
+  margin-top: var(--space-sm);
+  height: 100px;
+}
+
+@media (max-width: 640px) {
+  .revenue-chart {
+    height: 80px;
+  }
 }
 
 .revenue-chart-bars {

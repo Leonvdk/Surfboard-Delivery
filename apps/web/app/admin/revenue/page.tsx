@@ -137,7 +137,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				</div>
 			</header>
 
-			<article className="admin-card">
+			<article className="admin-card admin-card--compact">
 				<h2>Daily net revenue</h2>
 				<RevenueBarChart trend={trendDays} />
 			</article>
