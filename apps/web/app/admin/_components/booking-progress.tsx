@@ -33,15 +33,18 @@ export function BookingProgress({ booking }: { booking: Booking }) {
 			{BOOKING_STAGES.map((stage, i) => {
 				const state = i < reached ? "done" : i === reached ? "current" : "todo";
 				const isLateStep = stage.key === "in_progress" && late;
+				// "Completed" is terminal — sitting on it means finished, so
+				// it gets a tick rather than a step number.
+				const ticked = i < reached || (i === reached && stage.key === "completed");
 				return (
 					<li
 						key={stage.key}
-						className={`booking-progress-step booking-progress-step--${state}${isLateStep ? " booking-progress-step--late" : ""}`}
+						className={`booking-progress-step booking-progress-step--${state}${isLateStep ? " booking-progress-step--late" : ""}${ticked && state === "current" ? " booking-progress-step--terminal" : ""}`}
 					>
 						<span className="booking-progress-marker" aria-hidden="true">
 							{isLateStep ? (
 								"!"
-							) : i < reached ? (
+							) : ticked ? (
 								<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
 									<polyline points="20 6 9 17 4 12" />
 								</svg>

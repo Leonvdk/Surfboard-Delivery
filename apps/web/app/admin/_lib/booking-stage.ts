@@ -96,8 +96,8 @@ export function currentStageLabel(inputs: StageInputs, late = false): string {
 
 /**
  * The statuses Leon can actually set, labelled in the same vocabulary as
- * the stages. The payment stages aren't here on purpose — they come from
- * Stripe and the confirmation email, not from a menu.
+ * the stages. The payment stages aren't here — they come from Stripe and
+ * the confirmation email, not from a menu.
  */
 export const SETTABLE_STATUSES: Array<{
 	value: BookingStatus;
@@ -116,4 +116,47 @@ export function statusLabel(status: BookingStatus): string {
 		SETTABLE_STATUSES.find((s) => s.value === status)?.label ??
 		status.replace("_", " ")
 	);
+}
+
+/**
+ * Every state a booking can display, in lifecycle order — the status
+ * picker renders this whole list so the menu says the same words as the
+ * tag above it. Entries without a `status` are set by Stripe / the
+ * confirmation email rather than by Leon, and render disabled with the
+ * reason as a tooltip.
+ */
+export const STAGE_MENU: Array<{
+	key: string;
+	label: string;
+	status?: BookingStatus;
+	hint?: string;
+}> = [
+	{ key: "requested", label: "Requested", status: "requested" },
+	{ key: "answered", label: "Answered", status: "confirmed" },
+	{
+		key: "awaiting_payment",
+		label: "Awaiting payment",
+		hint: "Set automatically once a payment link exists on this booking",
+	},
+	{
+		key: "payment_confirmed",
+		label: "Payment confirmed",
+		hint: "Set automatically when Stripe reports the payment",
+	},
+	{ key: "in_progress", label: "In progress", status: "in_progress" },
+	{ key: "completed", label: "Completed", status: "completed" },
+	{ key: "cancelled", label: "Cancelled", status: "cancelled" },
+];
+
+/**
+ * Slug for the booking's current state — drives both the menu's
+ * "current" highlight and the tag colour, so one stage always looks and
+ * reads the same everywhere.
+ */
+export function currentStageKey(inputs: StageInputs, late = false): string {
+	if (inputs.status === "cancelled") return "cancelled";
+	if (late) return "late";
+	const idx = stageIndexFrom(inputs);
+	if (idx == null || idx < 0) return "requested";
+	return BOOKING_STAGES[idx]?.key ?? "requested";
 }

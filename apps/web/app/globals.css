@@ -6935,9 +6935,42 @@ h1 {
 .admin-status--in_progress { background: #ffcdb9; color: #822111; }
 .admin-status--completed   { background: #c9daf8; color: #1c4587; }
 .admin-status--cancelled   { background: #efefef; color: #666666; }
-/* Overdue pickup — wins over the in_progress colour so a late booking
-   stands out while scanning the table. Matches the stepper's LATE. */
+
+/* Stage colours — one per lifecycle stage, so the same stage looks the
+   same in the table tag, the picker menu, and the dashboard rows.
+   Answered and Payment confirmed have to differ despite sharing the
+   "confirmed" status, or the money question becomes invisible. */
+.admin-status--stage-requested         { background: #fef1d1; color: #7a4706; }
+.admin-status--stage-answered          { background: #dfe7ef; color: #2c4a63; }
+.admin-status--stage-awaiting_payment  { background: #ffe3c2; color: #8a4b00; }
+.admin-status--stage-payment_confirmed { background: #b9e4d0; color: #076239; }
+.admin-status--stage-in_progress       { background: #ffcdb9; color: #822111; }
+.admin-status--stage-completed         { background: #c9daf8; color: #1c4587; }
+.admin-status--stage-cancelled         { background: #efefef; color: #666666; }
+/* Overdue pickup — wins over In progress so a late booking stands out
+   while scanning the table. Matches the stepper's LATE. */
+.admin-status--stage-late,
 .admin-status--late        { background: #8c1d18; color: #ffffff; }
+
+/* Stripe/email-driven rows in the picker: visible for context, not
+   clickable — dimmed with an "auto" tag rather than hidden, so the menu
+   shows the whole lifecycle. */
+.status-picker-option--auto {
+  opacity: 0.55;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.status-picker-auto-tag {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
 
 /* Click-to-pick status widget (list rows + detail page) */
 .status-picker {
@@ -8077,6 +8110,14 @@ h1 {
 }
 
 .booking-progress-step--done .booking-progress-marker {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Completed is terminal — landing on it reads as finished, so it fills
+   like a done step instead of showing a step number. */
+.booking-progress-step--terminal .booking-progress-marker {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;

@@ -18,8 +18,9 @@ import { BookingProgress } from "../../_components/booking-progress";
 import { ExtraGearPanel } from "../../_components/extra-gear";
 import { getCachedBookings } from "../../_lib/bookings-cache";
 import { getCachedFleet } from "../../_lib/boards-cache";
+import { isBookingLate } from "../../_lib/booking-stage";
 import { computeCancellationState } from "../../_lib/cancellation";
-import { formatLongDate, formatShortDate } from "../../_lib/dates";
+import { formatLongDate, formatShortDate, todayIso } from "../../_lib/dates";
 import { getRepeatCustomer } from "../../_lib/repeat-customer";
 
 export const dynamic = "force-dynamic";
@@ -208,7 +209,13 @@ export default async function BookingDetailPage({
 				<article className="admin-card">
 					<h2>Status</h2>
 					<p className="admin-card-hint">Click the badge to change.</p>
-					<StatusPicker bookingId={id} current={booking.status} />
+					<StatusPicker
+						bookingId={id}
+						current={booking.status}
+						hasPaymentLink={Boolean(booking.stripePaymentLinkUrl)}
+						paid={Boolean(booking.paidAt)}
+						late={isBookingLate(booking, todayIso())}
+					/>
 
 					{cancellationState && (
 						<div

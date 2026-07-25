@@ -4,6 +4,7 @@ import { BookingsFilter } from "./_components/bookings-filter";
 import { StatusPicker } from "./_components/status-picker";
 import { getCachedBookings } from "./_lib/bookings-cache";
 import {
+	currentStageKey,
 	currentStageLabel,
 	isBookingLate,
 	toStageInputs,
@@ -330,7 +331,9 @@ function TodayRow({
 }) {
 	// Same vocabulary as the table tags and the booking-page stepper.
 	const late = isBookingLate(b, today);
-	const stage = currentStageLabel(toStageInputs(b), late);
+	const inputs = toStageInputs(b);
+	const stage = currentStageLabel(inputs, late);
+	const stageKey = currentStageKey(inputs, late);
 	const dateStr =
 		kind === "pickup"
 			? formatShortDate(b.checkout)
@@ -361,9 +364,7 @@ function TodayRow({
 					<span className="admin-today-accommodation">
 						{b.accommodation ?? "—"}
 					</span>
-					<span
-						className={`admin-status admin-status--${b.status}${late ? " admin-status--late" : ""}`}
-					>
+					<span className={`admin-status admin-status--stage-${stageKey}`}>
 						{stage}
 					</span>
 				</div>
