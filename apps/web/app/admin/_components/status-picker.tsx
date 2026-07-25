@@ -3,15 +3,10 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { BookingStatus } from "../../lib/db/schema";
 import { updateBookingStatus } from "../_actions";
-import { currentStageLabel } from "../_lib/booking-stage";
-
-const STATUSES: Array<{ value: BookingStatus; label: string }> = [
-	{ value: "requested", label: "Requested" },
-	{ value: "confirmed", label: "Confirmed" },
-	{ value: "in_progress", label: "In progress" },
-	{ value: "completed", label: "Completed" },
-	{ value: "cancelled", label: "Cancelled" },
-];
+import {
+	currentStageLabel,
+	SETTABLE_STATUSES as STATUSES,
+} from "../_lib/booking-stage";
 
 interface Props {
 	bookingId: number;
@@ -21,7 +16,6 @@ interface Props {
 	 * on surfaces that only know the status (the detail page's own
 	 * picker, where the stepper already sits right above it). */
 	hasPaymentLink?: boolean;
-	confirmationSent?: boolean;
 	paid?: boolean;
 	late?: boolean;
 }
@@ -30,7 +24,6 @@ export function StatusPicker({
 	bookingId,
 	current,
 	hasPaymentLink,
-	confirmationSent,
 	paid,
 	late,
 }: Props) {
@@ -92,7 +85,6 @@ export function StatusPicker({
 				{
 					status,
 					hasPaymentLink: Boolean(hasPaymentLink),
-					confirmationSent: Boolean(confirmationSent),
 					paid: Boolean(paid),
 				},
 				isLate,

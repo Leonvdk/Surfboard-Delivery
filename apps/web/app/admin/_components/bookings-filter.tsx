@@ -3,19 +3,18 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useState, useTransition } from "react";
 import type { BookingStatus } from "../../lib/db/schema";
+import { SETTABLE_STATUSES } from "../_lib/booking-stage";
 
 interface Props {
 	counts: Record<BookingStatus, number>;
 	total: number;
 }
 
+// Same vocabulary as the stage labels — "Answered", not "Confirmed".
+// Filtering is still by the underlying status, which is what's stored.
 const STATUS_FILTERS: Array<{ value: BookingStatus | "all"; label: string }> = [
 	{ value: "all", label: "All" },
-	{ value: "requested", label: "Requested" },
-	{ value: "confirmed", label: "Confirmed" },
-	{ value: "in_progress", label: "In progress" },
-	{ value: "completed", label: "Completed" },
-	{ value: "cancelled", label: "Cancelled" },
+	...SETTABLE_STATUSES,
 ];
 
 export function BookingsFilter({ counts, total }: Props) {

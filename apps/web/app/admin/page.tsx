@@ -3,7 +3,11 @@ import type { Booking, BookingStatus } from "../lib/db/schema";
 import { BookingsFilter } from "./_components/bookings-filter";
 import { StatusPicker } from "./_components/status-picker";
 import { getCachedBookings } from "./_lib/bookings-cache";
-import { isBookingLate } from "./_lib/booking-stage";
+import {
+	currentStageLabel,
+	isBookingLate,
+	toStageInputs,
+} from "./_lib/booking-stage";
 import { getCachedFleet } from "./_lib/boards-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 
@@ -153,7 +157,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					</p>
 					<ul className="admin-today-list">
 						{needsDecision.slice(0, 5).map((b) => (
-							<TodayRow key={b.id} b={b} kind="requested" />
+							<TodayRow key={b.id} b={b} kind="requested" today={today} />
 						))}
 					</ul>
 					{needsDecision.length > 5 && (
@@ -181,7 +185,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					</p>
 					<ul className="admin-today-list">
 						{missingBoards.slice(0, 5).map((b) => (
-							<TodayRow key={b.id} b={b} kind="upcoming" />
+							<TodayRow key={b.id} b={b} kind="upcoming" today={today} />
 						))}
 					</ul>
 				</article>
@@ -199,7 +203,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					) : (
 						<ul className="admin-today-list">
 							{deliveringToday.map((b) => (
-								<TodayRow key={b.id} b={b} kind="delivery" />
+								<TodayRow key={b.id} b={b} kind="delivery" today={today} />
 							))}
 						</ul>
 					)}
@@ -215,7 +219,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					) : (
 						<ul className="admin-today-list">
 							{pickingUpToday.map((b) => (
-								<TodayRow key={b.id} b={b} kind="pickup" />
+								<TodayRow key={b.id} b={b} kind="pickup" today={today} />
 							))}
 						</ul>
 					)}
@@ -231,7 +235,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					) : (
 						<ul className="admin-today-list">
 							{nextSevenDays.map((b) => (
-								<TodayRow key={b.id} b={b} kind="upcoming" />
+								<TodayRow key={b.id} b={b} kind="upcoming" today={today} />
 							))}
 						</ul>
 					)}
@@ -294,7 +298,6 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 										bookingId={b.id}
 										current={b.status}
 										hasPaymentLink={Boolean(b.stripePaymentLinkUrl)}
-										confirmationSent={Boolean(b.confirmationSentAt)}
 										paid={Boolean(b.paidAt)}
 										late={isBookingLate(b, today)}
 									/>
@@ -319,10 +322,15 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 function TodayRow({
 	b,
 	kind,
+	today,
 }: {
 	b: Booking;
 	kind: "delivery" | "pickup" | "upcoming" | "requested";
+	today: string;
 }) {
+	// Same vocabulary as the table tags and the booking-page stepper.
+	const late = isBookingLate(b, today);
+	const stage = currentStageLabel(toStageInputs(b), late);
 	const dateStr =
 		kind === "pickup"
 			? formatShortDate(b.checkout)
@@ -353,8 +361,10 @@ function TodayRow({
 					<span className="admin-today-accommodation">
 						{b.accommodation ?? "—"}
 					</span>
-					<span className={`admin-status admin-status--${b.status}`}>
-						{b.status.replace("_", " ")}
+					<span
+						className={`admin-status admin-status--${b.status}${late ? " admin-status--late" : ""}`}
+					>
+						{stage}
 					</span>
 				</div>
 			</Link>

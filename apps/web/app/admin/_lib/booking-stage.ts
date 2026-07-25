@@ -1,31 +1,30 @@
 import type { Booking, BookingStatus } from "../../lib/db/schema";
 
 /**
- * The customer-lifecycle stages Leon tracks, derived — not stored. The
- * status enum stays as-is (requested/confirmed/in_progress/completed);
- * the payment stages come from the payment link, the confirmation-email
- * stamp, and the webhook's paidAt, so nothing has to remember to flip
- * extra flags:
+ * The single vocabulary for a booking's lifecycle, used by the stepper
+ * on the booking page, the status tags and picker in the bookings
+ * table, the filter chips, and the dashboard rows — so the same booking
+ * never reads two different ways.
  *
  *   answered           Leon confirmed (status ≥ confirmed)
- *   payment requested  a Stripe payment link exists on the booking
- *   awaiting payment   the confirmation email carrying that link was sent
+ *   awaiting payment   a Stripe payment link exists and isn't paid yet
  *   payment confirmed  webhook stamped paidAt
  *   in progress        gear is out (status in_progress)
  *   completed          status completed
  *
- * There's deliberately no "requested" step — every booking exists, so it
- * would always be ticked and tells Leon nothing. A booking still waiting
- * on his yes/no simply hasn't reached stage 0 yet (index -1).
+ * Deliberately absent:
+ *   - "requested" as a step: every booking exists, so it would always be
+ *     ticked. A booking still waiting on Leon's yes/no sits before stage
+ *     0 (index -1), which reads as "needs an answer" without a step.
+ *   - a separate "payment requested": minting the link and waiting for
+ *     the money are the same state from Leon's side.
  *
  * A booking without a payment link (pay on delivery) skips the payment
- * stages when it advances: reaching "in progress" marks earlier stages
- * done. Cancelled bookings don't get a stepper at all.
+ * stages: reaching "in progress" marks the earlier ones done.
  */
 
 export const BOOKING_STAGES = [
 	{ key: "answered", label: "Answered" },
-	{ key: "payment_requested", label: "Payment requested" },
 	{ key: "awaiting_payment", label: "Awaiting payment" },
 	{ key: "payment_confirmed", label: "Payment confirmed" },
 	{ key: "in_progress", label: "In progress" },
@@ -34,15 +33,14 @@ export const BOOKING_STAGES = [
 
 export type BookingStageKey = (typeof BOOKING_STAGES)[number]["key"];
 
-const IN_PROGRESS_INDEX = 4;
-const COMPLETED_INDEX = 5;
+const IN_PROGRESS_INDEX = 3;
+const COMPLETED_INDEX = 4;
 
 /** The few fields a stage depends on — so the client-side status picker
  * can recompute optimistically without a whole Booking row. */
 export interface StageInputs {
 	status: BookingStatus;
 	hasPaymentLink: boolean;
-	confirmationSent: boolean;
 	paid: boolean;
 }
 
@@ -57,11 +55,7 @@ export function stageIndexFrom(inputs: StageInputs): number | null {
 
 	let reached = 0; // answered — Leon confirmed it
 	if (inputs.hasPaymentLink) reached = Math.max(reached, 1);
-	// Awaiting payment = the link went out and the customer hasn't paid.
-	if (inputs.hasPaymentLink && inputs.confirmationSent) {
-		reached = Math.max(reached, 2);
-	}
-	if (inputs.paid) reached = Math.max(reached, 3);
+	if (inputs.paid) reached = Math.max(reached, 2);
 	if (inputs.status === "in_progress") reached = Math.max(reached, IN_PROGRESS_INDEX);
 	if (inputs.status === "completed") reached = Math.max(reached, COMPLETED_INDEX);
 	return reached;
@@ -75,7 +69,6 @@ export function toStageInputs(booking: Booking): StageInputs {
 	return {
 		status: booking.status,
 		hasPaymentLink: Boolean(booking.stripePaymentLinkUrl),
-		confirmationSent: Boolean(booking.confirmationSentAt),
 		paid: Boolean(booking.paidAt),
 	};
 }
@@ -90,8 +83,8 @@ export function isBookingLate(booking: Booking, todayIso: string): boolean {
 }
 
 /**
- * One label for both the stepper and the bookings-table tag, so the two
- * always agree: cancelled / awaiting-decision / LATE / current stage.
+ * One label for every surface: cancelled / awaiting-decision / LATE /
+ * current stage.
  */
 export function currentStageLabel(inputs: StageInputs, late = false): string {
 	if (inputs.status === "cancelled") return "Cancelled";
@@ -99,4 +92,28 @@ export function currentStageLabel(inputs: StageInputs, late = false): string {
 	const idx = stageIndexFrom(inputs);
 	if (idx == null || idx < 0) return "Requested";
 	return BOOKING_STAGES[idx]?.label ?? "Requested";
+}
+
+/**
+ * The statuses Leon can actually set, labelled in the same vocabulary as
+ * the stages. The payment stages aren't here on purpose — they come from
+ * Stripe and the confirmation email, not from a menu.
+ */
+export const SETTABLE_STATUSES: Array<{
+	value: BookingStatus;
+	label: string;
+}> = [
+	{ value: "requested", label: "Requested" },
+	{ value: "confirmed", label: "Answered" },
+	{ value: "in_progress", label: "In progress" },
+	{ value: "completed", label: "Completed" },
+	{ value: "cancelled", label: "Cancelled" },
+];
+
+/** Status label in stage vocabulary — for filter chips and menus. */
+export function statusLabel(status: BookingStatus): string {
+	return (
+		SETTABLE_STATUSES.find((s) => s.value === status)?.label ??
+		status.replace("_", " ")
+	);
 }
