@@ -3,6 +3,7 @@ import type { Booking, BookingStatus } from "../lib/db/schema";
 import { BookingsFilter } from "./_components/bookings-filter";
 import { StatusPicker } from "./_components/status-picker";
 import { getCachedBookings } from "./_lib/bookings-cache";
+import { isBookingLate } from "./_lib/booking-stage";
 import { getCachedFleet } from "./_lib/boards-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 
@@ -288,6 +289,9 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 								<td>{priceCell(b)}</td>
 								<td>
 									<StatusPicker bookingId={b.id} current={b.status} />
+									{isBookingLate(b, today) && (
+										<span className="admin-late-badge">Late</span>
+									)}
 								</td>
 								<td>
 									<Link

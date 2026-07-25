@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, gte } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { Resend } from "resend";
 import { getDb, schema } from "../lib/db/client";
@@ -11,8 +11,12 @@ import {
 	defaultEmailCopy,
 } from "../lib/emails/booking-confirmation";
 import { calcPackagePrice, DAILY_MINIMUM_DAYS, type PackageTier } from "../lib/pricing";
-import { createBookingPaymentLink } from "../lib/stripe-payment-link";
+import {
+	createBookingPaymentLink,
+	deactivatePaymentLink,
+} from "../lib/stripe-payment-link";
 import { BOOKINGS_TAG } from "./_lib/bookings-cache";
+import { BOARDS_TAG } from "./_lib/boards-cache";
 
 /**
  * Admin-created bookings: Leon fills the form, the server recomputes the
@@ -115,59 +119,55 @@ function computeLines(
 	return { lines, computedTotal: complete ? total : null };
 }
 
-export async function createAdminBooking(
-	payload: NewBookingPayload,
-): Promise<CreateBookingResult> {
-	const db = getDb();
-	if (!db) return { ok: false, error: "Database not configured." };
-
-	const name = payload.name.trim();
-	const email = payload.email.trim();
-	if (!name || !/.+@.+\..+/.test(email)) {
-		return { ok: false, error: "Name and a valid email are required." };
+/** Shared payload validation — returns an error string, or null when ok. */
+function validateBookingPayload(payload: NewBookingPayload): string | null {
+	if (!payload.name.trim() || !/.+@.+\..+/.test(payload.email.trim())) {
+		return "Name and a valid email are required.";
 	}
 	if (!ISO_DATE.test(payload.checkin) || !ISO_DATE.test(payload.checkout)) {
-		return { ok: false, error: "Pick delivery and pickup dates." };
+		return "Pick delivery and pickup dates.";
 	}
 	const tripDays = calcDays(payload.checkin, payload.checkout);
 	if (!tripDays || tripDays < DAILY_MINIMUM_DAYS) {
-		return {
-			ok: false,
-			error: `Minimum rental period is ${DAILY_MINIMUM_DAYS} days.`,
-		};
+		return `Minimum rental period is ${DAILY_MINIMUM_DAYS} days.`;
 	}
-	if (payload.people.length === 0) {
-		return { ok: false, error: "Add at least one person." };
-	}
+	if (payload.people.length === 0) return "Add at least one person.";
 	for (let i = 0; i < payload.people.length; i++) {
 		const p = payload.people[i]!;
 		if (Boolean(p.checkin) !== Boolean(p.checkout)) {
-			return { ok: false, error: `Person ${i + 1}: custom range needs both dates.` };
+			return `Person ${i + 1}: custom range needs both dates.`;
 		}
 		if (p.checkin && p.checkout) {
 			const d = calcDays(p.checkin, p.checkout);
 			if (!d || d < DAILY_MINIMUM_DAYS) {
-				return {
-					ok: false,
-					error: `Person ${i + 1}: minimum rental period is ${DAILY_MINIMUM_DAYS} days.`,
-				};
+				return `Person ${i + 1}: minimum rental period is ${DAILY_MINIMUM_DAYS} days.`;
 			}
 		}
 	}
 	const finalTotal = Math.round(payload.finalTotal);
 	if (!Number.isFinite(finalTotal) || finalTotal <= 0) {
-		return { ok: false, error: "Final price must be a positive number." };
+		return "Final price must be a positive number.";
 	}
+	return null;
+}
 
-	// Envelope for the indexed top-level columns, same rule as /api/contact.
+/** Earliest arrival / latest departure, for the indexed top-level columns. */
+function computeEnvelope(payload: NewBookingPayload): {
+	checkin: string;
+	checkout: string;
+} {
 	let minIn = payload.checkin;
 	let maxOut = payload.checkout;
 	for (const p of payload.people) {
 		if (p.checkin && p.checkin < minIn) minIn = p.checkin;
 		if (p.checkout && p.checkout > maxOut) maxOut = p.checkout;
 	}
+	return { checkin: minIn, checkout: maxOut };
+}
 
-	const people: BookingPerson[] = payload.people.map((p) => ({
+/** Payload people → stored BookingPerson[], stripping non-diverging dates. */
+function toBookingPeople(payload: NewBookingPayload): BookingPerson[] {
+	return payload.people.map((p) => ({
 		name: p.name.trim(),
 		sex: p.sex,
 		experience: p.experience,
@@ -179,15 +179,29 @@ export async function createAdminBooking(
 			? { checkout: p.checkout }
 			: {}),
 	}));
+}
+
+export async function createAdminBooking(
+	payload: NewBookingPayload,
+): Promise<CreateBookingResult> {
+	const db = getDb();
+	if (!db) return { ok: false, error: "Database not configured." };
+
+	const invalid = validateBookingPayload(payload);
+	if (invalid) return { ok: false, error: invalid };
+
+	const finalTotal = Math.round(payload.finalTotal);
+	const envelope = computeEnvelope(payload);
+	const people: BookingPerson[] = toBookingPeople(payload);
 
 	const [row] = await db
 		.insert(schema.bookings)
 		.values({
-			name,
-			email,
+			name: payload.name.trim(),
+			email: payload.email.trim(),
 			phone: payload.phone.trim() || null,
-			checkin: minIn,
-			checkout: maxOut,
+			checkin: envelope.checkin,
+			checkout: envelope.checkout,
 			accommodation: payload.accommodation.trim() || null,
 			peopleCount: people.length,
 			people,
@@ -218,7 +232,10 @@ export async function createAdminBooking(
 	if (linkResult.url) {
 		await db
 			.update(schema.bookings)
-			.set({ stripePaymentLinkUrl: linkResult.url })
+			.set({
+				stripePaymentLinkUrl: linkResult.url,
+				stripePaymentLinkId: linkResult.id ?? null,
+			})
 			.where(eq(schema.bookings.id, row.id));
 	}
 
@@ -232,6 +249,132 @@ export async function createAdminBooking(
 		requestRef,
 		paymentLinkUrl: linkResult.url,
 		paymentLinkError: linkResult.error,
+	};
+}
+
+export interface UpdateBookingResult {
+	ok: boolean;
+	error?: string;
+	paymentLinkUrl?: string | null;
+	paymentLinkError?: string;
+	/** True when the price changed and a fresh link replaced the old one. */
+	paymentLinkRegenerated?: boolean;
+}
+
+/**
+ * Edit an existing booking from the admin: customer details, dates,
+ * per-person gear, and the final price. Used by the resend flow so
+ * Leon can fix what's wrong before the customer sees it again.
+ *
+ * Price changes are the dangerous case: the existing Stripe link still
+ * charges the OLD amount, so when the total moves we deactivate the
+ * stale link and mint a fresh one. Paid bookings keep their link (the
+ * money already landed — reissuing would invite a double charge).
+ */
+export async function updateBookingDetails(
+	bookingId: number,
+	payload: NewBookingPayload,
+): Promise<UpdateBookingResult> {
+	const db = getDb();
+	if (!db) return { ok: false, error: "Database not configured." };
+
+	const [existing] = await db
+		.select()
+		.from(schema.bookings)
+		.where(eq(schema.bookings.id, bookingId))
+		.limit(1);
+	if (!existing) return { ok: false, error: "Booking not found." };
+
+	const invalid = validateBookingPayload(payload);
+	if (invalid) return { ok: false, error: invalid };
+
+	const finalTotal = Math.round(payload.finalTotal);
+	const envelope = computeEnvelope(payload);
+	const people: BookingPerson[] = toBookingPeople(payload);
+
+	await db
+		.update(schema.bookings)
+		.set({
+			name: payload.name.trim(),
+			email: payload.email.trim(),
+			phone: payload.phone.trim() || null,
+			accommodation: payload.accommodation.trim() || null,
+			checkin: envelope.checkin,
+			checkout: envelope.checkout,
+			peopleCount: people.length,
+			people,
+			message: payload.note.trim() || null,
+			estimatedTotal: computeLines(payload).computedTotal,
+			finalTotal,
+			updatedAt: new Date(),
+		})
+		.where(eq(schema.bookings.id, bookingId));
+
+	// Removing people orphans their board assignments (personIndex points
+	// past the end of the array) — drop those so the fleet doesn't stay
+	// blocked by gear nobody is renting.
+	try {
+		await db
+			.delete(schema.boardAssignments)
+			.where(
+				and(
+					eq(schema.boardAssignments.bookingId, bookingId),
+					gte(schema.boardAssignments.personIndex, people.length),
+				),
+			);
+	} catch (err) {
+		console.error("Assignment prune error:", err);
+	}
+
+	let paymentLinkUrl = existing.stripePaymentLinkUrl;
+	let paymentLinkError: string | undefined;
+	let paymentLinkRegenerated = false;
+
+	// Mint a link when the price moved (the old one charges a stale
+	// amount) or when there simply isn't one yet — that second case is
+	// how a website booking gets its payment request. Paid bookings keep
+	// their link: the money already landed, reissuing invites a double
+	// charge.
+	const priceChanged = existing.finalTotal !== finalTotal;
+	const needsLink =
+		existing.paidAt == null &&
+		(existing.stripePaymentLinkUrl == null || priceChanged);
+	if (needsLink) {
+		if (priceChanged && existing.stripePaymentLinkId) {
+			await deactivatePaymentLink(existing.stripePaymentLinkId);
+		}
+		const { lines } = computeLines(payload);
+		const fresh = await createBookingPaymentLink({
+			bookingId,
+			requestRef: `SR-${String(bookingId).padStart(5, "0")}`,
+			lines: lines
+				.filter((l): l is { label: string; amountEuros: number } => l.amountEuros != null)
+				.map((l) => ({ label: l.label, amountEuros: l.amountEuros })),
+			finalTotalEuros: finalTotal,
+		});
+		paymentLinkUrl = fresh.url;
+		paymentLinkError = fresh.error;
+		paymentLinkRegenerated = fresh.url != null && priceChanged;
+		await db
+			.update(schema.bookings)
+			.set({
+				stripePaymentLinkUrl: fresh.url,
+				stripePaymentLinkId: fresh.id ?? null,
+			})
+			.where(eq(schema.bookings.id, bookingId));
+	}
+
+	updateTag(BOOKINGS_TAG);
+	updateTag(BOARDS_TAG);
+	revalidatePath("/admin");
+	revalidatePath(`/admin/bookings/${bookingId}`);
+	revalidatePath("/admin/calendar");
+
+	return {
+		ok: true,
+		paymentLinkUrl,
+		paymentLinkError,
+		paymentLinkRegenerated,
 	};
 }
 

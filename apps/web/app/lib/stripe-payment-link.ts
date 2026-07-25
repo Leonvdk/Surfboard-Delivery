@@ -29,9 +29,27 @@ export interface PaymentLinkLine {
 
 export interface PaymentLinkResult {
 	url: string | null;
+	/** Stripe's id for the link — stored so a price change can deactivate
+	 * the stale link (the id isn't derivable from the buy.stripe.com URL). */
+	id?: string | null;
 	/** Why there's no url — surfaced in the admin review-send dialog so
 	 * permission/key problems are diagnosable without digging in logs. */
 	error?: string;
+}
+
+/**
+ * Deactivate a payment link so a stale amount can't be paid after the
+ * price changed. Best-effort: a failure here shouldn't block the new
+ * link from being created and sent.
+ */
+export async function deactivatePaymentLink(linkId: string): Promise<void> {
+	const stripe = getStripe();
+	if (!stripe) return;
+	try {
+		await stripe.paymentLinks.update(linkId, { active: false });
+	} catch (err) {
+		console.error("Stripe payment link deactivate failed:", err);
+	}
 }
 
 export async function createBookingPaymentLink(args: {
@@ -115,7 +133,7 @@ export async function createBookingPaymentLink(args: {
 			// lands in the existing revenue dashboard via charges.list.
 		});
 
-		return { url: link.url };
+		return { url: link.url, id: link.id };
 	} catch (err) {
 		console.error("Stripe payment link creation failed:", err);
 		const message = err instanceof Error ? err.message : String(err);

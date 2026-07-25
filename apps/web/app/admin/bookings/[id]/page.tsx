@@ -13,6 +13,7 @@ import {
 	summariseGear,
 } from "../../_lib/booking-labels";
 import { BoardAssignmentPanel } from "../../_components/board-assignment";
+import { BookingEditSendButton } from "../../_components/booking-edit-send";
 import { BookingProgress } from "../../_components/booking-progress";
 import { ExtraGearPanel } from "../../_components/extra-gear";
 import { getCachedBookings } from "../../_lib/bookings-cache";
@@ -99,6 +100,7 @@ export default async function BookingDetailPage({
 
 			<div className="admin-detail-actions">
 				<QuickStatusButtons bookingId={id} current={booking.status} />
+				<BookingEditSendButton booking={booking} />
 				<DraftEmailButton booking={booking} />
 				<DeleteBookingButton bookingId={id} customerName={booking.name} />
 			</div>

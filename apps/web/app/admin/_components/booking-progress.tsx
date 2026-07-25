@@ -1,10 +1,16 @@
 import type { Booking } from "../../lib/db/schema";
-import { BOOKING_STAGES, bookingStageIndex } from "../_lib/booking-stage";
+import {
+	BOOKING_STAGES,
+	bookingStageIndex,
+	isBookingLate,
+} from "../_lib/booking-stage";
+import { todayIso } from "../_lib/dates";
 
 /**
  * Brand-style lifecycle stepper for the booking detail page: numbered
  * squares joined by a track, filled up to the reached stage. Pure
- * server-rendered markup — no client JS.
+ * server-rendered markup — no client JS. When gear is out past its
+ * pickup day the "In progress" step becomes a dark-red LATE.
  */
 export function BookingProgress({ booking }: { booking: Booking }) {
 	const reached = bookingStageIndex(booking);
@@ -17,15 +23,23 @@ export function BookingProgress({ booking }: { booking: Booking }) {
 		);
 	}
 
+	const today = todayIso();
+	const late = isBookingLate(booking, today);
+
 	return (
 		<ol className="booking-progress" aria-label="Booking progress">
 			{BOOKING_STAGES.map((stage, i) => {
-				const state =
-					i < reached ? "done" : i === reached ? "current" : "todo";
+				const state = i < reached ? "done" : i === reached ? "current" : "todo";
+				const isLateStep = stage.key === "in_progress" && late;
 				return (
-					<li key={stage.key} className={`booking-progress-step booking-progress-step--${state}`}>
+					<li
+						key={stage.key}
+						className={`booking-progress-step booking-progress-step--${state}${isLateStep ? " booking-progress-step--late" : ""}`}
+					>
 						<span className="booking-progress-marker" aria-hidden="true">
-							{i < reached ? (
+							{isLateStep ? (
+								"!"
+							) : i < reached ? (
 								<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
 									<polyline points="20 6 9 17 4 12" />
 								</svg>
@@ -33,7 +47,9 @@ export function BookingProgress({ booking }: { booking: Booking }) {
 								i + 1
 							)}
 						</span>
-						<span className="booking-progress-label">{stage.label}</span>
+						<span className="booking-progress-label">
+							{isLateStep ? "Late" : stage.label}
+						</span>
 					</li>
 				);
 			})}

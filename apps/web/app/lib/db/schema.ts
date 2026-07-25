@@ -69,6 +69,9 @@ export const bookings = pgTable(
 		// for admin-created bookings. Null when Stripe wasn't available (or
 		// the customer pays on arrival).
 		stripePaymentLinkUrl: text("stripe_payment_link_url"),
+		// Needed to deactivate the link when the price changes — the id
+		// isn't derivable from the buy.stripe.com URL.
+		stripePaymentLinkId: text("stripe_payment_link_id"),
 		// Set by the Stripe webhook when a checkout session for this booking
 		// completes. Drives the "payment confirmed" stage + the push to Leon.
 		paidAt: timestamp("paid_at"),
