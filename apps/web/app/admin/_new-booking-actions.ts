@@ -54,6 +54,10 @@ export interface NewBookingPerson {
 	wetsuitSize: string;
 	checkin?: string | null;
 	checkout?: string | null;
+	/** Overrides the computed package price for this person, in whole
+	 * euros, so a discount lands on the line itself rather than as an
+	 * "Adjustment" row on the customer's Stripe bill. */
+	priceOverride?: number | null;
 }
 
 export interface NewBookingPayload {
@@ -109,7 +113,15 @@ function computeLines(
 			complete = false;
 			continue;
 		}
-		const amount = calcPackagePrice(tier, days);
+		// A per-line override IS the price — the customer's bill shows it
+		// as the package cost, with no separate adjustment row.
+		const override =
+			p.priceOverride != null && Number.isFinite(p.priceOverride)
+				? Math.round(p.priceOverride)
+				: null;
+		const amount = override != null && override > 0
+			? override
+			: calcPackagePrice(tier, days);
 		total += amount;
 		lines.push({
 			label: `${PACKAGE_SHORT[p.package]} · ${days} days — ${who}`,
@@ -177,6 +189,11 @@ function toBookingPeople(payload: NewBookingPayload): BookingPerson[] {
 		...(p.checkin && p.checkin !== payload.checkin ? { checkin: p.checkin } : {}),
 		...(p.checkout && p.checkout !== payload.checkout
 			? { checkout: p.checkout }
+			: {}),
+		...(p.priceOverride != null &&
+		Number.isFinite(p.priceOverride) &&
+		p.priceOverride > 0
+			? { priceOverride: Math.round(p.priceOverride) }
 			: {}),
 	}));
 }

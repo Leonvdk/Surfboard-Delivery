@@ -34,6 +34,10 @@ export interface BookingPerson {
 	// the calendar/dashboard indexes keep working.
 	checkin?: string;
 	checkout?: string;
+	// Leon's price for this person's package, in whole euros, replacing
+	// the computed one. Lets a discount land on the line itself instead
+	// of showing up as an "Adjustment" row on the customer's bill.
+	priceOverride?: number | null;
 }
 
 export const bookings = pgTable(

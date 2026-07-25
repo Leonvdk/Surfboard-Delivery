@@ -53,6 +53,7 @@ function emptyPerson(): NewBookingPerson {
 		wetsuitSize: "",
 		checkin: "",
 		checkout: "",
+		priceOverride: null,
 	};
 }
 
@@ -111,7 +112,11 @@ export function NewBookingForm() {
 				complete = false;
 				return;
 			}
-			const amount = calcPackagePrice(tier, days);
+			// An override IS the line price — no Adjustment row on the bill.
+			const amount =
+				p.priceOverride != null && p.priceOverride > 0
+					? p.priceOverride
+					: calcPackagePrice(tier, days);
 			total += amount;
 			rows.push({ label: `${who} · ${days} days`, amount });
 		});
@@ -125,6 +130,13 @@ export function NewBookingForm() {
 				? priceBreakdown.total
 				: 0;
 
+	const tariffPrice = (p: NewBookingPerson): number => {
+		const tier = PACKAGE_TIER_MAP[p.package];
+		const days = calcDays(p.checkin || checkin, p.checkout || checkout);
+		if (!tier || !days) return 0;
+		return calcPackagePrice(tier, days);
+	};
+
 	const updatePerson = (
 		index: number,
 		field: keyof NewBookingPerson,
@@ -137,6 +149,25 @@ export function NewBookingForm() {
 			next[index] = { ...current, [field]: value };
 			return next;
 		});
+	};
+
+	/** Empty clears the override, restoring the tariff price. */
+	const updatePersonPrice = (index: number, raw: string) => {
+		setPeople((prev) => {
+			const next = [...prev];
+			const current = next[index];
+			if (!current) return prev;
+			const parsed = Number.parseInt(raw, 10);
+			next[index] = {
+				...current,
+				priceOverride:
+					raw.trim() === "" || !Number.isFinite(parsed) ? null : parsed,
+			};
+			return next;
+		});
+		// The computed total tracks the lines automatically, so clear any
+		// manual total override — otherwise it would mask the new line price.
+		setPriceOverride("");
 	};
 
 	const handleCreate = async () => {
@@ -396,6 +427,23 @@ export function NewBookingForm() {
 								<span className="admin-new-person-dates">
 									<input className="admin-input" type="date" value={p.checkin ?? ""} onChange={(e) => updatePerson(i, "checkin", e.target.value)} aria-label={`Person ${i + 1} delivery`} />
 									<input className="admin-input" type="date" value={p.checkout ?? ""} onChange={(e) => updatePerson(i, "checkout", e.target.value)} aria-label={`Person ${i + 1} pickup`} />
+								</span>
+							</label>
+							<label>
+								Price (€)
+								<input
+									className="admin-input"
+									type="number"
+									min="0"
+									value={p.priceOverride ?? ""}
+									placeholder={String(tariffPrice(p))}
+									onChange={(e) => updatePersonPrice(i, e.target.value)}
+									aria-label={`Person ${i + 1} price`}
+								/>
+								<span className="admin-line-price-hint">
+									{p.priceOverride != null && p.priceOverride > 0
+										? `tariff €${tariffPrice(p)} · clear to reset`
+										: "tariff price — type to override"}
 								</span>
 							</label>
 						</div>

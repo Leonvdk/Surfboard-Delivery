@@ -80,6 +80,7 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 			wetsuitSize: p.wetsuitSize ?? "",
 			checkin: p.checkin ?? "",
 			checkout: p.checkout ?? "",
+			priceOverride: p.priceOverride ?? null,
 		})),
 	);
 	const [note, setNote] = useState(booking.message ?? "");
@@ -116,12 +117,24 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 		return () => document.removeEventListener("keydown", onEsc);
 	}, [open]);
 
-	const computed = people.reduce((sum, p) => {
+	/** What this person's line costs: their override, else the tariff. */
+	const linePrice = (p: NewBookingPerson): number => {
+		if (p.priceOverride != null && p.priceOverride > 0) return p.priceOverride;
 		const tier = PACKAGE_TIER_MAP[p.package];
 		const days = calcDays(p.checkin || checkin, p.checkout || checkout);
-		if (!tier || !days) return sum;
-		return sum + calcPackagePrice(tier, days);
-	}, 0);
+		if (!tier || !days) return 0;
+		return calcPackagePrice(tier, days);
+	};
+
+	/** Tariff price ignoring any override — shown as the "was" reference. */
+	const tariffPrice = (p: NewBookingPerson): number => {
+		const tier = PACKAGE_TIER_MAP[p.package];
+		const days = calcDays(p.checkin || checkin, p.checkout || checkout);
+		if (!tier || !days) return 0;
+		return calcPackagePrice(tier, days);
+	};
+
+	const computed = people.reduce((sum, p) => sum + linePrice(p), 0);
 
 	const updatePerson = (i: number, field: keyof NewBookingPerson, value: string) => {
 		setPeople((prev) => {
@@ -129,6 +142,25 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 			const cur = next[i];
 			if (!cur) return prev;
 			next[i] = { ...cur, [field]: value };
+			// Keep the total in step with the lines — otherwise a changed
+			// package would silently leave an Adjustment row on the bill.
+			setPrice(String(next.reduce((s, q) => s + linePrice(q), 0)));
+			return next;
+		});
+	};
+
+	/** Empty clears the override, restoring the tariff price. */
+	const updatePersonPrice = (i: number, raw: string) => {
+		setPeople((prev) => {
+			const next = [...prev];
+			const cur = next[i];
+			if (!cur) return prev;
+			const parsed = Number.parseInt(raw, 10);
+			next[i] = {
+				...cur,
+				priceOverride: raw.trim() === "" || !Number.isFinite(parsed) ? null : parsed,
+			};
+			setPrice(String(next.reduce((s, q) => s + linePrice(q), 0)));
 			return next;
 		});
 	};
@@ -323,6 +355,23 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 												<span className="admin-new-person-dates">
 													<input className="admin-input" type="date" value={p.checkin ?? ""} onChange={(e) => updatePerson(i, "checkin", e.target.value)} aria-label={`Person ${i + 1} delivery`} />
 													<input className="admin-input" type="date" value={p.checkout ?? ""} onChange={(e) => updatePerson(i, "checkout", e.target.value)} aria-label={`Person ${i + 1} pickup`} />
+												</span>
+											</label>
+											<label>
+												Price (€)
+												<input
+													className="admin-input"
+													type="number"
+													min="0"
+													value={p.priceOverride ?? ""}
+													placeholder={String(tariffPrice(p))}
+													onChange={(e) => updatePersonPrice(i, e.target.value)}
+													aria-label={`Person ${i + 1} price`}
+												/>
+												<span className="admin-line-price-hint">
+													{p.priceOverride != null && p.priceOverride > 0
+														? `tariff €${tariffPrice(p)} · clear to reset`
+														: "tariff price — type to override"}
 												</span>
 											</label>
 										</div>
