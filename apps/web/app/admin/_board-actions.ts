@@ -157,6 +157,65 @@ export async function assignBoard(
 }
 
 /**
+ * Attach booking-level extra gear (roof rack, poncho, spare wetsuit —
+ * any active fleet item, boards included) to a booking. Stored as an
+ * assignment with personIndex = -1 so it rides the same availability
+ * and conflict machinery: the same rack can't be lent out twice for
+ * overlapping dates. Whether Leon charged for it or threw it in for
+ * free lives in the notes — the ledger doesn't care.
+ */
+export async function attachGear(bookingId: number, formData: FormData) {
+	const db = getDb();
+	if (!db) throw new Error("Database not configured");
+
+	const gearId = Number.parseInt((formData.get("gearId") as string) ?? "", 10);
+	const startDate = (formData.get("startDate") as string) ?? "";
+	const endDate = (formData.get("endDate") as string) ?? "";
+	const notes = ((formData.get("notes") as string) ?? "").trim();
+
+	if (
+		!Number.isFinite(gearId) ||
+		!ISO_DATE.test(startDate) ||
+		!ISO_DATE.test(endDate) ||
+		endDate < startDate
+	) {
+		redirect(`/admin/bookings/${bookingId}?boardError=Invalid+gear+details`);
+	}
+
+	const data = await getCachedFleet();
+	if (!data) throw new Error("Database not configured");
+
+	const item = data.fleet.find((b) => b.id === gearId);
+	if (!item || item.status !== "active") {
+		redirect(
+			`/admin/bookings/${bookingId}?boardError=${encodeURIComponent(
+				"That item isn't active — check its status on the Fleet page.",
+			)}`,
+		);
+	}
+
+	const conflict = findConflict(data.assignments, gearId, startDate, endDate);
+	if (conflict) {
+		redirect(
+			`/admin/bookings/${bookingId}?boardError=${encodeURIComponent(
+				`${item.name} is already out on booking #${conflict.bookingId} (${conflict.bookingName}, ${conflict.startDate} → ${conflict.endDate}).`,
+			)}`,
+		);
+	}
+
+	await db.insert(schema.boardAssignments).values({
+		bookingId,
+		personIndex: -1,
+		boardId: gearId,
+		startDate,
+		endDate,
+		notes: notes || null,
+	});
+	revalidateBoardSurfaces();
+	revalidatePath(`/admin/bookings/${bookingId}`);
+}
+
+/**
  * Mid-booking swap: truncate the old assignment to end on swapDate and
  * open a new one from swapDate to the old end, linked via swappedFromId.
  * Same-day overlap of old and new board is intentional — both boards

@@ -14,6 +14,7 @@ import {
 } from "../../_lib/booking-labels";
 import { BoardAssignmentPanel } from "../../_components/board-assignment";
 import { BookingProgress } from "../../_components/booking-progress";
+import { ExtraGearPanel } from "../../_components/extra-gear";
 import { getCachedBookings } from "../../_lib/bookings-cache";
 import { getCachedFleet } from "../../_lib/boards-cache";
 import { computeCancellationState } from "../../_lib/cancellation";
@@ -333,6 +334,8 @@ export default async function BookingDetailPage({
 					</article>
 				);
 			})()}
+
+			{fleetData && <ExtraGearPanel booking={booking} data={fleetData} />}
 
 			{booking.message && (
 				<article className="admin-card">

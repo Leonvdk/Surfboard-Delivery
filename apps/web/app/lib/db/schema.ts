@@ -158,7 +158,10 @@ export const boardAssignments = pgTable(
 		bookingId: integer("booking_id")
 			.notNull()
 			.references(() => bookings.id, { onDelete: "cascade" }),
-		// Index into the booking's `people` jsonb array.
+		// Index into the booking's `people` jsonb array — or -1 for
+		// booking-level extra gear (roof racks, ponchos, an extra wetsuit)
+		// that isn't tied to one person. Extra gear rides the same
+		// availability/conflict machinery as boards.
 		personIndex: integer("person_index").notNull(),
 		boardId: integer("board_id")
 			.notNull()

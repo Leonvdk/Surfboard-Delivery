@@ -92,9 +92,15 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		0,
 	);
 	const periodStartIso = new Date(startTime * 1000).toISOString().slice(0, 10);
-	const periodExpensesTotal = allExpenses
+	// Gear bought inside the window counts as a period expense; gear
+	// without a purchase date can't be windowed and counts all-time only.
+	const gearPurchasedInPeriod = (fleetData?.fleet ?? [])
+		.filter((b) => b.purchaseDate && b.purchaseDate >= periodStartIso)
+		.reduce((s, b) => s + (b.purchaseCost ?? 0), 0);
+	const manualExpensesInPeriod = allExpenses
 		.filter((e) => e.date >= periodStartIso)
 		.reduce((s, e) => s + e.amount, 0);
+	const periodExpensesTotal = manualExpensesInPeriod + gearPurchasedInPeriod;
 	const allExpensesTotal = allExpenses.reduce((s, e) => s + e.amount, 0);
 	const today = todayIso();
 	const funnel = bookingFunnelForRecentMonths(allBookings);
@@ -144,7 +150,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						<strong>{formatEuros(netCents)}</strong>
 					</div>
 					<div className="admin-pl-tile">
-						<span className="admin-pl-label">Expenses</span>
+						<span className="admin-pl-label">Expenses (incl. gear)</span>
 						<strong>−€{periodExpensesTotal}</strong>
 					</div>
 					<div
@@ -155,9 +161,14 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					</div>
 				</div>
 				<p className="admin-card-hint">
-					All-time: €{gearInvested} invested in gear (from the Fleet page) ·
-					€{allExpensesTotal} manual expenses logged. Stripe only sees online
-					payments — cash / pay-on-delivery revenue isn&apos;t counted here.
+					This window: €{gearPurchasedInPeriod} gear purchases (by purchase
+					date, from the Fleet page) + €{manualExpensesInPeriod} logged
+					expenses. All-time: €{gearInvested} invested in gear ·
+					€{allExpensesTotal} expenses logged · €{gearInvested + allExpensesTotal}{" "}
+					total spent. Gear without a purchase date only counts in the
+					all-time number — set purchase dates on the Fleet page to place
+					them in time. Stripe only sees online payments — cash /
+					pay-on-delivery revenue isn&apos;t counted here.
 				</p>
 			</article>
 
