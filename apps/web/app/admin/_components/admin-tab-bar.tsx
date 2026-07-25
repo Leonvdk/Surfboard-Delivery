@@ -52,7 +52,7 @@ const TABS: Tab[] = [
 	},
 	{
 		href: "/admin/boards",
-		label: "Boards",
+		label: "Fleet",
 		match: (p) => p.startsWith("/admin/boards"),
 		icon: (
 			// Surfboard silhouette: pointed nose, rounded tail, center stringer.
