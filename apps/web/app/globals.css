@@ -9301,7 +9301,10 @@ h1 {
     margin: 0;
     padding: 4px 0 6px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    /* Auto-fit the tabs — this was hardcoded to 3 columns, which pushed
+       the 4th (Fleet) out of the row entirely when it was added. */
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
   }
   .admin-tabbar-item { margin: 0; }
   .admin-tabbar-link {
@@ -9310,21 +9313,33 @@ h1 {
     align-items: center;
     justify-content: center;
     gap: 2px;
-    padding: 6px 4px;
+    padding: 6px 2px;
     text-decoration: none;
     color: var(--gray-500);
     font-family: var(--font-display);
-    font-size: 0.6875rem;
+    /* Tightened so four labels sit on one line even at 320px. */
+    font-size: 0.5625rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
-    min-height: 52px;
+    min-height: 48px;
     position: relative;
     transition: color 100ms ease;
+  }
+  .admin-tabbar-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .admin-tabbar-icon {
     display: inline-flex;
     line-height: 0;
+  }
+  /* Shrink the 22px source icons to match the smaller labels. */
+  .admin-tabbar-icon svg {
+    width: 19px;
+    height: 19px;
   }
   .admin-tabbar-link:active {
     color: var(--accent);
