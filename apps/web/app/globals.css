@@ -7792,12 +7792,39 @@ h1 {
   gap: 4px;
   font-size: 0.8125rem;
   font-weight: 700;
+  /* Grid/flex children default to min-width:auto and refuse to shrink
+     below a control's intrinsic width — which is how a native date
+     input ended up spilling over the next column on iOS. */
+  min-width: 0;
 }
 
 .admin-board-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
+}
+
+.admin-board-form-grid > * {
+  min-width: 0;
+}
+
+/* Native date/time controls carry an intrinsic width on iOS Safari that
+   ignores width:100%; stripping the default appearance lets them size
+   to their container like every other field. */
+.admin-input[type="date"],
+.admin-input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 420px) {
+  /* Two 150px columns + gap no longer fit — one field per row beats
+     two cramped ones. */
+  .admin-board-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-board-status-row {
@@ -8383,6 +8410,8 @@ h1 {
 .admin-input, .admin-textarea, .admin-status-select {
   display: block;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 8px 10px;
   font-family: var(--font-body);
   font-size: 0.9375rem;
