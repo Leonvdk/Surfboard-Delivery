@@ -1,4 +1,4 @@
-import type { Booking } from "../../lib/db/schema";
+import type { Booking, BookingStatus } from "../../lib/db/schema";
 
 /**
  * The customer-lifecycle stages Leon tracks, derived — not stored. The
@@ -7,7 +7,6 @@ import type { Booking } from "../../lib/db/schema";
  * stamp, and the webhook's paidAt, so nothing has to remember to flip
  * extra flags:
  *
- *   requested          booking exists
  *   answered           Leon confirmed (status ≥ confirmed)
  *   payment requested  a Stripe payment link exists on the booking
  *   awaiting payment   the confirmation email carrying that link was sent
@@ -15,13 +14,16 @@ import type { Booking } from "../../lib/db/schema";
  *   in progress        gear is out (status in_progress)
  *   completed          status completed
  *
+ * There's deliberately no "requested" step — every booking exists, so it
+ * would always be ticked and tells Leon nothing. A booking still waiting
+ * on his yes/no simply hasn't reached stage 0 yet (index -1).
+ *
  * A booking without a payment link (pay on delivery) skips the payment
  * stages when it advances: reaching "in progress" marks earlier stages
  * done. Cancelled bookings don't get a stepper at all.
  */
 
 export const BOOKING_STAGES = [
-	{ key: "requested", label: "Requested" },
 	{ key: "answered", label: "Answered" },
 	{ key: "payment_requested", label: "Payment requested" },
 	{ key: "awaiting_payment", label: "Awaiting payment" },
@@ -32,29 +34,50 @@ export const BOOKING_STAGES = [
 
 export type BookingStageKey = (typeof BOOKING_STAGES)[number]["key"];
 
-const IN_PROGRESS_INDEX = 5;
+const IN_PROGRESS_INDEX = 4;
+const COMPLETED_INDEX = 5;
 
-/** Index of the furthest stage this booking has reached, or null for cancelled. */
-export function bookingStageIndex(booking: Booking): number | null {
-	if (booking.status === "cancelled") return null;
+/** The few fields a stage depends on — so the client-side status picker
+ * can recompute optimistically without a whole Booking row. */
+export interface StageInputs {
+	status: BookingStatus;
+	hasPaymentLink: boolean;
+	confirmationSent: boolean;
+	paid: boolean;
+}
 
-	let reached = 0; // requested — it exists
-	if (
-		booking.status === "confirmed" ||
-		booking.status === "in_progress" ||
-		booking.status === "completed"
-	) {
-		reached = Math.max(reached, 1);
-	}
-	if (booking.stripePaymentLinkUrl) reached = Math.max(reached, 2);
+/**
+ * Index of the furthest stage reached.
+ *   null → cancelled (no stepper)
+ *   -1   → still awaiting Leon's yes/no (nothing reached yet)
+ */
+export function stageIndexFrom(inputs: StageInputs): number | null {
+	if (inputs.status === "cancelled") return null;
+	if (inputs.status === "requested") return -1;
+
+	let reached = 0; // answered — Leon confirmed it
+	if (inputs.hasPaymentLink) reached = Math.max(reached, 1);
 	// Awaiting payment = the link went out and the customer hasn't paid.
-	if (booking.stripePaymentLinkUrl && booking.confirmationSentAt) {
-		reached = Math.max(reached, 3);
+	if (inputs.hasPaymentLink && inputs.confirmationSent) {
+		reached = Math.max(reached, 2);
 	}
-	if (booking.paidAt) reached = Math.max(reached, 4);
-	if (booking.status === "in_progress") reached = Math.max(reached, IN_PROGRESS_INDEX);
-	if (booking.status === "completed") reached = Math.max(reached, 6);
+	if (inputs.paid) reached = Math.max(reached, 3);
+	if (inputs.status === "in_progress") reached = Math.max(reached, IN_PROGRESS_INDEX);
+	if (inputs.status === "completed") reached = Math.max(reached, COMPLETED_INDEX);
 	return reached;
+}
+
+export function bookingStageIndex(booking: Booking): number | null {
+	return stageIndexFrom(toStageInputs(booking));
+}
+
+export function toStageInputs(booking: Booking): StageInputs {
+	return {
+		status: booking.status,
+		hasPaymentLink: Boolean(booking.stripePaymentLinkUrl),
+		confirmationSent: Boolean(booking.confirmationSentAt),
+		paid: Boolean(booking.paidAt),
+	};
 }
 
 /**
@@ -66,14 +89,14 @@ export function isBookingLate(booking: Booking, todayIso: string): boolean {
 	return booking.status === "in_progress" && booking.checkout < todayIso;
 }
 
-/** Stage label, swapped to LATE when pickup is overdue. */
-export function stageLabel(
-	stageKey: BookingStageKey,
-	booking: Booking,
-	todayIso: string,
-): string {
-	if (stageKey === "in_progress" && isBookingLate(booking, todayIso)) {
-		return "Late";
-	}
-	return BOOKING_STAGES.find((s) => s.key === stageKey)?.label ?? stageKey;
+/**
+ * One label for both the stepper and the bookings-table tag, so the two
+ * always agree: cancelled / awaiting-decision / LATE / current stage.
+ */
+export function currentStageLabel(inputs: StageInputs, late = false): string {
+	if (inputs.status === "cancelled") return "Cancelled";
+	if (late) return "Late";
+	const idx = stageIndexFrom(inputs);
+	if (idx == null || idx < 0) return "Requested";
+	return BOOKING_STAGES[idx]?.label ?? "Requested";
 }

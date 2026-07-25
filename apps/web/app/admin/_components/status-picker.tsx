@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { BookingStatus } from "../../lib/db/schema";
 import { updateBookingStatus } from "../_actions";
+import { currentStageLabel } from "../_lib/booking-stage";
 
 const STATUSES: Array<{ value: BookingStatus; label: string }> = [
 	{ value: "requested", label: "Requested" },
@@ -15,9 +16,24 @@ const STATUSES: Array<{ value: BookingStatus; label: string }> = [
 interface Props {
 	bookingId: number;
 	current: BookingStatus;
+	/** Payment state, so the tag can show the same lifecycle stage the
+	 * booking page's stepper does instead of the raw status enum. Omitted
+	 * on surfaces that only know the status (the detail page's own
+	 * picker, where the stepper already sits right above it). */
+	hasPaymentLink?: boolean;
+	confirmationSent?: boolean;
+	paid?: boolean;
+	late?: boolean;
 }
 
-export function StatusPicker({ bookingId, current }: Props) {
+export function StatusPicker({
+	bookingId,
+	current,
+	hasPaymentLink,
+	confirmationSent,
+	paid,
+	late,
+}: Props) {
 	const [status, setStatus] = useState<BookingStatus>(current);
 	const [open, setOpen] = useState(false);
 	const [pending, startTransition] = useTransition();
@@ -64,18 +80,37 @@ export function StatusPicker({ bookingId, current }: Props) {
 		});
 	}
 
+	// The tag shows the lifecycle stage (Awaiting payment, Payment
+	// confirmed …) so scanning the table tells Leon the same thing the
+	// booking page does. The menu still sets the underlying status —
+	// that's the part that's actually settable. Recomputed from local
+	// state so an optimistic status change relabels instantly.
+	const showStage = hasPaymentLink !== undefined;
+	const isLate = Boolean(late) && status === "in_progress";
+	const triggerLabel = showStage
+		? currentStageLabel(
+				{
+					status,
+					hasPaymentLink: Boolean(hasPaymentLink),
+					confirmationSent: Boolean(confirmationSent),
+					paid: Boolean(paid),
+				},
+				isLate,
+			)
+		: (STATUSES.find((s) => s.value === status)?.label ??
+			status.charAt(0).toUpperCase() + status.slice(1));
+
 	return (
 		<div ref={rootRef} className="status-picker">
 			<button
 				type="button"
-				className={`admin-status admin-status--${status} status-picker-trigger${pending ? " status-picker-trigger--pending" : ""}`}
+				className={`admin-status admin-status--${status}${isLate ? " admin-status--late" : ""} status-picker-trigger${pending ? " status-picker-trigger--pending" : ""}`}
 				onClick={() => setOpen((v) => !v)}
 				aria-haspopup="listbox"
 				aria-expanded={open}
 				title="Click to change status"
 			>
-				{STATUSES.find((s) => s.value === status)?.label ??
-					status.charAt(0).toUpperCase() + status.slice(1)}
+				{triggerLabel}
 			</button>
 			{open && (
 				<div className="status-picker-menu" role="listbox">

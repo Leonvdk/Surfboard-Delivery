@@ -28,6 +28,8 @@ export function BookingProgress({ booking }: { booking: Booking }) {
 
 	return (
 		<ol className="booking-progress" aria-label="Booking progress">
+			{/* reached === -1 (still awaiting Leon's yes/no) leaves every step
+				"todo" — nothing is ticked until he answers. */}
 			{BOOKING_STAGES.map((stage, i) => {
 				const state = i < reached ? "done" : i === reached ? "current" : "todo";
 				const isLateStep = stage.key === "in_progress" && late;

@@ -288,10 +288,16 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 								<td>{b.peopleCount}</td>
 								<td>{priceCell(b)}</td>
 								<td>
-									<StatusPicker bookingId={b.id} current={b.status} />
-									{isBookingLate(b, today) && (
-										<span className="admin-late-badge">Late</span>
-									)}
+									{/* Tag shows the lifecycle stage, matching the stepper
+										on the booking page — not the raw status enum. */}
+									<StatusPicker
+										bookingId={b.id}
+										current={b.status}
+										hasPaymentLink={Boolean(b.stripePaymentLinkUrl)}
+										confirmationSent={Boolean(b.confirmationSentAt)}
+										paid={Boolean(b.paidAt)}
+										late={isBookingLate(b, today)}
+									/>
 								</td>
 								<td>
 									<Link

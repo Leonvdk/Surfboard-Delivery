@@ -6935,6 +6935,9 @@ h1 {
 .admin-status--in_progress { background: #ffcdb9; color: #822111; }
 .admin-status--completed   { background: #c9daf8; color: #1c4587; }
 .admin-status--cancelled   { background: #efefef; color: #666666; }
+/* Overdue pickup — wins over the in_progress colour so a late booking
+   stands out while scanning the table. Matches the stepper's LATE. */
+.admin-status--late        { background: #8c1d18; color: #ffffff; }
 
 /* Click-to-pick status widget (list rows + detail page) */
 .status-picker {
