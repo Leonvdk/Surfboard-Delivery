@@ -115,7 +115,10 @@ export async function createBookingPaymentLink(args: {
 				currency: "eur",
 				unit_amount: Math.round(line.amountEuros * 100),
 				product_data: {
-					name: `${line.label} · ${args.requestRef}`,
+					// Customer-facing line on the checkout page — keep it about
+					// the gear. The booking ref rides in the payment link's
+					// metadata, which is what the webhook reconciles against.
+					name: line.label,
 				},
 			});
 			priceIds.push(price.id);

@@ -18,79 +18,149 @@ Disallow: /admin/
 Disallow: /api/
 
 # ---- AI answer engines (explicit welcome) -----------------------
+# NOTE: each group below repeats the private-path Disallows. A named
+# user-agent group REPLACES the wildcard group rather than adding to
+# it, so omitting them here would expose /admin and /api to these
+# crawlers even though `User-agent: *` disallows them.
 # OpenAI (ChatGPT + search)
 User-agent: GPTBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Anthropic (Claude)
 User-agent: ClaudeBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Claude-Web
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Claude-SearchBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Claude-User
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Perplexity
 User-agent: PerplexityBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Perplexity-User
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Common Crawl (training + retrieval for many LLMs)
 User-agent: CCBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Google — AI Overviews, Gemini
 User-agent: Google-Extended
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: GoogleOther
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Apple Intelligence
 User-agent: Applebot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # ByteDance / Meta / Amazon
 User-agent: Bytespider
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Meta-ExternalAgent
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Meta-ExternalFetcher
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: Amazonbot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Mistral, Cohere, You.com
 User-agent: MistralAI-User
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: cohere-ai
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: cohere-training-data-crawler
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 User-agent: YouBot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 
 # Machine-readable site summary for LLMs
 Sitemap: https://surfrental-aljezur.com/sitemap.xml

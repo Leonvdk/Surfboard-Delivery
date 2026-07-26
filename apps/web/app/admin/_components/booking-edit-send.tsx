@@ -219,10 +219,10 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 		<>
 			<button
 				type="button"
-				className="admin-btn"
+				className="admin-btn admin-btn--primary"
 				onClick={() => setOpen(true)}
 			>
-				✉️ Edit &amp; send email
+				✏️ Edit booking
 			</button>
 
 			{open &&
@@ -237,7 +237,7 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 						>
 							<div className="modal-header">
 								<h3 className="modal-title">
-									SR-{String(booking.id).padStart(5, "0")} · {booking.name}
+									Edit SR-{String(booking.id).padStart(5, "0")} · {booking.name}
 								</h3>
 								<button
 									className="modal-close"
@@ -263,7 +263,7 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 									<div className="admin-save-note" role="status">
 										✅ Saved.
 										{status.regenerated
-											? " Price changed — the old payment link was deactivated and a new one created."
+											? " Price changed — the old link was deactivated and a new one created, so email the customer or they'll have a dead link."
 											: status.paymentLinkUrl
 												? " Payment link ready."
 												: ""}
@@ -302,7 +302,7 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 								<h4 className="admin-modal-section">Gear</h4>
 								{people.length === 0 && (
 									<p className="admin-empty-inline">
-										No per-person data on this booking.
+										No per-person breakdown stored (imported or older booking). Dates, contact details, and price are still editable — or add people below.
 									</p>
 								)}
 								{people.map((p, i) => (
@@ -450,28 +450,26 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 									A copy is BCC&apos;d to hello@surfrental-aljezur.com.
 								</p>
 
-								<div className="admin-send-actions">
-									<button
-										type="button"
-										className="admin-btn admin-btn--primary"
-										disabled={busy}
-										onClick={handleSaveAndSend}
-									>
-										{status.step === "sending"
-											? "Sending..."
-											: status.step === "saving"
-												? "Saving..."
-												: "Save & send email"}
-									</button>
-									<button
-										type="button"
-										className="admin-btn"
-										disabled={busy}
-										onClick={handleSave}
-									>
-										Save only
-									</button>
-								</div>
+									<div className="admin-send-actions">
+										<button
+											type="button"
+											className="admin-btn admin-btn--primary"
+											disabled={busy}
+											onClick={handleSave}
+										>
+											{status.step === "saving" ? "Saving..." : "Save changes"}
+										</button>
+										<button
+											type="button"
+											className="admin-btn"
+											disabled={busy}
+											onClick={handleSaveAndSend}
+										>
+											{status.step === "sending"
+												? "Sending..."
+												: "Save & email the customer"}
+										</button>
+									</div>
 							</div>
 						</dialog>
 					</div>,

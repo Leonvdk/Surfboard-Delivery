@@ -107,9 +107,17 @@ function computeLines(
 		const checkin = p.checkin || payload.checkin;
 		const checkout = p.checkout || payload.checkout;
 		const days = calcDays(checkin, checkout);
-		const who = p.name || `Person ${i + 1}`;
+		// What the customer sees on their Stripe bill: the gear, not
+		// "Person 1". Board size when we know it, wetsuit size for
+		// packages that include one, and the renter's name only if it's
+		// a real name rather than a placeholder.
+		const gearBits = [PACKAGE_SHORT[p.package] ?? p.package];
+		if (p.board) gearBits.push(p.board);
+		if (p.wetsuitSize) gearBits.push(`wetsuit ${p.wetsuitSize}`);
+		const gear = gearBits.join(" · ");
+		const named = p.name.trim() ? ` — ${p.name.trim()}` : "";
 		if (!tier || !days) {
-			lines.push({ label: `${PACKAGE_SHORT[p.package] ?? p.package} — ${who}`, amountEuros: null });
+			lines.push({ label: `${gear}${named}`, amountEuros: null });
 			complete = false;
 			continue;
 		}
@@ -124,15 +132,23 @@ function computeLines(
 			: calcPackagePrice(tier, days);
 		total += amount;
 		lines.push({
-			label: `${PACKAGE_SHORT[p.package]} · ${days} days — ${who}`,
+			label: `${gear} · ${days} days${named}`,
 			amountEuros: amount,
 		});
 	}
 	return { lines, computedTotal: complete ? total : null };
 }
 
-/** Shared payload validation — returns an error string, or null when ok. */
-function validateBookingPayload(payload: NewBookingPayload): string | null {
+/**
+ * Shared payload validation — returns an error string, or null when ok.
+ * `requirePeople` is false when editing: bookings imported from Resend
+ * (and old website ones) have no per-person breakdown, and Leon still
+ * needs to fix their dates, price, and contact details.
+ */
+function validateBookingPayload(
+	payload: NewBookingPayload,
+	{ requirePeople = true }: { requirePeople?: boolean } = {},
+): string | null {
 	if (!payload.name.trim() || !/.+@.+\..+/.test(payload.email.trim())) {
 		return "Name and a valid email are required.";
 	}
@@ -143,7 +159,9 @@ function validateBookingPayload(payload: NewBookingPayload): string | null {
 	if (!tripDays || tripDays < DAILY_MINIMUM_DAYS) {
 		return `Minimum rental period is ${DAILY_MINIMUM_DAYS} days.`;
 	}
-	if (payload.people.length === 0) return "Add at least one person.";
+	if (requirePeople && payload.people.length === 0) {
+		return "Add at least one person.";
+	}
 	for (let i = 0; i < payload.people.length; i++) {
 		const p = payload.people[i]!;
 		if (Boolean(p.checkin) !== Boolean(p.checkout)) {
@@ -302,7 +320,7 @@ export async function updateBookingDetails(
 		.limit(1);
 	if (!existing) return { ok: false, error: "Booking not found." };
 
-	const invalid = validateBookingPayload(payload);
+	const invalid = validateBookingPayload(payload, { requirePeople: false });
 	if (invalid) return { ok: false, error: invalid };
 
 	const finalTotal = Math.round(payload.finalTotal);
@@ -318,8 +336,10 @@ export async function updateBookingDetails(
 			accommodation: payload.accommodation.trim() || null,
 			checkin: envelope.checkin,
 			checkout: envelope.checkout,
-			peopleCount: people.length,
-			people,
+			// Imported bookings carry a peopleCount with no per-person rows —
+			// don't zero it just because there's nothing to edit per person.
+			peopleCount: people.length > 0 ? people.length : existing.peopleCount,
+			people: people.length > 0 ? people : existing.people,
 			message: payload.note.trim() || null,
 			estimatedTotal: computeLines(payload).computedTotal,
 			finalTotal,

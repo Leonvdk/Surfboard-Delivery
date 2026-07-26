@@ -1,12 +1,8 @@
-import { GoogleAnalytics } from "@next/third-parties/google";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { DM_Sans, Sora } from "next/font/google";
-import { EngagementTracker } from "./components/engagement-tracker";
 import { Footer } from "./components/footer";
 import { JsonLd } from "./components/json-ld";
 import { Nav } from "./components/nav";
-import { OutboundTracker } from "./components/outbound-tracker";
+import { SiteAnalytics } from "./components/site-analytics";
 import { SiteChrome } from "./components/site-chrome";
 import { WhatsAppFloat } from "./components/whatsapp-float";
 import { localBusinessJsonLd, siteNavigationJsonLd, webSiteJsonLd } from "./lib/jsonld";
@@ -34,7 +30,6 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className={`${sora.variable} ${dmSans.variable}`}>
-			<GoogleAnalytics gaId="G-9NYPGY8VFQ" />
 			<body>
 				<JsonLd data={localBusinessJsonLd()} />
 				<JsonLd data={webSiteJsonLd()} />
@@ -47,10 +42,8 @@ export default function RootLayout({
 					<Footer />
 					<WhatsAppFloat />
 				</SiteChrome>
-				<EngagementTracker />
-				<OutboundTracker />
-				<Analytics />
-				<SpeedInsights />
+				{/* Public-site only — never loads on /admin. */}
+				<SiteAnalytics gaId="G-9NYPGY8VFQ" />
 			</body>
 		</html>
 	);
