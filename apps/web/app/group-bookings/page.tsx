@@ -166,7 +166,7 @@ export default function GroupBookingsPage() {
 								More boards, better rates
 							</h2>
 							<p className="section-desc">
-								All prices are per person, per week. Delivery and pickup included.
+								All prices are per person for 7 days. Delivery and pickup included.
 							</p>
 						</div>
 					</Reveal>
@@ -206,7 +206,7 @@ export default function GroupBookingsPage() {
 					<Reveal>
 						<div className="content-prose" style={{ textAlign: "center" as const, marginTop: "var(--space-5)" }}>
 							<p>
-								All prices are per person, per week. Mix and match packages within
+								All prices are per person for 7 days. Mix and match packages within
 								a group — we&apos;ll work it out. Premium includes board, wetsuit,
 								changing mat &amp; roof rack pads.
 							</p>

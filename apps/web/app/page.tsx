@@ -22,7 +22,7 @@ const HOMEPAGE_FAQS = [
 	{
 		question: "How much does it cost to rent a surfboard in Aljezur?",
 		answer:
-			"Board-only rental is €18 per day or €100 per week. Board + wetsuit is €28 per day or €150 per week. The premium package (board + wetsuit + free mid-stay board swap) is €38 per day or €225 per week. Three-day minimum. Free delivery and pickup.",
+			"Board-only rental is €18 per day or €100 for 7 days. Board + wetsuit is €28 per day or €150 for 7 days. The premium package (board + wetsuit + free mid-stay board swap) is €38 per day or €225 for 7 days. Both the delivery and pickup day count as rental days, so a Saturday-to-Saturday trip is 8 days. Three-day minimum. Free delivery and pickup.",
 	},
 	{
 		question: "Do you deliver surfboards to my Airbnb?",

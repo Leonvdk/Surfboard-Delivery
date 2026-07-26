@@ -256,8 +256,20 @@ function personEffectiveDates(
 	};
 }
 
-function hasDateOverride(person: Person): boolean {
-	return Boolean(person.checkin && person.checkout);
+/**
+ * A person diverges from the trip when they have both dates AND those
+ * dates differ from the booking range. Comparing (rather than treating
+ * "empty" as "same") lets each person hold real date values, which the
+ * date picker needs: it decides "am I picking a start or an end?" from
+ * whether checkout is empty, so a fallback value would freeze it.
+ */
+function hasDateOverride(
+	person: Person,
+	tripCheckin = "",
+	tripCheckout = "",
+): boolean {
+	if (!person.checkin || !person.checkout) return false;
+	return person.checkin !== tripCheckin || person.checkout !== tripCheckout;
 }
 
 function calcDays(checkin: string, checkout: string): number | null {
@@ -579,7 +591,12 @@ function WetsuitCalcModal({
 
 /* ── Collapsed person summary helpers ── */
 
-function personSummaryLabel(person: Person, personDays: number | null): string {
+function personSummaryLabel(
+	person: Person,
+	personDays: number | null,
+	tripCheckin: string,
+	tripCheckout: string,
+): string {
 	const parts: string[] = [];
 	const sexLabel = SEX_OPTIONS.find((o) => o.value === person.sex)?.label;
 	if (sexLabel && person.sex) parts.push(sexLabel);
@@ -590,7 +607,9 @@ function personSummaryLabel(person: Person, personDays: number | null): string {
 	const pkgLabel = getPackageOptions(personDays).find((o) => o.value === person.package);
 	if (pkgLabel) parts.push(pkgLabel.label.split(" — ")[0]!);
 	if (person.wetsuitSize) parts.push(`Wetsuit ${person.wetsuitSize}`);
-	if (hasDateOverride(person)) parts.push(`Custom dates: ${person.checkin} → ${person.checkout}`);
+	if (hasDateOverride(person, tripCheckin, tripCheckout)) {
+		parts.push(`Custom dates: ${person.checkin} → ${person.checkout}`);
+	}
 	return parts.length > 0 ? parts.join(" · ") : "Not filled in yet";
 }
 
@@ -716,9 +735,15 @@ export function BookingForm() {
 	// mind about split dates.
 	const handleAllowIndividualDatesChange = (next: boolean) => {
 		setAllowIndividualDates(next);
-		if (!next) {
-			setPeople((prev) => prev.map((p) => ({ ...p, checkin: "", checkout: "" })));
-		}
+		setPeople((prev) =>
+			prev.map((p) =>
+				next
+					? // Seed from the trip range so each picker starts with real
+						// values it can edit, rather than a display-only fallback.
+						{ ...p, checkin: p.checkin || checkin, checkout: p.checkout || checkout }
+					: { ...p, checkin: "", checkout: "" },
+			),
+		);
 	};
 
 	const saveTextFields = useCallback(() => {
@@ -897,25 +922,28 @@ export function BookingForm() {
 		});
 	};
 
-	// Store per-person dates only when they differ from the trip range —
-	// stripping matches back to "" keeps hasDateOverride == "both filled"
-	// and means the auto-sync loop below doesn't have to compare on every render.
+	// Store exactly what the picker reports. Stripping values that match
+	// the trip range used to look tidy, but it emptied `checkout` behind
+	// the picker's back, so its second click never registered and the end
+	// date snapped straight back to the booking's. Divergence is decided
+	// by hasDateOverride() comparing values instead.
 	const setPersonCheckin = (index: number, value: string) =>
-		updatePerson(index, "checkin", value && value === checkin ? "" : value);
+		updatePerson(index, "checkin", value);
 	const setPersonCheckout = (index: number, value: string) =>
-		updatePerson(index, "checkout", value && value === checkout ? "" : value);
+		updatePerson(index, "checkout", value);
 
-	// When the trip range changes, purge any person override that used to
-	// match the OLD trip dates — otherwise a customer who picked matching
-	// dates yesterday would suddenly appear to have an override today.
+	// People who were following the trip range keep following it when the
+	// trip dates change; anyone who picked their own window is left alone.
 	const prevTripRef = useRef({ checkin, checkout });
 	useEffect(() => {
 		const prev = prevTripRef.current;
 		if (prev.checkin === checkin && prev.checkout === checkout) return;
 		setPeople((current) =>
 			current.map((p) =>
-				p.checkin === prev.checkin && p.checkout === prev.checkout
-					? { ...p, checkin: "", checkout: "" }
+				!p.checkin ||
+				!p.checkout ||
+				(p.checkin === prev.checkin && p.checkout === prev.checkout)
+					? { ...p, checkin, checkout }
 					: p,
 			),
 		);
@@ -990,8 +1018,8 @@ export function BookingForm() {
 				wetsuitSize: p.wetsuitSize,
 				// Only send when this person diverges from the trip range,
 				// so the API can tell "same as trip" from "customer overrode".
-				checkin: hasDateOverride(p) ? p.checkin : null,
-				checkout: hasDateOverride(p) ? p.checkout : null,
+				checkin: hasDateOverride(p, checkin, checkout) ? p.checkin : null,
+				checkout: hasDateOverride(p, checkin, checkout) ? p.checkout : null,
 			})),
 			message: formData.get("message") as string,
 			estimatedTotal: estimate.allSelected ? estimate.total : null,
@@ -1241,7 +1269,7 @@ export function BookingForm() {
 						const personPkgOptions = getPackageOptions(personDays);
 						const showWetsuit = packageIncludesWetsuit(person.package, personPkgOptions);
 						const wetsuitOpts = getWetsuitOptions(person.sex as Sex);
-						const overrideActive = hasDateOverride(person);
+						const overrideActive = hasDateOverride(person, checkin, checkout);
 
 						if (!isOpen) {
 							return (
@@ -1252,7 +1280,7 @@ export function BookingForm() {
 											<polyline points="6 9 12 15 18 9" />
 										</svg>
 									</div>
-									<p className="person-collapsed-summary">{personSummaryLabel(person, personDays)}</p>
+									<p className="person-collapsed-summary">{personSummaryLabel(person, personDays, checkin, checkout)}</p>
 								</div>
 							);
 						}
@@ -1289,13 +1317,15 @@ export function BookingForm() {
 									)}
 									{allowIndividualDates && (
 										<div className={`person-date-picker person-date-picker--header${overrideActive ? " person-date-picker--custom" : ""}`}>
-											{/* Only rendered when the customer opted into per-person dates
-												via the checkbox under the main trip range. Pre-filled with
-												the trip dates; values equal to them are stripped by the
-												setters so "override" always means "diverges". */}
+											{/* Bound to the person's OWN dates, seeded from the trip
+												range when the checkbox is ticked. Falling back to the
+												trip values here would keep `checkout` permanently
+												non-empty, and the picker uses "is checkout empty?" to
+												decide whether a click sets the start or the end — so
+												the end date could never be changed. */}
 											<DateRangePicker
-												checkin={person.checkin || checkin}
-												checkout={person.checkout || checkout}
+												checkin={person.checkin}
+												checkout={person.checkout}
 												onCheckinChange={(v) => setPersonCheckin(i, v)}
 												onCheckoutChange={(v) => setPersonCheckout(i, v)}
 											/>
@@ -1450,7 +1480,7 @@ export function BookingForm() {
 								const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
 								const opt = getPackageOptions(personDays).find((o) => o.value === person.package);
 								if (!opt?.pricePerPerson) return null;
-								const suffix = hasDateOverride(person)
+								const suffix = hasDateOverride(person, checkin, checkout)
 									? ` · ${person.checkin} → ${person.checkout}`
 									: "";
 								return (

@@ -68,18 +68,18 @@ export const packages: Record<PackageTier, PackageInfo> = {
 export const prices: Record<PackageTier, Record<Duration, PricePoint>> = {
 	boardOnly: {
 		daily: { amount: 18, period: "per day", dailyEquivalent: 18 },
-		weekly: { amount: 100, period: "per week", dailyEquivalent: 12 },
-		extended: { amount: 170, period: "2 weeks", dailyEquivalent: 11 },
+		weekly: { amount: 100, period: "for 7 days", dailyEquivalent: 12 },
+		extended: { amount: 170, period: "for 14 days", dailyEquivalent: 11 },
 	},
 	fullPackage: {
 		daily: { amount: 28, period: "per day", dailyEquivalent: 28 },
-		weekly: { amount: 150, period: "per week", dailyEquivalent: 18 },
-		extended: { amount: 250, period: "2 weeks", dailyEquivalent: 16 },
+		weekly: { amount: 150, period: "for 7 days", dailyEquivalent: 18 },
+		extended: { amount: 250, period: "for 14 days", dailyEquivalent: 16 },
 	},
 	premium: {
 		daily: { amount: 38, period: "per day", dailyEquivalent: 38 },
-		weekly: { amount: 225, period: "per week", dailyEquivalent: 27 },
-		extended: { amount: 380, period: "2 weeks", dailyEquivalent: 25 },
+		weekly: { amount: 225, period: "for 7 days", dailyEquivalent: 27 },
+		extended: { amount: 380, period: "for 14 days", dailyEquivalent: 25 },
 	},
 };
 
@@ -174,8 +174,14 @@ export function formatWeeksLabel(days: number): string {
 	return w === 1 ? "1 week" : `${w} weeks`;
 }
 
+/**
+ * Duration wording for package prices. Deliberately says "for 7 days"
+ * rather than "per week": both the delivery and pickup day are billable,
+ * so a Saturday→Saturday trip is 8 days — customers read that as "a
+ * week" and would otherwise expect the weekly price for it.
+ */
 export function formatDurationLabel(days: number | null): string {
-	if (days === null || days === 7) return "per week";
-	if (days === 14) return "for 2 weeks";
+	if (days === null || days === 7) return "for 7 days";
+	if (days === 14) return "for 14 days";
 	return `for ${days} days`;
 }
