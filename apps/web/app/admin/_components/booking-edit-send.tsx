@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import type { Booking } from "../../lib/db/schema";
+import type { Booking, BookingAddon } from "../../lib/db/schema";
 import { defaultEmailCopy } from "../../lib/emails/booking-confirmation";
 import { calcPackagePrice, type PackageTier } from "../../lib/pricing";
 import {
@@ -11,6 +11,7 @@ import {
 	sendBookingConfirmation,
 	updateBookingDetails,
 } from "../_new-booking-actions";
+import { AddonsEditor, addonsTotal } from "./addons-editor";
 
 /**
  * Edit-and-send modal on the booking detail page. One flow covers three
@@ -83,6 +84,7 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 			priceOverride: p.priceOverride ?? null,
 		})),
 	);
+	const [addons, setAddons] = useState<BookingAddon[]>(booking.addons ?? []);
 	const [note, setNote] = useState(booking.message ?? "");
 	const [price, setPrice] = useState(
 		String(booking.finalTotal ?? booking.estimatedTotal ?? ""),
@@ -134,7 +136,9 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 		return calcPackagePrice(tier, days);
 	};
 
-	const computed = people.reduce((sum, p) => sum + linePrice(p), 0);
+	const computed =
+		people.reduce((sum, p) => sum + linePrice(p), 0) +
+		addonsTotal(addons, calcDays(checkin, checkout));
 
 	const updatePerson = (i: number, field: keyof NewBookingPerson, value: string) => {
 		setPeople((prev) => {
@@ -144,7 +148,12 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 			next[i] = { ...cur, [field]: value };
 			// Keep the total in step with the lines — otherwise a changed
 			// package would silently leave an Adjustment row on the bill.
-			setPrice(String(next.reduce((s, q) => s + linePrice(q), 0)));
+			setPrice(
+					String(
+						next.reduce((s, q) => s + linePrice(q), 0) +
+							addonsTotal(addons, calcDays(checkin, checkout)),
+					),
+				);
 			return next;
 		});
 	};
@@ -160,9 +169,20 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 				...cur,
 				priceOverride: raw.trim() === "" || !Number.isFinite(parsed) ? null : parsed,
 			};
-			setPrice(String(next.reduce((s, q) => s + linePrice(q), 0)));
+			setPrice(
+					String(
+						next.reduce((s, q) => s + linePrice(q), 0) +
+							addonsTotal(addons, calcDays(checkin, checkout)),
+					),
+				);
 			return next;
 		});
+	};
+
+	const handleAddonsChange = (next: BookingAddon[]) => {
+		setAddons(next);
+		const lines = people.reduce((s, q) => s + linePrice(q), 0);
+		setPrice(String(lines + addonsTotal(next, calcDays(checkin, checkout))));
 	};
 
 	const payload = () => ({
@@ -173,6 +193,7 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 		checkin,
 		checkout,
 		people,
+		addons,
 		finalTotal: Number.parseInt(price, 10) || 0,
 		note,
 	});
@@ -398,6 +419,13 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 								>
 									+ Add person
 								</button>
+
+								<h4 className="admin-modal-section">Extras</h4>
+								<AddonsEditor
+									addons={addons}
+									onChange={handleAddonsChange}
+									tripDays={calcDays(checkin, checkout)}
+								/>
 
 								<h4 className="admin-modal-section">Price</h4>
 								<div className="admin-board-form-grid">

@@ -8,11 +8,13 @@ import {
 	type PackageTier,
 } from "../../lib/pricing";
 import { defaultEmailCopy } from "../../lib/emails/booking-confirmation";
+import type { BookingAddon } from "../../lib/db/schema";
 import {
 	createAdminBooking,
 	type NewBookingPerson,
 	sendBookingConfirmation,
 } from "../_new-booking-actions";
+import { AddonsEditor, addonsTotal } from "./addons-editor";
 
 /**
  * Admin "create a booking" form. Live price preview uses the same
@@ -95,6 +97,7 @@ export function NewBookingForm() {
 	const [checkin, setCheckin] = useState("");
 	const [checkout, setCheckout] = useState("");
 	const [people, setPeople] = useState<NewBookingPerson[]>([emptyPerson()]);
+	const [addons, setAddons] = useState<BookingAddon[]>([]);
 	const [note, setNote] = useState("");
 	const [priceOverride, setPriceOverride] = useState<string>("");
 	const [phase, setPhase] = useState<Phase>({ step: "form" });
@@ -120,8 +123,13 @@ export function NewBookingForm() {
 			total += amount;
 			rows.push({ label: `${who} · ${days} days`, amount });
 		});
+		// Booking-level extras, priced across the whole trip window.
+		const tripDays = calcDays(checkin, checkout);
+		const extras = addonsTotal(addons, tripDays);
+		if (extras > 0) rows.push({ label: "Extras", amount: extras });
+		total += extras;
 		return { rows, total, complete };
-	}, [people, checkin, checkout]);
+	}, [people, checkin, checkout, addons]);
 
 	const effectiveTotal =
 		priceOverride.trim() !== ""
@@ -180,6 +188,7 @@ export function NewBookingForm() {
 			checkin,
 			checkout,
 			people,
+			addons,
 			finalTotal: effectiveTotal,
 			note,
 		});
@@ -456,6 +465,15 @@ export function NewBookingForm() {
 				>
 					+ Add person
 				</button>
+			</article>
+
+			<article className="admin-card">
+				<h2>Extras</h2>
+				<AddonsEditor
+					addons={addons}
+					onChange={setAddons}
+					tripDays={calcDays(checkin, checkout)}
+				/>
 			</article>
 
 			<article className="admin-card">

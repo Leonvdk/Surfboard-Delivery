@@ -124,6 +124,56 @@ export function calcPackagePrice(tier: PackageTier, days: number): number {
 	return extendedAmount + (clamped - 14) * extendedDaily;
 }
 
+/* ── Add-ons ─────────────────────────────────────────────────────── */
+
+/**
+ * Extras charged on top of the packages, priced per started week:
+ * the first week costs `firstWeek`, every week after adds `extraWeek`.
+ * A 10-day rental is two weeks — customers keep the gear for the whole
+ * period, so part-weeks bill as full ones.
+ */
+export interface AddonTariff {
+	key: string;
+	label: string;
+	firstWeek: number;
+	extraWeek: number;
+}
+
+export const ADDON_CATALOG: AddonTariff[] = [
+	{ key: "roof_rack", label: "Roof rack", firstWeek: 20, extraWeek: 15 },
+];
+
+export function getAddonTariff(key: string): AddonTariff | undefined {
+	return ADDON_CATALOG.find((a) => a.key === key);
+}
+
+/** Started weeks in a rental — 1–7 days is one week, 8–14 is two. */
+export function weeksForDays(days: number): number {
+	return Math.max(1, Math.ceil(days / 7));
+}
+
+/**
+ * Price for `quantity` of an add-on over `days`. Returns 0 for unknown
+ * keys so a bad payload can't silently inflate a bill.
+ */
+export function calcAddonPrice(
+	key: string,
+	days: number,
+	quantity = 1,
+): number {
+	const tariff = getAddonTariff(key);
+	if (!tariff || quantity <= 0 || days <= 0) return 0;
+	const weeks = weeksForDays(days);
+	const perUnit = tariff.firstWeek + tariff.extraWeek * (weeks - 1);
+	return perUnit * quantity;
+}
+
+/** "2 weeks" / "1 week" — for add-on line labels. */
+export function formatWeeksLabel(days: number): string {
+	const w = weeksForDays(days);
+	return w === 1 ? "1 week" : `${w} weeks`;
+}
+
 export function formatDurationLabel(days: number | null): string {
 	if (days === null || days === 7) return "per week";
 	if (days === 14) return "for 2 weeks";

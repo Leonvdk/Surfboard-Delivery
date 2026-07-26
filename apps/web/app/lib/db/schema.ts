@@ -40,6 +40,17 @@ export interface BookingPerson {
 	priceOverride?: number | null;
 }
 
+/**
+ * A booking-level extra (roof rack, etc.) with its own line on the bill.
+ * `quantity` because a party can take two racks; `priceOverride` so Leon
+ * can discount or comp one without it showing as an adjustment.
+ */
+export interface BookingAddon {
+	key: string;
+	quantity: number;
+	priceOverride?: number | null;
+}
+
 export const bookings = pgTable(
 	"bookings",
 	{
@@ -60,6 +71,10 @@ export const bookings = pgTable(
 		peopleCount: integer("people_count").notNull(),
 		people: jsonb("people").$type<BookingPerson[]>(),
 		message: text("message"),
+
+		// Booking-level extras (roof racks etc.) charged on top of the
+		// per-person packages. jsonb so new add-on types need no migration.
+		addons: jsonb("addons").$type<BookingAddon[]>(),
 
 		estimatedTotal: integer("estimated_total"),
 		finalTotal: integer("final_total"),

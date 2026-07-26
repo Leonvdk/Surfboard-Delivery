@@ -4,13 +4,20 @@ import { and, eq, gte } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { Resend } from "resend";
 import { getDb, schema } from "../lib/db/client";
-import type { BookingPerson } from "../lib/db/schema";
+import type { BookingAddon, BookingPerson } from "../lib/db/schema";
 import {
 	buildBookingConfirmationEmail,
 	type ConfirmationLine,
 	defaultEmailCopy,
 } from "../lib/emails/booking-confirmation";
-import { calcPackagePrice, DAILY_MINIMUM_DAYS, type PackageTier } from "../lib/pricing";
+import {
+	calcAddonPrice,
+	calcPackagePrice,
+	DAILY_MINIMUM_DAYS,
+	formatWeeksLabel,
+	getAddonTariff,
+	type PackageTier,
+} from "../lib/pricing";
 import {
 	createBookingPaymentLink,
 	deactivatePaymentLink,
@@ -68,6 +75,8 @@ export interface NewBookingPayload {
 	checkin: string;
 	checkout: string;
 	people: NewBookingPerson[];
+	/** Booking-level extras (roof racks etc.), billed per started week. */
+	addons: BookingAddon[];
 	/** Leon's final price — may differ from the computed sum. */
 	finalTotal: number;
 	/** Personal note rendered in the email. */
@@ -136,6 +145,33 @@ function computeLines(
 			amountEuros: amount,
 		});
 	}
+	// Booking-level extras get their own lines, priced over the whole
+	// trip window rather than any one person's dates.
+	const tripDays = calcDays(payload.checkin, payload.checkout);
+	for (const addon of payload.addons ?? []) {
+		const tariff = getAddonTariff(addon.key);
+		const qty = Math.max(0, Math.round(addon.quantity));
+		if (!tariff || qty <= 0) continue;
+		if (!tripDays) {
+			lines.push({ label: tariff.label, amountEuros: null });
+			complete = false;
+			continue;
+		}
+		const override =
+			addon.priceOverride != null && Number.isFinite(addon.priceOverride)
+				? Math.round(addon.priceOverride)
+				: null;
+		const amount =
+			override != null && override >= 0
+				? override
+				: calcAddonPrice(addon.key, tripDays, qty);
+		total += amount;
+		lines.push({
+			label: `${tariff.label}${qty > 1 ? ` ×${qty}` : ""} · ${formatWeeksLabel(tripDays)}`,
+			amountEuros: amount,
+		});
+	}
+
 	return { lines, computedTotal: complete ? total : null };
 }
 
@@ -195,6 +231,20 @@ function computeEnvelope(payload: NewBookingPayload): {
 	return { checkin: minIn, checkout: maxOut };
 }
 
+/** Valid, positive-quantity add-ons only — a bad payload can't inflate
+ * a bill with unknown keys. */
+function toBookingAddons(payload: NewBookingPayload): BookingAddon[] {
+	return (payload.addons ?? [])
+		.filter((a) => getAddonTariff(a.key) && Math.round(a.quantity) > 0)
+		.map((a) => ({
+			key: a.key,
+			quantity: Math.round(a.quantity),
+			...(a.priceOverride != null && Number.isFinite(a.priceOverride)
+				? { priceOverride: Math.round(a.priceOverride) }
+				: {}),
+		}));
+}
+
 /** Payload people → stored BookingPerson[], stripping non-diverging dates. */
 function toBookingPeople(payload: NewBookingPayload): BookingPerson[] {
 	return payload.people.map((p) => ({
@@ -240,6 +290,7 @@ export async function createAdminBooking(
 			accommodation: payload.accommodation.trim() || null,
 			peopleCount: people.length,
 			people,
+			addons: toBookingAddons(payload),
 			message: payload.note.trim() || null,
 			estimatedTotal: computeLines(payload).computedTotal,
 			finalTotal,
@@ -340,6 +391,7 @@ export async function updateBookingDetails(
 			// don't zero it just because there's nothing to edit per person.
 			peopleCount: people.length > 0 ? people.length : existing.peopleCount,
 			people: people.length > 0 ? people : existing.people,
+			addons: toBookingAddons(payload),
 			message: payload.note.trim() || null,
 			estimatedTotal: computeLines(payload).computedTotal,
 			finalTotal,
@@ -447,6 +499,7 @@ export async function sendBookingConfirmation(
 		checkin: booking.checkin,
 		checkout: booking.checkout,
 		people: booking.people ?? [],
+		addons: booking.addons ?? [],
 		finalTotal: total,
 		note: "",
 	});

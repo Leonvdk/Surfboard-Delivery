@@ -8193,6 +8193,79 @@ h1 {
   max-width: 640px;
 }
 
+/* ---- Booking extras (roof racks etc.) ---- */
+
+.admin-addons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-addon-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: var(--border-light);
+  background: var(--gray-100);
+}
+
+.admin-addon-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.admin-addon-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--black);
+  background: var(--surface);
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.admin-addon-toggle input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.admin-addon-toggle input[type="checkbox"]:checked::after {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.admin-addon-tariff {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.admin-addon-fields {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 10px;
+}
+
+.admin-addon-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 0;
+}
+
 .admin-line-price-hint {
   font-size: 0.6875rem;
   font-weight: 500;
