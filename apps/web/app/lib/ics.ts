@@ -19,6 +19,8 @@ import type { Booking, BookingPerson } from "./db/schema";
 
 const TZ = "Europe/Lisbon";
 const DOMAIN = "surfrental-aljezur.com";
+/** Brand burnt orange — same value as --accent in globals.css. */
+export const BRAND_COLOR = "#C04419";
 /** How long to block out for a run. Rough but useful in a day view. */
 const DELIVERY_MINUTES = 45;
 const PICKUP_MINUTES = 30;
@@ -228,6 +230,14 @@ export function buildCalendar(bookings: Booking[]): string {
 		"METHOD:PUBLISH",
 		"X-WR-CALNAME:Surf Rental — deliveries & pickups",
 		`X-WR-TIMEZONE:${TZ}`,
+		// Brand burnt orange. Honoured by Apple Calendar and anything else
+		// reading the X-APPLE- extension. Google Calendar ignores calendar
+		// colour from a feed entirely — it's set per-subscriber in their UI —
+		// so the admin card hands Leon the hex to paste there. Deliberately
+		// NOT emitting RFC 7986 COLOR: that property takes a CSS3 colour
+		// *name*, and no name is our orange; an approximation would be worse
+		// than leaving it to the one client that reads exact values.
+		`X-APPLE-CALENDAR-COLOR:${BRAND_COLOR}`,
 		// Hint for clients that honour it. Google ignores this and uses its
 		// own polling interval, so don't read it as a guarantee.
 		"REFRESH-INTERVAL;VALUE=DURATION:PT1H",

@@ -9754,3 +9754,56 @@ h1 {
   word-break: break-all;
   user-select: all;
 }
+
+/* Calendar subscribe block on /admin/calendar. */
+.admin-subscribe-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.admin-subscribe-color {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border);
+  background: var(--surface);
+  flex-wrap: wrap;
+}
+
+.admin-subscribe-color > div {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.admin-subscribe-color strong {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+/* Swatch shows the real colour rather than describing it. */
+.admin-subscribe-swatch {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border: 1.5px solid var(--black);
+  margin-top: 2px;
+}
+
+.admin-subscribe-details {
+  margin-top: var(--space-md);
+}
+
+.admin-subscribe-details summary {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-500);
+  cursor: pointer;
+}

@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
+import { CalendarSubscribe } from "../_components/calendar-subscribe";
+import { BRAND_COLOR } from "../../lib/ics";
 
 export const dynamic = "force-dynamic";
 
@@ -270,21 +272,10 @@ function CalendarFeedCard() {
 		<article className="admin-card">
 			<h2>Subscribe in Google Calendar</h2>
 			{token ? (
-				<>
-					<p className="admin-card-hint">
-						Google Calendar → <strong>Other calendars</strong> →{" "}
-						<strong>From URL</strong>, paste this, subscribe once. Every
-						delivery and collection appears automatically and follows your
-						edits. Google re-checks subscribed feeds on its own schedule, so a
-						brand-new booking can take a few hours to show up.
-					</p>
-					<code className="admin-feed-url">{`${site}/api/calendar/${token}/runs.ics`}</code>
-					<p className="admin-card-hint">
-						Treat this link like a password — it exposes customer names,
-						addresses and phone numbers. Rotate it by changing
-						CALENDAR_FEED_TOKEN in Vercel, then re-subscribing.
-					</p>
-				</>
+				<CalendarSubscribe
+					feedUrl={`${site}/api/calendar/${token}/runs.ics`}
+					brandColor={BRAND_COLOR}
+				/>
 			) : (
 				<p className="admin-empty-inline">
 					Set <code>CALENDAR_FEED_TOKEN</code> in the Vercel environment to a

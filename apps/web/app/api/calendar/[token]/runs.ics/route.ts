@@ -1,7 +1,7 @@
 import { and, gte, isNull, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { getDb, schema } from "../../../lib/db/client";
-import { buildCalendar } from "../../../lib/ics";
+import { getDb, schema } from "../../../../lib/db/client";
+import { buildCalendar } from "../../../../lib/ics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
