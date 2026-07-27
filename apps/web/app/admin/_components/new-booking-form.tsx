@@ -15,6 +15,7 @@ import {
 	sendBookingConfirmation,
 } from "../_new-booking-actions";
 import { AddonsEditor, addonsTotal } from "./addons-editor";
+import { WarningIcon } from "./icons";
 
 /**
  * Admin "create a booking" form. Live price preview uses the same
@@ -290,7 +291,7 @@ export function NewBookingForm() {
 				) : (
 					<>
 						<p>
-							⚠️ <strong>No payment link.</strong> The email will say{" "}
+							<WarningIcon /> <strong>No payment link.</strong> The email will say{" "}
 							<em>pay on delivery</em> — no pay-online button. Send anyway?
 						</p>
 						{info?.paymentLinkError && (
@@ -331,7 +332,7 @@ export function NewBookingForm() {
 		<div className="admin-new-booking">
 			{phase.step === "error" && (
 				<div className="admin-board-error" role="alert">
-					⚠️ {phase.message}{" "}
+					<WarningIcon /> {phase.message}{" "}
 					<button
 						type="button"
 						className="admin-board-remove"

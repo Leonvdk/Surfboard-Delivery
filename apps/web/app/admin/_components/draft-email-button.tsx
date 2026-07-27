@@ -1,6 +1,7 @@
 import type { Booking } from "../../lib/db/schema";
 import { formatLongDate } from "../_lib/dates";
 import { summariseGear } from "../_lib/booking-labels";
+import { ExternalIcon } from "./icons";
 
 function buildConfirmationBody(b: Booking): string {
 	const gear = summariseGear(b.people ?? null);
@@ -73,7 +74,7 @@ export function DraftEmailButton({ booking }: Props) {
 	const href = `mailto:${encodeURIComponent(booking.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 	return (
 		<a href={href} className="admin-btn">
-			Draft confirmation email ↗
+			Draft confirmation email <ExternalIcon />
 		</a>
 	);
 }

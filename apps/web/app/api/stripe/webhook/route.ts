@@ -115,7 +115,7 @@ export async function POST(request: Request) {
 		try {
 			const { sendPushToAll } = await import("../../../lib/push");
 			await sendPushToAll({
-				title: "⚠️ Payment failed",
+				title: "Payment failed",
 				body: `${booking.name} · SR-${String(bookingId).padStart(5, "0")} — delayed payment bounced, follow up`,
 				url: `/admin/bookings/${bookingId}`,
 				tag: `payment-failed-${bookingId}`,
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
 			const { sendPushToAll } = await import("../../../lib/push");
 			const euros = ((session.amount_total ?? 0) / 100).toFixed(2).replace(/\.00$/, "");
 			await sendPushToAll({
-				title: "💶 Payment received",
+				title: "Payment received",
 				body: `€${euros} from ${booking.name} · SR-${String(bookingId).padStart(5, "0")}`,
 				url: `/admin/bookings/${bookingId}`,
 				tag: `payment-${bookingId}`,

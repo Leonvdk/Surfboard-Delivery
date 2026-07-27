@@ -16,6 +16,7 @@ import { BoardAssignmentPanel } from "../../_components/board-assignment";
 import { BookingEditSendButton } from "../../_components/booking-edit-send";
 import { BookingProgress } from "../../_components/booking-progress";
 import { ExtraGearPanel } from "../../_components/extra-gear";
+import { CheckIcon, EuroIcon, RepeatIcon, SplitDatesIcon, WarningIcon } from "../../_components/icons";
 import { getCachedBookings } from "../../_lib/bookings-cache";
 import { getCachedFleet } from "../../_lib/boards-cache";
 import { isBookingLate } from "../../_lib/booking-stage";
@@ -88,7 +89,7 @@ export default async function BookingDetailPage({
 				)}
 				{repeat && repeat.priorCount > 0 && (
 					<p className="admin-detail-repeat">
-						🔁 <strong>Repeat customer</strong> — {repeat.priorCount + 1}
+						<RepeatIcon /> <strong>Repeat customer</strong> — {repeat.priorCount + 1}
 						{ordinalSuffix(repeat.priorCount + 1)} trip
 						{repeat.lastCheckin
 							? ` · previous: ${formatShortDate(repeat.lastCheckin)}`
@@ -108,7 +109,7 @@ export default async function BookingDetailPage({
 
 			{boardError && (
 				<div className="admin-board-error" role="alert">
-					⚠️ {boardError}
+					<WarningIcon /> {boardError}
 				</div>
 			)}
 
@@ -117,7 +118,7 @@ export default async function BookingDetailPage({
 					<h2>Trip</h2>
 					{booking.people?.some((p) => p.checkin || p.checkout) && (
 						<p className="admin-stagger-badge">
-							⚠️ Staggered dates — some people have their own delivery/pickup window (see Per person below).
+							<SplitDatesIcon /> Staggered dates — some people have their own delivery/pickup window (see Per person below).
 						</p>
 					)}
 					<dl className="admin-dl">
@@ -163,7 +164,7 @@ export default async function BookingDetailPage({
 							<>
 								<dt>Confirmation email</dt>
 								<dd>
-									✅ Sent{" "}
+									<CheckIcon /> Sent{" "}
 									{booking.confirmationSentAt.toLocaleString("en-GB", {
 										day: "numeric",
 										month: "short",
@@ -183,7 +184,7 @@ export default async function BookingDetailPage({
 							<>
 								<dt>Paid</dt>
 								<dd>
-									💶{" "}
+									<EuroIcon />{" "}
 									{booking.paidAmountCents != null
 										? `€${(booking.paidAmountCents / 100).toFixed(2).replace(/\.00$/, "")} · `
 										: ""}

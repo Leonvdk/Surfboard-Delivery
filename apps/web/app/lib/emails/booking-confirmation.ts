@@ -24,7 +24,7 @@ export interface BookingConfirmationArgs {
 	lines: ConfirmationLine[];
 	totalEuros: number;
 	paymentLinkUrl: string | null;
-	/** Headline of the email, e.g. "You're almost booked, Anna! 🤙".
+	/** Headline of the email, e.g. "You're almost booked, Anna!".
 	 * Editable by Leon on the review-send screen. */
 	greeting: string;
 	/** Paragraph under the headline. Editable by Leon before sending. */
@@ -41,12 +41,12 @@ export function defaultEmailCopy(
 ): { greeting: string; intro: string } {
 	return hasPaymentLink
 		? {
-				greeting: `You're almost booked, ${firstName}! 🤙`,
+				greeting: `You're almost booked, ${firstName}!`,
 				intro:
-					"Thanks for booking with us. To reserve your gear: check the info below, hit pay and we'll get the boards to your accommodation — you just paddle out.",
+					"Thanks for booking with us. Check the info below and hit the payment button — we'll get the boards to your accommodation. You just paddle out.",
 			}
 		: {
-				greeting: `You're almost booked, ${firstName}! 🤙`,
+				greeting: `You're almost booked, ${firstName}!`,
 				intro:
 					"Thanks for booking with us. Check the info below — we'll get the boards to your accommodation and you pay on delivery. You just paddle out.",
 			};
@@ -59,23 +59,66 @@ const PACKAGE_LABEL: Record<string, string> = {
 	custom: "Custom package",
 };
 
-function personRowsText(people: BookingPerson[], trip: { checkin: string; checkout: string }): string {
+interface TripRange {
+	checkin: string;
+	checkout: string;
+}
+
+/** Rental days, counting both the delivery and the pickup day — the same
+ * basis the price is calculated on, so dates and money always agree. */
+function calcDays(checkin: string, checkout: string): number | null {
+	const a = new Date(`${checkin}T00:00:00Z`);
+	const b = new Date(`${checkout}T00:00:00Z`);
+	if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return null;
+	const days = Math.round((b.getTime() - a.getTime()) / 86_400_000) + 1;
+	return days > 0 ? days : null;
+}
+
+/** A person's real window: their own dates when they have them, otherwise
+ * the booking's. */
+function effectiveRange(p: BookingPerson, trip: TripRange): TripRange {
+	return {
+		checkin: p.checkin || trip.checkin,
+		checkout: p.checkout || trip.checkout,
+	};
+}
+
+/**
+ * True when anyone in the party runs on their own window. Once that's the
+ * case EVERY person gets explicit delivery/pickup dates in the email, not
+ * just the ones who diverge — a booking where one line silently inherits
+ * the top dates is exactly how a customer misreads when their board goes
+ * back. Gear, dates and money are always stated in full together.
+ */
+function isStaggered(people: BookingPerson[], trip: TripRange): boolean {
+	return people.some((p) => {
+		if (!p.checkin || !p.checkout) return false;
+		return p.checkin !== trip.checkin || p.checkout !== trip.checkout;
+	});
+}
+
+function personRowsText(people: BookingPerson[], trip: TripRange): string {
+	const staggered = isStaggered(people, trip);
 	return people
 		.map((p, i) => {
 			const label = p.name || `Person ${i + 1}`;
 			const lines = [`  ${label}:`, `    Package: ${PACKAGE_LABEL[p.package] ?? p.package}`];
 			if (p.board) lines.push(`    Board: ${p.board}`);
 			if (p.wetsuitSize) lines.push(`    Wetsuit size: ${p.wetsuitSize}`);
-			if (p.checkin && p.checkout && (p.checkin !== trip.checkin || p.checkout !== trip.checkout)) {
-				lines.push(`    Delivery: ${p.checkin}`);
-				lines.push(`    Pickup: ${p.checkout}`);
+			if (staggered) {
+				const eff = effectiveRange(p, trip);
+				const days = calcDays(eff.checkin, eff.checkout);
+				lines.push(`    Delivery: ${eff.checkin}`);
+				lines.push(`    Pickup: ${eff.checkout}`);
+				if (days) lines.push(`    Rental days: ${days}`);
 			}
 			return lines.join("\n");
 		})
 		.join("\n\n");
 }
 
-function personRowsHtml(people: BookingPerson[], trip: { checkin: string; checkout: string }): string {
+function personRowsHtml(people: BookingPerson[], trip: TripRange): string {
+	const staggered = isStaggered(people, trip);
 	const row = (rlabel: string, value: string) =>
 		`<tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">${rlabel}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${value}</td></tr>`;
 
@@ -86,9 +129,12 @@ function personRowsHtml(people: BookingPerson[], trip: { checkin: string; checko
 			html += row("Package", escapeHtml(PACKAGE_LABEL[p.package] ?? p.package));
 			if (p.board) html += row("Board", escapeHtml(p.board));
 			if (p.wetsuitSize) html += row("Wetsuit size", escapeHtml(p.wetsuitSize));
-			if (p.checkin && p.checkout && (p.checkin !== trip.checkin || p.checkout !== trip.checkout)) {
-				html += row("Delivery", p.checkin);
-				html += row("Pickup", p.checkout);
+			if (staggered) {
+				const eff = effectiveRange(p, trip);
+				const days = calcDays(eff.checkin, eff.checkout);
+				html += row("Delivery", eff.checkin);
+				html += row("Pickup", eff.checkout);
+				if (days) html += row("Rental days", String(days));
 			}
 			return html;
 		})
@@ -110,9 +156,15 @@ export function buildBookingConfirmationEmail(args: BookingConfirmationArgs): {
 } {
 	const subject = `Your booking — Surf Rental Aljezur (${args.requestRef})`;
 	const trip = { checkin: args.checkin, checkout: args.checkout };
+	// With staggered dates the top-level range is the envelope — the first
+	// board out and the last one back — not one shared window. Say so, or
+	// it reads as everyone's rental period.
+	const staggered = isStaggered(args.people, trip);
+	const deliveryLabel = staggered ? "First delivery" : "Delivery";
+	const pickupLabel = staggered ? "Last pickup" : "Pickup";
 
 	const payText = args.paymentLinkUrl
-		? `You can pay online here (secure Stripe checkout):\n${args.paymentLinkUrl}\n\nPrefer to pay on delivery? That works too — cash or card when we drop off your gear.`
+		? `You can pay online here (secure Stripe checkout):\n${args.paymentLinkUrl}\n\nPrefer to pay on delivery? Send us an email or WhatsApp and we'll organise.`
 		: `Payment: on delivery — cash or card when we drop off your gear. Easy.`;
 
 	const text = `${args.greeting}
@@ -120,8 +172,8 @@ export function buildBookingConfirmationEmail(args: BookingConfirmationArgs): {
 ${args.intro}
 
   Reference: ${args.requestRef}
-  Delivery: ${args.checkin}
-  Pickup: ${args.checkout}
+  ${deliveryLabel}: ${args.checkin}
+  ${pickupLabel}: ${args.checkout}${staggered ? "\n  (each board has its own dates — see per person below)" : ""}
   Accommodation: ${args.accommodation}
   Total: €${args.totalEuros}
 
@@ -152,8 +204,8 @@ See you in the water!
       <h3 style="margin:0 0 20px;font-size:17px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">${args.requestRef}</h3>
 
       <table style="width:100%;border-collapse:collapse;">
-        <tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;width:140px;">Delivery</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${args.checkin}</td></tr>
-        <tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">Pickup</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${args.checkout}</td></tr>
+        <tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;width:140px;">${deliveryLabel}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${args.checkin}</td></tr>
+        <tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">${pickupLabel}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${args.checkout}${staggered ? `<br/><span style="color:#888888;font-size:12px;">Each board has its own dates — see below</span>` : ""}</td></tr>
         <tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">Accommodation</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${escapeHtml(args.accommodation)}</td></tr>
         ${personRowsHtml(args.people, trip)}
       </table>
@@ -168,7 +220,7 @@ See you in the water!
 					? `
       <div style="margin-top:24px;text-align:center;">
         <a href="${args.paymentLinkUrl}" style="display:inline-block;background:#D4501E;color:#FFFFFF;font-weight:800;font-size:15px;letter-spacing:-0.01em;padding:14px 32px;text-decoration:none;border:1.5px solid #1A1A1A;box-shadow:3px 3px 0 #1A1A1A;">Pay online — €${args.totalEuros}</a>
-        <p style="margin:12px 0 0;font-size:12px;color:#888888;">Secure checkout via Stripe. Prefer to pay on delivery? That works too.</p>
+        <p style="margin:12px 0 0;font-size:12px;color:#888888;">Secure checkout via Stripe. Prefer to pay on delivery? Send us an email or <a href="https://wa.me/351929244395" style="color:#888888;text-decoration:underline;">WhatsApp</a> and we'll organise.</p>
       </div>`
 					: `
       <p style="margin:20px 0 0;font-size:14px;line-height:1.6;color:#1A1A1A;"><strong>Payment:</strong> on delivery — cash or card when we drop off your gear.</p>`

@@ -12,6 +12,7 @@ import {
 	updateBookingDetails,
 } from "../_new-booking-actions";
 import { AddonsEditor, addonsTotal } from "./addons-editor";
+import { CheckIcon, WarningIcon } from "./icons";
 
 /**
  * Edit-and-send modal on the booking detail page. One flow covers three
@@ -250,8 +251,8 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 				onClick={() => setOpen(true)}
 			>
 				{booking.status === "requested"
-					? "✅ Confirm & send payment link"
-					: "✏️ Edit booking"}
+					? "Confirm & send payment link"
+					: "Edit booking"}
 			</button>
 
 			{open &&
@@ -286,12 +287,12 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 							<div className="modal-body admin-board-form">
 								{status.step === "error" && (
 									<div className="admin-board-error" role="alert">
-										⚠️ {status.message}
+										<WarningIcon /> {status.message}
 									</div>
 								)}
 								{status.step === "saved" && (
 									<div className="admin-save-note" role="status">
-										✅ Saved.
+										<CheckIcon /> Saved.
 										{status.regenerated
 											? " Price changed — the old link was deactivated and a new one created, so email the customer or they'll have a dead link."
 											: status.paymentLinkUrl

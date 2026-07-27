@@ -102,7 +102,21 @@ function computeEnvelope(data: BookingRequest): { checkin: string; checkout: str
 	return { checkin: minIn, checkout: maxOut };
 }
 
-function formatPerson(p: PersonData, i: number, trip: { checkin: string; checkout: string }): string {
+/**
+ * True when anyone books their own window. Once one person does, every
+ * person's dates are spelled out — a line that silently inherits the
+ * party dates is how a customer misreads when their board goes back.
+ */
+function anyCustomDates(people: PersonData[]): boolean {
+	return people.some((p) => Boolean(p.checkin && p.checkout));
+}
+
+function formatPerson(
+	p: PersonData,
+	i: number,
+	trip: { checkin: string; checkout: string },
+	showDates: boolean,
+): string {
 	const label = p.name || `Person ${i + 1}`;
 	const eff = personEffective(p, trip);
 	const lines = [
@@ -113,21 +127,27 @@ function formatPerson(p: PersonData, i: number, trip: { checkin: string; checkou
 		`    Board: ${p.board}`,
 	];
 	if (p.wetsuitSize) lines.push(`    Wetsuit size: ${p.wetsuitSize}`);
-	if (eff.hasOverride) {
+	if (showDates) {
 		lines.push(`    Delivery: ${eff.checkin}`);
 		lines.push(`    Pickup: ${eff.checkout}`);
+		if (eff.days) lines.push(`    Rental days: ${eff.days}`);
 	}
 	return lines.join("\n");
 }
 
-function formatPersonHtml(p: PersonData, i: number, trip: { checkin: string; checkout: string }): string {
+function formatPersonHtml(
+	p: PersonData,
+	i: number,
+	trip: { checkin: string; checkout: string },
+	showDates: boolean,
+): string {
 	const label = p.name || `Person ${i + 1}`;
 	const eff = personEffective(p, trip);
 	const row = (rlabel: string, value: string) =>
 		`<tr><td style="padding:8px 16px 8px 0;color:#555555;font-size:14px;border-bottom:1px solid #E0E0E0;">${rlabel}</td><td style="padding:8px 0;font-size:14px;border-bottom:1px solid #E0E0E0;">${value}</td></tr>`;
 
 	const heading = eff.hasOverride
-		? `${label} <span style="font-weight:500;color:#D4501E;font-size:13px;">· custom dates</span>`
+		? `${label} <span style="font-weight:500;color:#D4501E;font-size:13px;">· own dates</span>`
 		: label;
 	let html = `<tr><td colspan="2" style="padding:16px 0 8px;font-weight:800;font-size:15px;letter-spacing:-0.02em;border-bottom:1.5px solid #1A1A1A;">${heading}</td></tr>`;
 	html += row("Sex", p.sex);
@@ -135,9 +155,10 @@ function formatPersonHtml(p: PersonData, i: number, trip: { checkin: string; che
 	html += row("Package", p.package);
 	html += row("Board", p.board);
 	if (p.wetsuitSize) html += row("Wetsuit size", p.wetsuitSize);
-	if (eff.hasOverride) {
+	if (showDates) {
 		html += row("Delivery", eff.checkin);
 		html += row("Pickup", eff.checkout);
+		if (eff.days) html += row("Rental days", String(eff.days));
 	}
 	return html;
 }
@@ -147,7 +168,8 @@ function buildBusinessEmail(
 	total: number | null,
 	envelope: { checkin: string; checkout: string },
 ): { subject: string; text: string; html: string } {
-	const hasStagger = data.people.some((p) => p.checkin && p.checkout);
+	const hasStagger = anyCustomDates(data.people);
+	const showDates = hasStagger;
 	const dateHeadline = hasStagger
 		? `${envelope.checkin} → ${envelope.checkout} (staggered)`
 		: `${data.checkin} → ${data.checkout}`;
@@ -165,7 +187,7 @@ Accommodation: ${data.accommodation}
 People: ${data.peopleCount}
 ${totalLine}
 
-${data.people.map((p, i) => formatPerson(p, i, { checkin: data.checkin, checkout: data.checkout })).join("\n\n")}
+${data.people.map((p, i) => formatPerson(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("\n\n")}
 
 ${data.message ? `Message:\n${data.message}` : "(No additional message)"}
 
@@ -196,7 +218,7 @@ Reply directly to this email to reach the customer.`;
         ${hasStagger ? row("Window envelope", `${envelope.checkin} → ${envelope.checkout}`) : ""}
         ${row("Accommodation", data.accommodation)}
         ${row("People", String(data.peopleCount))}
-        ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout })).join("")}
+        ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("")}
       </table>
 
       <div style="margin-top:20px;padding:16px 20px;background:${total != null ? "#F0F0EE" : "#FFF8F5"};border-left:3px solid ${total != null ? "#1A1A1A" : "#D4501E"};">
@@ -223,6 +245,9 @@ function buildCustomerEmail(
 	total: number | null,
 ): { subject: string; text: string; html: string } {
 	const subject = "We received your booking request — Surf Rental Aljezur";
+	const showDates = anyCustomDates(data.people);
+	const deliveryLabel = showDates ? "First delivery" : "Delivery";
+	const pickupLabel = showDates ? "Last pickup" : "Pickup";
 
 	const customerTotalLine = total != null
 		? `Estimated total: €${total} (final pricing confirmed in our reply)`
@@ -233,13 +258,13 @@ function buildCustomerEmail(
 Thanks for your booking request! We've received your details and will get back to you with availability and a gear recommendation.
 
 Your request summary:
-  Delivery: ${data.checkin}
-  Pickup: ${data.checkout}
+  ${deliveryLabel}: ${data.checkin}
+  ${pickupLabel}: ${data.checkout}${showDates ? "\n  (each board has its own dates — see per person below)" : ""}
   Accommodation: ${data.accommodation}
   People: ${data.peopleCount}
   ${customerTotalLine}
 
-${data.people.map((p, i) => formatPerson(p, i, { checkin: data.checkin, checkout: data.checkout })).join("\n\n")}
+${data.people.map((p, i) => formatPerson(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("\n\n")}
 
 If you have any questions in the meantime, reply to this email or reach us on WhatsApp at +351 929 244 395.
 
@@ -271,11 +296,11 @@ See you in the water!
       <h3 style="margin:0 0 20px;font-size:17px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">Booking summary</h3>
 
       <table style="width:100%;border-collapse:collapse;">
-        ${summaryRow("Delivery", data.checkin)}
-        ${summaryRow("Pickup", data.checkout)}
+        ${summaryRow(deliveryLabel, data.checkin)}
+        ${summaryRow(pickupLabel, data.checkout)}
         ${summaryRow("Accommodation", data.accommodation)}
         ${summaryRow("People", String(data.peopleCount))}
-        ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout })).join("")}
+        ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("")}
       </table>
 
       ${total != null ? `
