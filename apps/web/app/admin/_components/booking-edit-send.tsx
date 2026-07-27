@@ -200,7 +200,9 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 
 	const handleSave = async (): Promise<boolean> => {
 		setStatus({ step: "saving" });
-		const result = await updateBookingDetails(booking.id, payload());
+		const result = await updateBookingDetails(booking.id, payload(), {
+			confirm: booking.status === "requested",
+		});
 		if (!result.ok) {
 			setStatus({ step: "error", message: result.error ?? "Save failed." });
 			return false;
@@ -235,6 +237,10 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 	};
 
 	const busy = status.step === "saving" || status.step === "sending";
+	// A website request that hasn't been answered yet: the same editor,
+	// framed as answering it. Confirming, pricing, minting the payment
+	// link and emailing all happen in this one pass.
+	const confirming = booking.status === "requested";
 
 	return (
 		<>
@@ -243,7 +249,9 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 				className="admin-btn admin-btn--primary"
 				onClick={() => setOpen(true)}
 			>
-				✏️ Edit booking
+				{booking.status === "requested"
+					? "✅ Confirm & send payment link"
+					: "✏️ Edit booking"}
 			</button>
 
 			{open &&
@@ -258,7 +266,8 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 						>
 							<div className="modal-header">
 								<h3 className="modal-title">
-									Edit SR-{String(booking.id).padStart(5, "0")} · {booking.name}
+									{confirming ? "Confirm" : "Edit"} SR-{String(booking.id).padStart(5, "0")} ·{" "}
+									{booking.name}
 								</h3>
 								<button
 									className="modal-close"
@@ -479,22 +488,30 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 								</p>
 
 									<div className="admin-send-actions">
+										{/* Emailing is the point when confirming a request, so it leads;
+											when editing an existing booking, saving does. */}
 										<button
 											type="button"
 											className="admin-btn admin-btn--primary"
 											disabled={busy}
-											onClick={handleSave}
+											onClick={confirming ? handleSaveAndSend : handleSave}
 										>
-											{status.step === "saving" ? "Saving..." : "Save changes"}
+											{busy
+												? status.step === "sending"
+													? "Sending..."
+													: "Saving..."
+												: confirming
+													? "Confirm & send payment link"
+													: "Save changes"}
 										</button>
 										<button
 											type="button"
 											className="admin-btn"
 											disabled={busy}
-											onClick={handleSaveAndSend}
+											onClick={confirming ? handleSave : handleSaveAndSend}
 										>
-											{status.step === "sending"
-												? "Sending..."
+											{confirming
+												? "Confirm without emailing"
 												: "Save & email the customer"}
 										</button>
 									</div>

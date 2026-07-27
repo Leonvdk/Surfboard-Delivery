@@ -360,6 +360,10 @@ export interface UpdateBookingResult {
 export async function updateBookingDetails(
 	bookingId: number,
 	payload: NewBookingPayload,
+	/** `confirm` answers a website request: the booking moves out of
+	 * "requested" as part of the same save that prices it and mints the
+	 * payment link, so confirming is one action rather than three. */
+	options: { confirm?: boolean } = {},
 ): Promise<UpdateBookingResult> {
 	const db = getDb();
 	if (!db) return { ok: false, error: "Database not configured." };
@@ -395,6 +399,9 @@ export async function updateBookingDetails(
 			message: payload.note.trim() || null,
 			estimatedTotal: computeLines(payload).computedTotal,
 			finalTotal,
+			...(options.confirm && existing.status === "requested"
+				? { status: "confirmed" as const }
+				: {}),
 			updatedAt: new Date(),
 		})
 		.where(eq(schema.bookings.id, bookingId));
