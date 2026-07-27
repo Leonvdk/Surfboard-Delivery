@@ -9724,3 +9724,33 @@ h1 {
   .home-faq-question { font-size: 1rem; }
   .home-faq-answer { font-size: 0.9375rem; }
 }
+
+/* Scheduled run time — bold so it reads as a commitment next to the
+   date, muted "no time set" when it hasn't been scheduled yet. */
+.admin-run-time {
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* Small explanatory line under a group of form fields. */
+.admin-field-note {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--gray-500);
+  margin: 6px 0 0;
+}
+
+/* Calendar feed URL — long, secret, and meant to be copied whole. */
+.admin-feed-url {
+  display: block;
+  margin: var(--space-sm) 0;
+  padding: 10px 12px;
+  background: var(--gray-50, #f4f4f2);
+  border: var(--border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  word-break: break-all;
+  user-select: all;
+}

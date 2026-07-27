@@ -288,7 +288,10 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 									<div className="admin-cell-muted">{b.email}</div>
 								</td>
 								<td>
-									{formatShortDate(b.checkin)} → {formatShortDate(b.checkout)}
+									{formatShortDate(b.checkin)}
+									{b.deliveryTime ? ` ${b.deliveryTime}` : ""} →{" "}
+									{formatShortDate(b.checkout)}
+									{b.pickupTime ? ` ${b.pickupTime}` : ""}
 								</td>
 								<td>{b.peopleCount}</td>
 								<td>{priceCell(b)}</td>

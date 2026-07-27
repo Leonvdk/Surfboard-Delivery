@@ -97,6 +97,8 @@ export function NewBookingForm() {
 	const [accommodation, setAccommodation] = useState("");
 	const [checkin, setCheckin] = useState("");
 	const [checkout, setCheckout] = useState("");
+	const [deliveryTime, setDeliveryTime] = useState("");
+	const [pickupTime, setPickupTime] = useState("");
 	const [people, setPeople] = useState<NewBookingPerson[]>([emptyPerson()]);
 	const [addons, setAddons] = useState<BookingAddon[]>([]);
 	const [note, setNote] = useState("");
@@ -188,6 +190,8 @@ export function NewBookingForm() {
 			accommodation,
 			checkin,
 			checkout,
+			deliveryTime,
+			pickupTime,
 			people,
 			addons,
 			finalTotal: effectiveTotal,
@@ -375,7 +379,19 @@ export function NewBookingForm() {
 							Pickup
 							<input className="admin-input" type="date" value={checkout} onChange={(e) => setCheckout(e.target.value)} />
 						</label>
+						<label>
+							Delivery time
+							<input className="admin-input" type="time" value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)} />
+						</label>
+						<label>
+							Pickup time
+							<input className="admin-input" type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
+						</label>
 					</div>
+					<p className="admin-field-note">
+						Times are optional and stay internal — they drive your reminders
+						and the calendar feed, not the customer&apos;s email.
+					</p>
 				</div>
 			</article>
 

@@ -120,9 +120,23 @@ export default async function BookingDetailPage({
 					)}
 					<dl className="admin-dl">
 						<dt>Delivery (envelope)</dt>
-						<dd>{formatLongDate(booking.checkin)}</dd>
+						<dd>
+							{formatLongDate(booking.checkin)}
+							{booking.deliveryTime ? (
+								<strong className="admin-run-time"> · {booking.deliveryTime}</strong>
+							) : (
+								<span className="admin-cell-muted"> · no time set</span>
+							)}
+						</dd>
 						<dt>Pickup (envelope)</dt>
-						<dd>{formatLongDate(booking.checkout)}</dd>
+						<dd>
+							{formatLongDate(booking.checkout)}
+							{booking.pickupTime ? (
+								<strong className="admin-run-time"> · {booking.pickupTime}</strong>
+							) : (
+								<span className="admin-cell-muted"> · no time set</span>
+							)}
+						</dd>
 						<dt>Accommodation</dt>
 						<dd>{booking.accommodation || "—"}</dd>
 						<dt>People</dt>

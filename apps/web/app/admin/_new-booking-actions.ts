@@ -74,6 +74,9 @@ export interface NewBookingPayload {
 	accommodation: string;
 	checkin: string;
 	checkout: string;
+	/** Local Lisbon "HH:MM" for the drop-off / collection run, "" if unset. */
+	deliveryTime: string;
+	pickupTime: string;
 	people: NewBookingPerson[];
 	/** Booking-level extras (roof racks etc.), billed per started week. */
 	addons: BookingAddon[];
@@ -217,6 +220,14 @@ function validateBookingPayload(
 	return null;
 }
 
+/** "HH:MM" or null. Anything else is dropped rather than stored — a
+ * half-parsed time would silently shift a calendar event. */
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+function toTime(value: string | null | undefined): string | null {
+	const v = (value ?? "").trim();
+	return HHMM.test(v) ? v : null;
+}
+
 /** Earliest arrival / latest departure, for the indexed top-level columns. */
 function computeEnvelope(payload: NewBookingPayload): {
 	checkin: string;
@@ -245,8 +256,24 @@ function toBookingAddons(payload: NewBookingPayload): BookingAddon[] {
 		}));
 }
 
-/** Payload people → stored BookingPerson[], stripping non-diverging dates. */
+/**
+ * Payload people → stored BookingPerson[].
+ *
+ * Dates are stored for EVERY person as soon as anyone in the party runs
+ * on their own window. Storing only the divergent ones looks tidier but
+ * loses data: the top-level columns hold the envelope (earliest delivery
+ * → latest pickup), so a person with no stored dates silently inherits
+ * the envelope rather than the party window they actually booked. A
+ * 7-day rental then reads — and re-prices — as a 15-day one. Same rule
+ * as /api/contact; don't "optimise" it back.
+ */
 function toBookingPeople(payload: NewBookingPayload): BookingPerson[] {
+	const staggered = payload.people.some(
+		(p) =>
+			p.checkin &&
+			p.checkout &&
+			(p.checkin !== payload.checkin || p.checkout !== payload.checkout),
+	);
 	return payload.people.map((p) => ({
 		name: p.name.trim(),
 		sex: p.sex,
@@ -254,9 +281,11 @@ function toBookingPeople(payload: NewBookingPayload): BookingPerson[] {
 		package: p.package,
 		board: p.board,
 		wetsuitSize: p.wetsuitSize,
-		...(p.checkin && p.checkin !== payload.checkin ? { checkin: p.checkin } : {}),
-		...(p.checkout && p.checkout !== payload.checkout
-			? { checkout: p.checkout }
+		...(staggered
+			? {
+					checkin: p.checkin || payload.checkin,
+					checkout: p.checkout || payload.checkout,
+				}
 			: {}),
 		...(p.priceOverride != null &&
 		Number.isFinite(p.priceOverride) &&
@@ -286,6 +315,8 @@ export async function createAdminBooking(
 			email: payload.email.trim(),
 			phone: payload.phone.trim() || null,
 			checkin: envelope.checkin,
+			deliveryTime: toTime(payload.deliveryTime),
+			pickupTime: toTime(payload.pickupTime),
 			checkout: envelope.checkout,
 			accommodation: payload.accommodation.trim() || null,
 			peopleCount: people.length,
@@ -390,6 +421,8 @@ export async function updateBookingDetails(
 			phone: payload.phone.trim() || null,
 			accommodation: payload.accommodation.trim() || null,
 			checkin: envelope.checkin,
+			deliveryTime: toTime(payload.deliveryTime),
+			pickupTime: toTime(payload.pickupTime),
 			checkout: envelope.checkout,
 			// Imported bookings carry a peopleCount with no per-person rows —
 			// don't zero it just because there's nothing to edit per person.
@@ -505,6 +538,8 @@ export async function sendBookingConfirmation(
 		accommodation: booking.accommodation ?? "",
 		checkin: booking.checkin,
 		checkout: booking.checkout,
+		deliveryTime: booking.deliveryTime ?? "",
+		pickupTime: booking.pickupTime ?? "",
 		people: booking.people ?? [],
 		addons: booking.addons ?? [],
 		finalTotal: total,

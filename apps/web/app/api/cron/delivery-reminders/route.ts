@@ -64,7 +64,11 @@ export async function GET(request: Request) {
 	const results: Array<{ id: number; sent: number; pruned: number }> = [];
 	for (const b of rows) {
 		const res = await sendPushToAll({
-			title: `Delivery today · ${b.name}`,
+			// Lead with the time when Leon has scheduled one — that's the
+			// single most useful thing on a lock screen at 7am.
+			title: b.deliveryTime
+				? `Delivery ${b.deliveryTime} · ${b.name}`
+				: `Delivery today · ${b.name}`,
 			body: `${b.peopleCount}p · ${b.accommodation ?? "no address on file"}`,
 			url: `/admin/bookings/${b.id}`,
 			tag: `delivery-${b.id}-${today}`,

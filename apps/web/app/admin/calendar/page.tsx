@@ -250,6 +250,47 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 					</p>
 				</div>
 			)}
+
+			<CalendarFeedCard />
 		</section>
+	);
+}
+
+/**
+ * The subscribe URL for the hello@ Google Calendar. The token IS the
+ * auth — Google can't send headers when polling a subscribed feed — so
+ * this only renders behind the admin session, and says as much.
+ */
+function CalendarFeedCard() {
+	const token = process.env.CALENDAR_FEED_TOKEN;
+	const site =
+		process.env.NEXT_PUBLIC_SITE_URL ?? "https://surfrental-aljezur.com";
+
+	return (
+		<article className="admin-card">
+			<h2>Subscribe in Google Calendar</h2>
+			{token ? (
+				<>
+					<p className="admin-card-hint">
+						Google Calendar → <strong>Other calendars</strong> →{" "}
+						<strong>From URL</strong>, paste this, subscribe once. Every
+						delivery and collection appears automatically and follows your
+						edits. Google re-checks subscribed feeds on its own schedule, so a
+						brand-new booking can take a few hours to show up.
+					</p>
+					<code className="admin-feed-url">{`${site}/api/calendar/${token}/runs.ics`}</code>
+					<p className="admin-card-hint">
+						Treat this link like a password — it exposes customer names,
+						addresses and phone numbers. Rotate it by changing
+						CALENDAR_FEED_TOKEN in Vercel, then re-subscribing.
+					</p>
+				</>
+			) : (
+				<p className="admin-empty-inline">
+					Set <code>CALENDAR_FEED_TOKEN</code> in the Vercel environment to a
+					long random string, redeploy, and the subscribe link appears here.
+				</p>
+			)}
+		</article>
 	);
 }

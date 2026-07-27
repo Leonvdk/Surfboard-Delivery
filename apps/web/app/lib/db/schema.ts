@@ -67,6 +67,15 @@ export const bookings = pgTable(
 		checkin: text("checkin").notNull(),
 		checkout: text("checkout").notNull(),
 
+		// Local Europe/Lisbon wall-clock times for the delivery run and the
+		// collection run, "HH:MM", 24h. Null until Leon schedules one —
+		// there's a real difference between "no time set yet" and a time, so
+		// these must stay nullable rather than defaulting to a fake 09:00.
+		// Booking-level: one drop-off trip and one pickup trip, even when
+		// items have staggered dates (each item's own date, this time).
+		deliveryTime: text("delivery_time"),
+		pickupTime: text("pickup_time"),
+
 		accommodation: text("accommodation"),
 		peopleCount: integer("people_count").notNull(),
 		people: jsonb("people").$type<BookingPerson[]>(),

@@ -72,6 +72,8 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 	const [accommodation, setAccommodation] = useState(booking.accommodation ?? "");
 	const [checkin, setCheckin] = useState(booking.checkin);
 	const [checkout, setCheckout] = useState(booking.checkout);
+	const [deliveryTime, setDeliveryTime] = useState(booking.deliveryTime ?? "");
+	const [pickupTime, setPickupTime] = useState(booking.pickupTime ?? "");
 	const [people, setPeople] = useState<NewBookingPerson[]>(
 		(booking.people ?? []).map((p) => ({
 			name: p.name ?? "",
@@ -193,6 +195,8 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 		accommodation,
 		checkin,
 		checkout,
+		deliveryTime,
+		pickupTime,
 		people,
 		addons,
 		finalTotal: Number.parseInt(price, 10) || 0,
@@ -328,7 +332,19 @@ export function BookingEditSendButton({ booking }: { booking: Booking }) {
 										Pickup
 										<input className="admin-input" type="date" value={checkout} onChange={(e) => setCheckout(e.target.value)} />
 									</label>
+									<label>
+										Delivery time
+										<input className="admin-input" type="time" value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)} />
+									</label>
+									<label>
+										Pickup time
+										<input className="admin-input" type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
+									</label>
 								</div>
+								<p className="admin-field-note">
+									Times are optional and stay internal — they drive your reminders
+									and the calendar feed, not the customer&apos;s email.
+								</p>
 
 								<h4 className="admin-modal-section">Gear</h4>
 								{people.length === 0 && (
