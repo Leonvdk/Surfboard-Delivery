@@ -735,6 +735,14 @@ export function BookingForm() {
 	// mind about split dates.
 	const handleAllowIndividualDatesChange = (next: boolean) => {
 		setAllowIndividualDates(next);
+		// Turning it off collapses back to a single window: keep the span
+		// the items covered so nothing silently shrinks.
+		if (!next) {
+			const ins = people.map((p) => p.checkin).filter(Boolean).sort();
+			const outs = people.map((p) => p.checkout).filter(Boolean).sort();
+			if (ins[0]) setCheckin(ins[0]);
+			if (outs.length) setCheckout(outs[outs.length - 1]!);
+		}
 		setPeople((prev) =>
 			prev.map((p) =>
 				next
@@ -850,6 +858,19 @@ export function BookingForm() {
 		});
 	}, []);
 
+	// With individual dates on, the booking window IS the span of the
+	// items — earliest delivery to latest pickup — so nobody fills in a
+	// separate party range that could disagree with the gear.
+	const partyRange = useMemo(() => {
+		if (!allowIndividualDates) return { checkin, checkout };
+		const ins = people.map((p) => p.checkin).filter(Boolean).sort();
+		const outs = people.map((p) => p.checkout).filter(Boolean).sort();
+		return {
+			checkin: ins[0] ?? checkin,
+			checkout: outs[outs.length - 1] ?? checkout,
+		};
+	}, [allowIndividualDates, people, checkin, checkout]);
+
 	const days = useMemo(() => calcDays(checkin, checkout), [checkin, checkout]);
 	// Base pkgOptions (trip-level days) — used only for the URL-prefill lookup
 	// and as a fallback when no per-person override is set. All per-person
@@ -887,7 +908,15 @@ export function BookingForm() {
 		setPeopleCount(count);
 		setPeople((prev) => {
 			if (count > prev.length) {
-				return [...prev, ...Array.from({ length: count - prev.length }, emptyPerson)];
+				const seed = () =>
+					allowIndividualDates
+						? {
+								...emptyPerson(),
+								checkin: partyRange.checkin,
+								checkout: partyRange.checkout,
+							}
+						: emptyPerson();
+				return [...prev, ...Array.from({ length: count - prev.length }, seed)];
 			}
 			return prev.slice(0, count);
 		});
@@ -899,7 +928,14 @@ export function BookingForm() {
 		if (people.length >= 8) return;
 		const newCount = people.length + 1;
 		setPeopleCount(newCount);
-		setPeople((prev) => [...prev, emptyPerson()]);
+		setPeople((prev) => [
+			...prev,
+			// Seed from the current window when individual dates are on,
+			// otherwise the new board has no dates and submit rejects it.
+			allowIndividualDates
+				? { ...emptyPerson(), checkin: partyRange.checkin, checkout: partyRange.checkout }
+				: emptyPerson(),
+		]);
 		setExpandedPerson(newCount - 1);
 	};
 
@@ -955,22 +991,41 @@ export function BookingForm() {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		if (!checkin || !checkout) {
+		// With individual dates on there's no party range to check — the
+		// window is whatever the items span, validated per item below.
+		if (!partyRange.checkin || !partyRange.checkout) {
 			setStatus("error");
-			setErrorMsg("Please select your delivery and pickup dates.");
+			setErrorMsg(
+				allowIndividualDates
+					? "Please set delivery and pickup dates on each board."
+					: "Please select your delivery and pickup dates.",
+			);
 			return;
 		}
-		const ci = new Date(`${checkin}T00:00:00`);
-		const co = new Date(`${checkout}T00:00:00`);
+		const ci = new Date(`${partyRange.checkin}T00:00:00`);
+		const co = new Date(`${partyRange.checkout}T00:00:00`);
 		const nights = Math.round((co.getTime() - ci.getTime()) / (1000 * 60 * 60 * 24));
 		// Both endpoints count as billable days (matches calcDays / picker).
 		const days = nights + 1;
-		if (days < DAILY_MINIMUM_DAYS) {
+		if (!allowIndividualDates && days < DAILY_MINIMUM_DAYS) {
 			setStatus("error");
 			setErrorMsg(
 				`Minimum rental period is ${DAILY_MINIMUM_DAYS} days. Please select a longer stay.`,
 			);
 			return;
+		}
+
+		if (allowIndividualDates) {
+			for (let i = 0; i < people.length; i++) {
+				const person = people[i]!;
+				if (!person.checkin || !person.checkout) {
+					setStatus("error");
+					setErrorMsg(
+						`${personDisplayName(person, i)}: pick delivery and pickup dates for this board.`,
+					);
+					return;
+				}
+			}
 		}
 
 		// Per-person overrides get the same 3-day floor so a customer can't
@@ -1005,8 +1060,11 @@ export function BookingForm() {
 			name: formData.get("name") as string,
 			email: formData.get("email") as string,
 			phone: ((formData.get("phone") as string) || "").trim() || null,
-			checkin,
-			checkout,
+			// With individual dates on these are the items' envelope; the
+			// server recomputes the same span, and every person carries
+			// explicit dates so nothing inherits an ambiguous window.
+			checkin: partyRange.checkin,
+			checkout: partyRange.checkout,
 			accommodation: formData.get("accommodation") as string,
 			peopleCount,
 			people: people.map((p, i) => ({
@@ -1018,8 +1076,8 @@ export function BookingForm() {
 				wetsuitSize: p.wetsuitSize,
 				// Only send when this person diverges from the trip range,
 				// so the API can tell "same as trip" from "customer overrode".
-				checkin: hasDateOverride(p, checkin, checkout) ? p.checkin : null,
-				checkout: hasDateOverride(p, checkin, checkout) ? p.checkout : null,
+				checkin: allowIndividualDates ? p.checkin : null,
+				checkout: allowIndividualDates ? p.checkout : null,
 			})),
 			message: formData.get("message") as string,
 			estimatedTotal: estimate.allSelected ? estimate.total : null,
@@ -1229,12 +1287,24 @@ export function BookingForm() {
 						placeholder="e.g. +49 170 1234567"
 					/>
 				</div>
-			<DateRangePicker
-				checkin={checkin}
-				checkout={checkout}
-				onCheckinChange={setCheckin}
-				onCheckoutChange={setCheckout}
-			/>
+			{!allowIndividualDates ? (
+					<DateRangePicker
+						checkin={checkin}
+						checkout={checkout}
+						onCheckinChange={setCheckin}
+						onCheckoutChange={setCheckout}
+					/>
+				) : (
+					<div className="form-group">
+						<span className="form-derived-label">Rental dates</span>
+						<p className="individual-dates-note">
+							Each board below has its own dates.
+							{partyRange.checkin && partyRange.checkout
+								? ` We'll deliver from ${partyRange.checkin} and collect the last item on ${partyRange.checkout}.`
+								: " Set the dates on each item below."}
+						</p>
+					</div>
+				)}
 				<label className="individual-dates-toggle">
 					<input
 						type="checkbox"

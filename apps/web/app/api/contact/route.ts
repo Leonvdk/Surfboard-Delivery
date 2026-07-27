@@ -366,6 +366,8 @@ export async function POST(request: Request) {
 		// could be out of sync with the pricing bracket table.
 		const authoritativeTotal = recomputeTotal(data);
 		const envelope = computeEnvelope(data);
+		// True when at least one person diverges from the party window.
+		const hasStaggeredDates = data.people.some((p) => p.checkin && p.checkout);
 
 		const businessEmail = buildBusinessEmail(data, authoritativeTotal, envelope);
 		const customerEmail = buildCustomerEmail(data, authoritativeTotal);
@@ -435,8 +437,20 @@ export async function POST(request: Request) {
 							package: p.package,
 							board: p.board,
 							wetsuitSize: p.wetsuitSize,
-							...(p.checkin ? { checkin: p.checkin } : {}),
-							...(p.checkout ? { checkout: p.checkout } : {}),
+							// When ANYONE in the party has their own window, every
+							// person is stored with explicit dates — including those
+							// on the party dates. Otherwise they'd fall back to the
+							// top-level columns, which hold the ENVELOPE (earliest
+							// delivery → latest pickup), not the party window: a
+							// 1–7 Aug booking with one board out to the 15th made
+							// every other board look like a 15-day rental, and the
+							// party's real 7 Aug pickup wasn't stored anywhere.
+							...(hasStaggeredDates
+								? {
+										checkin: p.checkin || data.checkin,
+										checkout: p.checkout || data.checkout,
+									}
+								: {}),
 						})),
 						message: data.message ?? null,
 						estimatedTotal: authoritativeTotal,

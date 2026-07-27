@@ -327,14 +327,23 @@ export default async function BookingDetailPage({
 												<dd>{boardLabel(p.board)}</dd>
 												<dt>Wetsuit</dt>
 												<dd>{p.wetsuitSize || "—"}</dd>
-												{hasOwnDates && (
-													<>
-														<dt>Delivery</dt>
-														<dd>{formatLongDate(p.checkin!)}</dd>
-														<dt>Pickup</dt>
-														<dd>{formatLongDate(p.checkout!)}</dd>
-													</>
-												)}
+												{/* Always show this person's window. Leaving it blank
+													meant reading the envelope as theirs, which for a
+													staggered party is the whole span, not their gear. */}
+												<dt>Delivery</dt>
+												<dd>
+													{formatLongDate(p.checkin ?? booking.checkin)}
+													{!hasOwnDates && (
+														<span className="admin-cell-muted"> · booking window</span>
+													)}
+												</dd>
+												<dt>Pickup</dt>
+												<dd>
+													{formatLongDate(p.checkout ?? booking.checkout)}
+													{!hasOwnDates && (
+														<span className="admin-cell-muted"> · booking window</span>
+													)}
+												</dd>
 											</dl>
 											{fleetData && (
 												<BoardAssignmentPanel

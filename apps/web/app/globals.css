@@ -3612,6 +3612,17 @@ h1 {
   color: var(--black);
 }
 
+.form-derived-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
 /* ---- Per-person date picker (inline, compact) ---- */
 /* Each person always renders a date-range picker pre-filled with the
    trip dates. Clicking picks a different range for just that person;
