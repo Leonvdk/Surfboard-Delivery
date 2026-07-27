@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateBookingNotes, updateFinalTotal } from "../../_actions";
 import { DeleteBookingButton } from "../../_components/delete-booking-button";
-import { DraftEmailButton } from "../../_components/draft-email-button";
 import { QuickStatusButtons } from "../../_components/quick-status-buttons";
 import { StatusPicker } from "../../_components/status-picker";
 import {
@@ -103,8 +102,6 @@ export default async function BookingDetailPage({
 			<div className="admin-detail-actions">
 				<QuickStatusButtons bookingId={id} current={booking.status} />
 				<BookingEditSendButton booking={booking} />
-				<DraftEmailButton booking={booking} />
-				<DeleteBookingButton bookingId={id} customerName={booking.name} />
 			</div>
 
 			{boardError && (
@@ -404,6 +401,19 @@ export default async function BookingDetailPage({
 					</button>
 				</form>
 			</article>
+
+			{/* Destructive action lives at the very bottom, away from the
+			    everyday buttons, so it can't be hit by accident. */}
+			<div className="admin-danger-zone">
+				<div>
+					<h2 className="admin-danger-zone-title">Delete booking</h2>
+					<p className="admin-danger-zone-note">
+						Permanent. Removes the booking, its gear assignments and its
+						payment record.
+					</p>
+				</div>
+				<DeleteBookingButton bookingId={id} customerName={booking.name} />
+			</div>
 		</section>
 	);
 }
