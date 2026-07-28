@@ -268,9 +268,33 @@ function CalendarFeedCard() {
 	const site =
 		process.env.NEXT_PUBLIC_SITE_URL ?? "https://surfrental-aljezur.com";
 
+	const directSync = Boolean(
+		process.env.GOOGLE_CALENDAR_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+	);
+
 	return (
 		<article className="admin-card">
-			<h2>Subscribe in Google Calendar</h2>
+			<h2>Calendar sync</h2>
+			{directSync ? (
+				<p className="admin-card-hint">
+					<strong>Direct sync is on.</strong> Delivery and collection runs are
+					written straight into {process.env.GOOGLE_CALENDAR_ID} as real
+					events, so they appear in Notion Calendar, Apple Calendar and
+					anywhere else that account syncs — within seconds, not hours. They
+					update when you change a booking and disappear when you cancel one.
+					A nightly job re-checks everything in case a write ever fails.
+				</p>
+			) : (
+				<p className="admin-card-hint">
+					Direct sync is off. Set GOOGLE_CALENDAR_ID,
+					GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_KEY in
+					Vercel to write real events into the hello@ calendar. Until then
+					the subscribable feed below is the only option — note that Google
+					polls feeds slowly and Apple Calendar can&apos;t see them through a
+					Google account at all.
+				</p>
+			)}
+			<h3 className="admin-modal-section">Or subscribe to the feed</h3>
 			{token ? (
 				<CalendarSubscribe
 					feedUrl={`${site}/api/calendar/${token}/runs.ics`}

@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb, schema } from "../../lib/db/client";
@@ -483,6 +484,24 @@ export async function POST(request: Request) {
 					})
 					.returning({ id: schema.bookings.id });
 				bookingId = row?.id ?? null;
+				// Put the delivery/collection runs straight into the hello@
+				// Google Calendar. Best-effort: the customer already has their
+				// email, and the nightly resync repairs anything that fails.
+				if (row?.id != null) {
+					try {
+						const [stored] = await db
+							.select()
+							.from(schema.bookings)
+							.where(eq(schema.bookings.id, row.id))
+							.limit(1);
+						if (stored) {
+							const { syncBookingSafe } = await import("../../lib/google-calendar");
+							await syncBookingSafe(stored);
+						}
+					} catch (calErr) {
+						console.error("Calendar sync error:", calErr);
+					}
+				}
 				// Bust the admin panel's cached bookings dataset so the new
 				// request shows up on Leon's next open, not after the TTL.
 				try {

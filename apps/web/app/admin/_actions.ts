@@ -5,7 +5,22 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "../lib/db/client";
 import type { BookingStatus } from "../lib/db/schema";
+import { syncBookingSafe } from "../lib/google-calendar";
 import { BOOKINGS_TAG } from "./_lib/bookings-cache";
+
+/** Re-read the booking and push it to Google Calendar. Called after any
+ * change that could move, add or remove a run. Never throws — see
+ * syncBookingSafe. */
+async function resyncCalendar(id: number) {
+	const db = getDb();
+	if (!db) return;
+	const [booking] = await db
+		.select()
+		.from(schema.bookings)
+		.where(eq(schema.bookings.id, id))
+		.limit(1);
+	if (booking) await syncBookingSafe(booking);
+}
 
 export async function updateBookingStatus(id: number, status: BookingStatus) {
 	const db = getDb();
@@ -14,6 +29,9 @@ export async function updateBookingStatus(id: number, status: BookingStatus) {
 		.update(schema.bookings)
 		.set({ status, updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
+	// Cancelling must clear the runs from the calendar, and un-cancelling
+	// must put them back.
+	await resyncCalendar(id);
 	updateTag(BOOKINGS_TAG);
 	revalidatePath("/admin");
 	revalidatePath(`/admin/bookings/${id}`);
@@ -55,6 +73,7 @@ export async function deleteBooking(id: number) {
 		.update(schema.bookings)
 		.set({ deletedAt: new Date(), updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
+	await resyncCalendar(id);
 	updateTag(BOOKINGS_TAG);
 	revalidatePath("/admin");
 	revalidatePath("/admin/calendar");

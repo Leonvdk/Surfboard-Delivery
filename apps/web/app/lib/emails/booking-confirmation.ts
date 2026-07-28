@@ -24,7 +24,7 @@ export interface BookingConfirmationArgs {
 	lines: ConfirmationLine[];
 	totalEuros: number;
 	paymentLinkUrl: string | null;
-	/** Headline of the email, e.g. "You're almost booked, Anna!".
+	/** Headline of the email, e.g. "You're almost booked, Anna! 🤙".
 	 * Editable by Leon on the review-send screen. */
 	greeting: string;
 	/** Paragraph under the headline. Editable by Leon before sending. */
@@ -41,12 +41,12 @@ export function defaultEmailCopy(
 ): { greeting: string; intro: string } {
 	return hasPaymentLink
 		? {
-				greeting: `You're almost booked, ${firstName}!`,
+				greeting: `You're almost booked, ${firstName}! 🤙`,
 				intro:
 					"Thanks for booking with us. Check the info below and hit the payment button — we'll get the boards to your accommodation. You just paddle out.",
 			}
 		: {
-				greeting: `You're almost booked, ${firstName}!`,
+				greeting: `You're almost booked, ${firstName}! 🤙`,
 				intro:
 					"Thanks for booking with us. Check the info below — we'll get the boards to your accommodation and you pay on delivery. You just paddle out.",
 			};

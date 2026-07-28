@@ -22,8 +22,24 @@ import {
 	createBookingPaymentLink,
 	deactivatePaymentLink,
 } from "../lib/stripe-payment-link";
+import { syncBookingSafe } from "../lib/google-calendar";
 import { BOOKINGS_TAG } from "./_lib/bookings-cache";
+
 import { BOARDS_TAG } from "./_lib/boards-cache";
+
+/** Push a booking's delivery/collection runs into the hello@ Google
+ * Calendar. Re-reads the row so the sync always reflects what was
+ * actually stored, not what we hoped to store. Never throws. */
+async function resyncCalendar(bookingId: number) {
+	const db = getDb();
+	if (!db) return;
+	const [booking] = await db
+		.select()
+		.from(schema.bookings)
+		.where(eq(schema.bookings.id, bookingId))
+		.limit(1);
+	if (booking) await syncBookingSafe(booking);
+}
 
 /**
  * Admin-created bookings: Leon fills the form, the server recomputes the
@@ -332,6 +348,7 @@ export async function createAdminBooking(
 
 	if (!row) return { ok: false, error: "Insert failed — try again." };
 	const requestRef = `SR-${String(row.id).padStart(5, "0")}`;
+	await resyncCalendar(row.id);
 
 	// Best-effort payment link. A null url = Stripe unavailable or refused —
 	// the client shows the "send without payment link?" confirm with the
@@ -454,6 +471,9 @@ export async function updateBookingDetails(
 	} catch (err) {
 		console.error("Assignment prune error:", err);
 	}
+
+	// Dates or times may have moved, which changes which runs exist.
+	await resyncCalendar(bookingId);
 
 	let paymentLinkUrl = existing.stripePaymentLinkUrl;
 	let paymentLinkError: string | undefined;
