@@ -74,7 +74,7 @@ Complete in this order. Use identical NAP everywhere:
 ```
 Name:    Surf Rental Aljezur
 Address: Aljezur, 8670, Faro, Portugal    (service-area, not street)
-Phone:   +31 6 1326 2259                   (WhatsApp)
+Phone:   +351 929 244 395                   (WhatsApp)
 Email:   hello@surfrental-aljezur.com
 Website: https://surfrental-aljezur.com
 Hours:   Mon-Sun 08:00-20:00
