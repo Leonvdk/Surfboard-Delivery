@@ -78,14 +78,40 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 			b.checkout === today &&
 			(b.status === "confirmed" || b.status === "in_progress"),
 	);
-	const nextSevenDays = allBookings
-		.filter(
-			(b) =>
-				b.checkin > today &&
-				b.checkin <= inSevenDays &&
-				ACTIVE_STATUSES.includes(b.status),
-		)
-		.sort((a, b) => a.checkin.localeCompare(b.checkin));
+	// Next 7 days covers BOTH runs — a delivery going out and a booking
+	// coming back both need Leon in the van. One booking can appear twice
+	// (its delivery this week, its pickup next), so we build per-run items
+	// rather than filtering the booking list.
+	type UpcomingRun = {
+		b: Booking;
+		kind: "upcoming-delivery" | "upcoming-pickup";
+		date: string;
+	};
+	const nextSevenDays: UpcomingRun[] = [];
+	for (const b of allBookings) {
+		if (
+			b.checkin > today &&
+			b.checkin <= inSevenDays &&
+			ACTIVE_STATUSES.includes(b.status)
+		) {
+			nextSevenDays.push({ b, kind: "upcoming-delivery", date: b.checkin });
+		}
+		// Pickups only for gear that actually went out — same rule as today's
+		// pickups. A still-unconfirmed request has nothing to collect.
+		if (
+			b.checkout > today &&
+			b.checkout <= inSevenDays &&
+			(b.status === "confirmed" || b.status === "in_progress")
+		) {
+			nextSevenDays.push({ b, kind: "upcoming-pickup", date: b.checkout });
+		}
+	}
+	nextSevenDays.sort(
+		(a, b) =>
+			a.date.localeCompare(b.date) ||
+			// Same day: deliveries before pickups (drop off, then collect).
+			(a.kind === "upcoming-delivery" ? -1 : 1),
+	);
 
 	// Bookings that need a yes/no decision from Leon. This is the primary
 	// "in-app notification" surface — visible on every home-screen open,
@@ -122,6 +148,29 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					);
 				})
 			: [];
+
+	// Boards sitting in `repair` that are assigned to a booking still to
+	// come (or in progress). If the repair isn't finished in time, that
+	// run has no board — so it's flagged here, with the soonest booking it
+	// blocks, while there's still time to fix or reassign.
+	const repairNeeded = fleetData
+		? fleetData.fleet
+				.filter((board) => board.status === "repair")
+				.map((board) => {
+					const next = fleetData.assignments
+						.filter(
+							(a) =>
+								a.boardId === board.id &&
+								!a.bookingDeleted &&
+								a.bookingStatus !== "cancelled" &&
+								a.endDate >= today,
+						)
+						.sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
+					return next ? { board, next } : null;
+				})
+				.filter((r): r is { board: (typeof fleetData.fleet)[number]; next: (typeof fleetData.assignments)[number] } => r !== null)
+				.sort((a, b) => a.next.startDate.localeCompare(b.next.startDate))
+		: [];
 
 	// Filter for the full list section — in JS over the cached dataset. This
 	// used to be a second full DB roundtrip per page load; at Leon's volume
@@ -169,6 +218,50 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 							: "The last calendar sync failed — some runs may not be on your phone. Tap to see why and retry."}
 					</p>
 				</Link>
+			)}
+
+			{repairNeeded.length > 0 && (
+				<article className="admin-attention admin-attention--alert">
+					<div className="admin-attention-header">
+						<span className="admin-attention-kicker">
+							<WarningIcon /> Board in repair, booking coming up
+						</span>
+						<span className="admin-attention-count">{repairNeeded.length}</span>
+					</div>
+					<p className="admin-attention-lead">
+						{repairNeeded.length === 1
+							? "A board that's marked in repair is assigned to an upcoming booking."
+							: `${repairNeeded.length} boards marked in repair are assigned to upcoming bookings.`}{" "}
+						Finish the repair, or swap the board on the booking.
+					</p>
+					<ul className="admin-today-list">
+						{repairNeeded.slice(0, 5).map(({ board, next }) => (
+							<li key={board.id} className="admin-today-row">
+								<Link
+									href={`/admin/bookings/${next.bookingId}`}
+									className="admin-today-link"
+								>
+									<div className="admin-today-row-left">
+										<span className="admin-today-date">
+											{formatShortDate(next.startDate)}
+										</span>
+										<span className="admin-today-name">
+											{board.name} ({board.size})
+										</span>
+									</div>
+									<div className="admin-today-row-right">
+										<span className="admin-today-accommodation">
+											{next.bookingName}
+										</span>
+										<span className="admin-status admin-status--stage-late">
+											In repair
+										</span>
+									</div>
+								</Link>
+							</li>
+						))}
+					</ul>
+				</article>
 			)}
 
 			{needsDecision.length > 0 && (
@@ -261,8 +354,13 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 						<p className="admin-empty-inline">Nothing on the books for the next week.</p>
 					) : (
 						<ul className="admin-today-list">
-							{nextSevenDays.map((b) => (
-								<TodayRow key={b.id} b={b} kind="upcoming" today={today} />
+							{nextSevenDays.map((run) => (
+								<TodayRow
+									key={`${run.b.id}-${run.kind}`}
+									b={run.b}
+									kind={run.kind}
+									today={today}
+								/>
 							))}
 						</ul>
 					)}
@@ -355,7 +453,13 @@ function TodayRow({
 	today,
 }: {
 	b: Booking;
-	kind: "delivery" | "pickup" | "upcoming" | "requested";
+	kind:
+		| "delivery"
+		| "pickup"
+		| "upcoming"
+		| "upcoming-delivery"
+		| "upcoming-pickup"
+		| "requested";
 	today: string;
 }) {
 	// Same vocabulary as the table tags and the booking-page stepper.
@@ -363,10 +467,18 @@ function TodayRow({
 	const inputs = toStageInputs(b);
 	const stage = currentStageLabel(inputs, late);
 	const stageKey = currentStageKey(inputs, late);
-	const dateStr =
-		kind === "pickup"
-			? formatShortDate(b.checkout)
-			: formatShortDate(b.checkin);
+	const isPickup = kind === "pickup" || kind === "upcoming-pickup";
+	// Show a date for any upcoming/requested row; the Deliver/Pick-up chip
+	// only for the two direction-specific run kinds.
+	const isUpcoming =
+		kind === "upcoming" ||
+		kind === "upcoming-delivery" ||
+		kind === "upcoming-pickup";
+	const showChip = kind === "upcoming-delivery" || kind === "upcoming-pickup";
+	const dateStr = isPickup
+		? formatShortDate(b.checkout)
+		: formatShortDate(b.checkin);
+	const runTime = isPickup ? b.pickupTime : b.deliveryTime;
 	return (
 		<li className="admin-today-row">
 			<Link
@@ -374,8 +486,18 @@ function TodayRow({
 				className="admin-today-link"
 			>
 				<div className="admin-today-row-left">
-					{(kind === "upcoming" || kind === "requested") && (
-						<span className="admin-today-date">{dateStr}</span>
+					{(isUpcoming || kind === "requested") && (
+						<span className="admin-today-date">
+							{dateStr}
+							{runTime ? ` ${runTime}` : ""}
+						</span>
+					)}
+					{showChip && (
+						<span
+							className={`admin-run-chip admin-run-chip--${isPickup ? "pickup" : "delivery"}`}
+						>
+							{isPickup ? "Pick up" : "Deliver"}
+						</span>
 					)}
 					<span className="admin-today-name">
 						{b.name}

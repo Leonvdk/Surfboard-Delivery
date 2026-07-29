@@ -9857,3 +9857,20 @@ h1 {
   align-items: center;
   gap: 6px;
 }
+
+/* Deliver / Pick-up chip in the Next-7-days list, so each run's direction
+   is unambiguous. Deliver = brand orange, Pick up = neutral. */
+.admin-run-chip {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border: 1.5px solid var(--black);
+  margin-left: 6px;
+  line-height: 1.2;
+}
+.admin-run-chip--delivery { background: var(--accent); color: #fff; border-color: var(--accent); }
+.admin-run-chip--pickup { background: var(--gray-100); color: var(--black); }
