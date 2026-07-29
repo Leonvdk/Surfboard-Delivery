@@ -229,6 +229,28 @@ interface GoogleEvent {
 	status?: string;
 }
 
+/**
+ * Translate Google's error JSON into a one-line fix. The raw body is a
+ * nested blob that's useless on a phone; the reason code inside it maps
+ * to a specific, actionable cause. Falls back to a trimmed raw body for
+ * anything unrecognised so nothing is ever hidden.
+ */
+function friendlyGoogleError(op: string, status: number, body: string): string {
+	if (/requiredAccessLevel|writer access/i.test(body)) {
+		return `Calendar is shared with the service account but read-only. In Google Calendar → hello@ → Settings and sharing → the ${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "service account"} row, set permission to "Make changes to events".`;
+	}
+	if (status === 404 || /notFound/i.test(body)) {
+		return `Calendar not found for this service account — it isn't shared with ${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "the service account"} yet, or GOOGLE_CALENDAR_ID is wrong (should be hello@surfrental-aljezur.com).`;
+	}
+	if (status === 401 || /invalid_grant|unauthorized/i.test(body)) {
+		return "Google rejected the credentials — the service-account key is wrong or the account was disabled. Re-check GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_KEY.";
+	}
+	if (status === 429 || /rateLimitExceeded|quotaExceeded/i.test(body)) {
+		return "Google rate-limited the sync — transient; the nightly job will catch up.";
+	}
+	return `${op} failed (${status}): ${body.slice(0, 200)}`;
+}
+
 async function api(
 	cfg: CalendarConfig,
 	path: string,
@@ -340,7 +362,7 @@ export async function syncBookingToCalendar(
 		);
 		if (!listRes.ok) {
 			const body = await listRes.text();
-			throw new Error(`list failed (${listRes.status}): ${body.slice(0, 200)}`);
+			throw new Error(friendlyGoogleError("list", listRes.status, body));
 		}
 		const existing = ((await listRes.json()) as { items?: GoogleEvent[] }).items ?? [];
 
@@ -362,13 +384,13 @@ export async function syncBookingToCalendar(
 				});
 				if (!post.ok) {
 					const body = await post.text();
-					throw new Error(`insert failed (${post.status}): ${body.slice(0, 200)}`);
+					throw new Error(friendlyGoogleError("insert", post.status, body));
 				}
 				created++;
 				continue;
 			}
 			const body = await put.text();
-			throw new Error(`update failed (${put.status}): ${body.slice(0, 200)}`);
+			throw new Error(friendlyGoogleError("update", put.status, body));
 		}
 
 		for (const event of existing) {
