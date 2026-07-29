@@ -40,17 +40,45 @@ export interface CalendarConfig {
 	privateKey: string;
 }
 
+/**
+ * Turn whatever ended up in the env var into a valid PEM. The JSON key's
+ * `private_key` field trips people up in three ways when pasted into
+ * Vercel, and we forgive all of them rather than making Leon re-paste:
+ *   1. surrounding quotes copied along with the value ("-----BEGIN…")
+ *   2. `\n` left as literal backslash-n (the JSON form)
+ *   3. double-escaped `\\n` (some copy paths)
+ * A malformed key surfaces as OpenSSL's opaque "DECODER unsupported", so
+ * getting this right is the difference between a clear state and a
+ * cryptic one.
+ */
+export function normalizePrivateKey(raw: string): string {
+	let k = raw.trim();
+	// Strip one layer of surrounding quotes if the whole value is wrapped.
+	if (
+		(k.startsWith('"') && k.endsWith('"')) ||
+		(k.startsWith("'") && k.endsWith("'"))
+	) {
+		k = k.slice(1, -1);
+	}
+	// Restore newlines. Double-escaped first so we don't leave a stray
+	// backslash behind, then the common single-escaped form.
+	k = k.replace(/\\r\\n/g, "\n").replace(/\\\\n/g, "\n").replace(/\\n/g, "\n");
+	return k.trim();
+}
+
+/** True when the string at least looks like a PEM private key, so we can
+ * fail with a useful message before OpenSSL fails with a useless one. */
+export function looksLikePem(key: string): boolean {
+	return /-----BEGIN [A-Z ]*PRIVATE KEY-----/.test(key) &&
+		/-----END [A-Z ]*PRIVATE KEY-----/.test(key);
+}
+
 export function getCalendarConfig(): CalendarConfig | null {
 	const calendarId = process.env.GOOGLE_CALENDAR_ID;
 	const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-	// Vercel stores the PEM with literal \n; restore real newlines or the
-	// signature silently fails to verify.
-	const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY?.replace(
-		/\\n/g,
-		"\n",
-	);
-	if (!calendarId || !clientEmail || !privateKey) return null;
-	return { calendarId, clientEmail, privateKey };
+	const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+	if (!calendarId || !clientEmail || !rawKey) return null;
+	return { calendarId, clientEmail, privateKey: normalizePrivateKey(rawKey) };
 }
 
 function b64url(input: string | Buffer): string {
@@ -79,9 +107,26 @@ async function getAccessToken(cfg: CalendarConfig): Promise<string> {
 			exp: now + 3600,
 		}),
 	);
-	const signer = createSign("RSA-SHA256");
-	signer.update(`${header}.${claim}`);
-	const signature = b64url(signer.sign(cfg.privateKey));
+	if (!looksLikePem(cfg.privateKey)) {
+		throw new Error(
+			"GOOGLE_SERVICE_ACCOUNT_KEY doesn't look like a PEM private key — in Vercel it must be the JSON's private_key value with no surrounding quotes (the -----BEGIN PRIVATE KEY----- … -----END PRIVATE KEY----- block).",
+		);
+	}
+	let signature: string;
+	try {
+		const signer = createSign("RSA-SHA256");
+		signer.update(`${header}.${claim}`);
+		signature = b64url(signer.sign(cfg.privateKey));
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		// OpenSSL's DECODER error is opaque; translate it to the actual fix.
+		if (/DECODER|unsupported|bad base64|PEM/i.test(msg)) {
+			throw new Error(
+				`Private key couldn't be parsed (${msg}). Re-check GOOGLE_SERVICE_ACCOUNT_KEY in Vercel: paste the private_key value from the JSON with no surrounding quotes. The \\n sequences are fine — the app restores them.`,
+			);
+		}
+		throw err;
+	}
 	const assertion = `${header}.${claim}.${signature}`;
 
 	const res = await fetch(TOKEN_URL, {
