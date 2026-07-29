@@ -4,9 +4,10 @@ import { getCachedBookings } from "../_lib/bookings-cache";
 import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
 import { CalendarSubscribe } from "../_components/calendar-subscribe";
 import { CalendarSyncNow } from "../_components/calendar-sync-now";
+import { TwoWaySyncToggle } from "../_components/two-way-sync-toggle";
 import { WarningIcon, CheckIcon } from "../_components/icons";
 import { BRAND_COLOR } from "../../lib/ics";
-import { getSyncHealth, type SyncHealth } from "../../lib/google-calendar";
+import { getSyncHealth, getWatchInfo, type SyncHealth } from "../../lib/google-calendar";
 
 export const dynamic = "force-dynamic";
 
@@ -318,6 +319,7 @@ async function CalendarFeedCard() {
 
 	const health = await getSyncHealth();
 	const directSync = health.configured;
+	const watch = directSync ? await getWatchInfo() : { active: false, expiration: null };
 
 	return (
 		<article className="admin-card">
@@ -333,6 +335,10 @@ async function CalendarFeedCard() {
 					</p>
 					<CalendarSyncStatusLine health={health} />
 					<CalendarSyncNow />
+					<TwoWaySyncToggle
+						active={watch.active}
+						expiration={watch.expiration ? watch.expiration.toISOString() : null}
+					/>
 				</>
 			) : (
 				<p className="admin-card-hint">

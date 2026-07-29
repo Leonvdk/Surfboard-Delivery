@@ -7,10 +7,24 @@ import { getDb, schema } from "../lib/db/client";
 import type { BookingStatus } from "../lib/db/schema";
 import {
 	type ForwardSyncSummary,
+	registerWatch,
 	syncBookingSafe,
 	syncForwardWindow,
+	type WatchResult,
 } from "../lib/google-calendar";
 import { BOOKINGS_TAG } from "./_lib/bookings-cache";
+
+/**
+ * Turn on live two-way sync (Google → app) by registering the push
+ * channel now, rather than waiting for the nightly job. Returns the same
+ * shape the button renders, including Google's error if the domain isn't
+ * verified yet.
+ */
+export async function enableTwoWaySync(): Promise<WatchResult> {
+	const result = await registerWatch();
+	revalidatePath("/admin/calendar");
+	return result;
+}
 
 /**
  * Run the Google Calendar sync on demand from the admin. Returns the same

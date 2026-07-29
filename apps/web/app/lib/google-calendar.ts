@@ -1,4 +1,4 @@
-import { createSign } from "node:crypto";
+import { createSign, randomUUID } from "node:crypto";
 import { and, eq, gte, isNull, sql } from "drizzle-orm";
 import { getDb, schema } from "./db/client";
 import type { Booking, CalendarSyncStatus } from "./db/schema";
@@ -610,4 +610,302 @@ export async function getSyncHealth(): Promise<SyncHealth> {
 	const last = status.lastSuccessAt?.getTime() ?? 0;
 	const stale = Date.now() - last > SYNC_STALE_MS;
 	return { configured: true, status, stale };
+}
+
+/* ── Two-way sync (Google → app) ─────────────────────────────────────
+ * A watch channel makes Google POST to our webhook whenever an event
+ * changes. We then read the change and write the edited TIME and
+ * LOCATION back to the booking — Google owns those two fields, the app
+ * owns everything else. The webhook writes the DB directly and never
+ * pushes back, so there's no loop: our own re-assert produces identical
+ * values and no-ops.
+ */
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://surfrental-aljezur.com";
+const WEBHOOK_URL = `${SITE}/api/calendar/google-webhook`;
+/** Watch channels expire; 7 days is Google's practical max for events. */
+const WATCH_TTL_SECONDS = 7 * 24 * 3600;
+/** Renew when within 2 days of expiry, so a channel never lapses. */
+const WATCH_RENEW_BEFORE_MS = 2 * 24 * 3600 * 1000;
+/** Same query params on the initial and every incremental list, or the
+ * sync token is rejected. */
+const LIST_PARAMS = { singleEvents: "true", showDeleted: "true", maxResults: "250" };
+
+async function readStatusRow(calendarId: string): Promise<CalendarSyncStatus | null> {
+	const db = getDb();
+	if (!db) return null;
+	const [row] = await db
+		.select()
+		.from(schema.calendarSyncStatus)
+		.where(eq(schema.calendarSyncStatus.calendarId, calendarId))
+		.limit(1);
+	return row ?? null;
+}
+
+/** Page through events to the token Google hands back on the last page.
+ * Used to seed (and to recover) the incremental cursor. */
+async function fetchSyncToken(cfg: CalendarConfig): Promise<string | null> {
+	let pageToken: string | undefined;
+	for (let i = 0; i < 40; i++) {
+		const qs = new URLSearchParams(LIST_PARAMS);
+		if (pageToken) qs.set("pageToken", pageToken);
+		const res = await api(cfg, `/events?${qs.toString()}`);
+		if (!res.ok) {
+			throw new Error(friendlyGoogleError("sync-init", res.status, await res.text()));
+		}
+		const j = (await res.json()) as { nextSyncToken?: string; nextPageToken?: string };
+		if (j.nextSyncToken) return j.nextSyncToken;
+		if (!j.nextPageToken) return null;
+		pageToken = j.nextPageToken;
+	}
+	return null;
+}
+
+export interface WatchResult {
+	ok: boolean;
+	expiration?: Date;
+	error?: string;
+}
+
+/**
+ * Register (or re-register) the push channel. Google requires the webhook
+ * host to be a verified domain for the Cloud project — a first-time
+ * failure is almost always that, so it's translated explicitly.
+ */
+export async function registerWatch(): Promise<WatchResult> {
+	const cfg = getCalendarConfig();
+	if (!cfg) return { ok: false, error: "not configured" };
+	const db = getDb();
+	if (!db) return { ok: false, error: "db not configured" };
+
+	// Drop any existing channel first so we don't leak watchers.
+	await stopWatch().catch(() => {});
+
+	const channelId = randomUUID();
+	try {
+		const res = await api(cfg, "/events/watch", {
+			method: "POST",
+			body: JSON.stringify({
+				id: channelId,
+				type: "web_hook",
+				address: WEBHOOK_URL,
+				token: process.env.CALENDAR_FEED_TOKEN ?? "",
+				params: { ttl: String(WATCH_TTL_SECONDS) },
+			}),
+		});
+		if (!res.ok) {
+			const body = await res.text();
+			if (/webhookUrl|domain|unauthorizedWebhook|push\.webhook/i.test(body)) {
+				return {
+					ok: false,
+					error: `Google won't push to ${WEBHOOK_URL} until the domain is verified. In Google Cloud Console → the calendar project → Domain verification, add and verify surfrental-aljezur.com, then enable 2-way sync again.`,
+				};
+			}
+			return { ok: false, error: friendlyGoogleError("watch", res.status, body) };
+		}
+		const j = (await res.json()) as { resourceId?: string; expiration?: string };
+		const expiration = j.expiration ? new Date(Number(j.expiration)) : null;
+		const syncToken = await fetchSyncToken(cfg);
+		await db
+			.update(schema.calendarSyncStatus)
+			.set({
+				watchChannelId: channelId,
+				watchResourceId: j.resourceId ?? null,
+				watchExpiration: expiration,
+				syncToken,
+				updatedAt: new Date(),
+			})
+			.where(eq(schema.calendarSyncStatus.calendarId, cfg.calendarId));
+		return { ok: true, expiration: expiration ?? undefined };
+	} catch (err) {
+		return { ok: false, error: err instanceof Error ? err.message : String(err) };
+	}
+}
+
+/** Tell Google to stop the current channel. Best-effort — used before a
+ * re-register and on teardown. */
+export async function stopWatch(): Promise<void> {
+	const cfg = getCalendarConfig();
+	if (!cfg) return;
+	const row = await readStatusRow(cfg.calendarId);
+	if (!row?.watchChannelId || !row.watchResourceId) return;
+	try {
+		const token = await getAccessToken(cfg);
+		await fetch(`${API}/channels/stop`, {
+			method: "POST",
+			headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+			body: JSON.stringify({ id: row.watchChannelId, resourceId: row.watchResourceId }),
+		});
+	} catch {
+		/* best-effort */
+	}
+}
+
+/** Register a channel if none exists or it's near expiry. Called nightly
+ * so live sync can't quietly lapse. Returns null when nothing was needed. */
+export async function ensureWatch(): Promise<WatchResult | null> {
+	const cfg = getCalendarConfig();
+	if (!cfg) return null;
+	const row = await readStatusRow(cfg.calendarId);
+	const exp = row?.watchExpiration?.getTime() ?? 0;
+	const needs = !row?.watchChannelId || exp - Date.now() < WATCH_RENEW_BEFORE_MS;
+	if (!needs) return null;
+	return registerWatch();
+}
+
+/** Event id → which booking and which run. */
+function parseEventId(id: string): { bookingId: number; kind: "deliver" | "collect" } | null {
+	const m = /^sr(\d+)(deliver|collect)\d{8}$/.exec(id);
+	if (!m) return null;
+	return { bookingId: Number(m[1]), kind: m[2] as "deliver" | "collect" };
+}
+
+/** A Google instant (e.g. 2026-08-01T09:30:00+01:00) → Lisbon HH:MM, the
+ * form the booking stores. */
+function instantToLisbonHHMM(dateTime: string): string | null {
+	const d = new Date(dateTime);
+	if (Number.isNaN(d.getTime())) return null;
+	const parts = new Intl.DateTimeFormat("en-GB", {
+		timeZone: TZ,
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	}).formatToParts(d);
+	const h = parts.find((p) => p.type === "hour")?.value;
+	const m = parts.find((p) => p.type === "minute")?.value;
+	if (!h || !m) return null;
+	return `${h === "24" ? "00" : h}:${m}`;
+}
+
+interface ChangedEvent {
+	id?: string;
+	status?: string;
+	location?: string;
+	start?: { date?: string; dateTime?: string };
+	extendedProperties?: { private?: Record<string, string> };
+}
+
+/**
+ * Pull events changed since our sync token and write back time/location.
+ * Returns the booking ids actually changed so the caller can revalidate.
+ * On a 410 (token too old) it refreshes the token and skips this round —
+ * the nightly re-assert keeps both sides correct meanwhile.
+ */
+export async function applyGoogleChanges(): Promise<{ changedBookingIds: number[] }> {
+	const cfg = getCalendarConfig();
+	const db = getDb();
+	if (!cfg || !db) return { changedBookingIds: [] };
+
+	const row = await readStatusRow(cfg.calendarId);
+	let token = row?.syncToken ?? null;
+	// No cursor yet — seed one and wait for the next change.
+	if (!token) {
+		const seeded = await fetchSyncToken(cfg);
+		if (seeded) {
+			await db
+				.update(schema.calendarSyncStatus)
+				.set({ syncToken: seeded, updatedAt: new Date() })
+				.where(eq(schema.calendarSyncStatus.calendarId, cfg.calendarId));
+		}
+		return { changedBookingIds: [] };
+	}
+
+	const items: ChangedEvent[] = [];
+	let pageToken: string | undefined;
+	let nextSyncToken: string | null = null;
+	for (let i = 0; i < 40; i++) {
+		const qs = new URLSearchParams({ ...LIST_PARAMS, syncToken: token });
+		if (pageToken) qs.set("pageToken", pageToken);
+		const res = await api(cfg, `/events?${qs.toString()}`);
+		if (res.status === 410) {
+			// Token expired — refetch a fresh one, skip write-back this round.
+			const fresh = await fetchSyncToken(cfg);
+			await db
+				.update(schema.calendarSyncStatus)
+				.set({ syncToken: fresh, updatedAt: new Date() })
+				.where(eq(schema.calendarSyncStatus.calendarId, cfg.calendarId));
+			return { changedBookingIds: [] };
+		}
+		if (!res.ok) {
+			throw new Error(friendlyGoogleError("changes", res.status, await res.text()));
+		}
+		const j = (await res.json()) as {
+			items?: ChangedEvent[];
+			nextPageToken?: string;
+			nextSyncToken?: string;
+		};
+		if (j.items) items.push(...j.items);
+		if (j.nextSyncToken) nextSyncToken = j.nextSyncToken;
+		if (!j.nextPageToken) break;
+		pageToken = j.nextPageToken;
+	}
+
+	if (nextSyncToken) {
+		await db
+			.update(schema.calendarSyncStatus)
+			.set({ syncToken: nextSyncToken, updatedAt: new Date() })
+			.where(eq(schema.calendarSyncStatus.calendarId, cfg.calendarId));
+	}
+
+	const changed = new Set<number>();
+	for (const item of items) {
+		if (!item.id || item.status === "cancelled") continue;
+		if (!item.extendedProperties?.private?.[TAG_KEY]) continue;
+		const parsed = parseEventId(item.id);
+		if (!parsed) continue;
+		const [booking] = await db
+			.select()
+			.from(schema.bookings)
+			.where(eq(schema.bookings.id, parsed.bookingId))
+			.limit(1);
+		if (!booking || booking.deletedAt) continue;
+
+		const updates: Partial<typeof schema.bookings.$inferInsert> = {};
+
+		// Time — only from timed events; an all-day event carries no time.
+		if (item.start?.dateTime) {
+			const hhmm = instantToLisbonHHMM(item.start.dateTime);
+			if (hhmm) {
+				if (parsed.kind === "deliver" && booking.deliveryTime !== hhmm) {
+					updates.deliveryTime = hhmm;
+				}
+				if (parsed.kind === "collect" && booking.pickupTime !== hhmm) {
+					updates.pickupTime = hhmm;
+				}
+			}
+		}
+
+		// Location → accommodation (booking-level, shared across its events).
+		if (typeof item.location === "string") {
+			const loc = item.location.trim();
+			if (loc && loc !== (booking.accommodation ?? "")) {
+				updates.accommodation = loc;
+			}
+		}
+
+		if (Object.keys(updates).length > 0) {
+			updates.updatedAt = new Date();
+			await db
+				.update(schema.bookings)
+				.set(updates)
+				.where(eq(schema.bookings.id, parsed.bookingId));
+			changed.add(parsed.bookingId);
+		}
+	}
+
+	return { changedBookingIds: [...changed] };
+}
+
+/** Watch state for the admin display. */
+export interface WatchInfo {
+	active: boolean;
+	expiration: Date | null;
+}
+export async function getWatchInfo(): Promise<WatchInfo> {
+	const cfg = getCalendarConfig();
+	if (!cfg) return { active: false, expiration: null };
+	const row = await readStatusRow(cfg.calendarId);
+	const exp = row?.watchExpiration ?? null;
+	const active = Boolean(row?.watchChannelId) && (exp ? exp.getTime() > Date.now() : false);
+	return { active, expiration: exp };
 }

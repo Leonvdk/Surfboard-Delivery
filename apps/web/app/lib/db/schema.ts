@@ -304,6 +304,12 @@ export const calendarSyncStatus = pgTable("calendar_sync_status", {
 	failureCount: integer("failure_count").default(0).notNull(),
 	// Runs failed in a row — drives escalation (one blip vs a real outage).
 	consecutiveFailures: integer("consecutive_failures").default(0).notNull(),
+	// Two-way sync (Google → app). A registered watch channel pushes event
+	// changes to our webhook; the sync token drives incremental reads.
+	watchChannelId: text("watch_channel_id"),
+	watchResourceId: text("watch_resource_id"),
+	watchExpiration: timestamp("watch_expiration"),
+	syncToken: text("sync_token"),
 	updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

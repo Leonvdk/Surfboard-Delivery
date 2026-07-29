@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { getCalendarConfig, getSyncHealth, syncForwardWindow } from "../../../lib/google-calendar";
+import {
+	ensureWatch,
+	getCalendarConfig,
+	getSyncHealth,
+	syncForwardWindow,
+} from "../../../lib/google-calendar";
 import { sendPushToAll } from "../../../lib/push";
 
 export const runtime = "nodejs";
@@ -42,6 +47,23 @@ export async function GET(request: Request) {
 	const wasFailing = before.status ? !before.status.ok || before.stale : false;
 
 	const result = await syncForwardWindow();
+
+	// Keep the two-way push channel alive — re-register if it's missing or
+	// near expiry. A lapsed channel would silently stop write-back, so a
+	// renewal failure is pushed like any other.
+	try {
+		const watch = await ensureWatch();
+		if (watch && !watch.ok) {
+			await sendPushToAll({
+				title: "Two-way calendar sync needs attention",
+				body: `Live sync channel couldn't renew. Tap to re-enable.`,
+				url: "/admin/calendar",
+				tag: "calendar-watch-health",
+			}).catch((err) => console.error("[gcal] watch push error:", err));
+		}
+	} catch (err) {
+		console.error("[gcal] ensureWatch error:", err);
+	}
 
 	// Actively alert on failure — never rely on Leon thinking to check.
 	if (!result.ok) {
