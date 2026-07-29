@@ -11,6 +11,8 @@ import {
 } from "./_lib/booking-stage";
 import { getCachedFleet } from "./_lib/boards-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
+import { getSyncHealth } from "../lib/google-calendar";
+import { WarningIcon } from "./_components/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +98,15 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 	// board assigned. Boards are the physical constraint — an unassigned
 	// confirmed booking is a double-booking risk, so it gets flagged here.
 	const fleetData = await getCachedFleet();
+
+	// Calendar health — surfaced here so a broken or stalled sync is seen
+	// on the page Leon opens daily, not only if he visits /admin/calendar.
+	const calendarHealth = await getSyncHealth();
+	const calendarBroken =
+		calendarHealth.configured &&
+		calendarHealth.status != null &&
+		(!calendarHealth.status.ok || calendarHealth.stale);
+
 	const missingBoards =
 		fleetData && fleetData.fleet.some((f) => f.kind === "board")
 			? allBookings.filter((b) => {
@@ -144,6 +155,21 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					+ New booking
 				</Link>
 			</header>
+
+			{calendarBroken && (
+				<Link href="/admin/calendar" className="admin-attention admin-attention--alert">
+					<div className="admin-attention-header">
+						<span className="admin-attention-kicker">
+							<WarningIcon /> Calendar sync
+						</span>
+					</div>
+					<p className="admin-attention-lead">
+						{calendarHealth.stale
+							? "The calendar sync hasn't succeeded recently — the nightly job may have stopped. Tap to check."
+							: "The last calendar sync failed — some runs may not be on your phone. Tap to see why and retry."}
+					</p>
+				</Link>
+			)}
 
 			{needsDecision.length > 0 && (
 				<article className="admin-attention">

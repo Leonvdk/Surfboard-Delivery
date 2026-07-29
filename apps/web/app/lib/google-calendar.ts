@@ -1,5 +1,7 @@
 import { createSign } from "node:crypto";
-import type { Booking } from "./db/schema";
+import { and, eq, gte, isNull, sql } from "drizzle-orm";
+import { getDb, schema } from "./db/client";
+import type { Booking, CalendarSyncStatus } from "./db/schema";
 import { bookingEvents } from "./ics";
 
 /**
@@ -295,15 +297,198 @@ export async function syncBookingToCalendar(
  * Never let a calendar problem break a booking save. Google being down, a
  * rotated key or a revoked share should cost Leon a calendar entry, not
  * the booking he just took payment for — the nightly resync repairs it.
+ *
+ * A failure here still gets recorded to the health row, so an inline write
+ * that quietly fails is visible on the dashboard rather than lost to logs.
  */
 export async function syncBookingSafe(booking: Booking): Promise<void> {
-	if (!getCalendarConfig()) return;
+	const cfg = getCalendarConfig();
+	if (!cfg) return;
 	try {
 		const result = await syncBookingToCalendar(booking);
 		if (!result.ok) {
 			console.error(`[gcal] booking ${booking.id} sync failed: ${result.error}`);
+			await recordInlineFailure(cfg.calendarId, result.error ?? "unknown");
 		}
 	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
 		console.error(`[gcal] booking ${booking.id} sync threw:`, err);
+		await recordInlineFailure(cfg.calendarId, msg);
 	}
+}
+
+/* ── Health tracking ─────────────────────────────────────────────────
+ * The sync must never fail silently. Every full run stamps its outcome
+ * here; the dashboard reads it, and the nightly cron pushes on failure.
+ */
+
+/** How long without a successful run before we treat the sync as stale.
+ * The cron runs daily, so >26h means it stopped firing entirely. */
+export const SYNC_STALE_MS = 26 * 60 * 60 * 1000;
+
+export interface ForwardSyncSummary {
+	configured: boolean;
+	ok: boolean;
+	bookings: number;
+	created: number;
+	updated: number;
+	deleted: number;
+	failures: Array<{ id: number; error: string }>;
+}
+
+/** Yesterday — a run that just happened still gets corrected if it drifted. */
+function windowStartIso(): string {
+	const d = new Date();
+	d.setUTCDate(d.getUTCDate() - 1);
+	return d.toISOString().slice(0, 10);
+}
+
+async function writeStatus(
+	calendarId: string,
+	fields: {
+		ok: boolean;
+		lastError: string | null;
+		bookings: number;
+		created: number;
+		updated: number;
+		deleted: number;
+		failureCount: number;
+	},
+): Promise<void> {
+	const db = getDb();
+	if (!db) return;
+	const now = new Date();
+	try {
+		await db
+			.insert(schema.calendarSyncStatus)
+			.values({
+				calendarId,
+				lastRunAt: now,
+				lastSuccessAt: fields.ok ? now : null,
+				updatedAt: now,
+				consecutiveFailures: fields.ok ? 0 : 1,
+				...fields,
+			})
+			.onConflictDoUpdate({
+				target: schema.calendarSyncStatus.calendarId,
+				set: {
+					lastRunAt: now,
+					updatedAt: now,
+					ok: fields.ok,
+					lastError: fields.lastError,
+					bookings: fields.bookings,
+					created: fields.created,
+					updated: fields.updated,
+					deleted: fields.deleted,
+					failureCount: fields.failureCount,
+					// Reset the streak on success; otherwise bump it via SQL so we
+					// don't need to read-then-write.
+					...(fields.ok
+						? { lastSuccessAt: now, consecutiveFailures: 0 }
+						: {
+								consecutiveFailures: sqlIncrement(),
+							}),
+				},
+			});
+	} catch (err) {
+		console.error("[gcal] failed to write sync status:", err);
+	}
+}
+
+// Drizzle raw increment expression, kept in one place.
+function sqlIncrement() {
+	return sql`${schema.calendarSyncStatus.consecutiveFailures} + 1`;
+}
+
+/** Record a failed inline write without a full run's counts. */
+async function recordInlineFailure(calendarId: string, error: string): Promise<void> {
+	await writeStatus(calendarId, {
+		ok: false,
+		lastError: error,
+		bookings: 0,
+		created: 0,
+		updated: 0,
+		deleted: 0,
+		failureCount: 1,
+	});
+}
+
+/**
+ * Re-assert every forward-window booking against Google and record the
+ * outcome to the health row. Shared by the nightly cron and the manual
+ * "Sync now" button, so both report health identically.
+ */
+export async function syncForwardWindow(): Promise<ForwardSyncSummary> {
+	const cfg = getCalendarConfig();
+	if (!cfg) {
+		return { configured: false, ok: false, bookings: 0, created: 0, updated: 0, deleted: 0, failures: [] };
+	}
+	const db = getDb();
+	if (!db) {
+		return { configured: true, ok: false, bookings: 0, created: 0, updated: 0, deleted: 0, failures: [{ id: 0, error: "db not configured" }] };
+	}
+
+	const rows = await db
+		.select()
+		.from(schema.bookings)
+		.where(
+			and(
+				isNull(schema.bookings.deletedAt),
+				gte(schema.bookings.checkout, windowStartIso()),
+			),
+		);
+
+	let created = 0;
+	let updated = 0;
+	let deleted = 0;
+	const failures: Array<{ id: number; error: string }> = [];
+
+	for (const booking of rows) {
+		const result = await syncBookingToCalendar(booking);
+		if (result.ok) {
+			created += result.created;
+			updated += result.updated;
+			deleted += result.deleted;
+		} else {
+			failures.push({ id: booking.id, error: result.error ?? "unknown" });
+		}
+	}
+
+	const ok = failures.length === 0;
+	await writeStatus(cfg.calendarId, {
+		ok,
+		lastError: ok ? null : failures.map((f) => `#${f.id}: ${f.error}`).join(" · ").slice(0, 500),
+		bookings: rows.length,
+		created,
+		updated,
+		deleted,
+		failureCount: failures.length,
+	});
+
+	return { configured: true, ok, bookings: rows.length, created, updated, deleted, failures };
+}
+
+export interface SyncHealth {
+	configured: boolean;
+	status: CalendarSyncStatus | null;
+	stale: boolean;
+}
+
+/** Read the health row plus a computed staleness flag, for the dashboard
+ * and the calendar page. `stale` is true when a run hasn't succeeded
+ * within the window — which catches the cron silently not firing. */
+export async function getSyncHealth(): Promise<SyncHealth> {
+	const cfg = getCalendarConfig();
+	if (!cfg) return { configured: false, status: null, stale: false };
+	const db = getDb();
+	if (!db) return { configured: true, status: null, stale: false };
+	const [status] = await db
+		.select()
+		.from(schema.calendarSyncStatus)
+		.where(eq(schema.calendarSyncStatus.calendarId, cfg.calendarId))
+		.limit(1);
+	if (!status) return { configured: true, status: null, stale: false };
+	const last = status.lastSuccessAt?.getTime() ?? 0;
+	const stale = Date.now() - last > SYNC_STALE_MS;
+	return { configured: true, status, stale };
 }

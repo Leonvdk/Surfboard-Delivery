@@ -5,8 +5,27 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "../lib/db/client";
 import type { BookingStatus } from "../lib/db/schema";
-import { syncBookingSafe } from "../lib/google-calendar";
+import {
+	type ForwardSyncSummary,
+	syncBookingSafe,
+	syncForwardWindow,
+} from "../lib/google-calendar";
 import { BOOKINGS_TAG } from "./_lib/bookings-cache";
+
+/**
+ * Run the Google Calendar sync on demand from the admin. Returns the same
+ * summary the nightly cron produces, so the "Sync now" button can show
+ * exactly what happened — including Google's error text on failure, which
+ * is the fastest way to tell a missing calendar-share (404) from a bad
+ * key (401/403). Also the one-tap way to backfill existing bookings after
+ * first configuring the env vars, instead of waiting for 03:30.
+ */
+export async function syncCalendarNow(): Promise<ForwardSyncSummary> {
+	const result = await syncForwardWindow();
+	revalidatePath("/admin/calendar");
+	revalidatePath("/admin");
+	return result;
+}
 
 /** Re-read the booking and push it to Google Calendar. Called after any
  * change that could move, add or remove a run. Never throws — see

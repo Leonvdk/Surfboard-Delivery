@@ -3,7 +3,10 @@ import type { Booking, BookingStatus } from "../../lib/db/schema";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
 import { CalendarSubscribe } from "../_components/calendar-subscribe";
+import { CalendarSyncNow } from "../_components/calendar-sync-now";
+import { WarningIcon, CheckIcon } from "../_components/icons";
 import { BRAND_COLOR } from "../../lib/ics";
+import { getSyncHealth, type SyncHealth } from "../../lib/google-calendar";
 
 export const dynamic = "force-dynamic";
 
@@ -258,32 +261,79 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	);
 }
 
+/** Relative "2 minutes ago" from a timestamp, for the health line. */
+function ago(date: Date | null): string {
+	if (!date) return "never";
+	const s = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
+	if (s < 60) return "just now";
+	if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+	if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+	return `${Math.floor(s / 86400)}d ago`;
+}
+
+/**
+ * The one-line health readout. This is the anti-silent-failure surface:
+ * green when the last run succeeded recently, red the moment it fails or
+ * goes stale (the cron stopped firing), with the actual error shown.
+ */
+function CalendarSyncStatusLine({ health }: { health: SyncHealth }) {
+	const { status, stale } = health;
+	if (!status || !status.lastRunAt) {
+		return (
+			<p className="admin-sync-status admin-sync-status--warn">
+				<WarningIcon /> Never run yet. Tap <strong>Sync now</strong> to push
+				existing bookings and confirm the connection.
+			</p>
+		);
+	}
+	const healthy = status.ok && !stale;
+	if (healthy) {
+		return (
+			<p className="admin-sync-status admin-sync-status--ok">
+				<CheckIcon /> Last synced {ago(status.lastRunAt)} · {status.bookings}{" "}
+				booking{status.bookings === 1 ? "" : "s"} in sync.
+			</p>
+		);
+	}
+	return (
+		<p className="admin-sync-status admin-sync-status--warn">
+			<WarningIcon />{" "}
+			{stale
+				? `No successful sync since ${ago(status.lastSuccessAt)} — the nightly job may have stopped. `
+				: `Last sync failed (${ago(status.lastRunAt)})${status.consecutiveFailures > 1 ? `, ${status.consecutiveFailures} in a row` : ""}. `}
+			{status.lastError ? <span className="admin-cell-muted">{status.lastError}</span> : null}
+		</p>
+	);
+}
+
 /**
  * The subscribe URL for the hello@ Google Calendar. The token IS the
  * auth — Google can't send headers when polling a subscribed feed — so
  * this only renders behind the admin session, and says as much.
  */
-function CalendarFeedCard() {
+async function CalendarFeedCard() {
 	const token = process.env.CALENDAR_FEED_TOKEN;
 	const site =
 		process.env.NEXT_PUBLIC_SITE_URL ?? "https://surfrental-aljezur.com";
 
-	const directSync = Boolean(
-		process.env.GOOGLE_CALENDAR_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-	);
+	const health = await getSyncHealth();
+	const directSync = health.configured;
 
 	return (
 		<article className="admin-card">
 			<h2>Calendar sync</h2>
 			{directSync ? (
-				<p className="admin-card-hint">
-					<strong>Direct sync is on.</strong> Delivery and collection runs are
-					written straight into {process.env.GOOGLE_CALENDAR_ID} as real
-					events, so they appear in Notion Calendar, Apple Calendar and
-					anywhere else that account syncs — within seconds, not hours. They
-					update when you change a booking and disappear when you cancel one.
-					A nightly job re-checks everything in case a write ever fails.
-				</p>
+				<>
+					<p className="admin-card-hint">
+						<strong>Direct sync is on.</strong> Delivery and collection runs are
+						written straight into {process.env.GOOGLE_CALENDAR_ID} as real
+						events, so they appear in Notion Calendar, Apple Calendar and
+						anywhere else that account syncs — within seconds, not hours. They
+						update when you change a booking and disappear when you cancel one.
+					</p>
+					<CalendarSyncStatusLine health={health} />
+					<CalendarSyncNow />
+				</>
 			) : (
 				<p className="admin-card-hint">
 					Direct sync is off. Set GOOGLE_CALENDAR_ID,

@@ -1,5 +1,6 @@
 import {
 	type AnyPgColumn,
+	boolean,
 	index,
 	integer,
 	jsonb,
@@ -273,3 +274,37 @@ export const pushSubscriptions = pgTable(
 );
 
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+
+/**
+ * Health record for the Google Calendar sync. One row per calendar id.
+ *
+ * The whole point of this table is that the sync can't fail silently:
+ * every run (nightly cron, manual "Sync now", and inline booking writes
+ * on failure) stamps its result here, so a broken share, a rotated key
+ * or a cron that stopped firing is visible on the dashboard and can
+ * trigger a push — rather than being discovered when Leon drives to a
+ * pickup that never made it onto his phone.
+ */
+export const calendarSyncStatus = pgTable("calendar_sync_status", {
+	// The Google calendar id (hello@…). Keyed so a second calendar later
+	// gets its own row.
+	calendarId: text("calendar_id").primaryKey(),
+	// When a sync last ran at all — staleness here means the cron stopped.
+	lastRunAt: timestamp("last_run_at"),
+	// When a sync last fully succeeded.
+	lastSuccessAt: timestamp("last_success_at"),
+	// Result of the most recent run.
+	ok: boolean("ok").default(true).notNull(),
+	lastError: text("last_error"),
+	// Counts from the most recent run, for the dashboard line.
+	bookings: integer("bookings").default(0).notNull(),
+	created: integer("created").default(0).notNull(),
+	updated: integer("updated").default(0).notNull(),
+	deleted: integer("deleted").default(0).notNull(),
+	failureCount: integer("failure_count").default(0).notNull(),
+	// Runs failed in a row — drives escalation (one blip vs a real outage).
+	consecutiveFailures: integer("consecutive_failures").default(0).notNull(),
+	updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type CalendarSyncStatus = typeof calendarSyncStatus.$inferSelect;
