@@ -73,6 +73,32 @@ export function looksLikePem(key: string): boolean {
 		/-----END [A-Z ]*PRIVATE KEY-----/.test(key);
 }
 
+/**
+ * Name the actual mistake in GOOGLE_SERVICE_ACCOUNT_KEY without ever
+ * echoing the secret. A private key is ~1700 chars starting with a PEM
+ * header; anything else is a recognisable paste error, and saying which
+ * one turns a red banner into a one-line fix.
+ */
+export function describeKeyProblem(key: string): string {
+	const k = key.trim();
+	const fix =
+		"Fix: open the service-account JSON, copy ONLY the private_key value (the block from -----BEGIN PRIVATE KEY----- to -----END PRIVATE KEY-----, quotes not included), paste it into GOOGLE_SERVICE_ACCOUNT_KEY in Vercel, and redeploy.";
+	if (!k) return `GOOGLE_SERVICE_ACCOUNT_KEY is empty. ${fix}`;
+	if (k.startsWith("{")) {
+		return `GOOGLE_SERVICE_ACCOUNT_KEY holds the whole JSON file, not just the key. ${fix}`;
+	}
+	if (/^[a-f0-9]{20,60}$/i.test(k)) {
+		return `GOOGLE_SERVICE_ACCOUNT_KEY looks like the private_key_id (a short hex string), not the key itself. ${fix}`;
+	}
+	if (k.includes("PRIVATE KEY") && !looksLikePem(k)) {
+		return `GOOGLE_SERVICE_ACCOUNT_KEY looks truncated — it mentions PRIVATE KEY but is missing the full BEGIN/END block. ${fix}`;
+	}
+	if (k.length < 200) {
+		return `GOOGLE_SERVICE_ACCOUNT_KEY is too short (${k.length} chars) to be a private key — looks like the wrong field was pasted. ${fix}`;
+	}
+	return `GOOGLE_SERVICE_ACCOUNT_KEY doesn't contain a PEM private-key block. ${fix}`;
+}
+
 export function getCalendarConfig(): CalendarConfig | null {
 	const calendarId = process.env.GOOGLE_CALENDAR_ID;
 	const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -108,9 +134,7 @@ async function getAccessToken(cfg: CalendarConfig): Promise<string> {
 		}),
 	);
 	if (!looksLikePem(cfg.privateKey)) {
-		throw new Error(
-			"GOOGLE_SERVICE_ACCOUNT_KEY doesn't look like a PEM private key — in Vercel it must be the JSON's private_key value with no surrounding quotes (the -----BEGIN PRIVATE KEY----- … -----END PRIVATE KEY----- block).",
-		);
+		throw new Error(describeKeyProblem(cfg.privateKey));
 	}
 	let signature: string;
 	try {
