@@ -191,6 +191,11 @@ export function bookingEvents(b: Booking): CalendarEvent[] {
 		return map;
 	};
 
+	// Deep link to the booking in the admin. Kept as a bare URL on its own
+	// line so both Google and Apple auto-linkify it into a tap target — the
+	// `url`/source field isn't reliably shown or tappable on mobile.
+	const adminUrl = `https://${DOMAIN}/admin/bookings/${b.id}`;
+
 	const events: CalendarEvent[] = [];
 	for (const kind of ["deliver", "collect"] as const) {
 		const time = kind === "deliver" ? b.deliveryTime : b.pickupTime;
@@ -206,6 +211,7 @@ export function bookingEvents(b: Booking): CalendarEvent[] {
 					...base,
 					gear.length ? `Gear:\n${gear.join("\n")}` : "",
 					!time ? `No ${kind === "deliver" ? "delivery" : "pickup"} time set yet.` : "",
+					`Open booking: ${adminUrl}`,
 				]
 					.filter(Boolean)
 					.join("\n"),
@@ -214,7 +220,7 @@ export function bookingEvents(b: Booking): CalendarEvent[] {
 				date,
 				minutes,
 				stamp,
-				url: `https://${DOMAIN}/admin/bookings/${b.id}`,
+				url: adminUrl,
 			});
 		}
 	}
