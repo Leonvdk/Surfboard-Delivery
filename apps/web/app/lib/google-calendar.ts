@@ -63,7 +63,31 @@ export function normalizePrivateKey(raw: string): string {
 	// Restore newlines. Double-escaped first so we don't leave a stray
 	// backslash behind, then the common single-escaped form.
 	k = k.replace(/\\r\\n/g, "\n").replace(/\\\\n/g, "\n").replace(/\\n/g, "\n");
-	return k.trim();
+	k = k.trim();
+
+	if (looksLikePem(k)) return k;
+
+	// Not a PEM yet — but a very common setup mistake is a base64 value,
+	// either the whole PEM base64'd ("to avoid newline issues") or just the
+	// key's base64 body with the -----BEGIN/END----- lines stripped. Both
+	// are recoverable, so recover them rather than making Leon re-paste.
+	const compact = k.replace(/\s+/g, "");
+	if (compact.length > 100 && /^[A-Za-z0-9+/]+={0,2}$/.test(compact)) {
+		// Case 1: base64 of a full PEM → decode reveals the BEGIN/END block.
+		try {
+			const decoded = Buffer.from(compact, "base64").toString("utf8");
+			if (looksLikePem(decoded)) return decoded.trim();
+		} catch {
+			/* fall through */
+		}
+		// Case 2: bare base64 body (no armor). Google keys are PKCS#8, so
+		// wrap it in the matching header at 64-char lines. If the guess is
+		// wrong, signing throws the friendly DECODER message downstream.
+		const wrapped = compact.match(/.{1,64}/g)?.join("\n") ?? compact;
+		return `-----BEGIN PRIVATE KEY-----\n${wrapped}\n-----END PRIVATE KEY-----\n`;
+	}
+
+	return k;
 }
 
 /** True when the string at least looks like a PEM private key, so we can
@@ -96,7 +120,11 @@ export function describeKeyProblem(key: string): string {
 	if (k.length < 200) {
 		return `GOOGLE_SERVICE_ACCOUNT_KEY is too short (${k.length} chars) to be a private key — looks like the wrong field was pasted. ${fix}`;
 	}
-	return `GOOGLE_SERVICE_ACCOUNT_KEY doesn't contain a PEM private-key block. ${fix}`;
+	// Safe to show a short prefix: this value is NOT a usable key (that's the
+	// bug), so its first characters can't sign anything — but they tell us
+	// what it actually is (MII…=DER, eyJ…=JSON, LS0…=base64 PEM).
+	const prefix = k.slice(0, 10).replace(/[^\x20-\x7e]/g, "·");
+	return `GOOGLE_SERVICE_ACCOUNT_KEY doesn't contain a PEM private-key block (${k.length} chars, starts "${prefix}…"). ${fix}`;
 }
 
 export function getCalendarConfig(): CalendarConfig | null {
