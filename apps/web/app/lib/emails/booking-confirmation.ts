@@ -1,4 +1,5 @@
 import type { BookingPerson } from "../db/schema";
+import type { PackageTier } from "../pricing";
 
 /**
  * Confirmation email for admin-created bookings — the "Leon already
@@ -12,6 +13,10 @@ import type { BookingPerson } from "../db/schema";
 export interface ConfirmationLine {
 	label: string;
 	amountEuros: number | null;
+	/** Package tier for a per-person line, so the payment link can route it
+	 * through the stable Stripe product a package-restricted discount targets.
+	 * Absent on add-on / incomplete lines. The email itself ignores it. */
+	packageTier?: PackageTier;
 }
 
 export interface BookingConfirmationArgs {

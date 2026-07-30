@@ -10192,3 +10192,15 @@ a.admin-breakdown-label:hover { color: var(--accent); text-decoration: underline
   font-weight: 700;
   color: #1f5e29;
 }
+
+/* ── Discount codes ─────────────────────────────────────────────────── */
+.admin-page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.admin-discount-form .admin-board-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+.admin-discount-ok { color: #1f5e29; font-weight: 600; }

@@ -1,3 +1,5 @@
+import type { PackageTier } from "./pricing";
+import { getPackageProductId } from "./stripe-packages";
 import { getStripe } from "./stripe";
 
 /**
@@ -25,6 +27,10 @@ export interface PaymentLinkLine {
 	/** Shown on the Stripe checkout page, e.g. "Full Package · 8 days — Alice" */
 	label: string;
 	amountEuros: number;
+	/** When set, the line's price is attached to the stable package product,
+	 * so a package-restricted discount code can apply to it. Add-on and
+	 * adjustment lines leave this unset and use a one-off product. */
+	packageTier?: PackageTier;
 }
 
 export interface PaymentLinkResult {
@@ -111,15 +117,28 @@ export async function createBookingPaymentLink(args: {
 	try {
 		const priceIds: string[] = [];
 		for (const line of finalLines) {
+			// Package lines attach to the stable package product so a
+			// package-restricted discount code can target them; everything
+			// else (add-ons, adjustments) uses a one-off product carrying the
+			// descriptive label. A package product lookup that fails falls back
+			// to the label — the link still works, just without the discount
+			// hook for that line.
+			const productId = line.packageTier
+				? await getPackageProductId(line.packageTier)
+				: null;
 			const price = await stripe.prices.create({
 				currency: "eur",
 				unit_amount: Math.round(line.amountEuros * 100),
-				product_data: {
-					// Customer-facing line on the checkout page — keep it about
-					// the gear. The booking ref rides in the payment link's
-					// metadata, which is what the webhook reconciles against.
-					name: line.label,
-				},
+				...(productId
+					? { product: productId }
+					: {
+							product_data: {
+								// Customer-facing line on the checkout page — keep it about
+								// the gear. The booking ref rides in the payment link's
+								// metadata, which is what the webhook reconciles against.
+								name: line.label,
+							},
+						}),
 			});
 			priceIds.push(price.id);
 		}
@@ -127,6 +146,9 @@ export async function createBookingPaymentLink(args: {
 		stage = "creating the payment link (needs Payment Links: Write)";
 		const link = await stripe.paymentLinks.create({
 			line_items: priceIds.map((price) => ({ price, quantity: 1 })),
+			// Let customers enter a discount code at checkout. Stripe validates
+			// it against the promotion codes created on the Discounts page.
+			allow_promotion_codes: true,
 			metadata: {
 				bookingId: String(args.bookingId),
 				requestRef: args.requestRef,

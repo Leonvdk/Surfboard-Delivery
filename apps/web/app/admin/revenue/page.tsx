@@ -1,4 +1,5 @@
 import { desc } from "drizzle-orm";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import type Stripe from "stripe";
 import type { Booking } from "../../lib/db/schema";
@@ -373,7 +374,12 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		<section className="admin-revenue-page">
 			<header className="admin-page-header">
 				<h1>Revenue</h1>
-				<RevenueWindowSelect value={win.key} />
+				<div className="admin-page-header-actions">
+					<Link href="/admin/discounts" className="admin-row-link">
+						Discount codes →
+					</Link>
+					<RevenueWindowSelect value={win.key} />
+				</div>
 			</header>
 
 			{fetchError && (

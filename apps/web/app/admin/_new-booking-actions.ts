@@ -162,6 +162,7 @@ function computeLines(
 		lines.push({
 			label: `${gear} · ${days} days${named}`,
 			amountEuros: amount,
+			packageTier: tier,
 		});
 	}
 	// Booking-level extras get their own lines, priced over the whole
@@ -497,8 +498,15 @@ export async function updateBookingDetails(
 			bookingId,
 			requestRef: `SR-${String(bookingId).padStart(5, "0")}`,
 			lines: lines
-				.filter((l): l is { label: string; amountEuros: number } => l.amountEuros != null)
-				.map((l) => ({ label: l.label, amountEuros: l.amountEuros })),
+				.filter(
+					(l): l is ConfirmationLine & { amountEuros: number } =>
+						l.amountEuros != null,
+				)
+				.map((l) => ({
+					label: l.label,
+					amountEuros: l.amountEuros,
+					packageTier: l.packageTier,
+				})),
 			finalTotalEuros: finalTotal,
 		});
 		paymentLinkUrl = fresh.url;
