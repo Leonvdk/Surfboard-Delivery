@@ -2,7 +2,11 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDb, schema } from "../../../lib/db/client";
+import { getCachedBookings } from "../../_lib/bookings-cache";
+import { getCachedFleet } from "../../_lib/boards-cache";
 import { formatShortDate } from "../../_lib/dates";
+import { gearEarningsByBooking } from "../../_lib/gear-earnings";
+import { eur } from "../../_lib/revenue-metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +72,20 @@ export default async function BoardDetailPage({
 		b.startDate.localeCompare(a.startDate),
 	);
 
+	// What this item has earned — its attributed slice of every producing
+	// booking it served (see gear-revenue for the split rules).
+	const [fleetData, allBookings] = await Promise.all([
+		getCachedFleet(),
+		getCachedBookings(),
+	]);
+	const earnedByBooking =
+		fleetData && allBookings
+			? gearEarningsByBooking(allBookings, fleetData.fleet, fleetData.assignments, id)
+			: new Map<number, number>();
+	let collectedCents = 0;
+	for (const v of earnedByBooking.values()) collectedCents += v;
+	const netCents = collectedCents - (board.purchaseCost ?? 0) * 100;
+
 	return (
 		<section className="admin-detail">
 			<Link href="/admin/boards" className="admin-back">
@@ -93,6 +111,18 @@ export default async function BoardDetailPage({
 					</dd>
 					<dt>Cost</dt>
 					<dd>{board.purchaseCost != null ? `€${board.purchaseCost}` : "—"}</dd>
+					<dt>Collected</dt>
+					<dd>{collectedCents > 0 ? eur(collectedCents) : "—"}</dd>
+					<dt>Net</dt>
+					<dd
+						className={
+							(collectedCents > 0 || board.purchaseCost != null) && netCents < 0
+								? "admin-cell-negative"
+								: undefined
+						}
+					>
+						{collectedCents > 0 || board.purchaseCost != null ? eur(netCents) : "—"}
+					</dd>
 					<dt>Purchased</dt>
 					<dd>{board.purchaseDate ? formatShortDate(board.purchaseDate) : "—"}</dd>
 					{board.notes && (
@@ -113,6 +143,11 @@ export default async function BoardDetailPage({
 
 			<article className="admin-card">
 				<h2>Assignment history</h2>
+				<p className="admin-card-hint">
+					The € on each row is this item&apos;s share of that booking&apos;s
+					revenue — for a board+wetsuit or premium package, split by the value
+					of the part it provided.
+				</p>
 				{sorted.length === 0 ? (
 					<p className="admin-empty-inline">
 						This board hasn&apos;t been on any bookings yet.
@@ -136,6 +171,11 @@ export default async function BoardDetailPage({
 								{a.swappedFromId != null && (
 									<span className="admin-board-swap-flag">swapped in</span>
 								)}
+								{earnedByBooking.get(a.bookingId) ? (
+									<span className="admin-board-earned">
+										{eur(earnedByBooking.get(a.bookingId)!)}
+									</span>
+								) : null}
 								{a.notes && <span className="admin-cell-muted">{a.notes}</span>}
 							</li>
 						))}

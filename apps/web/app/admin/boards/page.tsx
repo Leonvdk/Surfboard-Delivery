@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Board, BoardStatus } from "../../lib/db/schema";
 import { createBoard } from "../_board-actions";
 import { BoardEditButton } from "../_components/board-edit-modal";
+import { getCachedBookings } from "../_lib/bookings-cache";
 import {
 	type AssignmentWithBooking,
 	getCachedFleet,
@@ -9,7 +10,9 @@ import {
 	nextFreeDate,
 } from "../_lib/boards-cache";
 import { formatShortDate, todayIso } from "../_lib/dates";
+import { buildGearEarnings, type GearEarningsResult } from "../_lib/gear-earnings";
 import { BOARD_SIZES, WETSUIT_SIZES } from "../_lib/gear-sizes";
+import { eur } from "../_lib/revenue-metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +35,8 @@ export default async function AdminBoardsPage() {
 
 	const { fleet, assignments } = data;
 	const today = todayIso();
+	const bookings = (await getCachedBookings()) ?? [];
+	const earnings = buildGearEarnings(bookings, fleet, assignments);
 
 	const boards = fleet.filter((b) => b.kind === "board");
 	const wetsuits = fleet.filter((b) => b.kind === "wetsuit");
@@ -39,6 +44,8 @@ export default async function AdminBoardsPage() {
 
 	const activeBoards = boards.filter((b) => b.status === "active");
 	const totalInvested = fleet.reduce((sum, b) => sum + (b.purchaseCost ?? 0), 0);
+	const totalCollected = earnings.totalCollectedCents;
+	const netCents = totalCollected - totalInvested * 100;
 	const freeToday = activeBoards.filter(
 		(b) => !isOutToday(assignments, b.id, today),
 	).length;
@@ -78,6 +85,26 @@ export default async function AdminBoardsPage() {
 						across boards, wetsuits &amp; other gear
 					</p>
 				</article>
+				<article className="admin-today-card">
+					<div className="admin-today-heading">
+						<span className="admin-today-kicker">Collected</span>
+						<span className="admin-today-count">{eur(totalCollected)}</span>
+					</div>
+					<p className="admin-empty-inline">
+						earned by the fleet, all-time
+					</p>
+				</article>
+				<article className="admin-today-card">
+					<div className="admin-today-heading">
+						<span className="admin-today-kicker">Net</span>
+						<span
+							className={`admin-today-count${netCents < 0 ? " admin-today-count--negative" : ""}`}
+						>
+							{eur(netCents)}
+						</span>
+					</div>
+					<p className="admin-empty-inline">collected − invested</p>
+				</article>
 			</div>
 
 			{/* ── Boards ── */}
@@ -100,6 +127,8 @@ export default async function AdminBoardsPage() {
 								<th>Right now</th>
 								<th>Next free</th>
 								<th>Cost</th>
+								<th>Collected</th>
+								<th>Net</th>
 								<th />
 							</tr>
 						</thead>
@@ -110,6 +139,7 @@ export default async function AdminBoardsPage() {
 									board={b}
 									assignments={assignments}
 									today={today}
+									collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
 								/>
 							))}
 						</tbody>
@@ -142,12 +172,19 @@ export default async function AdminBoardsPage() {
 								<th>Size</th>
 								<th>Status</th>
 								<th>Cost</th>
+								<th>Collected</th>
+								<th>Net</th>
 								<th />
 							</tr>
 						</thead>
 						<tbody>
 							{wetsuits.map((b) => (
-								<SimpleGearRow key={b.id} item={b} showSize />
+								<SimpleGearRow
+									key={b.id}
+									item={b}
+									showSize
+									collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
+								/>
 							))}
 						</tbody>
 					</table>
@@ -180,12 +217,19 @@ export default async function AdminBoardsPage() {
 								<th>Item</th>
 								<th>Status</th>
 								<th>Cost</th>
+								<th>Collected</th>
+								<th>Net</th>
 								<th />
 							</tr>
 						</thead>
 						<tbody>
 							{otherGear.map((b) => (
-								<SimpleGearRow key={b.id} item={b} showSize={false} />
+								<SimpleGearRow
+									key={b.id}
+									item={b}
+									showSize={false}
+									collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
+								/>
 							))}
 						</tbody>
 					</table>
@@ -202,14 +246,37 @@ export default async function AdminBoardsPage() {
 	);
 }
 
+/** Collected + Net cells shared by every gear row. Net = collected − cost;
+ * "—" when we have neither a cost nor any earnings to show. */
+function EarningsCells({
+	collectedCents,
+	costEuros,
+}: {
+	collectedCents: number;
+	costEuros: number | null;
+}) {
+	const netCents = collectedCents - (costEuros ?? 0) * 100;
+	const hasData = collectedCents > 0 || costEuros != null;
+	return (
+		<>
+			<td>{collectedCents > 0 ? eur(collectedCents) : "—"}</td>
+			<td className={hasData && netCents < 0 ? "admin-cell-negative" : undefined}>
+				{hasData ? eur(netCents) : "—"}
+			</td>
+		</>
+	);
+}
+
 function BoardRow({
 	board: b,
 	assignments,
 	today,
+	collectedCents,
 }: {
 	board: Board;
 	assignments: AssignmentWithBooking[];
 	today: string;
+	collectedCents: number;
 }) {
 	const out = isOutToday(assignments, b.id, today);
 	const free = nextFreeDate(assignments, b.id, today);
@@ -260,6 +327,7 @@ function BoardRow({
 						: formatShortDate(free)}
 			</td>
 			<td>{b.purchaseCost != null ? `€${b.purchaseCost}` : "—"}</td>
+			<EarningsCells collectedCents={collectedCents} costEuros={b.purchaseCost} />
 			<td>
 				<BoardEditButton
 					board={{
@@ -278,7 +346,15 @@ function BoardRow({
 	);
 }
 
-function SimpleGearRow({ item: b, showSize }: { item: Board; showSize: boolean }) {
+function SimpleGearRow({
+	item: b,
+	showSize,
+	collectedCents,
+}: {
+	item: Board;
+	showSize: boolean;
+	collectedCents: number;
+}) {
 	return (
 		<tr>
 			<td>
@@ -302,6 +378,7 @@ function SimpleGearRow({ item: b, showSize }: { item: Board; showSize: boolean }
 				</span>
 			</td>
 			<td>{b.purchaseCost != null ? `€${b.purchaseCost}` : "—"}</td>
+			<EarningsCells collectedCents={collectedCents} costEuros={b.purchaseCost} />
 			<td>
 				<BoardEditButton
 					board={{

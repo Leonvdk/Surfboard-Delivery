@@ -10183,3 +10183,12 @@ a.admin-breakdown-label:hover { color: var(--accent); text-decoration: underline
   flex-wrap: wrap;
 }
 .admin-charge-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+/* ── Per-gear revenue (fleet collected / net) ───────────────────────── */
+.admin-cell-negative { color: #b1291a; }
+.admin-today-count--negative { color: #b1291a; }
+.admin-board-earned {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #1f5e29;
+}
