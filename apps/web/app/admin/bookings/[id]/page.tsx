@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { updateBookingNotes, updateFinalTotal } from "../../_actions";
+import {
+	markPaidInCash,
+	markUnpaid,
+	updateBookingNotes,
+	updateFinalTotal,
+} from "../../_actions";
 import { DeleteBookingButton } from "../../_components/delete-booking-button";
 import { QuickStatusButtons } from "../../_components/quick-status-buttons";
 import { StatusPicker } from "../../_components/status-picker";
@@ -191,7 +196,7 @@ export default async function BookingDetailPage({
 								</dd>
 							</>
 						)}
-						{booking.paidAt && (
+						{booking.paidAt ? (
 							<>
 								<dt>Paid</dt>
 								<dd>
@@ -203,7 +208,27 @@ export default async function BookingDetailPage({
 										day: "numeric",
 										month: "short",
 									})}{" "}
-									via Stripe
+									{booking.paymentMethod === "cash" ? "in cash" : "via Stripe"}
+									<form action={markUnpaid.bind(null, id)} className="admin-inline-form">
+										<button type="submit" className="admin-linkish-btn">
+											mark unpaid
+										</button>
+									</form>
+								</dd>
+							</>
+						) : (
+							<>
+								<dt>Payment</dt>
+								<dd>
+									Not paid yet
+									<form
+										action={markPaidInCash.bind(null, id)}
+										className="admin-inline-form"
+									>
+										<button type="submit" className="admin-btn admin-btn--small">
+											Mark paid in cash
+										</button>
+									</form>
 								</dd>
 							</>
 						)}

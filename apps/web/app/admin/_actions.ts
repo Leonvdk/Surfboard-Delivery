@@ -82,6 +82,57 @@ export async function updateBookingNotes(id: number, ownerNotes: string) {
 	revalidatePath(`/admin/bookings/${id}`);
 }
 
+/**
+ * Mark a pay-on-delivery booking as paid in cash. Sets paidAt/amount/method
+ * from the booking's final (or estimated) total, so cash revenue shows up
+ * in the Revenue page's collected total instead of being invisible. Safe to
+ * re-run; it just re-stamps. Undo via markUnpaid if it was a mistake.
+ */
+export async function markPaidInCash(id: number) {
+	const db = getDb();
+	if (!db) throw new Error("Database not configured");
+	const [b] = await db
+		.select()
+		.from(schema.bookings)
+		.where(eq(schema.bookings.id, id))
+		.limit(1);
+	if (!b) throw new Error("Booking not found");
+	const cents = Math.round((b.finalTotal ?? b.estimatedTotal ?? 0) * 100);
+	await db
+		.update(schema.bookings)
+		.set({
+			paidAt: new Date(),
+			paidAmountCents: cents,
+			paymentMethod: "cash",
+			updatedAt: new Date(),
+		})
+		.where(eq(schema.bookings.id, id));
+	updateTag(BOOKINGS_TAG);
+	revalidatePath(`/admin/bookings/${id}`);
+	revalidatePath("/admin/revenue");
+	revalidatePath("/admin");
+}
+
+/** Undo a payment mark (e.g. cash logged by mistake). Only clears — it
+ * won't touch a Stripe-confirmed payment's money, just the flags. */
+export async function markUnpaid(id: number) {
+	const db = getDb();
+	if (!db) throw new Error("Database not configured");
+	await db
+		.update(schema.bookings)
+		.set({
+			paidAt: null,
+			paidAmountCents: null,
+			paymentMethod: null,
+			updatedAt: new Date(),
+		})
+		.where(eq(schema.bookings.id, id));
+	updateTag(BOOKINGS_TAG);
+	revalidatePath(`/admin/bookings/${id}`);
+	revalidatePath("/admin/revenue");
+	revalidatePath("/admin");
+}
+
 export async function updateFinalTotal(id: number, finalTotal: number | null) {
 	const db = getDb();
 	if (!db) throw new Error("Database not configured");

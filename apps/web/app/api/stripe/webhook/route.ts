@@ -134,6 +134,7 @@ export async function POST(request: Request) {
 			.set({
 				paidAt: new Date(),
 				paidAmountCents: session.amount_total ?? null,
+				paymentMethod: "card",
 				updatedAt: new Date(),
 			})
 			.where(eq(schema.bookings.id, bookingId));

@@ -105,6 +105,12 @@ export const bookings = pgTable(
 		// completes. Drives the "payment confirmed" stage + the push to Leon.
 		paidAt: timestamp("paid_at"),
 		paidAmountCents: integer("paid_amount_cents"),
+		// How the money came in: "card" (Stripe webhook) or "cash" (Leon
+		// marks a pay-on-delivery booking paid). Null = not paid yet. Without
+		// this the Revenue page can only see online card money, so every
+		// pay-on-delivery booking is invisible to profit — the biggest P&L
+		// distortion for a business whose promise is "you pay on delivery".
+		paymentMethod: text("payment_method"),
 		// Proof that the confirmation email actually went out. Resend sends
 		// server-side, so these never appear in Leon's mail client Sent
 		// folder — the admin shows this timestamp + provider id instead.

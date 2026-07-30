@@ -1,8 +1,11 @@
 import { desc } from "drizzle-orm";
+import { cookies } from "next/headers";
 import type Stripe from "stripe";
+import type { Booking } from "../../lib/db/schema";
 import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
 import { RevenueBarChart } from "../_components/revenue-bar-chart";
+import { RevenueWindowSelect } from "../_components/revenue-window-select";
 import { addExpense, deleteExpense } from "../_expense-actions";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import { getCachedFleet } from "../_lib/boards-cache";
@@ -12,15 +15,21 @@ import {
 	monthlyRollup,
 	packageMix,
 } from "../_lib/insights";
+import {
+	computeRevenue,
+	eur,
+	expenseBreakdown,
+	onTheBooksCents,
+} from "../_lib/revenue-metrics";
+import {
+	REVENUE_WINDOW_COOKIE,
+	resolveWindow,
+} from "../_lib/revenue-window";
 
 export const dynamic = "force-dynamic";
 
 interface Props {
-	searchParams: Promise<{ days?: string }>;
-}
-
-function formatEuros(amountCents: number): string {
-	return `€${(amountCents / 100).toFixed(2)}`;
+	searchParams: Promise<{ window?: string }>;
 }
 
 function formatDate(unix: number): string {
@@ -31,11 +40,123 @@ function formatDate(unix: number): string {
 	});
 }
 
+function iso(d: Date): string {
+	return d.toISOString().slice(0, 10);
+}
+function isoDaysAgo(n: number): string {
+	return iso(new Date(Date.now() - n * 86_400_000));
+}
+/** Monday (ISO week start) of the week containing `dateIso`. */
+function weekStart(dateIso: string): string {
+	const d = new Date(`${dateIso}T00:00:00Z`);
+	const dow = (d.getUTCDay() + 6) % 7; // Mon=0
+	d.setUTCDate(d.getUTCDate() - dow);
+	return iso(d);
+}
+function monthKey(dateIso: string): string {
+	return `${dateIso.slice(0, 7)}-01`;
+}
+function labelMonth(key: string): string {
+	const parts = key.split("-");
+	const y = Number(parts[0]);
+	const mo = Number(parts[1]);
+	return new Date(Date.UTC(y, mo - 1, 1)).toLocaleDateString("en-GB", {
+		month: "short",
+		year: "2-digit",
+		timeZone: "UTC",
+	});
+}
+function labelWeek(key: string): string {
+	const d = new Date(`${key}T00:00:00Z`);
+	return `wk ${d.getUTCDate()} ${d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}`;
+}
+
+const PRODUCING = new Set(["confirmed", "in_progress", "completed"]);
+function billed(b: Booking): number {
+	return Math.round((b.finalTotal ?? b.estimatedTotal ?? 0) * 100);
+}
+
+/**
+ * Revenue trend: billed € (recognised on checkout) per bucket, sized so the
+ * bar count stays readable — daily for short windows, weekly for mid, monthly
+ * for long / all-time.
+ */
+function buildTrend(
+	bookings: Booking[],
+	startIso: string | null,
+	endIso: string,
+	granularity: "day" | "week" | "month",
+): Array<{ day: string; cents: number; label?: string }> {
+	// Sum billed into buckets keyed by the granularity.
+	const byBucket = new Map<string, number>();
+	let earliest: string | null = null;
+	for (const b of bookings) {
+		if (b.deletedAt || !PRODUCING.has(b.status)) continue;
+		if (b.checkout > endIso) continue;
+		if (startIso && b.checkout < startIso) continue;
+		const key =
+			granularity === "day"
+				? b.checkout
+				: granularity === "week"
+					? weekStart(b.checkout)
+					: monthKey(b.checkout);
+		byBucket.set(key, (byBucket.get(key) ?? 0) + billed(b));
+		if (!earliest || b.checkout < earliest) earliest = b.checkout;
+	}
+
+	// Build a continuous axis start → end so gaps show as empty bars.
+	const start = startIso ?? earliest ?? endIso;
+	const out: Array<{ day: string; cents: number; label?: string }> = [];
+	if (granularity === "day") {
+		const endMs = new Date(`${endIso}T00:00:00Z`).getTime();
+		const startMs = new Date(`${start}T00:00:00Z`).getTime();
+		const days = Math.min(
+			62,
+			Math.max(1, Math.round((endMs - startMs) / 86_400_000) + 1),
+		);
+		for (let i = 0; i < days; i++) {
+			const d = iso(new Date(endMs - (days - 1 - i) * 86_400_000));
+			out.push({ day: d, cents: byBucket.get(d) ?? 0 });
+		}
+	} else if (granularity === "week") {
+		let cur = weekStart(start);
+		const last = weekStart(endIso);
+		let guard = 0;
+		while (cur <= last && guard++ < 60) {
+			out.push({ day: cur, cents: byBucket.get(cur) ?? 0, label: labelWeek(cur) });
+			const d = new Date(`${cur}T00:00:00Z`);
+			d.setUTCDate(d.getUTCDate() + 7);
+			cur = iso(d);
+		}
+	} else {
+		let cur = monthKey(start);
+		const last = monthKey(endIso);
+		let guard = 0;
+		while (cur <= last && guard++ < 120) {
+			out.push({ day: cur, cents: byBucket.get(cur) ?? 0, label: labelMonth(cur) });
+			const parts = cur.split("-");
+			const y = Number(parts[0]);
+			const mo = Number(parts[1]);
+			cur = mo === 12 ? `${y + 1}-01-01` : `${y}-${String(mo + 1).padStart(2, "0")}-01`;
+		}
+	}
+	return out;
+}
+
+function pctLabel(part: number, whole: number): string {
+	if (whole <= 0) return "—";
+	return `${Math.round((part / whole) * 100)}%`;
+}
+
 export default async function AdminRevenuePage({ searchParams }: Props) {
 	const params = await searchParams;
-	const daysRaw = params.days ?? "30";
-	const days = Math.max(7, Math.min(180, Number.parseInt(daysRaw, 10) || 30));
-	const startTime = Math.floor(Date.now() / 1000) - days * 86400;
+	const cookieStore = await cookies();
+	const win = resolveWindow(
+		params.window ?? cookieStore.get(REVENUE_WINDOW_COOKIE)?.value,
+	);
+	const today = todayIso();
+	const startIso = win.days ? isoDaysAgo(win.days - 1) : null;
+	const startUnix = win.days ? Math.floor(Date.now() / 1000) - win.days * 86400 : 0;
 
 	const stripe = getStripe();
 	if (!stripe) {
@@ -43,42 +164,32 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			<section className="admin-empty">
 				<h1>Stripe not configured</h1>
 				<p>
-					Set <code>STRIPE_SECRET_KEY</code> in Vercel (use a Restricted API Key
-					with <code>charges:read</code> and <code>customers:read</code> only)
-					to see revenue.
+					Set <code>STRIPE_SECRET_KEY</code> in Vercel (Restricted key with{" "}
+					<code>charges:read</code>) to see card revenue. Booking-based revenue
+					still works without it.
 				</p>
 			</section>
 		);
 	}
 
+	// Stripe is now only needed for refunds + the recent-charges list;
+	// "collected online" comes from the booking's webhook-set paidAt, which
+	// is more reliable than scanning charges. Paginate so long/all-time
+	// windows aren't capped at 100.
 	let charges: Stripe.Charge[] = [];
 	let fetchError: string | null = null;
 	try {
-		const list = await stripe.charges.list({
-			created: { gte: startTime },
-			limit: 100,
-		});
-		charges = list.data.filter((c) => c.status === "succeeded" && !c.refunded);
+		const listParams: Stripe.ChargeListParams = { limit: 100 };
+		if (win.days) listParams.created = { gte: startUnix };
+		for await (const c of stripe.charges.list(listParams)) {
+			if (c.status === "succeeded") charges.push(c);
+			if (charges.length >= 2000) break; // safety bound
+		}
 	} catch (err) {
 		fetchError = err instanceof Error ? err.message : "Unknown Stripe error";
 	}
 
-	if (fetchError) {
-		return (
-			<section className="admin-empty">
-				<h1>Stripe fetch error</h1>
-				<pre style={{ whiteSpace: "pre-wrap" }}>{fetchError}</pre>
-			</section>
-		);
-	}
-
-	// Bookings-side insights (funnel, package mix, monthly rollup) — served
-	// from the shared cached dataset, no extra DB roundtrip.
 	const allBookings = (await getCachedBookings()) ?? [];
-
-	// Expenses + gear investment → the "do we actually make money" view.
-	// Caveat shown in the UI: Stripe only sees online payments, so cash /
-	// pay-on-delivery revenue isn't part of the P&L number.
 	const db = getDb();
 	const allExpenses = db
 		? await db
@@ -87,88 +198,173 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				.orderBy(desc(schema.expenses.date), desc(schema.expenses.id))
 		: [];
 	const fleetData = await getCachedFleet();
+
+	// ── Money, all booking-based and window-scoped ──────────────────────
+	const m = computeRevenue(allBookings, startIso, today);
+	const onBooks = onTheBooksCents(allBookings, today);
+
+	// Refunds (online only) attributed by charge date within the window.
+	const refundedCents = charges.reduce((s, c) => s + c.amount_refunded, 0);
+
+	// Expenses: manual (in window) + gear purchased in window; all-time
+	// includes undated gear so nothing is lost.
 	const gearInvested = (fleetData?.fleet ?? []).reduce(
 		(s, b) => s + (b.purchaseCost ?? 0),
 		0,
 	);
-	const periodStartIso = new Date(startTime * 1000).toISOString().slice(0, 10);
-	// Gear bought inside the window counts as a period expense; gear
-	// without a purchase date can't be windowed and counts all-time only.
-	const gearPurchasedInPeriod = (fleetData?.fleet ?? [])
-		.filter((b) => b.purchaseDate && b.purchaseDate >= periodStartIso)
-		.reduce((s, b) => s + (b.purchaseCost ?? 0), 0);
-	const manualExpensesInPeriod = allExpenses
-		.filter((e) => e.date >= periodStartIso)
-		.reduce((s, e) => s + e.amount, 0);
-	const periodExpensesTotal = manualExpensesInPeriod + gearPurchasedInPeriod;
-	const allExpensesTotal = allExpenses.reduce((s, e) => s + e.amount, 0);
-	const today = todayIso();
+	const gearPurchasedInPeriod = win.days
+		? (fleetData?.fleet ?? [])
+				.filter((b) => b.purchaseDate && startIso && b.purchaseDate >= startIso)
+				.reduce((s, b) => s + (b.purchaseCost ?? 0), 0)
+		: gearInvested;
+	const expenses = expenseBreakdown(
+		allExpenses,
+		gearPurchasedInPeriod,
+		startIso,
+		today,
+	);
+	const resultCents = m.billedCents - refundedCents - expenses.totalCents;
+	const marginPct =
+		m.billedCents > 0 ? Math.round((resultCents / m.billedCents) * 100) : null;
+
+	const trend = buildTrend(
+		allBookings,
+		startIso,
+		today,
+		!win.days || win.days > 180 ? "month" : win.days <= 31 ? "day" : "week",
+	);
+
 	const funnel = bookingFunnelForRecentMonths(allBookings);
-	const mix = packageMix(allBookings, 90);
+	const mix = packageMix(allBookings, win.days ?? 3650);
 	const rollup = monthlyRollup(allBookings, 12);
 
-	const totalCents = charges.reduce((sum, c) => sum + c.amount, 0);
-	const refundedCents = charges.reduce((sum, c) => sum + c.amount_refunded, 0);
-	const netCents = totalCents - refundedCents;
-	// Operating result for the selected window: Stripe net − manual expenses.
-	const resultCents = netCents - periodExpensesTotal * 100;
-
-	// Group charges by day for the trend
-	const byDay = new Map<string, number>();
-	for (const c of charges) {
-		const day = new Date(c.created * 1000).toISOString().slice(0, 10);
-		byDay.set(day, (byDay.get(day) ?? 0) + c.amount - c.amount_refunded);
-	}
-	const trendDays: Array<{ day: string; cents: number }> = [];
-	for (let i = days - 1; i >= 0; i--) {
-		const d = new Date(Date.now() - i * 86400 * 1000).toISOString().slice(0, 10);
-		trendDays.push({ day: d, cents: byDay.get(d) ?? 0 });
-	}
 	return (
 		<section className="admin-revenue-page">
 			<header className="admin-page-header">
 				<h1>Revenue</h1>
-				<div className="admin-page-summary">
-					<span>Window: last {days} days</span>
-					<span>{charges.length} charges</span>
-					<span>Gross {formatEuros(totalCents)}</span>
-					<span>Refunded {formatEuros(refundedCents)}</span>
-					<span>Net {formatEuros(netCents)}</span>
-				</div>
+				<RevenueWindowSelect value={win.key} />
 			</header>
 
-			<article className="admin-card admin-card--compact">
-				<h2>Daily net revenue</h2>
-				<RevenueBarChart trend={trendDays} />
+			{fetchError && (
+				<p className="admin-card-hint admin-sync-status--warn">
+					Stripe fetch failed ({fetchError}) — card refunds may be missing;
+					booking figures below are unaffected.
+				</p>
+			)}
+
+			{/* Headline money tiles — the "how's the business" glance. */}
+			<article className="admin-card">
+				<div className="admin-kpi-grid">
+					<div className="admin-kpi">
+						<span className="admin-kpi-label">Revenue billed</span>
+						<strong>{eur(m.billedCents)}</strong>
+						<span className="admin-kpi-sub">{m.bookingCount} bookings</span>
+					</div>
+					<div className="admin-kpi">
+						<span className="admin-kpi-label">Collected</span>
+						<strong>{eur(m.collectedCents)}</strong>
+						<span className="admin-kpi-sub">
+							{eur(m.collectedCashCents)} cash · {eur(m.collectedOnlineCents)} card
+						</span>
+					</div>
+					<div
+						className={`admin-kpi${m.outstandingCents > 0 ? " admin-kpi--warn" : ""}`}
+					>
+						<span className="admin-kpi-label">Outstanding</span>
+						<strong>{eur(m.outstandingCents)}</strong>
+						<span className="admin-kpi-sub">unpaid, gear out this window</span>
+					</div>
+					<div
+						className={`admin-kpi admin-kpi--result${resultCents < 0 ? " admin-kpi--negative" : ""}`}
+					>
+						<span className="admin-kpi-label">Profit</span>
+						<strong>{eur(resultCents)}</strong>
+						<span className="admin-kpi-sub">
+							{marginPct != null ? `${marginPct}% margin` : "—"}
+						</span>
+					</div>
+					<div className="admin-kpi">
+						<span className="admin-kpi-label">Avg booking</span>
+						<strong>{eur(m.aovCents)}</strong>
+						<span className="admin-kpi-sub">{eur(m.perGearNightCents)}/gear-night</span>
+					</div>
+					<div className="admin-kpi">
+						<span className="admin-kpi-label">On the books</span>
+						<strong>{eur(onBooks)}</strong>
+						<span className="admin-kpi-sub">upcoming, not yet paid</span>
+					</div>
+				</div>
+				<p className="admin-card-hint">
+					Revenue recognised when gear goes back (checkout), for confirmed /
+					in-progress / completed bookings in the {win.label.toLowerCase()}{" "}
+					window. Cash is only counted once you tap <strong>Mark paid in
+					cash</strong> on the booking. Card figures come from Stripe.
+				</p>
 			</article>
 
+			<article className="admin-card admin-card--compact">
+				<h2>
+					Revenue billed ·{" "}
+					{!win.days || win.days > 180
+						? "by month"
+						: win.days <= 31
+							? "by day"
+							: "by week"}
+				</h2>
+				<RevenueBarChart trend={trend} />
+			</article>
+
+			{/* P&L breakdown */}
 			<article className="admin-card">
-				<h2>Profit &amp; loss · last {days} days</h2>
+				<h2>Profit &amp; loss · {win.label.toLowerCase()}</h2>
 				<div className="admin-pl-grid">
 					<div className="admin-pl-tile">
-						<span className="admin-pl-label">Revenue (Stripe net)</span>
-						<strong>{formatEuros(netCents)}</strong>
+						<span className="admin-pl-label">Revenue billed</span>
+						<strong>{eur(m.billedCents)}</strong>
 					</div>
 					<div className="admin-pl-tile">
-						<span className="admin-pl-label">Expenses (incl. gear)</span>
-						<strong>−€{periodExpensesTotal}</strong>
+						<span className="admin-pl-label">Refunds (card)</span>
+						<strong>−{eur(refundedCents)}</strong>
+					</div>
+					<div className="admin-pl-tile">
+						<span className="admin-pl-label">Expenses</span>
+						<strong>−{eur(expenses.totalCents)}</strong>
 					</div>
 					<div
 						className={`admin-pl-tile admin-pl-tile--result${resultCents < 0 ? " admin-pl-tile--negative" : ""}`}
 					>
 						<span className="admin-pl-label">Result</span>
-						<strong>{formatEuros(resultCents)}</strong>
+						<strong>{eur(resultCents)}</strong>
 					</div>
 				</div>
+				{expenses.groups.length > 0 && (
+					<>
+						<h4 className="admin-modal-section">Where it goes</h4>
+						<ul className="mix-list">
+							{expenses.groups.map((g) => (
+								<li key={g.category} className="mix-row">
+									<div className="mix-row-heading">
+										<span>{g.category}</span>
+										<span className="mix-row-pct">
+											{eur(g.cents)} · {Math.round(g.pct)}%
+										</span>
+									</div>
+									<div className="mix-row-bar">
+										<div
+											className="mix-row-bar-fill mix-row-bar-fill--board"
+											style={{ width: `${g.pct}%` }}
+										/>
+									</div>
+								</li>
+							))}
+						</ul>
+					</>
+				)}
 				<p className="admin-card-hint">
-					This window: €{gearPurchasedInPeriod} gear purchases (by purchase
-					date, from the Fleet page) + €{manualExpensesInPeriod} logged
-					expenses. All-time: €{gearInvested} invested in gear ·
-					€{allExpensesTotal} expenses logged · €{gearInvested + allExpensesTotal}{" "}
-					total spent. Gear without a purchase date only counts in the
-					all-time number — set purchase dates on the Fleet page to place
-					them in time. Stripe only sees online payments — cash /
-					pay-on-delivery revenue isn&apos;t counted here.
+					All-time: {eur(gearInvested * 100)} invested in gear ·{" "}
+					{eur(allExpenses.reduce((s, e) => s + e.amount, 0) * 100)} logged
+					expenses. Gear without a purchase date only counts in the all-time
+					number — set purchase dates on the Fleet page to place them in time.
 				</p>
 			</article>
 
@@ -178,44 +374,19 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					<div className="admin-board-form-grid">
 						<label>
 							Date
-							<input
-								type="date"
-								name="date"
-								required
-								defaultValue={today}
-								className="admin-input"
-							/>
+							<input type="date" name="date" required defaultValue={today} className="admin-input" />
 						</label>
 						<label>
 							What
-							<input
-								type="text"
-								name="label"
-								required
-								placeholder="e.g. Paid João for deliveries"
-								className="admin-input"
-							/>
+							<input type="text" name="label" required placeholder="e.g. Paid João for deliveries" className="admin-input" />
 						</label>
 						<label>
 							Amount (€)
-							<input
-								type="number"
-								name="amount"
-								required
-								min="1"
-								placeholder="e.g. 40"
-								className="admin-input"
-							/>
+							<input type="number" name="amount" required min="1" placeholder="e.g. 40" className="admin-input" />
 						</label>
 						<label>
 							Category
-							<input
-								type="text"
-								name="category"
-								placeholder="delivery / fuel / repair…"
-								className="admin-input"
-								list="expense-categories"
-							/>
+							<input type="text" name="category" placeholder="delivery / fuel / repair…" className="admin-input" list="expense-categories" />
 							<datalist id="expense-categories">
 								<option value="delivery" />
 								<option value="fuel" />
@@ -226,15 +397,11 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 							</datalist>
 						</label>
 					</div>
-					<button type="submit" className="admin-btn">
-						Add expense
-					</button>
+					<button type="submit" className="admin-btn">Add expense</button>
 				</form>
 
 				{allExpenses.length === 0 ? (
-					<p className="admin-empty-inline">
-						No expenses logged yet — add the first one above.
-					</p>
+					<p className="admin-empty-inline">No expenses logged yet — add the first one above.</p>
 				) : (
 					<div className="admin-table-wrap">
 						<table className="admin-table">
@@ -255,19 +422,13 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 											<td>{formatShortDate(e.date)}</td>
 											<td>
 												<div className="admin-cell-strong">{e.label}</div>
-												{e.notes && (
-													<div className="admin-cell-muted">{e.notes}</div>
-												)}
+												{e.notes && <div className="admin-cell-muted">{e.notes}</div>}
 											</td>
 											<td>{e.category ?? "—"}</td>
 											<td>€{e.amount}</td>
 											<td>
 												<form action={deleteWithId}>
-													<button
-														type="submit"
-														className="admin-board-remove"
-														aria-label={`Delete expense: ${e.label}`}
-													>
+													<button type="submit" className="admin-board-remove" aria-label={`Delete expense: ${e.label}`}>
 														delete
 													</button>
 												</form>
@@ -286,91 +447,41 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					<h2>Booking funnel</h2>
 					<p className="admin-card-hint">This month vs last.</p>
 					<div className="funnel-grid">
-						<div className="funnel-col">
-							<div className="funnel-col-label">{funnel.current.label}</div>
-							<div className="funnel-metric">
-								<span>Requested</span>
-								<strong>{funnel.current.requested}</strong>
+						{[funnel.current, funnel.previous].map((col, idx) => (
+							<div
+								key={col.label}
+								className={`funnel-col${idx === 1 ? " funnel-col--dim" : ""}`}
+							>
+								<div className="funnel-col-label">{col.label}</div>
+								<div className="funnel-metric"><span>Requested</span><strong>{col.requested}</strong></div>
+								<div className="funnel-metric"><span>Confirmed</span><strong>{col.confirmed}</strong></div>
+								<div className="funnel-metric"><span>In progress</span><strong>{col.inProgress}</strong></div>
+								<div className="funnel-metric"><span>Completed</span><strong>{col.completed}</strong></div>
+								<div className="funnel-metric"><span>Cancelled</span><strong>{col.cancelled}</strong></div>
+								<div className="funnel-metric funnel-metric--rate">
+									<span>Confirm rate</span>
+									<strong>{col.confirmRate != null ? `${Math.round(col.confirmRate * 100)}%` : "—"}</strong>
+								</div>
 							</div>
-							<div className="funnel-metric">
-								<span>Confirmed</span>
-								<strong>{funnel.current.confirmed}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>In progress</span>
-								<strong>{funnel.current.inProgress}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>Completed</span>
-								<strong>{funnel.current.completed}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>Cancelled</span>
-								<strong>{funnel.current.cancelled}</strong>
-							</div>
-							<div className="funnel-metric funnel-metric--rate">
-								<span>Confirm rate</span>
-								<strong>
-									{funnel.current.confirmRate != null
-										? `${Math.round(funnel.current.confirmRate * 100)}%`
-										: "—"}
-								</strong>
-							</div>
-						</div>
-						<div className="funnel-col funnel-col--dim">
-							<div className="funnel-col-label">{funnel.previous.label}</div>
-							<div className="funnel-metric">
-								<span>Requested</span>
-								<strong>{funnel.previous.requested}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>Confirmed</span>
-								<strong>{funnel.previous.confirmed}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>In progress</span>
-								<strong>{funnel.previous.inProgress}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>Completed</span>
-								<strong>{funnel.previous.completed}</strong>
-							</div>
-							<div className="funnel-metric">
-								<span>Cancelled</span>
-								<strong>{funnel.previous.cancelled}</strong>
-							</div>
-							<div className="funnel-metric funnel-metric--rate">
-								<span>Confirm rate</span>
-								<strong>
-									{funnel.previous.confirmRate != null
-										? `${Math.round(funnel.previous.confirmRate * 100)}%`
-										: "—"}
-								</strong>
-							</div>
-						</div>
+						))}
 					</div>
 				</article>
 
 				<article className="admin-card">
 					<h2>Package mix</h2>
-					<p className="admin-card-hint">Last 90 days · across all guests.</p>
+					<p className="admin-card-hint">{win.label} · across all guests.</p>
 					{mix.length === 0 ? (
 						<p className="admin-empty-inline">Not enough per-person data yet.</p>
 					) : (
 						<ul className="mix-list">
-							{mix.map((m) => (
-								<li key={m.key} className="mix-row">
+							{mix.map((mi) => (
+								<li key={mi.key} className="mix-row">
 									<div className="mix-row-heading">
-										<span>{m.label}</span>
-										<span className="mix-row-pct">
-											{m.count} · {Math.round(m.pct)}%
-										</span>
+										<span>{mi.label}</span>
+										<span className="mix-row-pct">{mi.count} · {Math.round(mi.pct)}%</span>
 									</div>
 									<div className="mix-row-bar">
-										<div
-											className={`mix-row-bar-fill mix-row-bar-fill--${m.key}`}
-											style={{ width: `${m.pct}%` }}
-										/>
+										<div className={`mix-row-bar-fill mix-row-bar-fill--${mi.key}`} style={{ width: `${mi.pct}%` }} />
 									</div>
 								</li>
 							))}
@@ -381,7 +492,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 			<article className="admin-card">
 				<h2>Monthly rollup</h2>
-				<p className="admin-card-hint">Confirmed and completed bookings by check-in month.</p>
+				<p className="admin-card-hint">Confirmed and completed bookings by check-in month · last 12 months.</p>
 				<div className="admin-table-wrap">
 					<table className="admin-table">
 						<thead>
@@ -397,11 +508,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						</thead>
 						<tbody>
 							{rollup.length === 0 && (
-								<tr>
-									<td colSpan={7} className="admin-empty-inline">
-										No producing bookings yet.
-									</td>
-								</tr>
+								<tr><td colSpan={7} className="admin-empty-inline">No producing bookings yet.</td></tr>
 							)}
 							{rollup.map((r) => (
 								<tr key={r.month}>
@@ -420,7 +527,11 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			</article>
 
 			<article className="admin-card">
-				<h2>Recent charges</h2>
+				<h2>Recent card charges</h2>
+				<p className="admin-card-hint">
+					Online Stripe payments in the {win.label.toLowerCase()} window ·{" "}
+					{pctLabel(refundedCents, charges.reduce((s, c) => s + c.amount, 0))} refunded.
+				</p>
 				<div className="admin-table-wrap">
 					<table className="admin-table">
 						<thead>
@@ -429,16 +540,11 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 								<th>Customer</th>
 								<th>Amount</th>
 								<th>Refunded</th>
-								<th>Description</th>
 							</tr>
 						</thead>
 						<tbody>
 							{charges.length === 0 && (
-								<tr>
-									<td colSpan={5} className="admin-empty-inline">
-										No successful charges in this window.
-									</td>
-								</tr>
+								<tr><td colSpan={4} className="admin-empty-inline">No card charges in this window.</td></tr>
 							)}
 							{charges.slice(0, 40).map((c) => (
 								<tr key={c.id}>
@@ -447,9 +553,8 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 										<div className="admin-cell-strong">{c.billing_details?.name || "—"}</div>
 										<div className="admin-cell-muted">{c.billing_details?.email || c.receipt_email || ""}</div>
 									</td>
-									<td>{formatEuros(c.amount)}</td>
-									<td>{c.amount_refunded > 0 ? formatEuros(c.amount_refunded) : "—"}</td>
-									<td>{c.description || "—"}</td>
+									<td>{eur(c.amount)}</td>
+									<td>{c.amount_refunded > 0 ? eur(c.amount_refunded) : "—"}</td>
 								</tr>
 							))}
 						</tbody>

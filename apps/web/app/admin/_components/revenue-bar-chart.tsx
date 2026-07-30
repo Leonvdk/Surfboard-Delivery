@@ -3,8 +3,11 @@
 import { useState } from "react";
 
 interface Point {
-	day: string; // ISO YYYY-MM-DD
+	day: string; // ISO YYYY-MM-DD (bucket start)
 	cents: number;
+	// Pre-formatted label for week/month buckets; when absent the day is
+	// formatted as a date. Lets one chart serve day/week/month granularity.
+	label?: string;
 }
 
 interface Props {
@@ -44,7 +47,7 @@ export function RevenueBarChart({ trend }: Props) {
 						left: `${((hoverIdx! + 0.5) / trend.length) * 100}%`,
 					}}
 				>
-					<div className="revenue-chart-tooltip-date">{formatDate(hover.day)}</div>
+					<div className="revenue-chart-tooltip-date">{hover.label ?? formatDate(hover.day)}</div>
 					<div className="revenue-chart-tooltip-value">{formatEuros(hover.cents)}</div>
 				</div>
 			)}
@@ -62,7 +65,7 @@ export function RevenueBarChart({ trend }: Props) {
 							onMouseLeave={() => setHoverIdx(null)}
 							onFocus={() => setHoverIdx(i)}
 							onBlur={() => setHoverIdx(null)}
-							aria-label={`${formatDate(d.day)}: ${formatEuros(d.cents)}`}
+							aria-label={`${d.label ?? formatDate(d.day)}: ${formatEuros(d.cents)}`}
 						>
 							<div
 								className="revenue-chart-bar"
