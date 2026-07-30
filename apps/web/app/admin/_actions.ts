@@ -83,12 +83,19 @@ export async function updateBookingNotes(id: number, ownerNotes: string) {
 }
 
 /**
- * Mark a pay-on-delivery booking as paid in cash. Sets paidAt/amount/method
- * from the booking's final (or estimated) total, so cash revenue shows up
- * in the Revenue page's collected total instead of being invisible. Safe to
- * re-run; it just re-stamps. Undo via markUnpaid if it was a mistake.
+ * Mark a booking paid by cash or card, for money that came in outside the
+ * Stripe webhook (cash on delivery, a bank transfer, or a card charge the
+ * webhook missed). Stamps paidAt/amount/method from the final (or
+ * estimated) total, so it shows up in the Revenue page's collected total.
+ * Safe to re-run. Undo via markUnpaid.
+ *
+ * Bound with both args in a form action, so formData arrives last.
  */
-export async function markPaidInCash(id: number) {
+export async function markPaid(
+	id: number,
+	method: "cash" | "card",
+	_formData?: FormData,
+) {
 	const db = getDb();
 	if (!db) throw new Error("Database not configured");
 	const [b] = await db
@@ -103,7 +110,7 @@ export async function markPaidInCash(id: number) {
 		.set({
 			paidAt: new Date(),
 			paidAmountCents: cents,
-			paymentMethod: "cash",
+			paymentMethod: method,
 			updatedAt: new Date(),
 		})
 		.where(eq(schema.bookings.id, id));

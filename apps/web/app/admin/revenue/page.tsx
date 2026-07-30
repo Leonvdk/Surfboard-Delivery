@@ -272,7 +272,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					>
 						<span className="admin-kpi-label">Outstanding</span>
 						<strong>{eur(m.outstandingCents)}</strong>
-						<span className="admin-kpi-sub">unpaid, gear out this window</span>
+						<span className="admin-kpi-sub">billed, not marked paid</span>
 					</div>
 					<div
 						className={`admin-kpi admin-kpi--result${resultCents < 0 ? " admin-kpi--negative" : ""}`}

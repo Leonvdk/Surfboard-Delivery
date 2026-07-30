@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-	markPaidInCash,
+	markPaid,
 	markUnpaid,
 	updateBookingNotes,
 	updateFinalTotal,
 } from "../../_actions";
+import {
+	accommodationLabel,
+	deliveryMessages,
+	mapsUrl,
+	waUrl,
+} from "../../_lib/links";
 import { DeleteBookingButton } from "../../_components/delete-booking-button";
 import { QuickStatusButtons } from "../../_components/quick-status-buttons";
 import { StatusPicker } from "../../_components/status-picker";
@@ -20,7 +26,7 @@ import { BoardAssignmentPanel } from "../../_components/board-assignment";
 import { BookingEditSendButton } from "../../_components/booking-edit-send";
 import { BookingProgress } from "../../_components/booking-progress";
 import { ExtraGearPanel } from "../../_components/extra-gear";
-import { CheckIcon, EuroIcon, RepeatIcon, SplitDatesIcon, WarningIcon } from "../../_components/icons";
+import { CheckIcon, EuroIcon, ExternalIcon, RepeatIcon, SplitDatesIcon, WarningIcon } from "../../_components/icons";
 import { getCachedBookings } from "../../_lib/bookings-cache";
 import { getCachedFleet } from "../../_lib/boards-cache";
 import { isBookingLate } from "../../_lib/booking-stage";
@@ -91,6 +97,24 @@ export default async function BookingDetailPage({
 						</a>
 					</p>
 				)}
+				{booking.phone && (
+					<div className="admin-quick-msgs">
+						{deliveryMessages(booking.name).map((m) => {
+							const u = waUrl(booking.phone, m.text);
+							return u ? (
+								<a
+									key={m.label}
+									href={u}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="admin-chip-link"
+								>
+									{m.label}
+								</a>
+							) : null;
+						})}
+					</div>
+				)}
 				{repeat && repeat.priorCount > 0 && (
 					<p className="admin-detail-repeat">
 						<RepeatIcon /> <strong>Repeat customer</strong> — {repeat.priorCount + 1}
@@ -143,7 +167,19 @@ export default async function BookingDetailPage({
 							)}
 						</dd>
 						<dt>Accommodation</dt>
-						<dd>{booking.accommodation || "—"}</dd>
+						<dd className="admin-accommodation-cell">
+							{accommodationLabel(booking.accommodation)}
+							{mapsUrl(booking.accommodation) && (
+								<a
+									href={mapsUrl(booking.accommodation)!}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="admin-nav-link"
+								>
+									<ExternalIcon /> Navigate
+								</a>
+							)}
+						</dd>
 						<dt>People</dt>
 						<dd>{booking.peopleCount}</dd>
 						{booking.finalTotal != null ? (
@@ -221,14 +257,18 @@ export default async function BookingDetailPage({
 								<dt>Payment</dt>
 								<dd>
 									Not paid yet
-									<form
-										action={markPaidInCash.bind(null, id)}
-										className="admin-inline-form"
-									>
-										<button type="submit" className="admin-btn admin-btn--small">
-											Mark paid in cash
-										</button>
-									</form>
+									<span className="admin-mark-paid">
+										<form action={markPaid.bind(null, id, "cash")} className="admin-inline-form">
+											<button type="submit" className="admin-btn admin-btn--small">
+												Paid · cash
+											</button>
+										</form>
+										<form action={markPaid.bind(null, id, "card")} className="admin-inline-form">
+											<button type="submit" className="admin-btn admin-btn--small">
+												Paid · card
+											</button>
+										</form>
+									</span>
 								</dd>
 							</>
 						)}

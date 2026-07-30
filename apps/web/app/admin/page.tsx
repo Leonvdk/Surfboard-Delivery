@@ -12,7 +12,8 @@ import {
 import { getCachedFleet } from "./_lib/boards-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 import { getSyncHealth } from "../lib/google-calendar";
-import { WarningIcon } from "./_components/icons";
+import { ExternalIcon, WarningIcon } from "./_components/icons";
+import { accommodationLabel, mapsUrl } from "./_lib/links";
 
 export const dynamic = "force-dynamic";
 
@@ -68,16 +69,20 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 	const today = todayIso();
 	const inSevenDays = addDaysIso(today, 7);
 
-	const deliveringToday = allBookings.filter(
-		(b) =>
-			b.checkin === today &&
-			ACTIVE_STATUSES.includes(b.status),
-	);
-	const pickingUpToday = allBookings.filter(
-		(b) =>
-			b.checkout === today &&
-			(b.status === "confirmed" || b.status === "in_progress"),
-	);
+	// Ordered into a sensible run: by scheduled time (untimed last), so the
+	// list reads top-to-bottom as the morning goes.
+	const byRunTime = (t: (b: Booking) => string | null) => (a: Booking, b: Booking) =>
+		(t(a) ?? "99:99").localeCompare(t(b) ?? "99:99");
+	const deliveringToday = allBookings
+		.filter((b) => b.checkin === today && ACTIVE_STATUSES.includes(b.status))
+		.sort(byRunTime((b) => b.deliveryTime));
+	const pickingUpToday = allBookings
+		.filter(
+			(b) =>
+				b.checkout === today &&
+				(b.status === "confirmed" || b.status === "in_progress"),
+		)
+		.sort(byRunTime((b) => b.pickupTime));
 	// Next 7 days covers BOTH runs — a delivery going out and a booking
 	// coming back both need Leon in the van. One booking can appear twice
 	// (its delivery this week, its pickup next), so we build per-run items
@@ -389,14 +394,21 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 							<th>People</th>
 							<th>Price</th>
 							<th>Status</th>
-							<th />
 						</tr>
 					</thead>
 					<tbody>
 						{filteredBookings.map((b) => (
-							<tr key={b.id}>
+							<tr key={b.id} className="admin-row-clickable">
 								<td>{formatShortDate(b.createdAt.toISOString().slice(0, 10))}</td>
 								<td>
+									{/* Stretched link makes the whole row tappable (mobile-
+										first) without nesting the interactive status control
+										inside an anchor. */}
+									<Link
+										href={`/admin/bookings/${b.id}`}
+										className="admin-row-stretch"
+										aria-label={`Open booking for ${b.name}`}
+									/>
 									<div className="admin-cell-strong">
 										{b.name}
 										{b.ownerNotes ? (
@@ -419,9 +431,10 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 								</td>
 								<td>{b.peopleCount}</td>
 								<td>{priceCell(b)}</td>
-								<td>
+								<td className="admin-cell-interactive">
 									{/* Tag shows the lifecycle stage, matching the stepper
-										on the booking page — not the raw status enum. */}
+										on the booking page — not the raw status enum. Kept
+										above the row's stretched link so it stays tappable. */}
 									<StatusPicker
 										bookingId={b.id}
 										current={b.status}
@@ -429,14 +442,6 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 										paid={Boolean(b.paidAt)}
 										late={isBookingLate(b, today)}
 									/>
-								</td>
-								<td>
-									<Link
-										href={`/admin/bookings/${b.id}`}
-										className="admin-row-link"
-									>
-										Open&nbsp;→
-									</Link>
 								</td>
 							</tr>
 						))}
@@ -513,13 +518,24 @@ function TodayRow({
 						{b.peopleCount}p · {nights(b)}n
 					</span>
 					<span className="admin-today-accommodation">
-						{b.accommodation ?? "—"}
+						{accommodationLabel(b.accommodation)}
 					</span>
 					<span className={`admin-status admin-status--stage-${stageKey}`}>
 						{stage}
 					</span>
 				</div>
 			</Link>
+			{mapsUrl(b.accommodation) && (
+				<a
+					href={mapsUrl(b.accommodation)!}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="admin-today-nav"
+					aria-label={`Navigate to ${b.name}`}
+				>
+					<ExternalIcon />
+				</a>
+			)}
 		</li>
 	);
 }
