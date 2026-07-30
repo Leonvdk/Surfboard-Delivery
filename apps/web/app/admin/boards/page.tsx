@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Board, BoardStatus } from "../../lib/db/schema";
 import { createBoard } from "../_board-actions";
 import { BoardEditButton } from "../_components/board-edit-modal";
+import { GearSection } from "../_components/gear-section";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import {
 	type AssignmentWithBooking,
@@ -108,118 +109,127 @@ export default async function AdminBoardsPage() {
 			</div>
 
 			{/* ── Boards ── */}
-			<div className="admin-list-heading">
-				<h2>Boards</h2>
-			</div>
-
-			{boards.length === 0 && (
-				<p className="admin-empty-inline">No boards yet — add one below.</p>
-			)}
-
-			{boards.length > 0 && (
-				<div className="admin-table-wrap">
-					<table className="admin-table">
-						<thead>
-							<tr>
-								<th>Board</th>
-								<th>Size</th>
-								<th>Status</th>
-								<th>Right now</th>
-								<th>Next free</th>
-								<th>Cost</th>
-								<th>Collected</th>
-								<th>Net</th>
-								<th />
-							</tr>
-						</thead>
-						<tbody>
-							{boards.map((b) => (
-								<BoardRow
-									key={b.id}
-									board={b}
-									assignments={assignments}
-									today={today}
-									collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
-								/>
-							))}
-						</tbody>
-					</table>
-				</div>
-			)}
-
-			<AddGearForm
-				kind="board"
-				title="Add a board"
-				namePlaceholder="e.g. 7'8 Funboard — blue NSP"
-				sizes={BOARD_SIZES}
-			/>
+			<GearSection
+				title="Boards"
+				count={boards.length}
+				summary={`${freeToday} free today`}
+				addForm={
+					<AddGearForm
+						kind="board"
+						title="Add a board"
+						namePlaceholder="e.g. 7'8 Funboard — blue NSP"
+						sizes={BOARD_SIZES}
+					/>
+				}
+			>
+				{boards.length === 0 ? (
+					<p className="admin-empty-inline">No boards yet — tap + to add one.</p>
+				) : (
+					<div className="admin-table-wrap">
+						<table className="admin-table">
+							<thead>
+								<tr>
+									<th>Board</th>
+									<th>Size</th>
+									<th>Status</th>
+									<th>Right now</th>
+									<th>Next free</th>
+									<th>Cost</th>
+									<th>Collected</th>
+									<th>Net</th>
+									<th />
+								</tr>
+							</thead>
+							<tbody>
+								{boards.map((b) => (
+									<BoardRow
+										key={b.id}
+										board={b}
+										assignments={assignments}
+										today={today}
+										collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
+									/>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
+			</GearSection>
 
 			{/* ── Wetsuits ── */}
-			<div className="admin-list-heading">
-				<h2>Wetsuits</h2>
-			</div>
-
-			{wetsuits.length === 0 && (
-				<p className="admin-empty-inline">No wetsuits tracked yet — add one below.</p>
-			)}
-
-			{wetsuits.length > 0 && (
-				<div className="admin-table-wrap">
-					<table className="admin-table">
-						<thead>
-							<tr>
-								<th>Wetsuit</th>
-								<th>Size</th>
-								<th>Status</th>
-								<th>Cost</th>
-								<th>Collected</th>
-								<th>Net</th>
-								<th />
-							</tr>
-						</thead>
-						<tbody>
-							{wetsuits.map((b) => (
-								<SimpleGearRow
-									key={b.id}
-									item={b}
-									showSize
-									collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
-								/>
-							))}
-						</tbody>
-					</table>
-				</div>
-			)}
-
-			<AddGearForm
-				kind="wetsuit"
-				title="Add a wetsuit"
-				namePlaceholder="e.g. Xcel 4/3 — black/blue"
-				sizes={WETSUIT_SIZES}
-			/>
+			<GearSection
+				title="Wetsuits"
+				count={wetsuits.length}
+				addForm={
+					<AddGearForm
+						kind="wetsuit"
+						title="Add a wetsuit"
+						namePlaceholder="e.g. Xcel 4/3 — black/blue"
+						sizes={WETSUIT_SIZES}
+					/>
+				}
+			>
+				{wetsuits.length === 0 ? (
+					<p className="admin-empty-inline">
+						No wetsuits tracked yet — tap + to add one.
+					</p>
+				) : (
+					<div className="admin-table-wrap">
+						<table className="admin-table">
+							<thead>
+								<tr>
+									<th>Wetsuit</th>
+									<th>Size</th>
+									<th>Status</th>
+									<th>Cost</th>
+									<th>Collected</th>
+									<th>Net</th>
+									<th />
+								</tr>
+							</thead>
+							<tbody>
+								{wetsuits.map((b) => (
+									<SimpleGearRow
+										key={b.id}
+										item={b}
+										showSize
+										collectedCents={earnings.byGearId.get(b.id)?.collectedCents ?? 0}
+									/>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
+			</GearSection>
 
 			{/* ── Other gear ── */}
-			<div className="admin-list-heading">
-				<h2>Other gear</h2>
-			</div>
-
-			{otherGear.length === 0 && (
-				<p className="admin-empty-inline">
-					Ponchos, changing mats, tubs, roof racks… add them below.
-				</p>
-			)}
-
-			{otherGear.length > 0 && (
-				<div className="admin-table-wrap">
-					<table className="admin-table">
-						<thead>
-							<tr>
-								<th>Item</th>
-								<th>Status</th>
-								<th>Cost</th>
-								<th>Collected</th>
-								<th>Net</th>
-								<th />
+			<GearSection
+				title="Other gear"
+				count={otherGear.length}
+				addForm={
+					<AddGearForm
+						kind="other"
+						title="Add other gear"
+						namePlaceholder="e.g. Roof rack pads — pair"
+						sizes={null}
+					/>
+				}
+			>
+				{otherGear.length === 0 ? (
+					<p className="admin-empty-inline">
+						Ponchos, changing mats, tubs, roof racks… tap + to add them.
+					</p>
+				) : (
+					<div className="admin-table-wrap">
+						<table className="admin-table">
+							<thead>
+								<tr>
+									<th>Item</th>
+									<th>Status</th>
+									<th>Cost</th>
+									<th>Collected</th>
+									<th>Net</th>
+									<th />
 							</tr>
 						</thead>
 						<tbody>
@@ -235,13 +245,7 @@ export default async function AdminBoardsPage() {
 					</table>
 				</div>
 			)}
-
-			<AddGearForm
-				kind="other"
-				title="Add other gear"
-				namePlaceholder="e.g. Roof rack pads — pair"
-				sizes={null}
-			/>
+			</GearSection>
 		</section>
 	);
 }
@@ -409,9 +413,7 @@ function AddGearForm({
 	sizes: readonly string[] | null;
 }) {
 	return (
-		<article className="admin-card">
-			<h2>{title}</h2>
-			<form action={createBoard} className="admin-board-form">
+		<form action={createBoard} className="admin-board-form" aria-label={title}>
 				<input type="hidden" name="kind" value={kind} />
 				<div className="admin-board-form-grid">
 					<label>
@@ -469,6 +471,5 @@ function AddGearForm({
 					Add
 				</button>
 			</form>
-		</article>
 	);
 }

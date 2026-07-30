@@ -10205,6 +10205,76 @@ a.admin-breakdown-label:hover { color: var(--accent); text-decoration: underline
 }
 .admin-discount-ok { color: #1f5e29; font-weight: 600; }
 
+/* ── Collapsible fleet sections ─────────────────────────────────────── */
+.admin-gear-section { margin-top: 20px; }
+.admin-gear-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: var(--border);
+  padding-bottom: 6px;
+}
+.admin-gear-toggle {
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+  flex: 1;
+}
+.admin-gear-toggle h2 { margin: 0; font-size: 1.125rem; }
+.admin-gear-chevron {
+  color: var(--gray-500);
+  font-size: 0.9rem;
+  width: 14px;
+}
+.admin-gear-count {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--gray-100);
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-size: 0.8125rem;
+}
+.admin-gear-summary {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-left: auto;
+  padding-right: 4px;
+}
+.admin-gear-add {
+  appearance: none;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-gear-add:hover { background: var(--accent); color: var(--white); }
+.admin-gear-addform {
+  border: var(--border-light);
+  background: var(--gray-100);
+  padding: var(--space-md);
+  margin-top: 10px;
+}
+.admin-gear-body { margin-top: 10px; }
+
 /* ── Live surf cams (public) ────────────────────────────────────────── */
 .surfcam-hero { padding-bottom: var(--space-lg); }
 .surfcam-live-section { padding-top: var(--space-lg); }
