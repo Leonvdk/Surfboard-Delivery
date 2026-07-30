@@ -185,6 +185,50 @@ export const boards = pgTable(
 export type Board = typeof boards.$inferSelect;
 export type NewBoard = typeof boards.$inferInsert;
 
+/* ── Payments ────────────────────────────────────────────────────── */
+
+/**
+ * A ledger of payments against a booking — one row per payment. This is
+ * what makes split and partial payments work without corrupting totals: a
+ * booking can be €120 on card (via Stripe) plus €40 cash for an upsell,
+ * and the two live as separate rows that sum to what was collected.
+ *
+ * The booking's own paidAt / paidAmountCents / paymentMethod columns are
+ * kept as a denormalised summary (recomputed whenever a payment changes)
+ * so the dashboard, stage machine and status tags don't each need to sum
+ * the ledger. `paidAt` set = the booking is settled (payments ≥ billed).
+ */
+export const paymentMethodEnum = pgEnum("payment_method_kind", [
+	"card",
+	"cash",
+	"other",
+]);
+export type PaymentMethodKind = (typeof paymentMethodEnum.enumValues)[number];
+
+export const bookingPayments = pgTable(
+	"booking_payments",
+	{
+		id: serial("id").primaryKey(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		bookingId: integer("booking_id")
+			.notNull()
+			.references(() => bookings.id, { onDelete: "cascade" }),
+		amountCents: integer("amount_cents").notNull(),
+		method: paymentMethodEnum("method").notNull(),
+		note: text("note"),
+		// Stripe charge/session id when the payment came from the webhook,
+		// so a re-delivered webhook can't insert the same payment twice.
+		stripeChargeId: text("stripe_charge_id"),
+	},
+	(t) => ({
+		bookingIdx: index("booking_payments_booking_idx").on(t.bookingId),
+		stripeIdx: index("booking_payments_stripe_idx").on(t.stripeChargeId),
+	}),
+);
+
+export type BookingPayment = typeof bookingPayments.$inferSelect;
+export type NewBookingPayment = typeof bookingPayments.$inferInsert;
+
 /**
  * Which board is out on which booking, for which window. A mid-booking
  * swap = two rows on the same person: the old one truncated to the swap

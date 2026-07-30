@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
+import { getDb, schema } from "../../../lib/db/client";
+import { updateBookingNotes, updateFinalTotal } from "../../_actions";
 import {
-	markPaid,
-	markUnpaid,
-	updateBookingNotes,
-	updateFinalTotal,
-} from "../../_actions";
+	addPayment,
+	removePayment,
+	settleBooking,
+} from "../../_payment-actions";
+import { eur } from "../../_lib/revenue-metrics";
 import {
 	accommodationLabel,
 	deliveryMessages,
@@ -63,6 +66,22 @@ export default async function BookingDetailPage({
 
 	const repeat = getRepeatCustomer(allBookings, booking.id, booking.email);
 	const fleetData = await getCachedFleet();
+
+	// Payment ledger for this booking (card via Stripe, cash on delivery,
+	// splits, upsells). Sums to what's been collected; billed − paid = owed.
+	const paymentsDb = getDb();
+	const bookingPayments = paymentsDb
+		? await paymentsDb
+				.select()
+				.from(schema.bookingPayments)
+				.where(eq(schema.bookingPayments.bookingId, booking.id))
+				.orderBy(schema.bookingPayments.createdAt)
+		: [];
+	const billedCents = Math.round(
+		(booking.finalTotal ?? booking.estimatedTotal ?? 0) * 100,
+	);
+	const paidCents = bookingPayments.reduce((s, p) => s + p.amountCents, 0);
+	const owedCents = Math.max(0, billedCents - paidCents);
 	const cancellationState =
 		booking.status === "requested"
 			? computeCancellationState(booking.createdAt, booking.checkin)
@@ -232,46 +251,15 @@ export default async function BookingDetailPage({
 								</dd>
 							</>
 						)}
-						{booking.paidAt ? (
-							<>
-								<dt>Paid</dt>
-								<dd>
-									<EuroIcon />{" "}
-									{booking.paidAmountCents != null
-										? `€${(booking.paidAmountCents / 100).toFixed(2).replace(/\.00$/, "")} · `
-										: ""}
-									{booking.paidAt.toLocaleDateString("en-GB", {
-										day: "numeric",
-										month: "short",
-									})}{" "}
-									{booking.paymentMethod === "cash" ? "in cash" : "via Stripe"}
-									<form action={markUnpaid.bind(null, id)} className="admin-inline-form">
-										<button type="submit" className="admin-linkish-btn">
-											mark unpaid
-										</button>
-									</form>
-								</dd>
-							</>
-						) : (
-							<>
-								<dt>Payment</dt>
-								<dd>
-									Not paid yet
-									<span className="admin-mark-paid">
-										<form action={markPaid.bind(null, id, "cash")} className="admin-inline-form">
-											<button type="submit" className="admin-btn admin-btn--small">
-												Paid · cash
-											</button>
-										</form>
-										<form action={markPaid.bind(null, id, "card")} className="admin-inline-form">
-											<button type="submit" className="admin-btn admin-btn--small">
-												Paid · card
-											</button>
-										</form>
-									</span>
-								</dd>
-							</>
-						)}
+						<dt>Payment</dt>
+						<dd>
+							<EuroIcon /> {eur(paidCents)} of {eur(billedCents)} paid
+							{owedCents > 0 ? (
+								<span className="admin-cell-muted"> · {eur(owedCents)} owed</span>
+							) : billedCents > 0 ? (
+								<span className="admin-paid-badge"> · settled</span>
+							) : null}
+						</dd>
 						<dt>Submitted</dt>
 						<dd>
 							{booking.createdAt.toLocaleDateString("en-GB", {
@@ -451,6 +439,94 @@ export default async function BookingDetailPage({
 			})()}
 
 			{fleetData && <ExtraGearPanel booking={booking} data={fleetData} />}
+
+			<article className="admin-card">
+				<h2>Payments</h2>
+				<p className="admin-card-hint">
+					{eur(paidCents)} collected of {eur(billedCents)} billed
+					{owedCents > 0 ? ` · ${eur(owedCents)} still owed` : " · settled"}.
+					Card payments land here automatically from Stripe; add cash, a
+					transfer, or an upsell below — splits are fine.
+				</p>
+
+				{bookingPayments.length > 0 && (
+					<div className="admin-table-wrap">
+						<table className="admin-table">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Method</th>
+									<th>Note</th>
+									<th>Amount</th>
+									<th />
+								</tr>
+							</thead>
+							<tbody>
+								{bookingPayments.map((p) => (
+									<tr key={p.id}>
+										<td>{formatShortDate(p.createdAt.toISOString().slice(0, 10))}</td>
+										<td style={{ textTransform: "capitalize" }}>{p.method}</td>
+										<td>{p.note ?? "—"}</td>
+										<td>{eur(p.amountCents)}</td>
+										<td>
+											<form action={removePayment.bind(null, p.id, booking.id)}>
+												<button type="submit" className="admin-board-remove" aria-label="Remove payment">
+													delete
+												</button>
+											</form>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
+
+				<form action={addPayment.bind(null, booking.id)} className="admin-board-form admin-expense-form">
+					<div className="admin-board-form-grid">
+						<label>
+							Amount (€)
+							<input
+								type="number"
+								name="amount"
+								required
+								min="1"
+								step="0.01"
+								defaultValue={owedCents > 0 ? owedCents / 100 : ""}
+								className="admin-input"
+							/>
+						</label>
+						<label>
+							Method
+							<select name="method" className="admin-input" defaultValue="cash">
+								<option value="cash">Cash</option>
+								<option value="card">Card</option>
+								<option value="other">Other</option>
+							</select>
+						</label>
+						<label>
+							Note (optional)
+							<input type="text" name="note" placeholder="e.g. roof-rack upsell" className="admin-input" />
+						</label>
+					</div>
+					<button type="submit" className="admin-btn">Add payment</button>
+				</form>
+
+				{owedCents > 0 && (
+					<div className="admin-mark-paid" style={{ marginTop: "8px" }}>
+						<form action={settleBooking.bind(null, booking.id, "cash")}>
+							<button type="submit" className="admin-btn admin-btn--small">
+								Settle {eur(owedCents)} · cash
+							</button>
+						</form>
+						<form action={settleBooking.bind(null, booking.id, "card")}>
+							<button type="submit" className="admin-btn admin-btn--small">
+								Settle {eur(owedCents)} · card
+							</button>
+						</form>
+					</div>
+				)}
+			</article>
 
 			{booking.message && (
 				<article className="admin-card">

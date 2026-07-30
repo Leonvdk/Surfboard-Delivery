@@ -82,64 +82,6 @@ export async function updateBookingNotes(id: number, ownerNotes: string) {
 	revalidatePath(`/admin/bookings/${id}`);
 }
 
-/**
- * Mark a booking paid by cash or card, for money that came in outside the
- * Stripe webhook (cash on delivery, a bank transfer, or a card charge the
- * webhook missed). Stamps paidAt/amount/method from the final (or
- * estimated) total, so it shows up in the Revenue page's collected total.
- * Safe to re-run. Undo via markUnpaid.
- *
- * Bound with both args in a form action, so formData arrives last.
- */
-export async function markPaid(
-	id: number,
-	method: "cash" | "card",
-	_formData?: FormData,
-) {
-	const db = getDb();
-	if (!db) throw new Error("Database not configured");
-	const [b] = await db
-		.select()
-		.from(schema.bookings)
-		.where(eq(schema.bookings.id, id))
-		.limit(1);
-	if (!b) throw new Error("Booking not found");
-	const cents = Math.round((b.finalTotal ?? b.estimatedTotal ?? 0) * 100);
-	await db
-		.update(schema.bookings)
-		.set({
-			paidAt: new Date(),
-			paidAmountCents: cents,
-			paymentMethod: method,
-			updatedAt: new Date(),
-		})
-		.where(eq(schema.bookings.id, id));
-	updateTag(BOOKINGS_TAG);
-	revalidatePath(`/admin/bookings/${id}`);
-	revalidatePath("/admin/revenue");
-	revalidatePath("/admin");
-}
-
-/** Undo a payment mark (e.g. cash logged by mistake). Only clears — it
- * won't touch a Stripe-confirmed payment's money, just the flags. */
-export async function markUnpaid(id: number) {
-	const db = getDb();
-	if (!db) throw new Error("Database not configured");
-	await db
-		.update(schema.bookings)
-		.set({
-			paidAt: null,
-			paidAmountCents: null,
-			paymentMethod: null,
-			updatedAt: new Date(),
-		})
-		.where(eq(schema.bookings.id, id));
-	updateTag(BOOKINGS_TAG);
-	revalidatePath(`/admin/bookings/${id}`);
-	revalidatePath("/admin/revenue");
-	revalidatePath("/admin");
-}
-
 export async function updateFinalTotal(id: number, finalTotal: number | null) {
 	const db = getDb();
 	if (!db) throw new Error("Database not configured");

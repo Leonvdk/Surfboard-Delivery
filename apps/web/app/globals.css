@@ -10011,3 +10011,5 @@ h1 {
 .admin-row-stretch::after { content: ""; position: absolute; inset: 0; }
 .admin-cell-interactive { position: relative; z-index: 1; }
 .admin-table td:first-child { position: relative; z-index: 1; }
+
+.admin-paid-badge { color: #1f5e29; font-weight: 700; }

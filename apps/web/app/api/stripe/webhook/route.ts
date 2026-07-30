@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getDb, schema } from "../../../lib/db/client";
+import { recomputeBookingPaid } from "../../../lib/payments";
 import { getStripe } from "../../../lib/stripe";
 
 /**
@@ -126,19 +127,33 @@ export async function POST(request: Request) {
 		return NextResponse.json({ received: true });
 	}
 
-	// Idempotent: Stripe retries deliveries, and a second event must not
-	// re-push. First write wins.
-	if (booking.paidAt == null) {
-		await db
-			.update(schema.bookings)
-			.set({
-				paidAt: new Date(),
-				paidAmountCents: session.amount_total ?? null,
-				paymentMethod: "card",
-				updatedAt: new Date(),
-			})
-			.where(eq(schema.bookings.id, bookingId));
+	// Record the payment in the ledger. Idempotent on the charge key, so a
+	// re-delivered webhook can't add the same payment twice — this replaces
+	// the old "first write wins on booking.paidAt" guard and coexists with
+	// any manual cash payment on the same booking.
+	const chargeKey =
+		(typeof session.payment_intent === "string" ? session.payment_intent : null) ??
+		session.id;
+	const already = await db
+		.select({ id: schema.bookingPayments.id })
+		.from(schema.bookingPayments)
+		.where(
+			and(
+				eq(schema.bookingPayments.bookingId, bookingId),
+				eq(schema.bookingPayments.stripeChargeId, chargeKey),
+			),
+		)
+		.limit(1);
 
+	if (already.length === 0) {
+		await db.insert(schema.bookingPayments).values({
+			bookingId,
+			amountCents: session.amount_total ?? 0,
+			method: "card",
+			stripeChargeId: chargeKey,
+			note: "Stripe checkout",
+		});
+		await recomputeBookingPaid(bookingId);
 		revalidateTag("bookings", "max");
 
 		try {

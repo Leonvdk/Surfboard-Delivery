@@ -198,13 +198,26 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				.orderBy(desc(schema.expenses.date), desc(schema.expenses.id))
 		: [];
 	const fleetData = await getCachedFleet();
+	const payments = db
+		? await db
+				.select({
+					bookingId: schema.bookingPayments.bookingId,
+					amountCents: schema.bookingPayments.amountCents,
+					method: schema.bookingPayments.method,
+					createdAt: schema.bookingPayments.createdAt,
+				})
+				.from(schema.bookingPayments)
+		: [];
 
 	// ── Money, all booking-based and window-scoped ──────────────────────
-	const m = computeRevenue(allBookings, startIso, today);
+	const m = computeRevenue(allBookings, payments, startIso, today);
 	const onBooks = onTheBooksCents(allBookings, today);
 
-	// Refunds (online only) attributed by charge date within the window.
-	const refundedCents = charges.reduce((s, c) => s + c.amount_refunded, 0);
+	// Stripe's raw refunded total — informational, shown only in the charges
+	// table. It includes self-test refunds, so it does NOT drive the P&L;
+	// the P&L uses real refunds Leon logs as negative ledger payments
+	// (m.refundedCents), which is 0 until he logs one.
+	const stripeRefundedCents = charges.reduce((s, c) => s + c.amount_refunded, 0);
 
 	// Expenses: manual (in window) + gear purchased in window; all-time
 	// includes undated gear so nothing is lost.
@@ -223,7 +236,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		startIso,
 		today,
 	);
-	const resultCents = m.billedCents - refundedCents - expenses.totalCents;
+	const resultCents = m.billedCents - m.refundedCents - expenses.totalCents;
 	const marginPct =
 		m.billedCents > 0 ? Math.round((resultCents / m.billedCents) * 100) : null;
 
@@ -323,8 +336,8 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						<strong>{eur(m.billedCents)}</strong>
 					</div>
 					<div className="admin-pl-tile">
-						<span className="admin-pl-label">Refunds (card)</span>
-						<strong>−{eur(refundedCents)}</strong>
+						<span className="admin-pl-label">Refunds</span>
+						<strong>−{eur(m.refundedCents)}</strong>
 					</div>
 					<div className="admin-pl-tile">
 						<span className="admin-pl-label">Expenses</span>
@@ -530,7 +543,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				<h2>Recent card charges</h2>
 				<p className="admin-card-hint">
 					Online Stripe payments in the {win.label.toLowerCase()} window ·{" "}
-					{pctLabel(refundedCents, charges.reduce((s, c) => s + c.amount, 0))} refunded.
+					{pctLabel(stripeRefundedCents, charges.reduce((s, c) => s + c.amount, 0))} refunded (Stripe, incl. tests).
 				</p>
 				<div className="admin-table-wrap">
 					<table className="admin-table">

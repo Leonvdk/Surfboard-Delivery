@@ -36,11 +36,12 @@ function inWindow(dateIso: string, startIso: string | null, endIso: string): boo
 	return dateIso <= endIso;
 }
 
-/** paidAt (a timestamp) within the window, compared on its ISO date. */
-function paidInWindow(b: Booking, startIso: string | null, endIso: string): boolean {
-	if (!b.paidAt) return false;
-	const d = b.paidAt.toISOString().slice(0, 10);
-	return inWindow(d, startIso, endIso);
+/** A single ledger payment, as much as the metrics need. */
+export interface PaymentRow {
+	bookingId: number;
+	amountCents: number;
+	method: string;
+	createdAt: Date;
 }
 
 export interface RevenueMetrics {
@@ -60,41 +61,59 @@ export interface RevenueMetrics {
 	aovCents: number;
 	/** Revenue per gear-night, cents. 0 when no gear-nights. */
 	perGearNightCents: number;
+	/** Real refunds Leon logged (negative ledger payments), in the window,
+	 * as a positive number. Excludes Stripe self-test refunds, which never
+	 * enter the ledger. */
+	refundedCents: number;
 }
 
 export function computeRevenue(
 	bookings: Booking[],
+	payments: PaymentRow[],
 	startIso: string | null,
 	endIso: string,
 ): RevenueMetrics {
+	// Total paid per booking (any date) — for outstanding.
+	const paidByBooking = new Map<number, number>();
+	for (const p of payments) {
+		paidByBooking.set(p.bookingId, (paidByBooking.get(p.bookingId) ?? 0) + p.amountCents);
+	}
+
 	let billed = 0;
 	let outstanding = 0;
 	let count = 0;
 	let gearNights = 0;
-	let collectedOnline = 0;
-	let collectedCash = 0;
 
 	for (const b of bookings) {
 		if (b.deletedAt) continue;
-
 		// Revenue recognition: producing bookings, by checkout date.
 		if (PRODUCING.has(b.status) && inWindow(b.checkout, startIso, endIso)) {
 			const cents = billedCents(b);
 			billed += cents;
 			count += 1;
 			gearNights += b.peopleCount * nights(b);
-			if (!b.paidAt) outstanding += cents;
-		}
-
-		// Collection: by when the money actually landed, split by method.
-		if (paidInWindow(b, startIso, endIso)) {
-			const paid = b.paidAmountCents ?? billedCents(b);
-			if (b.paymentMethod === "cash") collectedCash += paid;
-			else collectedOnline += paid;
+			// Owed = billed minus everything paid against it (never negative).
+			outstanding += Math.max(0, cents - (paidByBooking.get(b.id) ?? 0));
 		}
 	}
 
+	// Collection: every payment whose date falls in the window, split by
+	// method — this is where split/partial payments are counted correctly.
+	// A negative payment is a refund; it nets out of collected and is also
+	// surfaced separately below.
+	let collectedCash = 0;
+	let collectedOnline = 0;
+	let refunded = 0;
+	for (const p of payments) {
+		const d = p.createdAt.toISOString().slice(0, 10);
+		if (!inWindow(d, startIso, endIso)) continue;
+		if (p.amountCents < 0) refunded += -p.amountCents;
+		if (p.method === "cash") collectedCash += p.amountCents;
+		else collectedOnline += p.amountCents;
+	}
+
 	return {
+		refundedCents: refunded,
 		billedCents: billed,
 		collectedOnlineCents: collectedOnline,
 		collectedCashCents: collectedCash,
