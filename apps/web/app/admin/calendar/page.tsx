@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
+import { todayIso } from "../_lib/dates";
 import { CalendarSubscribe } from "../_components/calendar-subscribe";
 import { CalendarSyncNow } from "../_components/calendar-sync-now";
 import { TwoWaySyncToggle } from "../_components/two-way-sync-toggle";
@@ -123,6 +124,7 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	);
 	const prev = month === 1 ? { y: year - 1, m: 12 } : { y: year, m: month - 1 };
 	const next = nextMonth;
+	const today = todayIso();
 
 	return (
 		<section className="admin-calendar-page">
@@ -161,9 +163,15 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 					{cells.map((cell, idx) => {
 						if (!cell) return <div key={idx} className="admin-cal-cell admin-cal-cell--blank" />;
 						const dayBookings = bookings.filter((b) => bookingSpansDay(b, cell.iso));
+						const isToday = cell.iso === today;
 						return (
-							<div key={cell.iso} className="admin-cal-cell">
-								<div className="admin-cal-day">{cell.day}</div>
+							<div
+								key={cell.iso}
+								className={`admin-cal-cell${isToday ? " admin-cal-cell--today" : ""}`}
+							>
+								<div className={`admin-cal-day${isToday ? " admin-cal-day--today" : ""}`}>
+									{cell.day}
+								</div>
 								<div className="admin-cal-events">
 									{dayBookings.slice(0, 3).map((b) => {
 										const isDelivery = b.checkin === cell.iso;
@@ -322,8 +330,17 @@ async function CalendarFeedCard() {
 	const watch = directSync ? await getWatchInfo() : { active: false, expiration: null };
 
 	return (
-		<article className="admin-card">
-			<h2>Calendar sync</h2>
+		<details className="admin-card admin-collapsible-card">
+			<summary className="admin-collapsible-summary">
+				<span className="admin-collapsible-chevron" aria-hidden="true">
+					▸
+				</span>
+				<h2>Calendar sync &amp; feed</h2>
+				<span className="admin-collapsible-hint">
+					{directSync ? "Direct sync on" : "Off"}
+				</span>
+			</summary>
+			<div className="admin-collapsible-body">
 			{directSync ? (
 				<>
 					<p className="admin-card-hint">
@@ -362,6 +379,7 @@ async function CalendarFeedCard() {
 					long random string, redeploy, and the subscribe link appears here.
 				</p>
 			)}
-		</article>
+			</div>
+		</details>
 	);
 }
