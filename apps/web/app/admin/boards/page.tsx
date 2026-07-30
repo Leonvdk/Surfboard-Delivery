@@ -11,7 +11,7 @@ import {
 	nextFreeDate,
 } from "../_lib/boards-cache";
 import { formatShortDate, todayIso } from "../_lib/dates";
-import { buildGearEarnings, type GearEarningsResult } from "../_lib/gear-earnings";
+import { buildGearEarnings } from "../_lib/gear-earnings";
 import { BOARD_SIZES, WETSUIT_SIZES } from "../_lib/gear-sizes";
 import { eur } from "../_lib/revenue-metrics";
 
@@ -44,12 +44,16 @@ export default async function AdminBoardsPage() {
 	const otherGear = fleet.filter((b) => b.kind === "other");
 
 	const activeBoards = boards.filter((b) => b.status === "active");
-	const totalInvested = fleet.reduce((sum, b) => sum + (b.purchaseCost ?? 0), 0);
-	const totalCollected = earnings.totalCollectedCents;
-	const netCents = totalCollected - totalInvested * 100;
+	const wetsuitsActive = wetsuits.filter((b) => b.status === "active").length;
+	const inRepair = fleet.filter((b) => b.status === "repair").length;
 	const freeToday = activeBoards.filter(
 		(b) => !isOutToday(assignments, b.id, today),
 	).length;
+	const outToday = activeBoards.length - freeToday;
+	const utilPct =
+		activeBoards.length > 0
+			? Math.round((outToday / activeBoards.length) * 100)
+			: 0;
 
 	return (
 		<section className="admin-list-page">
@@ -66,45 +70,50 @@ export default async function AdminBoardsPage() {
 					<p className="admin-empty-inline">
 						{activeBoards.length} active
 						{boards.length !== activeBoards.length
-							? ` · ${boards.length - activeBoards.length} in repair / retired`
+							? ` · ${boards.length - activeBoards.length} out of service`
 							: ""}
 					</p>
+				</article>
+				<article className="admin-today-card">
+					<div className="admin-today-heading">
+						<span className="admin-today-kicker">Wetsuits</span>
+						<span className="admin-today-count">{wetsuits.length}</span>
+					</div>
+					<p className="admin-empty-inline">{wetsuitsActive} ready</p>
+				</article>
+				<article className="admin-today-card">
+					<div className="admin-today-heading">
+						<span className="admin-today-kicker">Other gear</span>
+						<span className="admin-today-count">{otherGear.length}</span>
+					</div>
+					<p className="admin-empty-inline">items tracked</p>
 				</article>
 				<article className="admin-today-card">
 					<div className="admin-today-heading">
 						<span className="admin-today-kicker">Free today</span>
 						<span className="admin-today-count">{freeToday}</span>
 					</div>
-					<p className="admin-empty-inline">of {activeBoards.length} active boards</p>
+					<p className="admin-empty-inline">of {activeBoards.length} boards ready</p>
 				</article>
 				<article className="admin-today-card">
 					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Invested</span>
-						<span className="admin-today-count">€{totalInvested}</span>
+						<span className="admin-today-kicker">Out today</span>
+						<span className="admin-today-count">{outToday}</span>
 					</div>
-					<p className="admin-empty-inline">
-						across boards, wetsuits &amp; other gear
-					</p>
+					<p className="admin-empty-inline">{utilPct}% of boards on rental</p>
 				</article>
 				<article className="admin-today-card">
 					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Collected</span>
-						<span className="admin-today-count">{eur(totalCollected)}</span>
-					</div>
-					<p className="admin-empty-inline">
-						earned by the fleet, all-time
-					</p>
-				</article>
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Net</span>
+						<span className="admin-today-kicker">In repair</span>
 						<span
-							className={`admin-today-count${netCents < 0 ? " admin-today-count--negative" : ""}`}
+							className={`admin-today-count${inRepair > 0 ? " admin-today-count--negative" : ""}`}
 						>
-							{eur(netCents)}
+							{inRepair}
 						</span>
 					</div>
-					<p className="admin-empty-inline">collected − invested</p>
+					<p className="admin-empty-inline">
+						{inRepair > 0 ? "need attention" : "all good"}
+					</p>
 				</article>
 			</div>
 

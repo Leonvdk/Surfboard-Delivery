@@ -119,14 +119,19 @@ export function datesOverlap(
 }
 
 /**
- * Assignments that block a board: cancelled bookings and soft-deleted
- * bookings release their boards automatically by being excluded here.
+ * Assignments that block a board. Cancelled and soft-deleted bookings release
+ * their boards automatically by being excluded — and so does a logged return:
+ * once the gear is marked back (returnNote set), the board is free again
+ * immediately, even if the booking's nominal end date is still in the future.
  */
 export function blockingAssignments(
 	assignments: AssignmentWithBooking[],
 ): AssignmentWithBooking[] {
 	return assignments.filter(
-		(a) => !a.bookingDeleted && a.bookingStatus !== "cancelled",
+		(a) =>
+			!a.bookingDeleted &&
+			a.bookingStatus !== "cancelled" &&
+			a.returnNote == null,
 	);
 }
 
