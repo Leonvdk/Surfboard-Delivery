@@ -13,6 +13,7 @@ import { getCachedFleet } from "./_lib/boards-cache";
 import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 import { getSyncHealth } from "../lib/google-calendar";
 import { ExternalIcon, WarningIcon } from "./_components/icons";
+import { ClickableBookingRow } from "./_components/clickable-booking-row";
 import { accommodationLabel, mapsUrl } from "./_lib/links";
 import { getAddonTariff } from "../lib/pricing";
 
@@ -525,17 +526,9 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 					</thead>
 					<tbody>
 						{filteredBookings.map((b) => (
-							<tr key={b.id} className="admin-row-clickable">
+							<ClickableBookingRow key={b.id} id={b.id}>
 								<td>{formatShortDate(b.createdAt.toISOString().slice(0, 10))}</td>
 								<td>
-									{/* Stretched link makes the whole row tappable (mobile-
-										first) without nesting the interactive status control
-										inside an anchor. */}
-									<Link
-										href={`/admin/bookings/${b.id}`}
-										className="admin-row-stretch"
-										aria-label={`Open booking for ${b.name}`}
-									/>
 									<div className="admin-cell-strong">
 										{b.name}
 										{b.ownerNotes ? (
@@ -570,7 +563,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 										late={isBookingLate(b, today)}
 									/>
 								</td>
-							</tr>
+							</ClickableBookingRow>
 						))}
 					</tbody>
 				</table>

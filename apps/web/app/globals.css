@@ -10003,14 +10003,11 @@ h1 {
 
 .admin-mark-paid { display: inline-flex; gap: 6px; margin-left: 8px; }
 
-/* Clickable table rows (mobile-first): a stretched link covers the row,
-   interactive cells sit above it. */
-.admin-row-clickable { position: relative; cursor: pointer; }
+/* Clickable table rows (mobile-first): a client row handler navigates on
+   tap; interactive cells (status control) opt out via .admin-cell-interactive. */
+.admin-row-clickable { cursor: pointer; }
 .admin-row-clickable:hover td { background: var(--gray-100); }
-.admin-row-stretch { position: absolute; inset: 0; z-index: 0; }
-.admin-row-stretch::after { content: ""; position: absolute; inset: 0; }
-.admin-cell-interactive { position: relative; z-index: 1; }
-.admin-table td:first-child { position: relative; z-index: 1; }
+.admin-row-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 .admin-paid-badge { color: #1f5e29; font-weight: 700; }
 
