@@ -10013,3 +10013,31 @@ h1 {
 .admin-table td:first-child { position: relative; z-index: 1; }
 
 .admin-paid-badge { color: #1f5e29; font-weight: 700; }
+
+/* Van-load checklist card. */
+.admin-van-load-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.admin-van-load-grid > div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.admin-van-load-label {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-500);
+  flex: 0 0 64px;
+}
+.admin-van-load-items {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}

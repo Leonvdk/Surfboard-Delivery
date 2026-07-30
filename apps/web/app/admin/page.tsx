@@ -14,6 +14,7 @@ import { addDaysIso, formatShortDate, todayIso } from "./_lib/dates";
 import { getSyncHealth } from "../lib/google-calendar";
 import { ExternalIcon, WarningIcon } from "./_components/icons";
 import { accommodationLabel, mapsUrl } from "./_lib/links";
+import { getAddonTariff } from "../lib/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,31 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 	const today = todayIso();
 	const inSevenDays = addDaysIso(today, 7);
 
+	// Van-load checklist: everything to load for today's deliveries, summed
+	// across bookings, so Leon loads once instead of opening each booking —
+	// and doesn't drive out one board short.
+	const loadTally = (bs: Booking[]) => {
+		const boards = new Map<string, number>();
+		const wetsuits = new Map<string, number>();
+		const extras = new Map<string, number>();
+		for (const b of bs) {
+			for (const p of b.people ?? []) {
+				if (p.board) boards.set(p.board, (boards.get(p.board) ?? 0) + 1);
+				if (p.wetsuitSize)
+					wetsuits.set(p.wetsuitSize, (wetsuits.get(p.wetsuitSize) ?? 0) + 1);
+			}
+			for (const a of b.addons ?? []) {
+				const label = getAddonTariff(a.key)?.label ?? a.key;
+				extras.set(label, (extras.get(label) ?? 0) + a.quantity);
+			}
+		}
+		const fmt = (m: Map<string, number>) =>
+			[...m.entries()]
+				.sort((a, b) => a[0].localeCompare(b[0]))
+				.map(([k, n]) => `${n}× ${k}`);
+		return { boards: fmt(boards), wetsuits: fmt(wetsuits), extras: fmt(extras) };
+	};
+
 	// Ordered into a sensible run: by scheduled time (untimed last), so the
 	// list reads top-to-bottom as the morning goes.
 	const byRunTime = (t: (b: Booking) => string | null) => (a: Booking, b: Booking) =>
@@ -83,6 +109,9 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 				(b.status === "confirmed" || b.status === "in_progress"),
 		)
 		.sort(byRunTime((b) => b.pickupTime));
+	const vanLoad = loadTally(deliveringToday);
+	const hasVanLoad =
+		vanLoad.boards.length + vanLoad.wetsuits.length + vanLoad.extras.length > 0;
 	// Next 7 days covers BOTH runs — a delivery going out and a booking
 	// coming back both need Leon in the van. One booking can appear twice
 	// (its delivery this week, its pickup next), so we build per-run items
@@ -382,6 +411,35 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 							<TodayRow key={b.id} b={b} kind="upcoming" today={today} />
 						))}
 					</ul>
+				</article>
+			)}
+
+			{hasVanLoad && (
+				<article className="admin-card admin-van-load">
+					<div className="admin-today-heading">
+						<span className="admin-today-kicker">Van load · today</span>
+						<span className="admin-today-count">{deliveringToday.length} stop{deliveringToday.length === 1 ? "" : "s"}</span>
+					</div>
+					<div className="admin-van-load-grid">
+						{vanLoad.boards.length > 0 && (
+							<div>
+								<span className="admin-van-load-label">Boards</span>
+								<span className="admin-van-load-items">{vanLoad.boards.join(" · ")}</span>
+							</div>
+						)}
+						{vanLoad.wetsuits.length > 0 && (
+							<div>
+								<span className="admin-van-load-label">Wetsuits</span>
+								<span className="admin-van-load-items">{vanLoad.wetsuits.join(" · ")}</span>
+							</div>
+						)}
+						{vanLoad.extras.length > 0 && (
+							<div>
+								<span className="admin-van-load-label">Extras</span>
+								<span className="admin-van-load-items">{vanLoad.extras.join(" · ")}</span>
+							</div>
+						)}
+					</div>
 				</article>
 			)}
 
