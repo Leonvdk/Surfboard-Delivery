@@ -149,6 +149,9 @@ export async function createBookingPaymentLink(args: {
 			// Let customers enter a discount code at checkout. Stripe validates
 			// it against the promotion codes created on the Discounts page.
 			allow_promotion_codes: true,
+			// Every payer lands in the Stripe customer base (email captured at
+			// checkout; the webhook fills in the name from the booking).
+			customer_creation: "always",
 			metadata: {
 				bookingId: String(args.bookingId),
 				requestRef: args.requestRef,

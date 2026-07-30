@@ -170,5 +170,32 @@ export async function POST(request: Request) {
 		}
 	}
 
+	// Make sure the payer lands in the Stripe customer base with a name.
+	// New links set customer_creation:"always", so Stripe already made a
+	// customer (email captured, name usually blank) — fill the name from the
+	// booking. Older links made no customer, so create/find one by email.
+	// Best-effort: never block the webhook ack.
+	try {
+		const customerId =
+			typeof session.customer === "string" ? session.customer : null;
+		if (customerId) {
+			await stripe.customers.update(customerId, { name: booking.name });
+		} else {
+			const email = session.customer_details?.email ?? booking.email;
+			if (email) {
+				const existing = await stripe.customers.list({ email, limit: 1 });
+				if (existing.data[0]) {
+					await stripe.customers.update(existing.data[0].id, {
+						name: booking.name,
+					});
+				} else {
+					await stripe.customers.create({ name: booking.name, email });
+				}
+			}
+		}
+	} catch (custErr) {
+		console.error("Stripe customer upsert failed:", custErr);
+	}
+
 	return NextResponse.json({ received: true });
 }
