@@ -10087,6 +10087,12 @@ h1 {
   max-height: 82vh;
   background: var(--surface);
   color: var(--black);
+  /* Dead-centre on every screen. showModal() puts the dialog in the top
+     layer where inset:0 + margin:auto centres both axes — pinned explicitly
+     so a stray global style can't top-align it on mobile. */
+  position: fixed;
+  inset: 0;
+  margin: auto;
 }
 .admin-modal::backdrop { background: rgba(26, 26, 26, 0.45); }
 .admin-modal-inner {

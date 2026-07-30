@@ -28,6 +28,7 @@ export function StatBreakdown({
 	empty,
 	footnote,
 	total,
+	totalLabel = "Total",
 }: {
 	title: string;
 	triggerClassName: string;
@@ -36,6 +37,7 @@ export function StatBreakdown({
 	empty: string;
 	footnote?: string;
 	total?: string;
+	totalLabel?: string;
 }) {
 	const ref = useRef<HTMLDialogElement>(null);
 	const close = () => ref.current?.close();
@@ -99,7 +101,7 @@ export function StatBreakdown({
 
 					{total && (
 						<div className="admin-breakdown-total">
-							<span>Total</span>
+							<span>{totalLabel}</span>
 							<strong>{total}</strong>
 						</div>
 					)}

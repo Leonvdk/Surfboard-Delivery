@@ -336,6 +336,26 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		.sort((a, b) => b.cents - a.cents)
 		.map((x) => x.row);
 
+	// Profit is a calculation, not a list: show the waterfall that produces
+	// the Result — billed, minus refunds, minus expenses.
+	const profitRows: BreakdownRow[] = [
+		{
+			label: "Revenue billed",
+			sub: `${m.bookingCount} booking${m.bookingCount === 1 ? "" : "s"}`,
+			amount: eur(m.billedCents),
+		},
+		{
+			label: "Refunds",
+			sub: "logged refunds",
+			amount: `−${eur(m.refundedCents)}`,
+		},
+		{
+			label: "Expenses",
+			sub: "costs + gear bought in window",
+			amount: `−${eur(expenses.totalCents)}`,
+		},
+	];
+
 	const trend = buildTrend(
 		allBookings,
 		startIso,
@@ -397,15 +417,25 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						<strong>{eur(m.outstandingCents)}</strong>
 						<span className="admin-kpi-sub">billed, not marked paid</span>
 					</StatBreakdown>
-					<div
-						className={`admin-kpi admin-kpi--result${resultCents < 0 ? " admin-kpi--negative" : ""}`}
+					<StatBreakdown
+						triggerClassName={`admin-kpi admin-kpi--result${resultCents < 0 ? " admin-kpi--negative" : ""}`}
+						title="Profit — how it's calculated"
+						rows={profitRows}
+						total={eur(resultCents)}
+						totalLabel="Result"
+						empty=""
+						footnote={
+							marginPct != null
+								? `Margin ${marginPct}% of revenue billed. Revenue billed − refunds − expenses, for the ${win.label.toLowerCase()} window.`
+								: `Revenue billed − refunds − expenses, for the ${win.label.toLowerCase()} window.`
+						}
 					>
 						<span className="admin-kpi-label">Profit</span>
 						<strong>{eur(resultCents)}</strong>
 						<span className="admin-kpi-sub">
 							{marginPct != null ? `${marginPct}% margin` : "—"}
 						</span>
-					</div>
+					</StatBreakdown>
 					<div className="admin-kpi">
 						<span className="admin-kpi-label">Avg booking</span>
 						<strong>{eur(m.aovCents)}</strong>
