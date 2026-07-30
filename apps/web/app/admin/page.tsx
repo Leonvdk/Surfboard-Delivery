@@ -154,6 +154,31 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 				})
 			: [];
 
+	// Gear that's overdue back: a booking still confirmed / in-progress
+	// whose pickup date has passed. The board is sitting at a customer's
+	// place and blocking the next booking, so it's flagged to chase.
+	const overdueGear = allBookings
+		.filter(
+			(b) =>
+				(b.status === "confirmed" || b.status === "in_progress") &&
+				b.checkout < today,
+		)
+		.sort((a, b) => a.checkout.localeCompare(b.checkout));
+
+	// Awaiting payment: a link was sent but the booking isn't paid, and the
+	// delivery is close (within 3 days) or already past. This is money about
+	// to walk out the door on gear that's about to go out — surfaced so
+	// Leon collects before delivering, not after.
+	const awaitingPayment = allBookings
+		.filter(
+			(b) =>
+				Boolean(b.stripePaymentLinkUrl) &&
+				!b.paidAt &&
+				(b.status === "confirmed" || b.status === "in_progress") &&
+				b.checkin <= addDaysIso(today, 3),
+		)
+		.sort((a, b) => a.checkin.localeCompare(b.checkin));
+
 	// Boards sitting in `repair` that are assigned to a booking still to
 	// come (or in progress). If the repair isn't finished in time, that
 	// run has no board — so it's flagged here, with the soonest booking it
@@ -223,6 +248,50 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 							: "The last calendar sync failed — some runs may not be on your phone. Tap to see why and retry."}
 					</p>
 				</Link>
+			)}
+
+			{awaitingPayment.length > 0 && (
+				<article className="admin-attention admin-attention--alert">
+					<div className="admin-attention-header">
+						<span className="admin-attention-kicker">
+							<WarningIcon /> Awaiting payment · delivery near
+						</span>
+						<span className="admin-attention-count">{awaitingPayment.length}</span>
+					</div>
+					<p className="admin-attention-lead">
+						{awaitingPayment.length === 1
+							? "A booking with a payment link isn't paid and its delivery is close."
+							: `${awaitingPayment.length} bookings have an unpaid link with delivery close or past.`}{" "}
+						Chase payment before the gear goes out.
+					</p>
+					<ul className="admin-today-list">
+						{awaitingPayment.slice(0, 5).map((b) => (
+							<TodayRow key={b.id} b={b} kind="upcoming" today={today} />
+						))}
+					</ul>
+				</article>
+			)}
+
+			{overdueGear.length > 0 && (
+				<article className="admin-attention admin-attention--alert">
+					<div className="admin-attention-header">
+						<span className="admin-attention-kicker">
+							<WarningIcon /> Gear overdue back
+						</span>
+						<span className="admin-attention-count">{overdueGear.length}</span>
+					</div>
+					<p className="admin-attention-lead">
+						{overdueGear.length === 1
+							? "A booking's pickup date has passed but it's not marked complete — the gear may still be out."
+							: `${overdueGear.length} bookings are past their pickup date and not marked complete.`}{" "}
+						Chase the gear, or mark them completed.
+					</p>
+					<ul className="admin-today-list">
+						{overdueGear.slice(0, 5).map((b) => (
+							<TodayRow key={b.id} b={b} kind="pickup" today={today} />
+						))}
+					</ul>
+				</article>
 			)}
 
 			{repairNeeded.length > 0 && (

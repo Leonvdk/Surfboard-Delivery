@@ -61,7 +61,23 @@ export async function GET(request: Request) {
 			),
 		);
 
-	const results: Array<{ id: number; sent: number; pruned: number }> = [];
+	// Every pickup due today — gear coming back. Without this the morning
+	// push only covered deliveries, and a forgotten collection means a board
+	// sits at a customer's place and blocks the next booking.
+	const pickups = await db
+		.select()
+		.from(schema.bookings)
+		.where(
+			and(
+				eq(schema.bookings.checkout, today),
+				isNull(schema.bookings.deletedAt),
+				ne(schema.bookings.status, "cancelled"),
+				ne(schema.bookings.status, "completed"),
+			),
+		);
+
+	const results: Array<{ id: number; kind: string; sent: number; pruned: number }> = [];
+	const total = rows.length + pickups.length;
 	for (const b of rows) {
 		const res = await sendPushToAll({
 			// Lead with the time when Leon has scheduled one — that's the
@@ -72,14 +88,27 @@ export async function GET(request: Request) {
 			body: `${b.peopleCount}p · ${b.accommodation ?? "no address on file"}`,
 			url: `/admin/bookings/${b.id}`,
 			tag: `delivery-${b.id}-${today}`,
-			badge: rows.length,
+			badge: total,
 		});
-		results.push({ id: b.id, ...res });
+		results.push({ id: b.id, kind: "delivery", ...res });
+	}
+	for (const b of pickups) {
+		const res = await sendPushToAll({
+			title: b.pickupTime
+				? `Pickup ${b.pickupTime} · ${b.name}`
+				: `Pickup today · ${b.name}`,
+			body: `${b.peopleCount}p · ${b.accommodation ?? "no address on file"}`,
+			url: `/admin/bookings/${b.id}`,
+			tag: `pickup-${b.id}-${today}`,
+			badge: total,
+		});
+		results.push({ id: b.id, kind: "pickup", ...res });
 	}
 
 	return NextResponse.json({
 		date: today,
-		count: rows.length,
+		deliveries: rows.length,
+		pickups: pickups.length,
 		results,
 	});
 }
