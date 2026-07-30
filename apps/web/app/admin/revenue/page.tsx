@@ -20,6 +20,7 @@ import {
 	eur,
 	expenseBreakdown,
 	onTheBooksCents,
+	upcomingByWeek,
 } from "../_lib/revenue-metrics";
 import {
 	REVENUE_WINDOW_COOKIE,
@@ -247,6 +248,8 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		!win.days || win.days > 180 ? "month" : win.days <= 31 ? "day" : "week",
 	);
 
+	const upcoming = upcomingByWeek(allBookings, today, 8);
+	const upcomingTotal = upcoming.reduce((s, w) => s + w.cents, 0);
 	const funnel = bookingFunnelForRecentMonths(allBookings);
 	const mix = packageMix(allBookings, win.days ?? 3650);
 	const rollup = monthlyRollup(allBookings, 12);
@@ -326,6 +329,35 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				</h2>
 				<RevenueBarChart trend={trend} />
 			</article>
+
+			{upcoming.length > 0 && (
+				<article className="admin-card">
+					<h2>Upcoming income · by week</h2>
+					<p className="admin-card-hint">
+						{eur(upcomingTotal)} booked from today forward (confirmed /
+						in-progress), by delivery week.
+					</p>
+					<ul className="mix-list">
+						{upcoming.map((w) => (
+							<li key={w.weekStart} className="mix-row">
+								<div className="mix-row-heading">
+									<span>
+										{w.label}
+										<span className="admin-cell-muted"> · {w.count} booking{w.count === 1 ? "" : "s"}</span>
+									</span>
+									<span className="mix-row-pct">{eur(w.cents)}</span>
+								</div>
+								<div className="mix-row-bar">
+									<div
+										className="mix-row-bar-fill mix-row-bar-fill--board"
+										style={{ width: `${upcomingTotal > 0 ? (w.cents / Math.max(...upcoming.map((u) => u.cents))) * 100 : 0}%` }}
+									/>
+								</div>
+							</li>
+						))}
+					</ul>
+				</article>
+			)}
 
 			{/* P&L breakdown */}
 			<article className="admin-card">

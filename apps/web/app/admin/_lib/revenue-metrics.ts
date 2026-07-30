@@ -141,6 +141,55 @@ export function onTheBooksCents(bookings: Booking[], todayIso: string): number {
 	return cents;
 }
 
+/** Monday (ISO week start) of a date. */
+function weekStartIso(dateIso: string): string {
+	const d = new Date(`${dateIso}T00:00:00Z`);
+	const dow = (d.getUTCDay() + 6) % 7;
+	d.setUTCDate(d.getUTCDate() - dow);
+	return d.toISOString().slice(0, 10);
+}
+
+export interface UpcomingWeek {
+	weekStart: string;
+	label: string;
+	cents: number;
+	count: number;
+}
+
+/**
+ * Forward cash-flow: producing bookings whose delivery is today or later,
+ * their billed value grouped by delivery week — "what's coming in and
+ * when". Answers the question the backward-looking numbers can't.
+ */
+export function upcomingByWeek(
+	bookings: Booking[],
+	todayIso: string,
+	weeks = 8,
+): UpcomingWeek[] {
+	const map = new Map<string, { cents: number; count: number }>();
+	for (const b of bookings) {
+		if (b.deletedAt || !PRODUCING.has(b.status)) continue;
+		if (b.checkin < todayIso) continue;
+		const wk = weekStartIso(b.checkin);
+		const e = map.get(wk) ?? { cents: 0, count: 0 };
+		e.cents += billedCents(b);
+		e.count += 1;
+		map.set(wk, e);
+	}
+	return [...map.entries()]
+		.sort((a, b) => a[0].localeCompare(b[0]))
+		.slice(0, weeks)
+		.map(([weekStart, v]) => {
+			const d = new Date(`${weekStart}T00:00:00Z`);
+			return {
+				weekStart,
+				label: `wk ${d.getUTCDate()} ${d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}`,
+				cents: v.cents,
+				count: v.count,
+			};
+		});
+}
+
 export interface ExpenseGroup {
 	category: string;
 	cents: number;
