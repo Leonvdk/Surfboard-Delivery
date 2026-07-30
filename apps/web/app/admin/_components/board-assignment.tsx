@@ -3,6 +3,7 @@ import type { Booking, BookingPerson } from "../../lib/db/schema";
 import {
 	assignBoard,
 	autoAssignBoard,
+	logReturn,
 	removeAssignment,
 	swapBoard,
 } from "../_board-actions";
@@ -185,6 +186,30 @@ function AssignmentChain({
 					</div>
 				);
 			})}
+
+			<details className="admin-board-swap">
+				<summary>
+					Log return
+					{current.returnNote ? " · logged" : ""}
+				</summary>
+				<form action={logReturn.bind(null, current.id, current.bookingId)} className="admin-board-assign">
+					<div className="admin-board-return">
+						<textarea
+							name="returnNote"
+							rows={2}
+							placeholder="Condition on return — dings, missing fin, all good…"
+							defaultValue={current.returnNote ?? ""}
+							className="admin-textarea"
+						/>
+						<label className="admin-return-flag">
+							<input type="checkbox" name="flagRepair" /> Flag this board for repair
+						</label>
+						<button type="submit" className="admin-btn admin-btn--small">
+							Save return note
+						</button>
+					</div>
+				</form>
+			</details>
 
 			<details className="admin-board-swap">
 				<summary>Swap {currentBoard ? currentBoard.name : "board"}</summary>

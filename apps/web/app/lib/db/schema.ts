@@ -261,6 +261,10 @@ export const boardAssignments = pgTable(
 			(): AnyPgColumn => boardAssignments.id,
 		),
 		notes: text("notes"),
+		// Condition / damage note captured when the gear comes back, so a
+		// ding is tied to the booking that had it (deposits, disputes) and
+		// can flag the board for repair. Null until a return is logged.
+		returnNote: text("return_note"),
 	},
 	(t) => ({
 		boardStartIdx: index("board_assignments_board_start_idx").on(

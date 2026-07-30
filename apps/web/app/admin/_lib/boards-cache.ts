@@ -22,6 +22,7 @@ export interface AssignmentWithBooking {
 	endDate: string;
 	swappedFromId: number | null;
 	notes: string | null;
+	returnNote: string | null;
 	createdAt: Date;
 	bookingName: string;
 	bookingStatus: BookingStatus;
@@ -52,6 +53,7 @@ const fetchFleet = unstable_cache(
 					endDate: schema.boardAssignments.endDate,
 					swappedFromId: schema.boardAssignments.swappedFromId,
 					notes: schema.boardAssignments.notes,
+					returnNote: schema.boardAssignments.returnNote,
 					createdAt: schema.boardAssignments.createdAt,
 					bookingName: schema.bookings.name,
 					bookingStatus: schema.bookings.status,
@@ -74,6 +76,7 @@ const fetchFleet = unstable_cache(
 				endDate: a.endDate,
 				swappedFromId: a.swappedFromId,
 				notes: a.notes,
+				returnNote: a.returnNote,
 				createdAt: a.createdAt,
 				bookingName: a.bookingName,
 				bookingStatus: a.bookingStatus,

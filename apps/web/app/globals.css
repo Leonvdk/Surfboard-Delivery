@@ -10038,3 +10038,8 @@ h1 {
   font-weight: 700;
   font-size: 0.9375rem;
 }
+
+/* Return / damage log form. */
+.admin-board-return { display: flex; flex-direction: column; gap: 8px; }
+.admin-return-flag { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; }
+.admin-board-autoassign { margin-bottom: 8px; }

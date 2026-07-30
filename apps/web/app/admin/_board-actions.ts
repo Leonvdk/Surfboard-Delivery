@@ -385,3 +385,45 @@ export async function removeAssignment(assignmentId: number) {
 	}
 	if (bookingId != null) revalidatePath(`/admin/bookings/${bookingId}`);
 }
+
+/**
+ * Log the condition of a board when it comes back. Saves a return note on
+ * the assignment (tied to the booking that had it) and, if flagged,
+ * switches the board to `repair` — which drops it out of availability and
+ * lights up the dashboard "board in repair" alert. This is the trail for
+ * a ding: which booking, what happened, and whether it's out of service.
+ */
+export async function logReturn(
+	assignmentId: number,
+	bookingId: number,
+	formData: FormData,
+) {
+	const db = getDb();
+	if (!db) throw new Error("Database not configured");
+	const note = ((formData.get("returnNote") as string) ?? "").trim() || null;
+	const flagRepair = formData.get("flagRepair") === "on";
+
+	const data = await getCachedFleet();
+	const assignment = data?.assignments.find((a) => a.id === assignmentId);
+
+	await db
+		.update(schema.boardAssignments)
+		.set({ returnNote: note })
+		.where(eq(schema.boardAssignments.id, assignmentId));
+
+	if (flagRepair && assignment) {
+		const board = data?.fleet.find((b) => b.id === assignment.boardId);
+		const stamped = note ? `Returned damaged: ${note}` : "Flagged on return";
+		await db
+			.update(schema.boards)
+			.set({
+				status: "repair",
+				notes: board?.notes ? `${board.notes}\n${stamped}` : stamped,
+				updatedAt: new Date(),
+			})
+			.where(eq(schema.boards.id, assignment.boardId));
+	}
+
+	revalidateBoardSurfaces();
+	revalidatePath(`/admin/bookings/${bookingId}`);
+}
