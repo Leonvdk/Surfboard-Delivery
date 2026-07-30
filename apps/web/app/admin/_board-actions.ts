@@ -157,6 +157,51 @@ export async function assignBoard(
 }
 
 /**
+ * One-tap assign: pick the first free active board of the matching size
+ * for the person's window and assign it. Saves Leon working the dropdown
+ * on a busy confirmation; the conflict check guarantees the pick is
+ * genuinely free. Won't substitute a different size — if none of the
+ * right size is free it says so, leaving the choice to Leon.
+ */
+export async function autoAssignBoard(
+	bookingId: number,
+	personIndex: number,
+	size: string,
+	startDate: string,
+	endDate: string,
+) {
+	const db = getDb();
+	if (!db) throw new Error("Database not configured");
+	if (!ISO_DATE.test(startDate) || !ISO_DATE.test(endDate) || endDate < startDate) {
+		redirect(`/admin/bookings/${bookingId}?boardError=Invalid+dates`);
+	}
+	const data = await getCachedFleet();
+	if (!data) throw new Error("Database not configured");
+
+	const pick = data.fleet
+		.filter((b) => b.kind === "board" && b.status === "active" && b.size === size)
+		.find((b) => !findConflict(data.assignments, b.id, startDate, endDate));
+
+	if (!pick) {
+		redirect(
+			`/admin/bookings/${bookingId}?boardError=${encodeURIComponent(
+				`No free ${size} board for ${startDate} → ${endDate}. Assign one manually or free one up.`,
+			)}`,
+		);
+	}
+
+	await db.insert(schema.boardAssignments).values({
+		bookingId,
+		personIndex,
+		boardId: pick.id,
+		startDate,
+		endDate,
+	});
+	revalidateBoardSurfaces();
+	revalidatePath(`/admin/bookings/${bookingId}`);
+}
+
+/**
  * Attach booking-level extra gear (roof rack, poncho, spare wetsuit —
  * any active fleet item, boards included) to a booking. Stored as an
  * assignment with personIndex = -1 so it rides the same availability

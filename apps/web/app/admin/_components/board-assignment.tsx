@@ -1,6 +1,11 @@
 import Link from "next/link";
 import type { Booking, BookingPerson } from "../../lib/db/schema";
-import { assignBoard, removeAssignment, swapBoard } from "../_board-actions";
+import {
+	assignBoard,
+	autoAssignBoard,
+	removeAssignment,
+	swapBoard,
+} from "../_board-actions";
 import {
 	type AssignmentWithBooking,
 	findConflict,
@@ -59,8 +64,32 @@ export function BoardAssignmentPanel({
 		);
 	}
 
+	// A same-size board that's free for this person's window → offer a
+	// one-tap assign so Leon skips the dropdown on the common case.
+	const freeSameSize = sameSize.find(
+		(b) => !findConflict(data.assignments, b.id, windowStart, windowEnd),
+	);
+
 	return (
-		<form action={assignWithIds} className="admin-board-assign">
+		<>
+			{person.board && freeSameSize && (
+				<form
+					action={autoAssignBoard.bind(
+						null,
+						booking.id,
+						personIndex,
+						person.board,
+						windowStart,
+						windowEnd,
+					)}
+					className="admin-board-autoassign"
+				>
+					<button type="submit" className="admin-btn admin-btn--small">
+						Auto-assign free {person.board} ({freeSameSize.name})
+					</button>
+				</form>
+			)}
+			<form action={assignWithIds} className="admin-board-assign">
 			<div className="admin-board-assign-row">
 				<select name="boardId" required className="admin-input" defaultValue="">
 					<option value="" disabled>
@@ -108,7 +137,8 @@ export function BoardAssignmentPanel({
 					Assign
 				</button>
 			</div>
-		</form>
+			</form>
+		</>
 	);
 }
 
