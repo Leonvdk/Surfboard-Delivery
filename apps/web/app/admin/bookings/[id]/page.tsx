@@ -5,9 +5,11 @@ import { getDb, schema } from "../../../lib/db/client";
 import { updateBookingNotes, updateFinalTotal } from "../../_actions";
 import {
 	addPayment,
+	linkStripeCharge,
 	removePayment,
 	settleBooking,
 } from "../../_payment-actions";
+import { listUnassignedCharges } from "../../_lib/stripe-charges";
 import { eur } from "../../_lib/revenue-metrics";
 import {
 	accommodationLabel,
@@ -86,6 +88,20 @@ export default async function BookingDetailPage({
 	);
 	const paidCents = bookingPayments.reduce((s, p) => s + p.amountCents, 0);
 	const owedCents = Math.max(0, billedCents - paidCents);
+
+	// Orphan Stripe charges (ad-hoc payment links made before bookingId
+	// metadata existed) that no booking has claimed — offered for one-tap
+	// linking below. Cross-referenced against every recorded charge key so a
+	// charge already on another booking never shows here.
+	const assignedRows = paymentsDb
+		? await paymentsDb
+				.select({ key: schema.bookingPayments.stripeChargeId })
+				.from(schema.bookingPayments)
+		: [];
+	const assignedKeys = new Set(
+		assignedRows.map((r) => r.key).filter((k): k is string => Boolean(k)),
+	);
+	const unassignedCharges = await listUnassignedCharges(assignedKeys);
 	const cancellationState =
 		booking.status === "requested"
 			? computeCancellationState(booking.createdAt, booking.checkin)
@@ -454,6 +470,15 @@ export default async function BookingDetailPage({
 					transfer, or an upsell below — splits are fine.
 				</p>
 
+				{billedCents === 0 && (
+					<p className="admin-card-hint admin-sync-status--warn">
+						No final price set — so &ldquo;billed&rdquo; is €0 and this booking
+						won&apos;t show in revenue. Set the final price under{" "}
+						<strong>Status → Final price</strong> first, then record what was
+						paid here.
+					</p>
+				)}
+
 				{bookingPayments.length > 0 && (
 					<div className="admin-table-wrap">
 						<table className="admin-table">
@@ -530,6 +555,45 @@ export default async function BookingDetailPage({
 							</button>
 						</form>
 					</div>
+				)}
+
+				{unassignedCharges.length > 0 && (
+					<details className="admin-link-charge">
+						<summary>
+							Link a Stripe payment · {unassignedCharges.length} unassigned
+						</summary>
+						<p className="admin-card-hint">
+							Card payments in Stripe not yet tied to any booking — usually an
+							ad-hoc payment link. Link the one that belongs to{" "}
+							{booking.name} and it counts as a card payment here.
+						</p>
+						<ul className="admin-charge-list">
+							{unassignedCharges.map((c) => (
+								<li key={c.key} className="admin-charge-row">
+									<div className="admin-charge-main">
+										<span className="admin-cell-strong">{eur(c.amountCents)}</span>
+										<span className="admin-cell-muted">
+											{c.name || c.email || "unknown"} ·{" "}
+											{formatShortDate(
+												new Date(c.created * 1000).toISOString().slice(0, 10),
+											)}
+										</span>
+									</div>
+									<form action={linkStripeCharge.bind(null, booking.id)}>
+										<input type="hidden" name="chargeKey" value={c.key} />
+										<input
+											type="hidden"
+											name="amountCents"
+											value={c.amountCents}
+										/>
+										<button type="submit" className="admin-btn admin-btn--small">
+											Link to this booking
+										</button>
+									</form>
+								</li>
+							))}
+						</ul>
+					</details>
 				)}
 			</article>
 

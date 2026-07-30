@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath, updateTag } from "next/cache";
 import { getDb, schema } from "../lib/db/client";
 import { recomputeBookingPaid } from "../lib/payments";
@@ -72,6 +72,44 @@ export async function settleBooking(
 		method,
 	});
 	await recomputeBookingPaid(bookingId);
+	revalidateBooking(bookingId);
+}
+
+/**
+ * Attach an orphan Stripe charge (a payment link made before bookingId
+ * metadata existed, so the webhook could never place it) to this booking as a
+ * card payment. Keyed on the charge so it's deduped against both a repeat tap
+ * and any future webhook for the same charge.
+ */
+export async function linkStripeCharge(bookingId: number, formData: FormData) {
+	const db = getDb();
+	if (!db) throw new Error("Database not configured");
+	const chargeKey = String(formData.get("chargeKey") ?? "").trim();
+	const amountCents = Number(formData.get("amountCents"));
+	if (!chargeKey) throw new Error("Missing Stripe charge.");
+	if (!Number.isFinite(amountCents) || amountCents <= 0) {
+		throw new Error("Bad charge amount.");
+	}
+	const existing = await db
+		.select({ id: schema.bookingPayments.id })
+		.from(schema.bookingPayments)
+		.where(
+			and(
+				eq(schema.bookingPayments.bookingId, bookingId),
+				eq(schema.bookingPayments.stripeChargeId, chargeKey),
+			),
+		)
+		.limit(1);
+	if (existing.length === 0) {
+		await db.insert(schema.bookingPayments).values({
+			bookingId,
+			amountCents,
+			method: "card",
+			stripeChargeId: chargeKey,
+			note: "Linked Stripe payment",
+		});
+		await recomputeBookingPaid(bookingId);
+	}
 	revalidateBooking(bookingId);
 }
 

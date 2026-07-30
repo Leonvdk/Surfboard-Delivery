@@ -10043,3 +10043,137 @@ h1 {
 .admin-board-return { display: flex; flex-direction: column; gap: 8px; }
 .admin-return-flag { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; }
 .admin-board-autoassign { margin-bottom: 8px; }
+
+/* ── Clickable revenue tiles → breakdown modal ──────────────────────── */
+.admin-stat--clickable {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  position: relative;
+  background: transparent;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+/* Keep the P&L tile's own fill; the generic reset above would strip it. */
+.admin-pl-tile.admin-stat--clickable { background: var(--gray-100); }
+.admin-stat--clickable:hover {
+  border-color: var(--black);
+  box-shadow: var(--shadow-sm);
+}
+.admin-stat--clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.admin-stat-chevron {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: var(--gray-300);
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 700;
+}
+.admin-stat--clickable:hover .admin-stat-chevron { color: var(--accent); }
+
+.admin-modal {
+  border: var(--border);
+  box-shadow: var(--shadow);
+  padding: 0;
+  max-width: 460px;
+  width: calc(100vw - 32px);
+  max-height: 82vh;
+  background: var(--surface);
+  color: var(--black);
+}
+.admin-modal::backdrop { background: rgba(26, 26, 26, 0.45); }
+.admin-modal-inner {
+  padding: var(--space-md);
+  max-height: 82vh;
+  overflow-y: auto;
+}
+.admin-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.admin-modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0;
+}
+.admin-modal-close {
+  appearance: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--gray-500);
+  padding: 0 4px;
+}
+.admin-modal-close:hover { color: var(--accent); }
+
+.admin-breakdown-list { list-style: none; margin: 0; padding: 0; }
+.admin-breakdown-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: var(--border-light);
+}
+.admin-breakdown-row:last-child { border-bottom: none; }
+.admin-breakdown-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.admin-breakdown-label { font-weight: 600; color: var(--black); text-decoration: none; }
+a.admin-breakdown-label:hover { color: var(--accent); text-decoration: underline; }
+.admin-breakdown-sub { font-size: 0.75rem; color: var(--gray-500); }
+.admin-breakdown-amount {
+  font-family: var(--font-display);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.admin-breakdown-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: var(--border);
+  font-family: var(--font-display);
+}
+.admin-breakdown-total strong { font-size: 1.1rem; font-weight: 800; }
+
+/* ── Link an orphan Stripe charge to a booking ──────────────────────── */
+.admin-link-charge {
+  margin-top: 12px;
+  border-top: var(--border-light);
+  padding-top: 12px;
+}
+.admin-link-charge summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.admin-charge-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-charge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.admin-charge-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

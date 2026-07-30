@@ -6,6 +6,10 @@ import { getDb, schema } from "../../lib/db/client";
 import { getStripe } from "../../lib/stripe";
 import { RevenueBarChart } from "../_components/revenue-bar-chart";
 import { RevenueWindowSelect } from "../_components/revenue-window-select";
+import {
+	type BreakdownRow,
+	StatBreakdown,
+} from "../_components/stat-breakdown";
 import { addExpense, deleteExpense } from "../_expense-actions";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import { getCachedFleet } from "../_lib/boards-cache";
@@ -241,6 +245,97 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	const marginPct =
 		m.billedCents > 0 ? Math.round((resultCents / m.billedCents) * 100) : null;
 
+	// ── Breakdown rows behind the clickable tiles ───────────────────────
+	// Turn each headline number into a tap-to-see itemised list, so "why is
+	// billed €320?" is answered in one tap (and a missing booking is obvious).
+	const inWin = (d: string) => (!startIso || d >= startIso) && d <= today;
+	const ref = (bid: number) => `SR-${String(bid).padStart(5, "0")}`;
+	const nameById = new Map(allBookings.map((b) => [b.id, b.name] as const));
+	const paidByBooking = new Map<number, number>();
+	for (const p of payments) {
+		paidByBooking.set(
+			p.bookingId,
+			(paidByBooking.get(p.bookingId) ?? 0) + p.amountCents,
+		);
+	}
+	const producingInWindow = allBookings.filter(
+		(b) => !b.deletedAt && PRODUCING.has(b.status) && inWin(b.checkout),
+	);
+
+	const billedRows: BreakdownRow[] = [...producingInWindow]
+		.sort((a, b) => billed(b) - billed(a))
+		.map((b) => ({
+			label: b.name,
+			sub: `${ref(b.id)} · out ${formatShortDate(b.checkout)} · ${b.peopleCount}p`,
+			amount: eur(billed(b)),
+			href: `/admin/bookings/${b.id}`,
+		}));
+
+	const outstandingRows: BreakdownRow[] = producingInWindow
+		.map((b) => {
+			const paid = paidByBooking.get(b.id) ?? 0;
+			return { b, owed: Math.max(0, billed(b) - paid), paid };
+		})
+		.filter((x) => x.owed > 0)
+		.sort((a, b) => b.owed - a.owed)
+		.map(({ b, owed, paid }) => ({
+			label: b.name,
+			sub: `${eur(paid)} of ${eur(billed(b))} paid`,
+			amount: eur(owed),
+			href: `/admin/bookings/${b.id}`,
+		}));
+
+	const refundRows: BreakdownRow[] = payments
+		.filter(
+			(p) => p.amountCents < 0 && inWin(p.createdAt.toISOString().slice(0, 10)),
+		)
+		.sort((a, b) => a.amountCents - b.amountCents)
+		.map((p) => ({
+			label: nameById.get(p.bookingId) ?? `Booking #${p.bookingId}`,
+			sub: `${p.method} · ${formatShortDate(p.createdAt.toISOString().slice(0, 10))}`,
+			amount: eur(-p.amountCents),
+			href: `/admin/bookings/${p.bookingId}`,
+		}));
+
+	const expenseItems: Array<{ row: BreakdownRow; cents: number }> = [
+		...allExpenses
+			.filter((e) => inWin(e.date))
+			.map((e) => {
+				const cents = Math.round(e.amount * 100);
+				return {
+					cents,
+					row: {
+						label: e.label,
+						sub: `${e.category?.trim() || "Uncategorised"} · ${formatShortDate(e.date)}`,
+						amount: eur(cents),
+					},
+				};
+			}),
+		...(fleetData?.fleet ?? [])
+			.filter(
+				(b) =>
+					(b.purchaseCost ?? 0) > 0 &&
+					(!win.days ||
+						(b.purchaseDate != null &&
+							startIso != null &&
+							b.purchaseDate >= startIso)),
+			)
+			.map((b) => {
+				const cents = Math.round((b.purchaseCost ?? 0) * 100);
+				return {
+					cents,
+					row: {
+						label: `${b.name} (gear)`,
+						sub: `gear purchase${b.purchaseDate ? ` · ${formatShortDate(b.purchaseDate)}` : " · undated"}`,
+						amount: eur(cents),
+					},
+				};
+			}),
+	];
+	const expenseRows: BreakdownRow[] = expenseItems
+		.sort((a, b) => b.cents - a.cents)
+		.map((x) => x.row);
+
 	const trend = buildTrend(
 		allBookings,
 		startIso,
@@ -271,11 +366,18 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			{/* Headline money tiles — the "how's the business" glance. */}
 			<article className="admin-card">
 				<div className="admin-kpi-grid">
-					<div className="admin-kpi">
+					<StatBreakdown
+						triggerClassName="admin-kpi"
+						title="Revenue billed"
+						rows={billedRows}
+						total={eur(m.billedCents)}
+						empty="No confirmed / in-progress / completed bookings in this window."
+						footnote="Counts bookings by pickup date, once confirmed. A booking still in ‘requested’ — or with no final price — won’t appear until you confirm it and set its price."
+					>
 						<span className="admin-kpi-label">Revenue billed</span>
 						<strong>{eur(m.billedCents)}</strong>
 						<span className="admin-kpi-sub">{m.bookingCount} bookings</span>
-					</div>
+					</StatBreakdown>
 					<div className="admin-kpi">
 						<span className="admin-kpi-label">Collected</span>
 						<strong>{eur(m.collectedCents)}</strong>
@@ -283,13 +385,18 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 							{eur(m.collectedCashCents)} cash · {eur(m.collectedOnlineCents)} card
 						</span>
 					</div>
-					<div
-						className={`admin-kpi${m.outstandingCents > 0 ? " admin-kpi--warn" : ""}`}
+					<StatBreakdown
+						triggerClassName={`admin-kpi${m.outstandingCents > 0 ? " admin-kpi--warn" : ""}`}
+						title="Outstanding — who still owes"
+						rows={outstandingRows}
+						total={eur(m.outstandingCents)}
+						empty="Nothing outstanding — every producing booking in this window is fully paid."
+						footnote="Billed minus what's been recorded as paid, per booking. Record a cash or card payment on the booking to clear it."
 					>
 						<span className="admin-kpi-label">Outstanding</span>
 						<strong>{eur(m.outstandingCents)}</strong>
 						<span className="admin-kpi-sub">billed, not marked paid</span>
-					</div>
+					</StatBreakdown>
 					<div
 						className={`admin-kpi admin-kpi--result${resultCents < 0 ? " admin-kpi--negative" : ""}`}
 					>
@@ -367,14 +474,28 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						<span className="admin-pl-label">Revenue billed</span>
 						<strong>{eur(m.billedCents)}</strong>
 					</div>
-					<div className="admin-pl-tile">
+					<StatBreakdown
+						triggerClassName="admin-pl-tile"
+						title="Refunds"
+						rows={refundRows}
+						total={eur(m.refundedCents)}
+						empty="No refunds logged in this window. (Stripe self-test refunds are excluded by design.)"
+						footnote="Real refunds you record on a booking as a negative payment. Stripe's own test refunds never enter this figure."
+					>
 						<span className="admin-pl-label">Refunds</span>
 						<strong>−{eur(m.refundedCents)}</strong>
-					</div>
-					<div className="admin-pl-tile">
+					</StatBreakdown>
+					<StatBreakdown
+						triggerClassName="admin-pl-tile"
+						title="Expenses"
+						rows={expenseRows}
+						total={eur(expenses.totalCents)}
+						empty="No expenses or gear purchases in this window."
+						footnote="Logged expenses plus gear bought in this window. Undated gear only shows in the all-time view."
+					>
 						<span className="admin-pl-label">Expenses</span>
 						<strong>−{eur(expenses.totalCents)}</strong>
-					</div>
+					</StatBreakdown>
 					<div
 						className={`admin-pl-tile admin-pl-tile--result${resultCents < 0 ? " admin-pl-tile--negative" : ""}`}
 					>
