@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BeachcamCam } from "../../components/beachcam-cam";
+import { CamLinkCard } from "../../components/cam-link-card";
 import { CtaSection } from "../../components/cta-section";
 import { JsonLd } from "../../components/json-ld";
 import { HorizonLine, Reveal } from "../../components/reveal";
@@ -68,13 +68,8 @@ export default async function CamDetailPage({ params }: Props) {
 			<section className="section surfcam-live-section" aria-label={`Live ${spot.name} webcam`}>
 				<div className="container">
 					<Reveal>
-						<BeachcamCam cam={spot.camId} label={spot.fullName} />
-						<p className="surfcam-caption">
-							Live cam at {spot.fullName}, powered by MEO Beachcam. Tap the player for full screen.{" "}
-							<a href={spot.beachcamUrl} target="_blank" rel="noopener noreferrer">
-								Open on Beachcam →
-							</a>
-						</p>
+						<CamLinkCard href={spot.beachcamUrl} name={spot.fullName} />
+						<p className="surfcam-caption">Live stream powered by MEO Beachcam.</p>
 					</Reveal>
 				</div>
 			</section>
