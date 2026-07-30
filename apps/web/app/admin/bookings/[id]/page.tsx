@@ -27,6 +27,10 @@ import {
 } from "../../_lib/booking-labels";
 import { BoardAssignmentPanel } from "../../_components/board-assignment";
 import { BookingEditSendButton } from "../../_components/booking-edit-send";
+import { CopyHandoverButton } from "../../_components/copy-handover-button";
+import { getAddonTariff } from "../../../lib/pricing";
+import type { Booking } from "../../../lib/db/schema";
+import type { FleetData } from "../../_lib/boards-cache";
 import { BookingProgress } from "../../_components/booking-progress";
 import { ExtraGearPanel } from "../../_components/extra-gear";
 import { CheckIcon, EuroIcon, ExternalIcon, RepeatIcon, SplitDatesIcon, WarningIcon } from "../../_components/icons";
@@ -150,6 +154,7 @@ export default async function BookingDetailPage({
 			<div className="admin-detail-actions">
 				<QuickStatusButtons bookingId={id} current={booking.status} />
 				<BookingEditSendButton booking={booking} />
+				<CopyHandoverButton text={buildHandover(booking, fleetData)} />
 			</div>
 
 			{boardError && (
@@ -571,6 +576,66 @@ export default async function BookingDetailPage({
 			</div>
 		</section>
 	);
+}
+
+/**
+ * Plain-text handover for whoever covers a delivery — the friend taking
+ * over in August. Everything needed on the road: who, where (+ map),
+ * when (per-person dates/times when they differ), which gear (incl. the
+ * assigned board's real name), extras, and any notes.
+ */
+function buildHandover(b: Booking, fleet: FleetData | null): string {
+	const ref = `SR-${String(b.id).padStart(5, "0")}`;
+	const staggered = (b.people ?? []).some(
+		(p) =>
+			p.checkin &&
+			p.checkout &&
+			(p.checkin !== b.checkin || p.checkout !== b.checkout),
+	);
+	const L: string[] = [`${ref} · ${b.name}`];
+	if (b.phone) L.push(`Phone: ${b.phone}`);
+	L.push("");
+	L.push(`Delivery: ${formatLongDate(b.checkin)}${b.deliveryTime ? ` at ${b.deliveryTime}` : ""}`);
+	L.push(`Pickup: ${formatLongDate(b.checkout)}${b.pickupTime ? ` at ${b.pickupTime}` : ""}`);
+	if (b.accommodation) L.push(`Where: ${b.accommodation}`);
+	const map = mapsUrl(b.accommodation);
+	if (map) L.push(`Map: ${map}`);
+	L.push("");
+	L.push("Gear:");
+	(b.people ?? []).forEach((p, i) => {
+		const who = p.name?.trim() || `Person ${i + 1}`;
+		const bits = [packageShort(p.package)];
+		if (p.board) bits.push(p.board);
+		const asg = fleet?.assignments.find(
+			(a) => a.bookingId === b.id && a.personIndex === i,
+		);
+		const boardName = asg
+			? fleet?.fleet.find((f) => f.id === asg.boardId)?.name
+			: null;
+		if (boardName) bits.push(`(${boardName})`);
+		if (p.wetsuitSize) bits.push(`wetsuit ${p.wetsuitSize}`);
+		let line = `- ${who}: ${bits.filter(Boolean).join(" · ")}`;
+		if (staggered && p.checkin && p.checkout) {
+			line += `  [${formatLongDate(p.checkin)} → ${formatLongDate(p.checkout)}]`;
+		}
+		L.push(line);
+	});
+	const extras = (b.addons ?? []).map(
+		(a) => `${a.quantity}× ${getAddonTariff(a.key)?.label ?? a.key}`,
+	);
+	if (extras.length) {
+		L.push("");
+		L.push(`Extras: ${extras.join(", ")}`);
+	}
+	if (b.message) {
+		L.push("");
+		L.push(`Customer note: ${b.message}`);
+	}
+	if (b.ownerNotes) {
+		L.push("");
+		L.push(`Notes: ${b.ownerNotes}`);
+	}
+	return L.join("\n");
 }
 
 function ordinalSuffix(n: number): string {
