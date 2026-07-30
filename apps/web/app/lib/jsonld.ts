@@ -435,6 +435,7 @@ export function siteNavigationJsonLd() {
 		{ name: "Surfboards & Wetsuits", url: `${SITE_URL}/surf-gear` },
 		{ name: "Pricing", url: `${SITE_URL}/pricing` },
 		{ name: "How It Works", url: `${SITE_URL}/how-it-works` },
+		{ name: "Live Surf Cams", url: `${SITE_URL}/surf-cams` },
 		{ name: "Reviews", url: `${SITE_URL}/reviews` },
 		{ name: "Surf Spots", url: `${SITE_URL}/surf-spots` },
 		{ name: "Blog", url: `${SITE_URL}/blog` },

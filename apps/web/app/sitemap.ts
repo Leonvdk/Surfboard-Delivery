@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllPosts, getAllTags } from "./lib/blog";
 import { DELIVERY_TOWNS } from "./lib/delivery-towns";
 import { SITE_URL } from "./lib/metadata";
+import { CAM_SPOTS } from "./surf-cams/_data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	const lastModified = new Date();
@@ -32,6 +33,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			changeFrequency: "monthly",
 			priority: 0.9,
 		},
+		{
+			url: `${SITE_URL}/surf-cams`,
+			lastModified,
+			changeFrequency: "daily",
+			priority: 0.9,
+		},
+		...CAM_SPOTS.map((spot) => ({
+			url: `${SITE_URL}/surf-cams/${spot.slug}`,
+			lastModified,
+			changeFrequency: "daily" as const,
+			priority: 0.8,
+		})),
 		{
 			url: `${SITE_URL}/how-it-works`,
 			lastModified,

@@ -21,6 +21,7 @@ export function Footer() {
 							<li><Link href="/pricing">Pricing</Link></li>
 							<li><Link href="/how-it-works">Process</Link></li>
 							<li><Link href="/surf-spots">Locations</Link></li>
+							<li><Link href="/surf-cams">Live surf cams</Link></li>
 							<li><Link href="/faq">FAQ</Link></li>
 						</ul>
 					</div>

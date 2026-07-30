@@ -9,6 +9,7 @@ const LINKS = [
 	{ href: "/surf-gear", label: "Boards" },
 	{ href: "/pricing", label: "Pricing" },
 	{ href: "/how-it-works", label: "How it works" },
+	{ href: "/surf-cams", label: "Live cams" },
 	{ href: "/reviews", label: "Reviews" },
 	{ href: "/blog", label: "Blog" },
 ] as const;
