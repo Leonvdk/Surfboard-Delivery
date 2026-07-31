@@ -31,10 +31,45 @@ export function isBot(): boolean {
 	return false;
 }
 
+/*
+ * Internal traffic (the owner's own visits) is the biggest data pollutant for
+ * a solo operator: constant testing from a phone, laptop and home Wi-Fi shows
+ * up as low-engagement Direct sessions and drowns out real customers. IP-based
+ * filters miss a phone on cellular (dynamic IP), so instead we self-flag: any
+ * browser that has ever opened /admin (only the owner can) is marked, and from
+ * then on tags traffic_type:"internal" on every event. Activate GA4's built-in
+ * "Internal Traffic" data filter to exclude it — no IP rules needed.
+ */
+const INTERNAL_KEY = "sra_internal";
+
+/** Call once when the owner reaches /admin — flags this browser forever. */
+export function markInternalTraffic() {
+	try {
+		localStorage.setItem(INTERNAL_KEY, "1");
+	} catch {
+		// Private mode / storage blocked — nothing we can do; skip silently.
+	}
+	if (typeof window !== "undefined" && window.gtag) {
+		window.gtag("set", { traffic_type: "internal" });
+	}
+}
+
+export function isInternalTraffic(): boolean {
+	try {
+		return localStorage.getItem(INTERNAL_KEY) === "1";
+	} catch {
+		return false;
+	}
+}
+
 function send(eventName: string, params?: Record<string, unknown>) {
 	if (typeof window === "undefined" || !window.gtag) return;
 	if (isBot()) {
 		window.gtag("event", eventName, { ...params, traffic_type: "bot" });
+		return;
+	}
+	if (isInternalTraffic()) {
+		window.gtag("event", eventName, { ...params, traffic_type: "internal" });
 		return;
 	}
 	window.gtag("event", eventName, params);

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { AdminNavBar } from "./_components/admin-nav-bar";
 import { AdminTabBar } from "./_components/admin-tab-bar";
+import { MarkInternalTraffic } from "./_components/mark-internal-traffic";
 import { PullToRefresh } from "./_components/pull-to-refresh";
 import { ServiceWorkerRegister } from "./_components/service-worker-register";
 
@@ -46,6 +47,7 @@ export default async function AdminLayout({
 			<main className="admin-main">{children}</main>
 			<AdminTabBar />
 			<ServiceWorkerRegister />
+			<MarkInternalTraffic />
 		</div>
 	);
 }

@@ -2,8 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { isBot } from "../lib/analytics";
-import { trackScrollDepth, trackTimeOnPage } from "../lib/analytics";
+import {
+	isBot,
+	isInternalTraffic,
+	trackScrollDepth,
+	trackTimeOnPage,
+} from "../lib/analytics";
 
 const SCROLL_THRESHOLDS = [25, 50, 75, 90];
 const TIME_MILESTONES = [30, 60, 120, 300];
@@ -17,8 +21,12 @@ export function EngagementTracker() {
 	const lastTick = useRef(Date.now());
 
 	useEffect(() => {
-		if (isBot() && window.gtag) {
+		if (!window.gtag) return;
+		// Tag every event from this session so GA4 data filters can exclude it.
+		if (isBot()) {
 			window.gtag("set", { traffic_type: "bot" });
+		} else if (isInternalTraffic()) {
+			window.gtag("set", { traffic_type: "internal" });
 		}
 	}, []);
 
