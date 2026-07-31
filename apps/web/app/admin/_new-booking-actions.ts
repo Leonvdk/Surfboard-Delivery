@@ -359,8 +359,15 @@ export async function createAdminBooking(
 		bookingId: row.id,
 		requestRef,
 		lines: lines
-			.filter((l): l is { label: string; amountEuros: number } => l.amountEuros != null)
-			.map((l) => ({ label: l.label, amountEuros: l.amountEuros })),
+			.filter(
+				(l): l is ConfirmationLine & { amountEuros: number } =>
+					l.amountEuros != null,
+			)
+			.map((l) => ({
+				label: l.label,
+				amountEuros: l.amountEuros,
+				packageTier: l.packageTier,
+			})),
 		finalTotalEuros: finalTotal,
 	});
 
