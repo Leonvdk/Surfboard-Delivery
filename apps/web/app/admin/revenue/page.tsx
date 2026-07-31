@@ -332,7 +332,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	// the Result — billed, minus refunds, minus expenses.
 	const profitRows: BreakdownRow[] = [
 		{
-			label: "Revenue billed",
+			label: "Revenue",
 			sub: `${m.bookingCount} booking${m.bookingCount === 1 ? "" : "s"}`,
 			amount: eur(m.billedCents),
 		},
@@ -391,13 +391,13 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				<div className="admin-kpi-grid">
 					<StatBreakdown
 						triggerClassName="admin-kpi"
-						title="Revenue billed"
+						title="Revenue"
 						rows={billedRows}
 						total={eur(m.billedCents)}
 						empty="No confirmed / in-progress / completed bookings in this window."
-						footnote="Counts bookings by pickup date, once confirmed. A booking still in ‘requested’ — or with no final price — won’t appear until you confirm it and set its price."
+						footnote="Earned revenue: confirmed / in-progress / completed bookings, counted by pickup date — paid or not. A booking still in ‘requested’, or with no final price, won’t appear until you confirm it and set its price."
 					>
-						<span className="admin-kpi-label">Revenue billed</span>
+						<span className="admin-kpi-label">Revenue</span>
 						<strong>{eur(m.billedCents)}</strong>
 						<span className="admin-kpi-sub">{m.bookingCount} bookings</span>
 					</StatBreakdown>
@@ -429,8 +429,8 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						empty=""
 						footnote={
 							marginPct != null
-								? `Margin ${marginPct}% of revenue billed. Revenue billed − refunds − expenses, for the ${win.label.toLowerCase()} window.`
-								: `Revenue billed − refunds − expenses, for the ${win.label.toLowerCase()} window.`
+								? `Margin ${marginPct}% of revenue. Revenue − refunds − expenses, for the ${win.label.toLowerCase()} window.`
+								: `Revenue − refunds − expenses, for the ${win.label.toLowerCase()} window.`
 						}
 					>
 						<span className="admin-kpi-label">Profit</span>
@@ -460,7 +460,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 			<article className="admin-card admin-card--compact">
 				<h2>
-					Revenue billed ·{" "}
+					Revenue ·{" "}
 					{!win.days || win.days > 180
 						? "by month"
 						: win.days <= 31
@@ -504,7 +504,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				<h2>Profit &amp; loss · {win.label.toLowerCase()}</h2>
 				<div className="admin-pl-grid">
 					<div className="admin-pl-tile">
-						<span className="admin-pl-label">Revenue billed</span>
+						<span className="admin-pl-label">Revenue</span>
 						<strong>{eur(m.billedCents)}</strong>
 					</div>
 					<StatBreakdown

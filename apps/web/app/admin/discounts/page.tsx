@@ -42,9 +42,11 @@ export default async function AdminDiscountsPage() {
 	try {
 		// Expand the coupon so we can read percent_off / amount_off / applies_to
 		// (the 2026-06-24 API nests it under `promotion`).
+		// applies_to is a nested field Stripe only returns when expanded — needed
+		// to tell a package-restricted code from a whole-order one.
 		const res = await stripe.promotionCodes.list({
 			limit: 100,
-			expand: ["data.promotion.coupon"],
+			expand: ["data.promotion.coupon.applies_to"],
 		});
 		codes = res.data;
 	} catch (err) {
