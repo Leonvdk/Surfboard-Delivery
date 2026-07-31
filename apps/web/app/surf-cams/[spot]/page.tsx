@@ -69,7 +69,10 @@ export default async function CamDetailPage({ params }: Props) {
 				<div className="container">
 					<Reveal>
 						<CamLinkCard href={spot.beachcamUrl} name={spot.fullName} />
-						<p className="surfcam-caption">Live stream powered by MEO Beachcam.</p>
+						<p className="surfcam-caption">
+							We can&apos;t play the live feed directly on our site just yet — but
+							it&apos;s one tap away on MEO Beachcam, always free and live.
+						</p>
 					</Reveal>
 				</div>
 			</section>
