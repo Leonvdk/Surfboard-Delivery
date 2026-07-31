@@ -1614,6 +1614,10 @@ export function BookingForm() {
 			>
 				{status === "submitting" ? "Sending..." : "Send request — no payment now"}
 			</button>
+			<p className="booking-discount-hint">
+				Got a discount code? Add it at checkout when you pay — your payment
+				link comes after we confirm.
+			</p>
 			</form>
 
 			<BoardCalcModal
