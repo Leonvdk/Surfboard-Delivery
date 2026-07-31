@@ -158,9 +158,10 @@ export default function AboutPage() {
 							</p>
 							<p>
 								Unlike the crowded lineups further north, the beaches around Aljezur stay remarkably
-								uncrowded. Arrifana offers a sheltered bay for all levels. Monte Clérigo has gentle
-								reform waves perfect for learning. Amoreira&apos;s river mouth creates powerful,
-								varied surf. And Vale Figueiras rewards the adventurous with raw, empty power.
+								uncrowded. Arrifana offers a sheltered bay for all levels. Monte Clérigo is a more
+								open beach break, forgiving inside on the smaller days. Amoreira&apos;s river mouth
+								ranges from mellow and beginner-friendly to punchy with the swell. And Vale Figueiras
+								rewards the adventurous with raw, empty power.
 							</p>
 							<p>
 								Off the water, Aljezur is a quiet market town with a Moorish castle on the hill,

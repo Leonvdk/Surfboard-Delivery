@@ -21,10 +21,10 @@ const spots = [
 		name: "Praia da Arrifana",
 		level: "All levels",
 		description:
-			"The most popular surf beach in the Aljezur area. Arrifana sits in a wide, sheltered bay that catches west and northwest swells while offering protection from north winds. The main beach break offers multiple shifting peaks across a wide sandy stretch — plenty of space to spread out.",
+			"The most popular surf beach in the Aljezur area. Arrifana sits in a wide, cliff-backed bay that faces southwest — the high cliffs block north and northwest wind, so it stays cleaner and more surfable than the exposed beaches when the wind is up, and it's the most reliable spot around. The main beach break offers shifting peaks across a wide sandy stretch, plus a rock point at the north end.",
 		bestFor:
-			"Beginners stick to the middle section where waves reform gently. Intermediate surfers head to the outside peaks for longer rides. When a solid swell wraps into the bay, the right-hand point break at the north end (Canal / Kangaroos) fires for advanced surfers.",
-		bestTide: "Works on all tides. Low tide tends to be steeper, high tide more forgiving.",
+			"Beginners stick to the middle section where the waves reform gently. Intermediate surfers head to the outside peaks for longer rides. When a solid NW swell wraps into the bay, the right-hand point at the north end (Canal / Kangaroos) — a rock reef, advanced only — fires.",
+		bestTide: "Works on all tides; many prefer mid to low for more defined walls. Watch for rocks near the point.",
 		bestSeason:
 			"Year-round. Summer (Jun–Sep) brings smaller, mellow waves ideal for learning. Shoulder season (Apr–May, Oct) balances clean conditions with manageable swell. Winter (Nov–Mar) delivers powerful swells for experienced surfers.",
 		access:
@@ -34,54 +34,54 @@ const spots = [
 		name: "Monte Clérigo",
 		level: "Beginner – Intermediate",
 		description:
-			"A beautiful beach nestled between dramatic cliffs, just north of Aljezur. Monte Clérigo offers a reliable beach break with forgiving, crumbly waves that are ideal for improving your surfing. The beach faces west-northwest and picks up plenty of swell.",
+			"A beautiful beach between dramatic cliffs, just north of Aljezur. Monte Clérigo faces west-northwest and is more open than sheltered Arrifana, so it catches more swell and usually breaks bigger. On small, clean days the inside is forgiving and great for improving — but it has more rocks and current than nearby Amoreira, so it pays to read it first.",
 		bestFor:
-			"Beginners and intermediate surfers. The waves break over sand and are more forgiving than Arrifana on bigger days. Good for building confidence and working on turns.",
-		bestTide: "Best around mid to high tide. Low tide can be shallow and close-out.",
+			"Beginners and intermediates on the smaller, cleaner days — forgiving sand-bottom peaks for building confidence and working on turns. Because it's exposed, it can jump in size and the currents pick up.",
+		bestTide: "Best low to mid tide. Watch the rocks at the north end and at low water.",
 		bestSeason:
-			"Best in summer and shoulder seasons when the swell is manageable. Can get powerful in winter — check conditions before paddling out.",
+			"Best in summer and shoulder seasons when the swell is manageable. Gets bigger and more powerful in winter — check conditions before paddling out.",
 		access:
 			"15-minute drive from Aljezur. Small village with cafés and a restaurant overlooking the beach.",
 	},
 	{
 		name: "Amoreira",
-		level: "Intermediate – Advanced",
+		level: "Beginner – Advanced",
 		description:
-			"A dramatic river-mouth beach break where the Aljezur river meets the Atlantic. The sandbanks here shift with the river flow, creating powerful, hollow waves that reward experienced surfers. The cliffs and dunes surrounding the beach make it feel wild and remote.",
+			"A river-mouth beach break where the Aljezur river meets the Atlantic, backed by wild cliffs and dunes. The sandbanks shift with the river flow, so it ranges from mellow and beginner-friendly on a small summer swell to punchy and powerful when a bigger swell hits the outer banks. It's usually bigger than Arrifana and cleaner than Monte Clérigo, with fewer rocks and gentler currents — but the river-mouth current is always the thing to respect.",
 		bestFor:
-			"Intermediate to advanced surfers. The waves pack more punch than Arrifana and Monte Clérigo. Strong currents near the river mouth require experience.",
+			"Beginners on small, clean days — a shallow lagoon forms at low tide, good for families. Intermediate to advanced when the outer banks and swell line up. Keep clear of the river-mouth current.",
 		bestTide:
-			"Best from mid to high tide. Avoid low tide when the waves close out on shallow banks.",
+			"A friendly lagoon at low tide; the peaks near the river mouth work best mid to high. Bigger swells break further out.",
 		bestSeason:
-			"Works year-round but really comes alive in autumn and winter with consistent northwest swells. Summer can be flat or very small.",
+			"Works year-round — mellow in summer, and it really comes alive in autumn and winter with consistent northwest swells.",
 		access:
-			"20-minute drive from Aljezur. Boardwalk through the dunes to the beach. Limited parking.",
+			"10–15 minutes from Aljezur. Boardwalk through the dunes to the beach. Limited parking.",
 	},
 	{
 		name: "Vale Figueiras",
 		level: "Intermediate – Advanced",
 		description:
-			"An exposed, wide-open beach break about 30 minutes south of Aljezur. Vale Figueiras faces due west and catches every bit of swell the Atlantic sends. It's less visited than Arrifana, which means fewer crowds and more waves for you.",
+			"An exposed, wide-open beach break about 30 minutes south of Aljezur. Vale Figueiras faces roughly west and is a swell magnet — it catches energy when other spots are flat. Shifting sandbars throw up lefts and rights along a long, empty stretch, but it's powerful and rippy, and the access is a rough dirt track with no facilities.",
 		bestFor:
-			"Intermediate and advanced surfers looking for uncrowded peaks. Multiple sandbars create options across a long stretch of beach.",
-		bestTide: "Works on all tides. Low tide can produce some nice barrels on the right sandbars.",
+			"Confident intermediate and advanced surfers after uncrowded peaks. On a small, clean day a coached group can find friendly corners, but the default is powerful with strong rip currents.",
+		bestTide: "Works across tides, bank-dependent. Some nice barrels off the right sandbars at low.",
 		bestSeason:
-			"Consistent year-round. One of the most reliable spots in the area thanks to its exposure. Good option when Arrifana is too small.",
+			"A year-round swell magnet thanks to its exposure — best in autumn and winter for size and shape. A good call when Arrifana is too small.",
 		access:
-			"30 minutes south from Aljezur via a quiet country road. Dirt track parking above the beach.",
+			"30 minutes south from Aljezur via a dirt track; 4x4-friendly parking above the beach, no facilities. Strong rips — not a spot to surf alone.",
 	},
 	{
 		name: "Canal / Kangaroos (Arrifana Point)",
 		level: "Advanced",
 		description:
-			"A right-hand point break at the northern end of Arrifana bay. When a solid west or northwest swell wraps around the headland, Canal produces fast, hollow waves breaking over rocky reef. It's a fickle spot — it needs the right swell direction and size to work.",
+			"A right-hand point that breaks over rock reef at the northern end of Arrifana bay. When a solid west or northwest swell wraps around the headland, it produces long, powerful, rippable walls — but the line-up is dotted with boils and exposed rocks, and it only starts working at size.",
 		bestFor:
-			"Experienced surfers only. Sharp rocks, strong currents, and a heavy wave demand confidence and skill. When it's on, it's one of the best waves in the Algarve.",
-		bestTide: "Works best from mid to high tide. Low tide exposes too much rock.",
+			"Experienced surfers only. Sharp rocks, boils, strong currents, and a heavy wave demand confidence and skill. When it's on, it's one of the best waves in the Algarve — but it's a separate reef, not the beginner-friendly beach break in the same bay.",
+		bestTide: "Works best from mid tide. Low tide exposes too much rock.",
 		bestSeason:
-			"Autumn and winter when Atlantic storms send large west-northwest swells. Rarely works in summer.",
+			"Autumn and winter, when big Atlantic swells make the Arrifana beach break too big. Rarely works in summer.",
 		access:
-			"Walk north along the rocks from Arrifana beach. Only accessible at lower tides. Check conditions from the cliff before committing.",
+			"Walk north along the rocks from Arrifana beach. Check conditions from the cliff before committing. Advanced only.",
 	},
 ];
 
@@ -133,9 +133,10 @@ export default function SurfSpotsPage() {
 						<div className="content-prose">
 							<h3>When to surf</h3>
 							<p>
-								<strong>Summer (June – September):</strong> The water warms to 18–20°C and the
-								waves mellow out. Perfect for beginners and families. Expect smaller, clean swells
-								with light offshore winds in the morning.
+								<strong>Summer (June – September):</strong> The water sits around 17–19°C — this
+								exposed coast runs a touch cooler than the south Algarve, so a 3/2 wetsuit is still
+								the norm — and the waves mellow out. Perfect for beginners and families. Expect
+								smaller, clean swells with light offshore winds in the morning.
 							</p>
 							<p>
 								<strong>Shoulder season (April – May, October):</strong> The sweet spot. Moderate
