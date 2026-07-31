@@ -94,6 +94,14 @@ function spotSlug(name: string) {
 		.replace(/^-|-$/g, "");
 }
 
+/** Short label for the jump-nav chips. */
+function shortName(name: string) {
+	return name
+		.replace(/^Praia d[ae] /, "")
+		.replace(/\s*\(.*\)$/, "")
+		.replace("Canal / Kangaroos", "Kangaroos");
+}
+
 export default function SurfSpotsPage() {
 	return (
 		<>
@@ -110,6 +118,21 @@ export default function SurfSpotsPage() {
 					</Reveal>
 				</div>
 			</section>
+
+			<nav className="spot-jumpnav" aria-label="Jump to a surf spot">
+				<div className="container spot-jumpnav-inner">
+					<span className="spot-jumpnav-label">Jump to:</span>
+					{spots.map((spot) => (
+						<a
+							key={spot.name}
+							href={`#spot-${spotSlug(spot.name)}`}
+							className="spot-jumpnav-chip"
+						>
+							{shortName(spot.name)}
+						</a>
+					))}
+				</div>
+			</nav>
 
 			<HorizonLine />
 
