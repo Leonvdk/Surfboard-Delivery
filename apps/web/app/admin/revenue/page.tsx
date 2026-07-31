@@ -164,35 +164,26 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	const startIso = win.days ? isoDaysAgo(win.days - 1) : null;
 	const startUnix = win.days ? Math.floor(Date.now() / 1000) - win.days * 86400 : 0;
 
+	// Stripe is optional: it powers only the refunds figure + recent-charges
+	// list. Everything else (billed, collected, outstanding, profit, the
+	// modals) is booking-based, so the page renders fully without it — with a
+	// note where the card data would be. "Collected online" comes from each
+	// booking's webhook-set paidAt, not a charge scan. Paginate so long /
+	// all-time windows aren't capped at 100.
 	const stripe = getStripe();
-	if (!stripe) {
-		return (
-			<section className="admin-empty">
-				<h1>Stripe not configured</h1>
-				<p>
-					Set <code>STRIPE_SECRET_KEY</code> in Vercel (Restricted key with{" "}
-					<code>charges:read</code>) to see card revenue. Booking-based revenue
-					still works without it.
-				</p>
-			</section>
-		);
-	}
-
-	// Stripe is now only needed for refunds + the recent-charges list;
-	// "collected online" comes from the booking's webhook-set paidAt, which
-	// is more reliable than scanning charges. Paginate so long/all-time
-	// windows aren't capped at 100.
-	let charges: Stripe.Charge[] = [];
+	const charges: Stripe.Charge[] = [];
 	let fetchError: string | null = null;
-	try {
-		const listParams: Stripe.ChargeListParams = { limit: 100 };
-		if (win.days) listParams.created = { gte: startUnix };
-		for await (const c of stripe.charges.list(listParams)) {
-			if (c.status === "succeeded") charges.push(c);
-			if (charges.length >= 2000) break; // safety bound
+	if (stripe) {
+		try {
+			const listParams: Stripe.ChargeListParams = { limit: 100 };
+			if (win.days) listParams.created = { gte: startUnix };
+			for await (const c of stripe.charges.list(listParams)) {
+				if (c.status === "succeeded") charges.push(c);
+				if (charges.length >= 2000) break; // safety bound
+			}
+		} catch (err) {
+			fetchError = err instanceof Error ? err.message : "Unknown Stripe error";
 		}
-	} catch (err) {
-		fetchError = err instanceof Error ? err.message : "Unknown Stripe error";
 	}
 
 	const allBookings = (await getCachedBookings()) ?? [];
@@ -382,6 +373,12 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				</div>
 			</header>
 
+			{!stripe && (
+				<p className="admin-card-hint admin-sync-status--warn">
+					Stripe isn&apos;t connected here — card charges &amp; refunds are
+					hidden, but every booking-based figure below is complete.
+				</p>
+			)}
 			{fetchError && (
 				<p className="admin-card-hint admin-sync-status--warn">
 					Stripe fetch failed ({fetchError}) — card refunds may be missing;
