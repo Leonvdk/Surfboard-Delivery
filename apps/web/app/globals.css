@@ -1063,7 +1063,8 @@ h1 {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: var(--border);
+  /* No border of its own — the header's underline above and the rows'
+     hairlines carry all the ruling; a second thick rule doubled up. */
 }
 
 .trust-ledger-row {
@@ -1116,7 +1117,8 @@ h1 {
   gap: var(--space-md);
   margin: var(--space-lg) 0 0;
   padding-top: var(--space-md);
-  border-top: var(--border);
+  /* The ledger's last hairline sits right above — a thick border here
+     doubled the rule. */
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.875rem;
