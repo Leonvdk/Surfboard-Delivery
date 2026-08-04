@@ -1055,92 +1055,58 @@ h1 {
   color: var(--accent);
 }
 
-.trust-strip-grid {
+/* The five promises as a hairline ledger — number · claim · clause. On
+   desktop each promise is one line with the clause right-aligned; on
+   mobile the clause wraps under the claim. A third the height of the old
+   card grid, and calmer. */
+.trust-ledger {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--space-lg);
+  border-top: var(--border);
 }
 
-.trust-strip-card {
-  background: var(--surface);
-  border: var(--border);
-  box-shadow: 4px 4px 0 var(--black);
-  padding: var(--space-lg) 22px;
+.trust-ledger-row {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-height: 240px;
+  align-items: baseline;
+  gap: var(--space-md);
+  padding: 14px 0;
+  border-bottom: var(--border-light);
   margin: 0;
 }
 
-.trust-strip-mark {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.trust-strip-num {
+.trust-ledger-num {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 0.8125rem;
   color: var(--accent);
   letter-spacing: 0.06em;
-}
-
-.trust-strip-rule {
-  flex: 1;
-  height: 1.5px;
-  background: var(--black);
-}
-
-.trust-strip-icon {
-  width: 44px;
-  height: 44px;
-  border: 1.5px solid var(--black);
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
   flex: 0 0 auto;
 }
 
-.trust-strip-card-kicker {
+.trust-ledger-claim {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--gray-500);
-  margin: 0;
-}
-
-.trust-strip-card-headline {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.25rem;
-  line-height: 1.15;
-  color: var(--black);
+  font-size: 1.125rem;
+  line-height: 1.2;
   letter-spacing: -0.01em;
+  color: var(--black);
   margin: 0;
 }
 
-.trust-strip-card-headline em {
+.trust-ledger-claim em {
   font-style: normal;
   color: var(--accent);
 }
 
-.trust-strip-card-desc {
+.trust-ledger-desc {
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--gray-700);
-  margin: auto 0 0;
+  margin: 0 0 0 auto;
+  text-align: right;
 }
 
 .trust-strip-signoff {
@@ -1171,9 +1137,8 @@ h1 {
   color: var(--gray-500);
 }
 
-/* Compact 2-column mobile — half the vertical height of the desktop
-   grid, description hidden. Headline + numbered index still carry
-   the promise. */
+/* Mobile ledger — the clause wraps under the claim (two short lines per
+   promise) instead of right-aligning on the same line. */
 @media (max-width: 768px) {
   .trust-strip {
     padding: var(--space-2xl) 0 var(--space-xl);
@@ -1188,39 +1153,23 @@ h1 {
   .trust-strip-title {
     font-size: 1.375rem;
   }
-  .trust-strip-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-sm);
+  .trust-ledger-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: baseline;
+    padding: 12px 0;
   }
-  .trust-strip-card {
-    min-height: 0;
-    padding: 14px 14px 16px;
-    box-shadow: 3px 3px 0 var(--black);
-    gap: 8px;
+  .trust-ledger-claim {
+    font-size: 1.0625rem;
   }
-  .trust-strip-mark {
-    gap: 6px;
-    margin-bottom: 0;
-  }
-  .trust-strip-icon {
-    width: 30px;
-    height: 30px;
-  }
-  .trust-strip-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-  .trust-strip-card-kicker {
-    font-size: 0.625rem;
-  }
-  .trust-strip-card-headline {
-    font-size: 1rem;
-    line-height: 1.15;
-  }
-  .trust-strip-card-desc {
-    font-size: 0.75rem;
-    line-height: 1.35;
-    margin-top: 4px;
+  .trust-ledger-desc {
+    grid-column: 2;
+    margin: 0;
+    text-align: left;
+    font-size: 0.8125rem;
+    line-height: 1.4;
   }
   .trust-strip-signoff {
     flex-direction: column;

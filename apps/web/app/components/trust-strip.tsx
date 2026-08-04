@@ -1,9 +1,11 @@
 /**
- * Five promises — the trust-signal section on the homepage. Editorial
- * stat-card grid on desktop, compact 2-col grid on mobile (descriptions
- * hidden so the section takes about 300px instead of 750px). Every
- * promise is a place where the deep-research pass found no local
- * competitor offering the same thing publicly.
+ * Five promises — the homepage trust signals, set as a hairline-divided
+ * ledger: ember number, bold claim, quiet clause. The old five-card grid
+ * carried four pieces of furniture per card (number + rule + icon, kicker,
+ * headline, description) and stacked ~750px tall on mobile; the ledger
+ * reads in one glance at a third of the height. Every promise is a place
+ * where the deep-research pass found no local competitor offering the
+ * same thing publicly.
  */
 export function TrustStrip() {
 	return (
@@ -16,50 +18,40 @@ export function TrustStrip() {
 					</h2>
 				</header>
 
-				<ul className="trust-strip-grid">
-					<Card
+				<ul className="trust-ledger">
+					<Row
 						index="01"
-						kicker="Delivery"
-						icon={<TruckIcon />}
-						headlineBefore="No "
-						headlineAccent="minimums"
-						headlineAfter="."
+						before="No "
+						accent="minimums"
+						after="."
 						desc="Order one board. Free delivery, always."
 					/>
-					<Card
+					<Row
 						index="02"
-						kicker="Level-match"
-						icon={<ShieldIcon />}
-						headlineBefore="Right "
-						headlineAccent="board"
-						headlineAfter=", guaranteed."
+						before="Right "
+						accent="board"
+						after=", guaranteed."
 						desc="Wrong fit? Swap on day two — free."
 					/>
-					<Card
+					<Row
 						index="03"
-						kicker="Reply time"
-						icon={<ChatIcon />}
-						headlineBefore="We "
-						headlineAccent="answer"
-						headlineAfter=". Fast."
+						before="We "
+						accent="answer"
+						after=". Fast."
 						desc="Within 24h in EN · FR · DE · NL · PT."
 					/>
-					<Card
+					<Row
 						index="04"
-						kicker="Payment"
-						icon={<CardIcon />}
-						headlineBefore="Pay "
-						headlineAccent="your"
-						headlineAfter=" way."
+						before="Pay "
+						accent="your"
+						after=" way."
 						desc="Card, Apple Pay, iDEAL, Wero, MB WAY — or cash on arrival."
 					/>
-					<Card
+					<Row
 						index="05"
-						kicker="Cancellation"
-						icon={<ClockIcon />}
-						headlineBefore="Change "
-						headlineAccent="your"
-						headlineAfter=" mind."
+						before="Change "
+						accent="your"
+						after=" mind."
 						desc="Cancel free within 72 hours of booking."
 					/>
 				</ul>
@@ -77,100 +69,26 @@ export function TrustStrip() {
 	);
 }
 
-interface CardProps {
+interface RowProps {
 	index: string;
-	kicker: string;
-	icon: React.ReactNode;
-	headlineBefore: string;
-	headlineAccent: string;
-	headlineAfter: string;
+	before: string;
+	accent: string;
+	after: string;
 	desc: string;
 }
 
-function Card({
-	index,
-	kicker,
-	icon,
-	headlineBefore,
-	headlineAccent,
-	headlineAfter,
-	desc,
-}: CardProps) {
+function Row({ index, before, accent, after, desc }: RowProps) {
 	return (
-		<li className="trust-strip-card">
-			<div className="trust-strip-mark">
-				<span className="trust-strip-num">{index}</span>
-				<span className="trust-strip-rule" aria-hidden="true" />
-				<span className="trust-strip-icon" aria-hidden="true">
-					{icon}
-				</span>
-			</div>
-			<p className="trust-strip-card-kicker">{kicker}</p>
-			<h3 className="trust-strip-card-headline">
-				{headlineBefore}
-				<em>{headlineAccent}</em>
-				{headlineAfter}
+		<li className="trust-ledger-row">
+			<span className="trust-ledger-num" aria-hidden="true">
+				{index}
+			</span>
+			<h3 className="trust-ledger-claim">
+				{before}
+				<em>{accent}</em>
+				{after}
 			</h3>
-			<p className="trust-strip-card-desc">{desc}</p>
+			<p className="trust-ledger-desc">{desc}</p>
 		</li>
-	);
-}
-
-const iconProps = {
-	width: 22,
-	height: 22,
-	viewBox: "0 0 24 24",
-	fill: "none",
-	stroke: "currentColor",
-	strokeWidth: 1.8,
-	strokeLinecap: "square" as const,
-	strokeLinejoin: "miter" as const,
-	"aria-hidden": true,
-};
-
-function TruckIcon() {
-	return (
-		<svg {...iconProps}>
-			<path d="M3 7h11v9H3z" />
-			<path d="M14 10h4l3 3v3h-7" />
-			<circle cx="7" cy="18" r="1.6" />
-			<circle cx="17.5" cy="18" r="1.6" />
-		</svg>
-	);
-}
-
-function ShieldIcon() {
-	return (
-		<svg {...iconProps}>
-			<path d="M12 3l8 3v6c0 4-3.5 7.5-8 9-4.5-1.5-8-5-8-9V6z" />
-			<path d="M9 12l2 2 4-4" />
-		</svg>
-	);
-}
-
-function ChatIcon() {
-	return (
-		<svg {...iconProps}>
-			<path d="M4 5h16v11H8l-4 4Z" />
-		</svg>
-	);
-}
-
-function CardIcon() {
-	return (
-		<svg {...iconProps}>
-			<rect x="3" y="6" width="18" height="13" />
-			<path d="M3 10h18" />
-			<path d="M7 15h3" />
-		</svg>
-	);
-}
-
-function ClockIcon() {
-	return (
-		<svg {...iconProps}>
-			<circle cx="12" cy="12" r="9" />
-			<path d="M12 7v5l3 2" />
-		</svg>
 	);
 }
