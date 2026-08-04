@@ -74,10 +74,19 @@ export default function Home() {
 								<div className="metric-value">4.9</div>
 								<div className="metric-label">Average rating</div>
 							</div>
-							<div className="metric">
-								<div className="metric-value metric-value--xl">&infin;</div>
-								<div className="metric-label">Possibilities</div>
-							</div>
+							{/* Clickable metric — links out to 1% for the Planet; the
+							    metric--link reset keeps it visually identical to the
+							    other tiles. */}
+							<a
+								className="metric metric--link"
+								href="https://www.onepercentfortheplanet.org/"
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="1% for the Planet — learn more at onepercentfortheplanet.org"
+							>
+								<div className="metric-value">1%</div>
+								<div className="metric-label">For the Planet</div>
+							</a>
 						</div>
 					</Reveal>
 				</div>
