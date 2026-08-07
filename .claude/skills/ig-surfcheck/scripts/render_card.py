@@ -52,9 +52,15 @@ def _right(draw, x, y, text, f, fill):
 def build(art_path: str, data: dict, out: str) -> None:
     card = Image.new("RGB", (W, H), PAPER)
 
-    # --- art zone: full-bleed, ring/emblem cropped away so it truly fills ---
-    art = fit_banner(Image.open(art_path), W, ART_H)
-    card.paste(art, (0, 0))
+    # --- art zone ---
+    # Art already sized exactly to the zone is taken AS IS. compose_banner's
+    # --plain layout lays objects on bare paper, and fit_banner() reads a paper
+    # border as the house style's emblem ring and crops *inside* the subject —
+    # which would shred them. Only unsized art needs the emblem defeat.
+    art = Image.open(art_path)
+    if art.size != (W, ART_H):
+        art = fit_banner(art, W, ART_H)
+    card.paste(art.convert("RGB"), (0, 0))
 
     # --- ledger: clean flat paper (grain belongs to the art only), art meets
     #     it on an ember rule. The bottom half stays crisp for legibility. ---

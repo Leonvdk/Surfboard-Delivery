@@ -48,7 +48,7 @@ SUFFIX = {"spot": SPOT_SUFFIX, "banner": BANNER_SUFFIX}
 
 
 def generate(prompt: str, out: str, seed: int = 20260807,
-             mode: str = "spot", size: str = "1024x1024") -> None:
+             mode: str = "spot", size: str = "1024x1024", grain: bool = True) -> None:
     token = open(TOKEN_PATH).read().strip()
     body = json.dumps({
         "prompt": prompt + SUFFIX[mode],
@@ -75,7 +75,8 @@ def generate(prompt: str, out: str, seed: int = 20260807,
             b64 = data["data"][0]["b64_json"]
             img = Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
             img = quantize_to_inks(img)
-            img = add_grain(img, seed=seed)
+            if grain:
+                img = add_grain(img, seed=seed)
             img.save(out)
             print(f"OK  {out}  {img.size}")
             return
@@ -101,6 +102,7 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=20260807)
     ap.add_argument("--mode", choices=["spot", "banner"], default="spot")
     ap.add_argument("--size", default=None, help="WxH; defaults per mode")
+    ap.add_argument("--nograin", action="store_true", help="flat fills, no wax speckle")
     a = ap.parse_args()
     size = a.size or ("1820x1024" if a.mode == "banner" else "1024x1024")
-    generate(a.prompt, a.out, a.seed, a.mode, size)
+    generate(a.prompt, a.out, a.seed, a.mode, size, grain=not a.nograin)
