@@ -30,20 +30,31 @@ STYLE_ID = "a1309a2a-d4bc-4f93-a523-f735d0c2c178"  # PRIMARY house sticker style
 ENDPOINT = "https://external.api.recraft.ai/v1/images/generations"
 TOKEN_PATH = os.path.expanduser("~/work/.recraft_token")
 
-BASE_SUFFIX = (
+# Spot art: a single subject isolated on off-white (stickers, icons).
+SPOT_SUFFIX = (
     " bold solid shapes, clean sharp edges, thick black outlines, isolated on a plain "
     "off-white background, only warm terracotta red, black and off-white, no text, no letters, "
     "no numbers, no frame, no border, no card, no rectangle"
 )
+# Banner art: a full-bleed scene that fills the whole frame edge to edge — NOT a
+# centered badge on cream. The surf-check card's top half uses this.
+BANNER_SUFFIX = (
+    " full bleed flat vector artwork filling the entire frame edge to edge, bold solid shapes, "
+    "thick black outlines, only warm terracotta red, black and off-white, the artwork reaches "
+    "every edge, no text, no letters, no numbers, no frame, no border, no card, no rectangle, "
+    "no circle, no ring, no badge, no vignette, not centered on empty background"
+)
+SUFFIX = {"spot": SPOT_SUFFIX, "banner": BANNER_SUFFIX}
 
 
-def generate(prompt: str, out: str, seed: int = 20260807) -> None:
+def generate(prompt: str, out: str, seed: int = 20260807,
+             mode: str = "spot", size: str = "1024x1024") -> None:
     token = open(TOKEN_PATH).read().strip()
     body = json.dumps({
-        "prompt": prompt + BASE_SUFFIX,
+        "prompt": prompt + SUFFIX[mode],
         "style_id": STYLE_ID,
         "model": "recraftv3",
-        "size": "1024x1024",
+        "size": size,
         "response_format": "b64_json",
         "random_seed": seed,
         "controls": {
@@ -83,10 +94,13 @@ def generate(prompt: str, out: str, seed: int = 20260807) -> None:
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    seed = 20260807
-    if "--seed" in args:
-        i = args.index("--seed")
-        seed = int(args[i + 1])
-        del args[i:i + 2]
-    generate(args[0], args[1], seed)
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("prompt")
+    ap.add_argument("out")
+    ap.add_argument("--seed", type=int, default=20260807)
+    ap.add_argument("--mode", choices=["spot", "banner"], default="spot")
+    ap.add_argument("--size", default=None, help="WxH; defaults per mode")
+    a = ap.parse_args()
+    size = a.size or ("1820x1024" if a.mode == "banner" else "1024x1024")
+    generate(a.prompt, a.out, a.seed, a.mode, size)

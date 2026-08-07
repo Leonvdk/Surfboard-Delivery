@@ -12,8 +12,7 @@ data.json shape:
     {"day": "SUN", "height": "0.8–1.1m", "sub": "8s WNW · wind N15", "verdict": "The pick", "pick": true}
   ],
   "line": "Small and clean all weekend. Sunday fills in by evening — longboard + beginner gold.",
-  "foot_left": "surfrental-aljezur.com",
-  "foot_right": "Boards + wetsuits to your door"
+  "foot": "BOARDS + WETSUITS TO YOUR DOOR · ALJEZUR"
 }
 """
 from __future__ import annotations
@@ -21,7 +20,7 @@ import argparse
 import json
 
 from PIL import Image, ImageDraw
-from brandkit import RED, INK, PAPER, font, add_grain, cover
+from brandkit import RED, INK, PAPER, font, fit_banner
 
 W = H = 1080
 ART_H = 620          # art zone height; ledger fills the rest
@@ -53,14 +52,12 @@ def _right(draw, x, y, text, f, fill):
 def build(art_path: str, data: dict, out: str) -> None:
     card = Image.new("RGB", (W, H), PAPER)
 
-    # --- art zone, full-bleed cover crop ---
-    art = cover(Image.open(art_path), W, ART_H)
+    # --- art zone: full-bleed, ring/emblem cropped away so it truly fills ---
+    art = fit_banner(Image.open(art_path), W, ART_H)
     card.paste(art, (0, 0))
 
-    # --- paper ledger with its own grain, then art meets it on an ember rule ---
-    ledger = Image.new("RGB", (W, H - ART_H), PAPER)
-    ledger = add_grain(ledger, seed=815)
-    card.paste(ledger, (0, ART_H))
+    # --- ledger: clean flat paper (grain belongs to the art only), art meets
+    #     it on an ember rule. The bottom half stays crisp for legibility. ---
     d = ImageDraw.Draw(card)
     d.rectangle([0, ART_H, W, ART_H + 6], fill=RED)  # ember seam, edge to edge
 
@@ -94,12 +91,11 @@ def build(art_path: str, data: dict, out: str) -> None:
     # --- payoff line ---
     _center(d, W // 2, ART_H + 322, data["line"], font("DMSans", 25), INK)
 
-    # --- footer bar, edge to edge, touches bottom trim ---
+    # --- footer bar, edge to edge, touches bottom trim. No website here —
+    #     the URL lives in the IG bio; the card just carries the promise. ---
     fh = 66
     d.rectangle([0, H - fh, W, H], fill=INK)
-    fy = H - fh + 20
-    _left(d, PAD, fy, data["foot_left"], font("DMMono", 23), PAPER)
-    _right(d, W - PAD, fy, data["foot_right"], font("DMMono", 23), (214, 118, 74))
+    _center(d, W // 2, H - fh + 20, data["foot"], font("DMMono", 23), PAPER)
 
     card.save(out, quality=95)
     print(f"OK  {out}  {card.size}")

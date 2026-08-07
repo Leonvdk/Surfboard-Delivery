@@ -42,33 +42,37 @@ Honesty is the brand. If it's junk for shortboards, say it plainly (a damaging a
 house move) — then point beginners/longboarders at the upside.
 
 ## Step 3 — Pick a fitting art subject
-The image must fit *this* weekend, never generic brand art (sra-branding rule). Map conditions →
-subject, keep it a single solid subject on off-white, palette-locked, no text:
+The image must fit *this* weekend, never generic brand art (sra-branding rule). The card's top
+half is a **full-bleed banner** (`recraft_gen.py --mode banner`), so describe a *scene that fills
+the whole frame edge to edge*, not an isolated object. Map conditions → scene:
 
-| Weekend read | Art subject prompt seed |
+| Weekend read | Full-bleed scene prompt seed |
 |---|---|
-| small / clean / mellow | one small clean wave gently peeling, glassy lip, low warm sun disc above |
-| building through weekend | one clean rising wave with a steeper shoulder, sun low on the horizon |
-| solid / powerful | one powerful hollow wave curling over, thick lip throwing forward |
-| windy / messy | one choppy wind-blown wave, spray feathering off the crest |
-| longboard day | one long mellow rolling wave, a longboard resting on the sand in front |
-| flat / tiny | the delivery van parked by a calm empty beach, flat glassy sea behind |
+| small / clean / mellow | a warm terracotta sea filling the frame, one small clean wave peeling in the foreground, high horizon, off-white sky with a low sun disc |
+| building through weekend | a terracotta ocean edge to edge, one clean rising wave with a steeper shoulder, sun low on the horizon |
+| solid / powerful | one powerful hollow wave curling right across the whole frame, thick lip throwing forward |
+| windy / messy | a choppy wind-blown sea filling the frame, spray feathering off the crests |
+| longboard day | a long mellow rolling wave across the frame, a longboard resting on the sand in the foreground |
+| flat / tiny | the delivery van parked along the frame by a calm empty beach, flat glassy sea behind |
 
-Always append the house base suffix (handled inside `recraft_gen.py`). Keep to a single subject —
-the style invents company otherwise.
+The house style still tends to draw a centered emblem/ring on cream — that's fine, because
+`render_card.py` runs `fit_banner()`, which detects the ring + cream margin and crops the
+artwork's *interior* to fill the banner. Keep to a single scene; the style invents company
+otherwise.
 
 ## Step 4 — Generate the card
 Write `data.json` (see `scripts/render_card.py` header for the exact shape), then:
 ```
 cd .claude/skills/ig-surfcheck/scripts
-python3 recraft_gen.py "<art subject prompt>" /tmp/sc-art.png --seed <YYYYMMDD>
+python3 recraft_gen.py "<full-bleed scene prompt>" /tmp/sc-art.png --mode banner --seed <YYYYMMDD>
 python3 render_card.py --art /tmp/sc-art.png --data /tmp/sc-data.json --out /tmp/sc-card.png
 ```
 - `recraft_gen.py` calls Recraft on the PRIMARY style (recraftv3), b64_json, no_text, palette
   locked, then quantizes to the 3 inks + adds deterministic wax grain.
 - `render_card.py` composites 1080×1080: full-bleed art on top, ember seam, `WEEKEND SURF CHECK`
   kicker, the three-day ledger (big ember heights, the pick gets an ember pill), the payoff line,
-  and an ink footer bar (`surfrental-aljezur.com` · `Boards + wetsuits to your door`).
+  and an ink footer bar carrying the promise only — `data["foot"]`, e.g. `BOARDS + WETSUITS TO
+  YOUR DOOR · ALJEZUR`. **No website/URL on the card** (it lives in the IG bio, not the art).
 - The style loves drawing an outer frame/ring — if it dominates, re-run with a different `--seed`.
   Check the pick day's pill and the heights are legible. Preview at ≤540px (token discipline).
 

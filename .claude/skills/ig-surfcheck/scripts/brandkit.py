@@ -113,3 +113,56 @@ def cover(img: Image.Image, tw: int, th: int) -> Image.Image:
     img = img.resize((nw, nh), Image.LANCZOS)
     left, top = (nw - tw) // 2, (nh - th) // 2
     return img.crop((left, top, left + tw, top + th))
+
+
+def _is_paper(px) -> bool:
+    r, g, b = px[0], px[1], px[2]
+    return abs(r - 250) + abs(g - 250) + abs(b - 248) < 42
+
+
+def fit_banner(img: Image.Image, tw: int, th: int) -> Image.Image:
+    """Fill a tw x th banner with real artwork, defeating the house style's
+    habit of drawing a centered emblem/ring on a cream margin. If the art has a
+    paper border (an emblem), crop the largest rectangle that fits *inside* the
+    subject — dropping the ring and the cream — then cover. A genuinely
+    full-bleed source (no paper border) is just covered as-is.
+    """
+    img = img.convert("RGB")
+    w, h = img.size
+    small = img.resize((max(1, w // 6), max(1, h // 6)), Image.BILINEAR)
+    sw, sh = small.size
+    sp = small.load()
+
+    # Is there a paper margin around the edge? Sample the outer frame.
+    border, paper = 0, 0
+    for x in range(sw):
+        for y in (0, 1, sh - 2, sh - 1):
+            border += 1
+            paper += _is_paper(sp[x, y])
+    for y in range(sh):
+        for x in (0, 1, sw - 2, sw - 1):
+            border += 1
+            paper += _is_paper(sp[x, y])
+    if paper / border < 0.45:
+        return cover(img, tw, th)  # already reaches the edges
+
+    # Emblem case: find the subject bbox, crop an inscribed rectangle of the
+    # target aspect (diagonal 0.9·D) centered on it — inside the ring.
+    xs, ys = [], []
+    for y in range(sh):
+        for x in range(sw):
+            if not _is_paper(sp[x, y]):
+                xs.append(x)
+                ys.append(y)
+    if not xs:
+        return cover(img, tw, th)
+    bx0, bx1 = min(xs) * 6, max(xs) * 6
+    by0, by1 = min(ys) * 6, max(ys) * 6
+    cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+    D = min(bx1 - bx0, by1 - by0)
+    A = tw / th
+    cw = 0.9 * D / (1 + (1 / A) ** 2) ** 0.5
+    ch = cw / A
+    l = max(0, int(cx - cw / 2)); t = max(0, int(cy - ch / 2))
+    r = min(w, int(cx + cw / 2)); b = min(h, int(cy + ch / 2))
+    return cover(img.crop((l, t, r, b)), tw, th)
