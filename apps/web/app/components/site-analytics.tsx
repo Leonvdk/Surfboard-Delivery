@@ -4,6 +4,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { usePathname } from "next/navigation";
+import { ConsentNotice } from "./consent-notice";
 import { EngagementTracker } from "./engagement-tracker";
 import { OutboundTracker } from "./outbound-tracker";
 
@@ -28,6 +29,7 @@ export function SiteAnalytics({ gaId }: { gaId: string }) {
 				for the same reason. */}
 			<EngagementTracker />
 			<OutboundTracker />
+			<ConsentNotice />
 		</>
 	);
 }

@@ -3,6 +3,65 @@
    Sora + DM Sans · Neo-brutal · #D4501E accent
    ═══════════════════════════════════════════════ */
 
+/* Consent notice — small neo-brutal pill, bottom-left (clears the
+   bottom-right WhatsApp float). Shows once per session, then auto-fades. */
+.consent-notice {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  max-width: min(420px, calc(100vw - 96px));
+  padding: 10px 12px 10px 16px;
+  background: var(--surface);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  border-radius: 10px;
+  animation: consent-in 300ms ease both;
+}
+.consent-notice--leaving {
+  animation: consent-out 400ms ease forwards;
+}
+.consent-notice-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--gray-700);
+}
+.consent-notice-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+.consent-notice-close {
+  flex: none;
+  padding: 2px 4px;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--gray-500);
+  cursor: pointer;
+}
+.consent-notice-close:hover {
+  color: var(--black);
+}
+@keyframes consent-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes consent-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .consent-notice { animation: none; }
+  .consent-notice--leaving { animation: none; opacity: 0; }
+}
+
 :root {
   --bg: #FAFAF8;
   --surface: #FFFFFF;
