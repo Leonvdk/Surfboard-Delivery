@@ -9,7 +9,8 @@ const MONTH_NAMES = [
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
 const MIN_DAYS = 3;
-const MIN_ADVANCE_DAYS = 2;
+// Earliest bookable delivery is tomorrow (next-day). 1 = tomorrow, 0 = same day.
+const MIN_ADVANCE_DAYS = 1;
 
 function toDateStr(d: Date): string {
 	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
