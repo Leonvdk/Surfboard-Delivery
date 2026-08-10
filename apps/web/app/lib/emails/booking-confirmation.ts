@@ -205,7 +205,7 @@ See you in the water!
     </div>
 
     <div style="background:#FFFFFF;border:1.5px solid #1A1A1A;box-shadow:4px 4px 0 #1A1A1A;padding:32px;margin-bottom:32px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#D4501E;margin-bottom:8px;">Confirmed booking</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#C04419;margin-bottom:8px;">Confirmed booking</div>
       <h3 style="margin:0 0 20px;font-size:17px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">${args.requestRef}</h3>
 
       <table style="width:100%;border-collapse:collapse;">
@@ -224,7 +224,17 @@ See you in the water!
 				args.paymentLinkUrl
 					? `
       <div style="margin-top:24px;text-align:center;">
-        <a href="${args.paymentLinkUrl}" style="display:inline-block;background:#D4501E;color:#FFFFFF;font-weight:800;font-size:15px;letter-spacing:-0.01em;padding:14px 32px;text-decoration:none;border:1.5px solid #1A1A1A;box-shadow:3px 3px 0 #1A1A1A;">Pay online — €${args.totalEuros}</a>
+        <!-- Bulletproof button: bgcolor on the cell so the ember fill renders in
+             every client (Outlook's Word engine ignores CSS background/padding on
+             <a>, which collapsed this to plain text). box-shadow can't render in
+             email, so the neo-brutal look is carried by the solid ink border. -->
+        <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+          <tr>
+            <td bgcolor="#C04419" style="background:#C04419;border:2px solid #1A1A1A;">
+              <a href="${args.paymentLinkUrl}" style="display:inline-block;padding:14px 32px;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:15px;letter-spacing:-0.01em;text-decoration:none;">Pay online — €${args.totalEuros}</a>
+            </td>
+          </tr>
+        </table>
         <p style="margin:12px 0 0;font-size:12px;color:#888888;">Secure checkout via Stripe. Prefer to pay on delivery? Send us an email or <a href="https://wa.me/351929244395" style="color:#888888;text-decoration:underline;">WhatsApp</a> and we'll organise.</p>
       </div>`
 					: `
@@ -232,12 +242,12 @@ See you in the water!
 			}
     </div>
 
-    <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#1A1A1A;">Questions before your trip? Reply to this email or message us on <a href="https://wa.me/351929244395" style="color:#D4501E;font-weight:600;text-decoration:none;">WhatsApp</a>.</p>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.7;color:#1A1A1A;">Questions before your trip? Reply to this email or message us on <a href="https://wa.me/351929244395" style="color:#C04419;font-weight:600;text-decoration:none;">WhatsApp</a>.</p>
 
     <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#1A1A1A;">See you in the water!<br/><strong style="font-weight:800;">Leon</strong><br/><span style="color:#555555;">Surf Rental Aljezur</span></p>
 
     <hr style="margin:32px 0 16px;border:none;border-top:1.5px solid #1A1A1A;" />
-    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#D4501E;text-decoration:none;">surfrental-aljezur.com</a></p>
+    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#C04419;text-decoration:none;">surfrental-aljezur.com</a></p>
   </div>
 </div>`;
 
