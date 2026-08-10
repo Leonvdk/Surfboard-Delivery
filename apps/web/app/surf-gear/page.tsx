@@ -91,7 +91,7 @@ export default function SurfGearPage() {
 								</svg>
 							</a>
 							<a href="#extras-heading" className="btn btn-primary scroll-down-btn">
-								Check out our Premium Package
+								Check out our extras
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 									<line x1="12" y1="5" x2="12" y2="19" />
 									<polyline points="19 12 12 19 5 12" />
@@ -216,19 +216,19 @@ export default function SurfGearPage() {
 
 			<HorizonLine />
 
-			{/* Premium extras */}
+			{/* Extras */}
 			<section className="section section-alt" aria-labelledby="extras-heading">
 				<div className="container">
 					<Reveal>
 						<div className="section-header section-header-center">
-							<p className="section-label">Premium extras</p>
+							<p className="section-label">Extras</p>
 							<h2 className="section-title" id="extras-heading">
 								Everything you need, nothing to think about
 							</h2>
 							<p className="section-desc">
-								Add a changing mat and roof rack pads to your rental for the complete
-								hassle-free surf trip. Available as part of our{" "}
-								<Link href="/pricing">Premium Package</Link>.
+								A changing mat, roof rack pads, and a warm poncho for the complete
+								hassle-free surf trip. Just ask when you book and we&apos;ll
+								bring them along.
 							</p>
 						</div>
 					</Reveal>
@@ -244,7 +244,6 @@ export default function SurfGearPage() {
 									/>
 								</div>
 								<h3>Changing mat</h3>
-								<span className="extras-badge">Premium Package</span>
 								<p>
 									A portable mat you stand on while changing. Keeps sand
 									contained and doubles as a bag for your wetsuit after a session.
@@ -260,7 +259,6 @@ export default function SurfGearPage() {
 									/>
 								</div>
 								<h3>Roof rack pads</h3>
-								<span className="extras-badge">Premium Package</span>
 								<p>
 									Soft rack pads with straps that fit any rental car. We show
 									you how to strap everything down on delivery.
@@ -291,7 +289,6 @@ export default function SurfGearPage() {
 									/>
 								</div>
 								<h3>Poncho</h3>
-								<span className="extras-badge">Premium Package</span>
 								<p>
 									A warm changing poncho for getting in and out of your wetsuit
 									at the beach. Keeps you covered and warm after a session.

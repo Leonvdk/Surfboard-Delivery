@@ -177,7 +177,6 @@ export default function GroupBookingsPage() {
 									<th>Group size</th>
 									<th>Board only</th>
 									<th>Full package</th>
-									<th>Premium</th>
 									<th>Saving</th>
 								</tr>
 							</thead>
@@ -186,19 +185,17 @@ export default function GroupBookingsPage() {
 									<td>1–2 people</td>
 									<td>&euro;{getGroupPrice("boardOnly", "small")} / person</td>
 									<td>&euro;{getGroupPrice("fullPackage", "small")} / person</td>
-									<td>&euro;{getGroupPrice("premium", "small")} / person</td>
 									<td>—</td>
 								</tr>
 								<tr>
 									<td>3–5 people</td>
 									<td>&euro;{getGroupPrice("boardOnly", "medium")} / person</td>
 									<td>&euro;{getGroupPrice("fullPackage", "medium")} / person</td>
-									<td>&euro;{getGroupPrice("premium", "medium")} / person</td>
 									<td className="price-highlight">~12% off</td>
 								</tr>
 								<tr>
 									<td>6+ people</td>
-									<td colSpan={4}>Custom quote — <Link href="/contact" style={{ color: "var(--gold)", textDecoration: "underline" }}>get in touch</Link></td>
+									<td colSpan={3}>Custom quote — <Link href="/contact" style={{ color: "var(--gold)", textDecoration: "underline" }}>get in touch</Link></td>
 								</tr>
 							</tbody>
 						</table>
@@ -207,8 +204,7 @@ export default function GroupBookingsPage() {
 						<div className="content-prose" style={{ textAlign: "center" as const, marginTop: "var(--space-5)" }}>
 							<p>
 								All prices are per person for 7 days. Mix and match packages within
-								a group — we&apos;ll work it out. Premium includes board, wetsuit,
-								changing mat &amp; roof rack pads.
+								a group — we&apos;ll work it out.
 							</p>
 						</div>
 					</Reveal>

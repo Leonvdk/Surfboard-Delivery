@@ -105,7 +105,7 @@ export function localBusinessJsonLd() {
 			latitude: 37.3178,
 			longitude: -8.8037,
 		},
-		priceRange: "€18–€38 per day",
+		priceRange: "€18–€28 per day",
 		currenciesAccepted: "EUR",
 		paymentAccepted:
 			"Cash, Card, Apple Pay, iDEAL, Wero, MB WAY, Bank Transfer",
@@ -143,18 +143,6 @@ export function localBusinessJsonLd() {
 					price: "28",
 					priceCurrency: "EUR",
 				},
-				{
-					"@type": "Offer",
-					itemOffered: {
-						"@type": "Service",
-						name: "Premium Package Rental (Board + Wetsuit + Mid-Stay Swap)",
-						serviceType: "Surfboard and wetsuit rental with mid-stay board swap",
-						provider: { "@id": `${SITE_URL}/#business` },
-						areaServed: "Costa Vicentina, Portugal",
-					},
-					price: "38",
-					priceCurrency: "EUR",
-				},
 			],
 		},
 		makesOffer: [
@@ -182,21 +170,6 @@ export function localBusinessJsonLd() {
 				priceSpecification: {
 					"@type": "UnitPriceSpecification",
 					price: "28",
-					priceCurrency: "EUR",
-					unitCode: "DAY",
-				},
-				availability: "https://schema.org/InStock",
-				priceValidUntil: "2027-12-31",
-			},
-			{
-				"@type": "Offer",
-				name: "Premium Package Rental (Board + Wetsuit + Mid-Stay Swap)",
-				description: "Surfboard, wetsuit, and a free mid-stay board swap on day two so you can change your board once you know the waves. Free delivery and pickup. Three-day minimum.",
-				price: "38",
-				priceCurrency: "EUR",
-				priceSpecification: {
-					"@type": "UnitPriceSpecification",
-					price: "38",
 					priceCurrency: "EUR",
 					unitCode: "DAY",
 				},

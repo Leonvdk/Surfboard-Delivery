@@ -10,7 +10,7 @@ interface CtaSectionProps {
 
 export function CtaSection({
 	heading = "Ready to paddle out?",
-	text = "Book your board in thirty seconds. Flexible cancellation, premium gear, zero stress.",
+	text = "Book your board in thirty seconds. Flexible cancellation, quality gear, zero stress.",
 	buttonText = "Reserve your board",
 	buttonHref = "/contact",
 }: CtaSectionProps) {

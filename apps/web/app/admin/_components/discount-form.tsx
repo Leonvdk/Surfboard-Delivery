@@ -69,7 +69,6 @@ export function DiscountForm() {
 						<option value="all">Whole order</option>
 						<option value="boardOnly">Board Only package</option>
 						<option value="fullPackage">Full Package</option>
-						<option value="premium">Premium Package</option>
 					</select>
 				</label>
 				<label>

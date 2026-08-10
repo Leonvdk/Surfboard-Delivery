@@ -15,14 +15,9 @@ const pricingFaqs = [
 			"Daily rentals have a 3-day minimum. Weekly rentals run for 7 days. For stays longer than 2 weeks, contact us for a custom rate.",
 	},
 	{
-		question: "What's included in the Premium Package?",
-		answer:
-			"The Premium Package includes a surfboard, season-appropriate wetsuit, leash and wax, a changing mat for getting changed at the beach, and roof rack pads so you can transport the board on your rental car.",
-	},
-	{
 		question: "Can I upgrade my Surf Rental Aljezur package mid-rental?",
 		answer:
-			"Yes. If you start with a Board Only and decide you need a wetsuit, or want to add the changing mat and roof rack, just let us know and we'll arrange a swap delivery.",
+			"Yes. If you start with a Board Only and decide you need a wetsuit, just let us know and we'll arrange a swap delivery.",
 	},
 	{
 		question: "Does Surf Rental Aljezur really include free delivery?",
@@ -63,8 +58,7 @@ export default function PricingPage() {
 							<p className="page-hero-sub">
 								Board-only rental is <strong>€18/day or €100/week</strong>.
 								Board + wetsuit is <strong>€28/day or €150/week</strong>.
-								Premium (board + wetsuit + free mid-stay board swap) is
-								<strong> €38/day or €225/week</strong>. Three-day minimum,
+								Three-day minimum,
 								free delivery and pickup across Aljezur, Arrifana, Vale da
 								Telha, Monte Clérigo, and Carrapateira. Not sure which gear
 								to pick? Check our{" "}
@@ -119,11 +113,6 @@ export default function PricingPage() {
 							<div className="extended-price-item featured">
 								<span className="extended-label">Full Package</span>
 								<span className="extended-amount">&euro;{prices.fullPackage.extended.amount}</span>
-								<span className="extended-period">2 weeks</span>
-							</div>
-							<div className="extended-price-item">
-								<span className="extended-label">Premium Package</span>
-								<span className="extended-amount">&euro;{prices.premium.extended.amount}</span>
 								<span className="extended-period">2 weeks</span>
 							</div>
 						</div>
@@ -205,19 +194,10 @@ export default function PricingPage() {
 								</p>
 							</details>
 							<details className="faq-item">
-								<summary className="faq-question">What&apos;s included in the Premium Package?</summary>
-								<p className="faq-answer">
-									The Premium Package includes a surfboard, season-appropriate wetsuit,
-									leash &amp; wax, a changing mat for getting changed at the beach, and
-									roof rack pads so you can transport the board on your rental car.
-								</p>
-							</details>
-							<details className="faq-item">
 								<summary className="faq-question">Can I upgrade my package mid-rental?</summary>
 								<p className="faq-answer">
-									Yes. If you start with a Board Only and decide you need a wetsuit, or want
-									to add the changing mat and roof rack, just let us know and we&apos;ll
-									arrange a swap delivery.
+									Yes. If you start with a Board Only and decide you need a wetsuit,
+									just let us know and we&apos;ll arrange a swap delivery.
 								</p>
 							</details>
 							<details className="faq-item">
@@ -290,9 +270,9 @@ function pricingProductJsonLd() {
 		offers: {
 			"@type": "AggregateOffer",
 			lowPrice: String(prices.boardOnly.daily.amount),
-			highPrice: String(prices.premium.weekly.amount),
+			highPrice: String(prices.fullPackage.weekly.amount),
 			priceCurrency: "EUR",
-			offerCount: "6",
+			offerCount: "4",
 			availability: "https://schema.org/InStock",
 			offers: [
 				{
@@ -355,34 +335,6 @@ function pricingProductJsonLd() {
 					priceSpecification: {
 						"@type": "UnitPriceSpecification",
 						price: String(prices.fullPackage.weekly.amount),
-						priceCurrency: "EUR",
-						unitCode: "WEE",
-					},
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-				},
-				{
-					"@type": "Offer",
-					name: "Premium Package (Board + Wetsuit + Changing Mat + Roof Rack) — Daily",
-					price: String(prices.premium.daily.amount),
-					priceCurrency: "EUR",
-					priceSpecification: {
-						"@type": "UnitPriceSpecification",
-						price: String(prices.premium.daily.amount),
-						priceCurrency: "EUR",
-						unitCode: "DAY",
-					},
-					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
-				},
-				{
-					"@type": "Offer",
-					name: "Premium Package (Board + Wetsuit + Changing Mat + Roof Rack) — Weekly",
-					price: String(prices.premium.weekly.amount),
-					priceCurrency: "EUR",
-					priceSpecification: {
-						"@type": "UnitPriceSpecification",
-						price: String(prices.premium.weekly.amount),
 						priceCurrency: "EUR",
 						unitCode: "WEE",
 					},

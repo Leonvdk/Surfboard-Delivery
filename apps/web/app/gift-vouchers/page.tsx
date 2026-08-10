@@ -94,7 +94,7 @@ export default function GiftVouchersPage() {
 						</div>
 					</Reveal>
 					<Reveal stagger>
-						<div className="voucher-grid voucher-grid-4">
+						<div className="voucher-grid">
 							<div className="voucher-card">
 								<div className="voucher-icon" aria-hidden="true">
 									<svg viewBox="0 0 24 24">
@@ -125,22 +125,6 @@ export default function GiftVouchersPage() {
 									Board + wetsuit for 1 week. Everything they need, nothing they don&apos;t.
 								</p>
 								<Link href="/contact?subject=Gift+Voucher+Full+Package" className="btn btn-primary btn-full">
-									Order this voucher
-								</Link>
-							</div>
-							<div className="voucher-card">
-								<div className="voucher-icon" aria-hidden="true">
-									<svg viewBox="0 0 24 24">
-										<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-										<path d="M9 22V12h6v10" />
-									</svg>
-								</div>
-								<h3>Premium Package</h3>
-								<div className="price">&euro;{prices.premium.weekly.amount}</div>
-								<p className="voucher-includes">
-									Board, wetsuit, changing mat &amp; roof rack pads for 1 week. The complete surf trip kit.
-								</p>
-								<Link href="/contact?subject=Gift+Voucher+Premium+Package" className="btn btn-secondary btn-full">
 									Order this voucher
 								</Link>
 							</div>

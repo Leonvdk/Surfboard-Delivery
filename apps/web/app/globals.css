@@ -3681,6 +3681,50 @@ h1 {
 
 /* ---- Estimated total ---- */
 
+/* Roof-rack add-on — a quiet, non-pushy opt-in above the estimate. */
+.roofrack-addon {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  margin: var(--space-md) 0 var(--space-lg);
+  padding: var(--space-md);
+  border: var(--border-light);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.roofrack-addon input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: none;
+  cursor: pointer;
+}
+.roofrack-addon-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.roofrack-addon-title {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--black);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+.roofrack-addon-price {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--accent);
+}
+.roofrack-addon-sub {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--gray-700);
+}
+
 .estimate-summary {
   background: var(--gray-100);
   border: var(--border);

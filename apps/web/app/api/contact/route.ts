@@ -3,7 +3,14 @@ import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { getDb, schema } from "../../lib/db/client";
-import { calcPackagePrice, DAILY_MINIMUM_DAYS, type PackageTier } from "../../lib/pricing";
+import {
+	calcAddonPrice,
+	calcPackagePrice,
+	DAILY_MINIMUM_DAYS,
+	formatWeeksLabel,
+	getAddonTariff,
+	type PackageTier,
+} from "../../lib/pricing";
 
 let _resend: Resend | null = null;
 
@@ -43,6 +50,31 @@ interface BookingRequest {
 	people: PersonData[];
 	message: string;
 	estimatedTotal: number | null;
+	// Booking-level add-ons (roof rack, …). Re-priced server-side.
+	addons?: { key: string; quantity: number }[];
+}
+
+/** Keep only catalog add-ons with a sane quantity — a hand-crafted payload
+ * can't invent a charge (unknown keys price to 0, quantity is clamped). */
+function normalizeAddons(
+	raw: BookingRequest["addons"],
+): { key: string; quantity: number }[] {
+	if (!Array.isArray(raw)) return [];
+	return raw
+		.filter((a) => a && typeof a.key === "string" && getAddonTariff(a.key))
+		.map((a) => ({
+			key: a.key,
+			quantity: Math.min(9, Math.max(1, Math.floor(a.quantity) || 1)),
+		}));
+}
+
+/** Total for a set of add-ons over the booking window (envelope days). */
+function addonsTotal(
+	addons: { key: string; quantity: number }[],
+	days: number | null,
+): number {
+	if (!days) return 0;
+	return addons.reduce((sum, a) => sum + calcAddonPrice(a.key, days, a.quantity), 0);
 }
 
 // Same rule as the client's calcDays: both delivery and pickup day are
@@ -168,6 +200,7 @@ function buildBusinessEmail(
 	data: BookingRequest,
 	total: number | null,
 	envelope: { checkin: string; checkout: string },
+	addonSummary: string | null,
 ): { subject: string; text: string; html: string } {
 	const hasStagger = anyCustomDates(data.people);
 	const showDates = hasStagger;
@@ -185,7 +218,7 @@ Email: ${data.email}${data.phone ? `\nPhone: ${data.phone}` : ""}
 Delivery (party): ${data.checkin}
 Pickup (party): ${data.checkout}${hasStagger ? `\nWindow envelope: ${envelope.checkin} → ${envelope.checkout} (some people have custom dates — see below)` : ""}
 Accommodation: ${data.accommodation}
-People: ${data.peopleCount}
+People: ${data.peopleCount}${addonSummary ? `\nAdd-ons: ${addonSummary}` : ""}
 ${totalLine}
 
 ${data.people.map((p, i) => formatPerson(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("\n\n")}
@@ -219,6 +252,7 @@ Reply directly to this email to reach the customer.`;
         ${hasStagger ? row("Window envelope", `${envelope.checkin} → ${envelope.checkout}`) : ""}
         ${row("Accommodation", data.accommodation)}
         ${row("People", String(data.peopleCount))}
+        ${addonSummary ? row("Add-ons", addonSummary) : ""}
         ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("")}
       </table>
 
@@ -244,6 +278,7 @@ Reply directly to this email to reach the customer.`;
 function buildCustomerEmail(
 	data: BookingRequest,
 	total: number | null,
+	addonSummary: string | null,
 ): { subject: string; text: string; html: string } {
 	const subject = "We received your booking request — Surf Rental Aljezur";
 	const showDates = anyCustomDates(data.people);
@@ -262,7 +297,7 @@ Your request summary:
   ${deliveryLabel}: ${data.checkin}
   ${pickupLabel}: ${data.checkout}${showDates ? "\n  (each board has its own dates — see per person below)" : ""}
   Accommodation: ${data.accommodation}
-  People: ${data.peopleCount}
+  People: ${data.peopleCount}${addonSummary ? `\n  Add-ons: ${addonSummary}` : ""}
   ${customerTotalLine}
 
 ${data.people.map((p, i) => formatPerson(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("\n\n")}
@@ -301,6 +336,7 @@ See you in the water!
         ${summaryRow(pickupLabel, data.checkout)}
         ${summaryRow("Accommodation", data.accommodation)}
         ${summaryRow("People", String(data.peopleCount))}
+        ${addonSummary ? summaryRow("Add-ons", addonSummary) : ""}
         ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("")}
       </table>
 
@@ -390,13 +426,29 @@ export async function POST(request: Request) {
 		// Server-authoritative total + envelope. The client-supplied
 		// estimatedTotal is discarded — with per-person dates the client
 		// could be out of sync with the pricing bracket table.
-		const authoritativeTotal = recomputeTotal(data);
 		const envelope = computeEnvelope(data);
+		const envDays = calcDays(envelope.checkin, envelope.checkout);
+		const parsedAddons = normalizeAddons(data.addons);
+		const packageTotal = recomputeTotal(data);
+		// Add-ons still bill even when the packages need a manual quote, but the
+		// headline total is only shown once every package resolves.
+		const authoritativeTotal =
+			packageTotal == null ? null : packageTotal + addonsTotal(parsedAddons, envDays);
+		const addonSummary = parsedAddons.length
+			? parsedAddons
+					.map((a) => {
+						const tariff = getAddonTariff(a.key);
+						const price = calcAddonPrice(a.key, envDays ?? 7, a.quantity);
+						const qty = a.quantity > 1 ? ` ×${a.quantity}` : "";
+						return `${tariff?.label ?? a.key}${qty} · ${formatWeeksLabel(envDays ?? 7)} — €${price}`;
+					})
+					.join("; ")
+			: null;
 		// True when at least one person diverges from the party window.
 		const hasStaggeredDates = data.people.some((p) => p.checkin && p.checkout);
 
-		const businessEmail = buildBusinessEmail(data, authoritativeTotal, envelope);
-		const customerEmail = buildCustomerEmail(data, authoritativeTotal);
+		const businessEmail = buildBusinessEmail(data, authoritativeTotal, envelope, addonSummary);
+		const customerEmail = buildCustomerEmail(data, authoritativeTotal, addonSummary);
 
 		const client = getResend();
 
@@ -479,6 +531,7 @@ export async function POST(request: Request) {
 								: {}),
 						})),
 						message: data.message ?? null,
+						addons: parsedAddons.length ? parsedAddons : null,
 						estimatedTotal: authoritativeTotal,
 						status: "requested",
 					})

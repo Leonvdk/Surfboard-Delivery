@@ -18,11 +18,16 @@ import {
 } from "../lib/analytics";
 import { DateRangePicker } from "./date-range-picker";
 import {
+	addonPerDay,
+	calcAddonPrice,
 	calcPackagePrice,
 	DAILY_MINIMUM_DAYS,
 	formatDurationLabel,
+	formatWeeksLabel,
 	type PackageTier,
 } from "../lib/pricing";
+
+const ROOF_RACK_KEY = "roof_rack";
 
 /* ── Board calculator logic ── */
 
@@ -171,18 +176,10 @@ function getPackageOptions(days: number | null): FormPackageInfo[] {
 	// Before dates are picked, price against 7 days as a placeholder.
 	const priceDays = days ?? 7;
 	const durationLabel = formatDurationLabel(days);
-	const premiumPrice = calcPackagePrice("premium", priceDays);
 	const fullPrice = calcPackagePrice("fullPackage", priceDays);
 	const boardPrice = calcPackagePrice("boardOnly", priceDays);
 
 	return [
-		{
-			value: "premium",
-			label: `Premium (board + wetsuit + changing mat + roof rack) — €${premiumPrice} ${durationLabel}`,
-			includesWetsuit: true,
-			pricePerPerson: premiumPrice,
-			tier: "premium",
-		},
 		{
 			value: "full",
 			label: `Full Package (board + wetsuit) — €${fullPrice} ${durationLabel}`,
@@ -655,6 +652,7 @@ type FormDraft = {
 	accommodation: string;
 	message: string;
 	allowIndividualDates: boolean;
+	roofRack: boolean;
 };
 
 function saveDraft(draft: Partial<FormDraft>) {
@@ -692,6 +690,11 @@ export function BookingForm() {
 		Boolean(draft.current?.allowIndividualDates),
 	);
 	const [expandedPerson, setExpandedPerson] = useState(0);
+	// Booking-level roof-rack add-on. Charged at the weekly tariff; shown
+	// per-day so it reads as a small number.
+	const [roofRack, setRoofRack] = useState<boolean>(
+		Boolean(draft.current?.roofRack),
+	);
 	const [editingName, setEditingName] = useState<number | null>(null);
 	const [boardCalcOpen, setBoardCalcOpen] = useState<number | null>(null);
 	const [wetsuitCalcOpen, setWetsuitCalcOpen] = useState<number | null>(null);
@@ -759,8 +762,8 @@ export function BookingForm() {
 
 	/* Save controlled state to sessionStorage */
 	useEffect(() => {
-		saveDraft({ checkin, checkout, people, allowIndividualDates });
-	}, [checkin, checkout, people, allowIndividualDates]);
+		saveDraft({ checkin, checkout, people, allowIndividualDates, roofRack });
+	}, [checkin, checkout, people, allowIndividualDates, roofRack]);
 
 	// When the customer switches the toggle off, purge any per-person date
 	// overrides so nothing lingers in the payload after they change their
@@ -904,7 +907,7 @@ export function BookingForm() {
 			if (experience) person.experience = experience;
 			if (sexParam) person.sex = sexParam as Sex;
 			if (pkgTier) {
-				const tierMap: Record<string, string> = { full: "fullPackage", premium: "premium", board: "boardOnly" };
+				const tierMap: Record<string, string> = { full: "fullPackage", board: "boardOnly" };
 				const tier = tierMap[pkgTier];
 				const defaultPkgOptions = getPackageOptions(null);
 				const pkg = tier ? defaultPkgOptions.find((o) => o.tier === tier) : undefined;
@@ -938,6 +941,14 @@ export function BookingForm() {
 		() => calcEstimatedTotal(people, days, checkin, checkout),
 		[people, days, checkin, checkout],
 	);
+
+	// Roof-rack add-on. Priced over the booking window at the weekly tariff,
+	// shown per-day. Before dates are picked, use the 7-day placeholder — the
+	// same basis the package prices use so the numbers stay consistent.
+	const roofRackDays = days ?? 7;
+	const roofRackTotal = roofRack ? calcAddonPrice(ROOF_RACK_KEY, roofRackDays, 1) : 0;
+	const roofRackPerDay = addonPerDay(ROOF_RACK_KEY, roofRackDays);
+	const displayTotal = estimate.total + roofRackTotal;
 
 	/* Funnel milestones — each fires once via fireStep(). */
 	useEffect(() => {
@@ -1148,7 +1159,9 @@ export function BookingForm() {
 				checkout: allowIndividualDates ? p.checkout : null,
 			})),
 			message: formData.get("message") as string,
-			estimatedTotal: estimate.allSelected ? estimate.total : null,
+			estimatedTotal: estimate.allSelected ? displayTotal : null,
+			// Booking-level add-ons. The server re-prices these authoritatively.
+			addons: roofRack ? [{ key: ROOF_RACK_KEY, quantity: 1 }] : [],
 		};
 
 		try {
@@ -1181,7 +1194,7 @@ export function BookingForm() {
 					.join(","),
 				has_wetsuit: hasWetsuit,
 				prefilled: didPrefill.current,
-				estimated_total: estimate.allSelected ? estimate.total : null,
+				estimated_total: estimate.allSelected ? displayTotal : null,
 				// GA4 custom dimensions. board-only => "board"; any package that
 				// bundles a wetsuit (Full/Premium) => "both".
 				rental_type: hasWetsuit ? "both" : "board",
@@ -1262,7 +1275,7 @@ export function BookingForm() {
 					{estimate.allSelected && (
 						<>
 							<dt>Estimate</dt>
-							<dd>&euro;{estimate.total}</dd>
+							<dd>&euro;{displayTotal}</dd>
 						</>
 					)}
 				</dl>
@@ -1610,32 +1623,57 @@ export function BookingForm() {
 					<label htmlFor="message">Anything else we should know?</label>
 					<textarea id="message" name="message" rows={4} placeholder="Board preferences, special requests, questions..." />
 				</div>
+
+				<label className="roofrack-addon">
+					<input
+						type="checkbox"
+						checked={roofRack}
+						onChange={(e) => setRoofRack(e.target.checked)}
+					/>
+					<span className="roofrack-addon-body">
+						<span className="roofrack-addon-title">
+							Add roof rack pads
+							<span className="roofrack-addon-price">+&euro;{roofRackPerDay.toFixed(2)}/day</span>
+						</span>
+						<span className="roofrack-addon-sub">
+							Soft pads that strap to any hire car — take the boards to every spot yourself.
+						</span>
+					</span>
+				</label>
+
 			{estimate.selectedCount > 0 && (
 				<div className="estimate-summary">
 					<div className="estimate-header">
 						<span className="estimate-label">Estimated total</span>
 						{estimate.allSelected ? (
-							<span className="estimate-amount">&euro;{estimate.total}</span>
+							<span className="estimate-amount">&euro;{displayTotal}</span>
 						) : (
-							<span className="estimate-amount estimate-amount--partial">&euro;{estimate.total}+</span>
+							<span className="estimate-amount estimate-amount--partial">&euro;{displayTotal}+</span>
 						)}
 					</div>
-					{estimate.allSelected && people.length > 1 && (
+					{estimate.allSelected && (people.length > 1 || roofRack) && (
 						<div className="estimate-breakdown">
-							{people.map((person, i) => {
-								const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
-								const opt = getPackageOptions(personDays).find((o) => o.value === person.package);
-								if (!opt?.pricePerPerson) return null;
-								const suffix = hasDateOverride(person, checkin, checkout)
-									? ` · ${person.checkin} → ${person.checkout}`
-									: "";
-								return (
-									<div key={i} className="estimate-line">
-										<span>Person {i + 1} &middot; {opt.label.split(" — ")[0]}{suffix}</span>
-										<span>&euro;{opt.pricePerPerson}</span>
-									</div>
-								);
-							})}
+							{people.length > 1 &&
+								people.map((person, i) => {
+									const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
+									const opt = getPackageOptions(personDays).find((o) => o.value === person.package);
+									if (!opt?.pricePerPerson) return null;
+									const suffix = hasDateOverride(person, checkin, checkout)
+										? ` · ${person.checkin} → ${person.checkout}`
+										: "";
+									return (
+										<div key={i} className="estimate-line">
+											<span>Person {i + 1} &middot; {opt.label.split(" — ")[0]}{suffix}</span>
+											<span>&euro;{opt.pricePerPerson}</span>
+										</div>
+									);
+								})}
+							{roofRack && (
+								<div className="estimate-line">
+									<span>Roof rack &middot; {formatWeeksLabel(roofRackDays)}</span>
+									<span>&euro;{roofRackTotal}</span>
+								</div>
+							)}
 						</div>
 					)}
 					<p className="estimate-note">

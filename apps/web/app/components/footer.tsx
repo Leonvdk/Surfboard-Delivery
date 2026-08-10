@@ -11,7 +11,7 @@ export function Footer() {
 							Surf Rental <em>Aljezur</em>
 						</div>
 						<p className="footer-tagline">
-							Premium surfboard rentals across the Costa Vicentina&apos;s best beaches.
+							Surfboard and wetsuit rentals across the Costa Vicentina&apos;s best beaches.
 						</p>
 					</div>
 					<div>

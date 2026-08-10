@@ -37,7 +37,6 @@ const PACKAGE_TIER_MAP: Record<string, PackageTier | null> = {
 
 const PACKAGE_OPTIONS = [
 	{ value: "full", label: "Full Package (board + wetsuit)" },
-	{ value: "premium", label: "Premium (+ mat + roof rack + swap)" },
 	{ value: "board", label: "Board Only" },
 	{ value: "custom", label: "Custom (no auto price)" },
 ];

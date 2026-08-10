@@ -100,7 +100,10 @@ export function savingsPercent(dailyPrice: number, bundlePrice: number, days: nu
 	return Math.round(((fullDaily - bundlePrice) / fullDaily) * 100);
 }
 
-export const TIERS: PackageTier[] = ["boardOnly", "fullPackage", "premium"];
+// Customer-facing tiers. Premium was discontinued (2026-08) — it stays in the
+// PackageTier type / packages / prices maps above so historical bookings and
+// admin allocation keep rendering, but it is no longer offered anywhere new.
+export const TIERS: PackageTier[] = ["boardOnly", "fullPackage"];
 export const FEATURED_TIER: PackageTier = "fullPackage";
 
 export function calcPackagePrice(tier: PackageTier, days: number): number {
@@ -166,6 +169,18 @@ export function calcAddonPrice(
 	const weeks = weeksForDays(days);
 	const perUnit = tariff.firstWeek + tariff.extraWeek * (weeks - 1);
 	return perUnit * quantity;
+}
+
+/**
+ * Per-day price of a single add-on, for DISPLAY ONLY. The amount actually
+ * charged is still the weekly tariff (calcAddonPrice) — this just divides it
+ * across the booked days so it reads as a small daily number instead of a
+ * lump sum (roof rack over 7 days = €20 = ~€2.86/day). Returns euros with
+ * cents; format with toFixed(2) at the call site.
+ */
+export function addonPerDay(key: string, days: number): number {
+	const d = Math.max(1, days);
+	return Math.round((calcAddonPrice(key, d, 1) / d) * 100) / 100;
 }
 
 /** "2 weeks" / "1 week" — for add-on line labels. */
