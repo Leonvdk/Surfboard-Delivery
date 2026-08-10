@@ -5,6 +5,7 @@ import type Stripe from "stripe";
 import { type PackageTier, packages } from "../lib/pricing";
 import { getStripe } from "../lib/stripe";
 import { getPackageProductId } from "../lib/stripe-packages";
+import { partnerUtmLink, slugifySource } from "./_lib/partner-links";
 
 export interface DiscountFormState {
 	ok: boolean;
@@ -15,6 +16,7 @@ const TIERS: PackageTier[] = ["boardOnly", "fullPackage", "premium"];
 function isTier(v: string): v is PackageTier {
 	return (TIERS as string[]).includes(v);
 }
+
 
 /**
  * Create a discount code = a Stripe Coupon (the % or € rule) + a Promotion
@@ -41,6 +43,8 @@ export async function createDiscount(
 	const value = Number(formData.get("value"));
 	const scope = String(formData.get("scope") ?? "all");
 	const maxRaw = String(formData.get("maxRedemptions") ?? "").trim();
+	const partner = String(formData.get("partner") ?? "").trim();
+	const source = partner ? slugifySource(partner) : "";
 
 	if (!/^[A-Z0-9_-]{3,40}$/.test(code)) {
 		return {
@@ -110,6 +114,9 @@ export async function createDiscount(
 			promotion: { type: "coupon", coupon: coupon.id },
 			code,
 			...(maxRedemptions ? { max_redemptions: maxRedemptions } : {}),
+			// Partner attribution lives on the promo code's metadata, so the
+			// codes list can rebuild the UTM link without a local table.
+			...(partner && source ? { metadata: { partner, utm_source: source } } : {}),
 			active: true,
 		});
 
@@ -118,7 +125,7 @@ export async function createDiscount(
 		const scopeLabel = scope === "all" ? "the whole order" : packages[scope as PackageTier].name;
 		return {
 			ok: true,
-			message: `Created ${code}: ${valueLabel} ${scopeLabel}${maxRedemptions ? `, limited to ${maxRedemptions} use${maxRedemptions === 1 ? "" : "s"}` : ""}.`,
+			message: `Created ${code}: ${valueLabel} ${scopeLabel}${maxRedemptions ? `, limited to ${maxRedemptions} use${maxRedemptions === 1 ? "" : "s"}` : ""}.${partner && source ? ` Partner link: ${partnerUtmLink(source)}` : ""}`,
 		};
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);

@@ -1,8 +1,10 @@
 import type Stripe from "stripe";
 import { getStripe } from "../../lib/stripe";
+import { CopyButton } from "../_components/copy-button";
 import { DiscountForm } from "../_components/discount-form";
 import { deactivateDiscount } from "../_discount-actions";
 import { formatShortDate } from "../_lib/dates";
+import { partnerUtmLink } from "../_lib/partner-links";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +89,7 @@ export default async function AdminDiscountsPage() {
 									<th>Code</th>
 									<th>Discount</th>
 									<th>Applies to</th>
+									<th>Partner link</th>
 									<th>Used</th>
 									<th>Status</th>
 									<th>Created</th>
@@ -100,6 +103,9 @@ export default async function AdminDiscountsPage() {
 									const raw = p.promotion.coupon;
 									const coupon = typeof raw === "object" && raw !== null ? raw : null;
 									const used = `${p.times_redeemed}${p.max_redemptions ? ` / ${p.max_redemptions}` : ""}`;
+									const partner = p.metadata?.partner || "";
+									const source = p.metadata?.utm_source || "";
+									const link = source ? partnerUtmLink(source) : "";
 									return (
 										<tr key={p.id}>
 											<td>
@@ -107,6 +113,16 @@ export default async function AdminDiscountsPage() {
 											</td>
 											<td>{discountLabel(coupon)}</td>
 											<td>{scopeLabel(coupon)}</td>
+											<td>
+												{partner && link ? (
+													<div className="admin-partner-cell">
+														<span className="admin-cell-strong">{partner}</span>
+														<CopyButton value={link} label="copy link" />
+													</div>
+												) : (
+													"—"
+												)}
+											</td>
 											<td>{used}</td>
 											<td>
 												<span

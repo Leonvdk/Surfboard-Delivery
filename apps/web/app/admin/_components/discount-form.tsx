@@ -82,7 +82,21 @@ export function DiscountForm() {
 						className="admin-input"
 					/>
 				</label>
+				<label>
+					Partner (optional)
+					<input
+						type="text"
+						name="partner"
+						placeholder="e.g. Casa da Praia"
+						className="admin-input"
+					/>
+				</label>
 			</div>
+
+			<p className="admin-card-hint">
+				Add a partner name to turn this into a partner code — you&apos;ll get a
+				ready UTM link to hand them (clicks show in GA, redemptions in Stripe).
+			</p>
 
 			{packageScoped && (
 				<p className="admin-card-hint">
