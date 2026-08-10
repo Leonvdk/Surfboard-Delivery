@@ -84,6 +84,10 @@ export function trackBookingSubmitted(params: {
 	has_wetsuit: boolean;
 	prefilled: boolean;
 	estimated_total: number | null;
+	// GA4 custom dimensions (event-scoped).
+	rental_type: "board" | "both";
+	rental_duration: number;
+	delivery_location: string;
 }) {
 	send("booking_form_submitted", {
 		...params,
@@ -122,6 +126,11 @@ export function trackBookingEstimateShown(params: {
 	value: number;
 	all_selected: boolean;
 	people_count: number;
+	// GA4 custom dimensions (event-scoped) — forwarded when known at the
+	// moment the estimate becomes complete.
+	rental_type?: "board" | "both";
+	rental_duration?: number;
+	delivery_location?: string;
 }) {
 	send("booking_estimate_shown", {
 		...params,
@@ -136,7 +145,11 @@ export function trackBoardCalcOpened() {
 }
 
 export function trackBoardCalcResult(board: string) {
-	send("board_calculator_result", { recommended_board: board });
+	send("board_calculator_result", {
+		recommended_board: board,
+		// GA4 custom dimension (event-scoped).
+		board_type: board,
+	});
 }
 
 export function trackWetsuitCalcOpened(sex: string) {

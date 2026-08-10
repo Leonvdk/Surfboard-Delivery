@@ -287,6 +287,28 @@ function packageIncludesWetsuit(pkg: string, options: FormPackageInfo[]): boolea
 	return options.find((o) => o.value === pkg)?.includesWetsuit ?? false;
 }
 
+// The form has no structured town field — accommodation is free text — so
+// for the GA4 `delivery_location` custom dimension we match the entered text
+// against the known Costa Vicentina delivery areas and fall back to "other".
+// More specific areas (which sit inside Aljezur municipality) are checked
+// first so "Vale da Telha, Aljezur" resolves to the sub-area, not "Aljezur".
+const DELIVERY_AREAS: { label: string; pattern: RegExp }[] = [
+	{ label: "Vale da Telha", pattern: /vale\s*da\s*telha/i },
+	{ label: "Monte Clérigo", pattern: /monte\s*cl[eé]rigo/i },
+	{ label: "Carrapateira", pattern: /carrapateira/i },
+	{ label: "Arrifana", pattern: /arrifana/i },
+	{ label: "Aljezur", pattern: /aljezur/i },
+];
+
+function deriveDeliveryLocation(accommodation: string | null | undefined): string {
+	const text = (accommodation ?? "").trim();
+	if (!text) return "other";
+	for (const area of DELIVERY_AREAS) {
+		if (area.pattern.test(text)) return area.label;
+	}
+	return "other";
+}
+
 /* ── Per-person state ── */
 
 type Person = {
@@ -703,11 +725,21 @@ export function BookingForm() {
 	const didPrefill = useRef(false);
 	const firedSteps = useRef(new Set<string>());
 	const contactViewTracked = useRef(false);
+	// booking_form_start must mark the true top of the funnel, so it fires on
+	// the EARLIEST of the form scrolling into view or the first interaction —
+	// whichever happens first — and at most once per page load.
+	const formStartFired = useRef(false);
 
 	const fireStep = useCallback((step: string) => {
 		if (firedSteps.current.has(step)) return;
 		firedSteps.current.add(step);
 		trackBookingStep(step);
+	}, []);
+
+	const fireFormStart = useCallback(() => {
+		if (formStartFired.current) return;
+		formStartFired.current = true;
+		trackBookingFormStart();
 	}, []);
 
 	/* Restore uncontrolled fields on mount */
@@ -778,14 +810,40 @@ export function BookingForm() {
 				target.closest(".form-group")?.querySelector("label")?.textContent ||
 				"unknown";
 			lastField.current = name;
+			// First interaction with the form is a valid "start" trigger; the
+			// IntersectionObserver below covers the view-only case. fireFormStart
+			// dedupes so only whichever comes first is counted.
+			fireFormStart();
 			if (!trackedFields.current.has(name)) {
 				trackedFields.current.add(name);
 				trackBookingFieldFocused(name);
-				if (trackedFields.current.size === 1) trackBookingFormStart();
 			}
 		},
-		[],
+		[fireFormStart],
 	);
+
+	/* Fire booking_form_start the moment the form scrolls into view (~30%
+	   visible), matched with the first-interaction trigger above via
+	   fireFormStart's dedupe so it lands at the top of the funnel. */
+	useEffect(() => {
+		const el = formRef.current;
+		if (!el || formStartFired.current) return;
+		if (typeof IntersectionObserver === "undefined") return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						fireFormStart();
+						observer.disconnect();
+						break;
+					}
+				}
+			},
+			{ threshold: 0.3 },
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [fireFormStart]);
 
 	useEffect(() => {
 		const handleBeforeUnload = () => {
@@ -895,14 +953,24 @@ export function BookingForm() {
 		if (estimate.allSelected && estimate.total > 0) {
 			if (!firedSteps.current.has("estimate_shown")) {
 				firedSteps.current.add("estimate_shown");
+				const hasWetsuit = people.some((p) =>
+					packageIncludesWetsuit(p.package, pkgOptions),
+				);
+				const accommodation =
+					(formRef.current?.elements.namedItem("accommodation") as HTMLInputElement | null)
+						?.value ?? "";
 				trackBookingEstimateShown({
 					value: estimate.total,
 					all_selected: true,
 					people_count: peopleCount,
+					rental_type: hasWetsuit ? "both" : "board",
+					// Only meaningful once trip dates are set; omit otherwise.
+					...(days ? { rental_duration: days } : {}),
+					delivery_location: deriveDeliveryLocation(accommodation),
 				});
 			}
 		}
-	}, [estimate.allSelected, estimate.total, peopleCount]);
+	}, [estimate.allSelected, estimate.total, peopleCount, people, pkgOptions, days]);
 
 	const handlePeopleChange = (count: number) => {
 		setPeopleCount(count);
@@ -1101,6 +1169,7 @@ export function BookingForm() {
 			setRequestRef(okData?.requestRef ?? "");
 			setSubmittedAt(new Date());
 
+			const hasWetsuit = people.some((p) => packageIncludesWetsuit(p.package, pkgOptions));
 			trackBookingSubmitted({
 				people_count: peopleCount,
 				nights: days,
@@ -1110,9 +1179,16 @@ export function BookingForm() {
 						return getPackageOptions(pd).find((o) => o.value === p.package)?.tier ?? "unset";
 					})
 					.join(","),
-				has_wetsuit: people.some((p) => packageIncludesWetsuit(p.package, pkgOptions)),
+				has_wetsuit: hasWetsuit,
 				prefilled: didPrefill.current,
 				estimated_total: estimate.allSelected ? estimate.total : null,
+				// GA4 custom dimensions. board-only => "board"; any package that
+				// bundles a wetsuit (Full/Premium) => "both".
+				rental_type: hasWetsuit ? "both" : "board",
+				rental_duration: days,
+				delivery_location: deriveDeliveryLocation(
+					formData.get("accommodation") as string | null,
+				),
 			});
 			clearDraft();
 			setStatus("success");
