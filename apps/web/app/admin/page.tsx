@@ -4,6 +4,7 @@ import { BookingsFilter } from "./_components/bookings-filter";
 import { StatusPicker } from "./_components/status-picker";
 import { getCachedBookings } from "./_lib/bookings-cache";
 import {
+	bookingHasPayment,
 	currentStageKey,
 	currentStageLabel,
 	isBookingLate,
@@ -559,7 +560,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 										bookingId={b.id}
 										current={b.status}
 										hasPaymentLink={Boolean(b.stripePaymentLinkUrl)}
-										paid={Boolean(b.paidAt)}
+										paid={bookingHasPayment(b)}
 										late={isBookingLate(b, today)}
 									/>
 								</td>

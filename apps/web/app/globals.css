@@ -8102,6 +8102,28 @@ h1 {
   color: var(--accent);
 }
 
+.admin-partner-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  white-space: nowrap;
+}
+
+.admin-copy-btn {
+  background: none;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--gray-700);
+  cursor: pointer;
+}
+
+.admin-copy-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .admin-board-error {
   margin-bottom: var(--space-md);
   padding: 12px 16px;
@@ -8241,9 +8263,18 @@ h1 {
 }
 
 .booking-progress-step--current .booking-progress-marker {
+  background: var(--accent);
   border-color: var(--accent);
-  color: var(--accent);
+  color: #fff;
   box-shadow: 2px 2px 0 var(--black);
+}
+
+/* Current step shows a centered dot rather than a step number. */
+.booking-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
 }
 
 .booking-progress-label {

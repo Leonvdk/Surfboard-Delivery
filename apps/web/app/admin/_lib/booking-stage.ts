@@ -8,7 +8,9 @@ import type { Booking, BookingStatus } from "../../lib/db/schema";
  *
  *   answered           Leon confirmed (status ≥ confirmed)
  *   awaiting payment   a Stripe payment link exists and isn't paid yet
- *   payment confirmed  webhook stamped paidAt
+ *   payment confirmed  a payment has come in — Stripe webhook OR a manually
+ *                      recorded cash/card payment, even if it's partial or a
+ *                      discounted amount (paidAt only sets on full settlement)
  *   in progress        gear is out (status in_progress)
  *   completed          status completed
  *
@@ -65,11 +67,25 @@ export function bookingStageIndex(booking: Booking): number | null {
 	return stageIndexFrom(toStageInputs(booking));
 }
 
+/**
+ * True once any payment has come in. `paidAt` is the stricter "fully settled"
+ * flag (payments ≥ billed) used for revenue — a discounted checkout or a
+ * partial/deposit payment leaves it null but still records paidAmountCents.
+ * The "payment confirmed" stage should tick as soon as money arrives, whether
+ * from the Stripe webhook or a manually recorded cash/card payment.
+ */
+export function bookingHasPayment(b: {
+	paidAt: Date | string | null;
+	paidAmountCents: number | null;
+}): boolean {
+	return Boolean(b.paidAt) || (b.paidAmountCents ?? 0) > 0;
+}
+
 export function toStageInputs(booking: Booking): StageInputs {
 	return {
 		status: booking.status,
 		hasPaymentLink: Boolean(booking.stripePaymentLinkUrl),
-		paid: Boolean(booking.paidAt),
+		paid: bookingHasPayment(booking),
 	};
 }
 
@@ -141,7 +157,7 @@ export const STAGE_MENU: Array<{
 	{
 		key: "payment_confirmed",
 		label: "Payment confirmed",
-		hint: "Set automatically when Stripe reports the payment",
+		hint: "Set automatically once a payment is recorded — Stripe or a manual cash/card payment",
 	},
 	{ key: "in_progress", label: "In progress", status: "in_progress" },
 	{ key: "completed", label: "Completed", status: "completed" },

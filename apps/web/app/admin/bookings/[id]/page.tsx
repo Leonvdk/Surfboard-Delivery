@@ -38,7 +38,7 @@ import { ExtraGearPanel } from "../../_components/extra-gear";
 import { CheckIcon, EuroIcon, ExternalIcon, RepeatIcon, SplitDatesIcon, WarningIcon } from "../../_components/icons";
 import { getCachedBookings } from "../../_lib/bookings-cache";
 import { getCachedFleet } from "../../_lib/boards-cache";
-import { isBookingLate } from "../../_lib/booking-stage";
+import { bookingHasPayment, isBookingLate } from "../../_lib/booking-stage";
 import { computeCancellationState } from "../../_lib/cancellation";
 import { formatLongDate, formatShortDate, todayIso } from "../../_lib/dates";
 import { getRepeatCustomer } from "../../_lib/repeat-customer";
@@ -299,7 +299,7 @@ export default async function BookingDetailPage({
 						bookingId={id}
 						current={booking.status}
 						hasPaymentLink={Boolean(booking.stripePaymentLinkUrl)}
-						paid={Boolean(booking.paidAt)}
+						paid={bookingHasPayment(booking)}
 						late={isBookingLate(booking, todayIso())}
 					/>
 
