@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Board, BoardStatus } from "../../lib/db/schema";
 import { createBoard } from "../_board-actions";
 import { ClickableGearRow } from "../_components/clickable-gear-row";
+import { FleetAttention } from "../_components/fleet-attention";
+import { FleetPayback } from "../_components/fleet-payback";
 import { GearSection } from "../_components/gear-section";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import {
@@ -44,16 +46,42 @@ export default async function AdminBoardsPage() {
 	const otherGear = fleet.filter((b) => b.kind === "other");
 
 	const activeBoards = boards.filter((b) => b.status === "active");
-	const wetsuitsActive = wetsuits.filter((b) => b.status === "active").length;
-	const inRepair = fleet.filter((b) => b.status === "repair").length;
 	const freeToday = activeBoards.filter(
 		(b) => !isOutToday(assignments, b.id, today),
 	).length;
-	const outToday = activeBoards.length - freeToday;
-	const utilPct =
-		activeBoards.length > 0
-			? Math.round((outToday / activeBoards.length) * 100)
-			: 0;
+
+	// ── Fleet payback: collected vs invested, per item ──
+	const paybackItems = fleet.map((b) => ({
+		id: b.id,
+		name: b.name,
+		costCents: b.purchaseCost != null ? b.purchaseCost * 100 : null,
+		collectedCents: earnings.byGearId.get(b.id)?.collectedCents ?? 0,
+	}));
+	const totalCollectedCents = paybackItems.reduce((s, i) => s + i.collectedCents, 0);
+	const totalInvestedCents = paybackItems.reduce((s, i) => s + (i.costCents ?? 0), 0);
+
+	// ── Available now, grouped by board size (dots: filled = free today) ──
+	const freeBySize = new Map<string, boolean[]>();
+	for (const b of activeBoards) {
+		const arr = freeBySize.get(b.size) ?? [];
+		arr.push(!isOutToday(assignments, b.id, today));
+		freeBySize.set(b.size, arr);
+	}
+	const availBySize = BOARD_SIZES.filter((s) => freeBySize.has(s)).map((s) => ({
+		size: s,
+		free: freeBySize.get(s)!,
+	}));
+
+	// ── Needs attention: boards flagged for repair ──
+	const repairBoards = fleet.filter((b) => b.status === "repair");
+	const attentionSig = repairBoards
+		.map((b) => b.id)
+		.sort((a, b) => a - b)
+		.join(",");
+	const attentionLead =
+		repairBoards.length > 0
+			? `${repairBoards.map((b) => b.name).join(", ")} ${repairBoards.length === 1 ? "is" : "are"} marked in repair — fix it, or retire it so it stops nagging.`
+			: "";
 
 	return (
 		<section className="admin-list-page">
@@ -61,60 +89,50 @@ export default async function AdminBoardsPage() {
 				<h1>Fleet</h1>
 			</header>
 
-			<div className="admin-today">
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Boards</span>
-						<span className="admin-today-count">{boards.length}</span>
-					</div>
-					<p className="admin-empty-inline">
-						{activeBoards.length} active
-						{boards.length !== activeBoards.length
-							? ` · ${boards.length - activeBoards.length} out of service`
-							: ""}
-					</p>
-				</article>
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Wetsuits</span>
-						<span className="admin-today-count">{wetsuits.length}</span>
-					</div>
-					<p className="admin-empty-inline">{wetsuitsActive} ready</p>
-				</article>
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Other gear</span>
-						<span className="admin-today-count">{otherGear.length}</span>
-					</div>
-					<p className="admin-empty-inline">items tracked</p>
-				</article>
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Free today</span>
-						<span className="admin-today-count">{freeToday}</span>
-					</div>
-					<p className="admin-empty-inline">of {activeBoards.length} boards ready</p>
-				</article>
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">Out today</span>
-						<span className="admin-today-count">{outToday}</span>
-					</div>
-					<p className="admin-empty-inline">{utilPct}% of boards on rental</p>
-				</article>
-				<article className="admin-today-card">
-					<div className="admin-today-heading">
-						<span className="admin-today-kicker">In repair</span>
-						<span
-							className={`admin-today-count${inRepair > 0 ? " admin-today-count--negative" : ""}`}
-						>
-							{inRepair}
-						</span>
-					</div>
-					<p className="admin-empty-inline">
-						{inRepair > 0 ? "need attention" : "all good"}
-					</p>
-				</article>
+			{repairBoards.length > 0 && (
+				<FleetAttention
+					signature={attentionSig}
+					count={repairBoards.length}
+					lead={attentionLead}
+				/>
+			)}
+
+			<div className="fleet-strip">
+				<FleetPayback
+					collectedCents={totalCollectedCents}
+					investedCents={totalInvestedCents}
+					items={paybackItems}
+				/>
+
+				<div className="fleet-stat fleet-avail">
+					<span className="fleet-stat-kicker">Available now</span>
+					{availBySize.length === 0 ? (
+						<span className="fleet-stat-sub">No active boards</span>
+					) : (
+						<div className="fleet-avail-grid">
+							{availBySize.map(({ size, free }) => {
+								const freeCount = free.filter(Boolean).length;
+								return (
+									<div key={size} className="fleet-avail-size">
+										<span className="fleet-avail-label">{size}</span>
+										<span className="fleet-avail-dots" aria-hidden="true">
+											{free.map((isFree, i) => (
+												<span
+													// biome-ignore lint/suspicious/noArrayIndexKey: dots are positional
+													key={i}
+													className={`fleet-dot${isFree ? " fleet-dot--free" : ""}`}
+												/>
+											))}
+										</span>
+										<span className="fleet-avail-count">
+											{freeCount}<span className="fleet-avail-of">/{free.length}</span>
+										</span>
+									</div>
+								);
+							})}
+						</div>
+					)}
+				</div>
 			</div>
 
 			{/* ── Boards ── */}
