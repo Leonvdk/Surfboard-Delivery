@@ -19,11 +19,11 @@ export function ClickableGearRow({
 	const [open, setOpen] = useState(false);
 
 	function isInteractive(target: EventTarget | null): boolean {
+		// NOTE: no [role='button'] here — the <tr> itself carries role="button",
+		// so closest() would match the row on every click and swallow it.
 		return Boolean(
 			target instanceof Element &&
-				target.closest(
-					"a, button, select, input, textarea, label, [role='button']",
-				),
+				target.closest("a, button, select, input, textarea, label"),
 		);
 	}
 

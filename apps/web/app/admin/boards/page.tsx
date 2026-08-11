@@ -122,6 +122,7 @@ export default async function AdminBoardsPage() {
 				title="Boards"
 				count={boards.length}
 				summary={`${freeToday} free today`}
+				defaultOpen
 				addForm={
 					<AddGearForm
 						kind="board"
