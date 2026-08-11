@@ -23,7 +23,7 @@ const GEAR_KINDS = new Set<GearKind>(["board", "wetsuit", "other"]);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function revalidateBoardSurfaces() {
-	revalidateTag(BOARDS_TAG);
+	revalidateTag(BOARDS_TAG, "max");
 	revalidatePath("/admin/boards");
 	revalidatePath("/admin/calendar");
 	revalidatePath("/admin");

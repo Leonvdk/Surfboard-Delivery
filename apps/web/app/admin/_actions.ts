@@ -65,7 +65,7 @@ export async function updateBookingStatus(id: number, status: BookingStatus) {
 	// Cancelling must clear the runs from the calendar, and un-cancelling
 	// must put them back.
 	await resyncCalendar(id);
-	revalidateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG, "max");
 	revalidatePath("/admin");
 	revalidatePath(`/admin/bookings/${id}`);
 	revalidatePath("/admin/calendar");
@@ -78,7 +78,7 @@ export async function updateBookingNotes(id: number, ownerNotes: string) {
 		.update(schema.bookings)
 		.set({ ownerNotes, updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
-	revalidateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG, "max");
 	revalidatePath(`/admin/bookings/${id}`);
 }
 
@@ -89,7 +89,7 @@ export async function updateFinalTotal(id: number, finalTotal: number | null) {
 		.update(schema.bookings)
 		.set({ finalTotal, updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
-	revalidateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG, "max");
 	revalidatePath(`/admin/bookings/${id}`);
 	revalidatePath("/admin/revenue");
 }
@@ -107,7 +107,7 @@ export async function deleteBooking(id: number) {
 		.set({ deletedAt: new Date(), updatedAt: new Date() })
 		.where(eq(schema.bookings.id, id));
 	await resyncCalendar(id);
-	revalidateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG, "max");
 	revalidatePath("/admin");
 	revalidatePath("/admin/calendar");
 	revalidatePath("/admin/revenue");

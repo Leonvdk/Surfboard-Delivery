@@ -10,7 +10,7 @@ type Method = "cash" | "card" | "other";
 const METHODS: Method[] = ["cash", "card", "other"];
 
 function revalidateBooking(id: number) {
-	revalidateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG, "max");
 	revalidatePath(`/admin/bookings/${id}`);
 	revalidatePath("/admin/revenue");
 	revalidatePath("/admin");
