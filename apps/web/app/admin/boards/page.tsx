@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Board, BoardStatus } from "../../lib/db/schema";
 import { createBoard } from "../_board-actions";
-import { BoardEditButton } from "../_components/board-edit-modal";
+import { ClickableGearRow } from "../_components/clickable-gear-row";
 import { GearSection } from "../_components/gear-section";
 import { getCachedBookings } from "../_lib/bookings-cache";
 import {
@@ -294,7 +294,18 @@ function BoardRow({
 	const out = isOutToday(assignments, b.id, today);
 	const free = nextFreeDate(assignments, b.id, today);
 	return (
-		<tr>
+		<ClickableGearRow
+			board={{
+				id: b.id,
+				kind: b.kind,
+				name: b.name,
+				size: b.size,
+				purchaseCost: b.purchaseCost,
+				purchaseDate: b.purchaseDate,
+				status: b.status,
+				notes: b.notes,
+			}}
+		>
 			<td>
 				<div className="admin-cell-strong">
 					<Link
@@ -341,21 +352,12 @@ function BoardRow({
 			</td>
 			<td>{b.purchaseCost != null ? `€${b.purchaseCost}` : "—"}</td>
 			<EarningsCells collectedCents={collectedCents} costEuros={b.purchaseCost} />
-			<td>
-				<BoardEditButton
-					board={{
-						id: b.id,
-						kind: b.kind,
-						name: b.name,
-						size: b.size,
-						purchaseCost: b.purchaseCost,
-						purchaseDate: b.purchaseDate,
-						status: b.status,
-						notes: b.notes,
-					}}
-				/>
+			<td className="admin-row-chevron-cell">
+				<span className="admin-row-chevron" aria-hidden="true">
+					›
+				</span>
 			</td>
-		</tr>
+		</ClickableGearRow>
 	);
 }
 
@@ -369,7 +371,18 @@ function SimpleGearRow({
 	collectedCents: number;
 }) {
 	return (
-		<tr>
+		<ClickableGearRow
+			board={{
+				id: b.id,
+				kind: b.kind,
+				name: b.name,
+				size: b.size,
+				purchaseCost: b.purchaseCost,
+				purchaseDate: b.purchaseDate,
+				status: b.status,
+				notes: b.notes,
+			}}
+		>
 			<td>
 				<div className="admin-cell-strong">
 					{b.name}
@@ -392,21 +405,12 @@ function SimpleGearRow({
 			</td>
 			<td>{b.purchaseCost != null ? `€${b.purchaseCost}` : "—"}</td>
 			<EarningsCells collectedCents={collectedCents} costEuros={b.purchaseCost} />
-			<td>
-				<BoardEditButton
-					board={{
-						id: b.id,
-						kind: b.kind,
-						name: b.name,
-						size: b.size,
-						purchaseCost: b.purchaseCost,
-						purchaseDate: b.purchaseDate,
-						status: b.status,
-						notes: b.notes,
-					}}
-				/>
+			<td className="admin-row-chevron-cell">
+				<span className="admin-row-chevron" aria-hidden="true">
+					›
+				</span>
 			</td>
-		</tr>
+		</ClickableGearRow>
 	);
 }
 

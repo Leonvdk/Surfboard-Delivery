@@ -10101,6 +10101,11 @@ h1 {
 .admin-row-clickable:hover td { background: var(--gray-100); }
 .admin-row-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
+/* "opens" affordance in the last cell of a clickable fleet row */
+.admin-row-chevron-cell { text-align: right; width: 1%; }
+.admin-row-chevron { color: var(--gray-300); font-size: 1.25rem; line-height: 1; }
+.admin-row-clickable:hover .admin-row-chevron { color: var(--accent); }
+
 .admin-paid-badge { color: #1f5e29; font-weight: 700; }
 
 /* Van-load checklist card. */
