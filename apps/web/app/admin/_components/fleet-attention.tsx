@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const KEY = "sra_fleet_attention";
-const SNOOZE_MS = 24 * 60 * 60 * 1000; // 1 day
+const SNOOZE_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
 
 /**
  * Fleet "needs attention" warning — same look as the home-page alerts, but
@@ -62,7 +62,7 @@ export function FleetAttention({
 			<p className="admin-attention-lead">{lead}</p>
 			<div className="fleet-attention-actions">
 				<button type="button" className="fleet-attention-btn" onClick={snooze}>
-					Snooze 1 day
+					Snooze 3 days
 				</button>
 				<button type="button" className="fleet-attention-btn" onClick={dismiss}>
 					Dismiss

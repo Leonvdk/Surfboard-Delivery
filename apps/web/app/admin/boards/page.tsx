@@ -60,27 +60,41 @@ export default async function AdminBoardsPage() {
 	const totalCollectedCents = paybackItems.reduce((s, i) => s + i.collectedCents, 0);
 	const totalInvestedCents = paybackItems.reduce((s, i) => s + (i.costCents ?? 0), 0);
 
-	// ── Available now, grouped by board size (dots: filled = free today) ──
-	const freeBySize = new Map<string, boolean[]>();
-	for (const b of activeBoards) {
-		const arr = freeBySize.get(b.size) ?? [];
-		arr.push(!isOutToday(assignments, b.id, today));
-		freeBySize.set(b.size, arr);
+	// ── Available now, grouped by board size. One dot per board (retired
+	//    excluded): free today, out today, or in repair (yellow). ──
+	type DotState = "free" | "out" | "repair";
+	const stateBySize = new Map<string, DotState[]>();
+	for (const b of boards) {
+		if (b.status === "retired") continue;
+		const state: DotState =
+			b.status === "repair"
+				? "repair"
+				: isOutToday(assignments, b.id, today)
+					? "out"
+					: "free";
+		const arr = stateBySize.get(b.size) ?? [];
+		arr.push(state);
+		stateBySize.set(b.size, arr);
 	}
-	const availBySize = BOARD_SIZES.filter((s) => freeBySize.has(s)).map((s) => ({
+	const availBySize = BOARD_SIZES.filter((s) => stateBySize.has(s)).map((s) => ({
 		size: s,
-		free: freeBySize.get(s)!,
+		states: stateBySize.get(s)!,
 	}));
 
-	// ── Needs attention: boards flagged for repair ──
-	const repairBoards = fleet.filter((b) => b.status === "repair");
-	const attentionSig = repairBoards
+	// ── Needs attention: boards stuck in repair for over a week. `updatedAt`
+	//    is the repair-since proxy (setBoardStatus stamps it); a board just
+	//    flagged today shows a yellow dot but doesn't nag yet. ──
+	const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+	const staleRepair = fleet.filter(
+		(b) => b.status === "repair" && b.updatedAt < weekAgo,
+	);
+	const attentionSig = staleRepair
 		.map((b) => b.id)
 		.sort((a, b) => a - b)
 		.join(",");
 	const attentionLead =
-		repairBoards.length > 0
-			? `${repairBoards.map((b) => b.name).join(", ")} ${repairBoards.length === 1 ? "is" : "are"} marked in repair — fix it, or retire it so it stops nagging.`
+		staleRepair.length > 0
+			? `${staleRepair.map((b) => b.name).join(", ")} ${staleRepair.length === 1 ? "has" : "have"} been in repair over a week — fix it, or retire it so it stops nagging.`
 			: "";
 
 	return (
@@ -89,10 +103,10 @@ export default async function AdminBoardsPage() {
 				<h1>Fleet</h1>
 			</header>
 
-			{repairBoards.length > 0 && (
+			{staleRepair.length > 0 && (
 				<FleetAttention
 					signature={attentionSig}
-					count={repairBoards.length}
+					count={staleRepair.length}
 					lead={attentionLead}
 				/>
 			)}
@@ -110,22 +124,22 @@ export default async function AdminBoardsPage() {
 						<span className="fleet-stat-sub">No active boards</span>
 					) : (
 						<div className="fleet-avail-grid">
-							{availBySize.map(({ size, free }) => {
-								const freeCount = free.filter(Boolean).length;
+							{availBySize.map(({ size, states }) => {
+								const freeCount = states.filter((s) => s === "free").length;
 								return (
 									<div key={size} className="fleet-avail-size">
 										<span className="fleet-avail-label">{size}</span>
 										<span className="fleet-avail-dots" aria-hidden="true">
-											{free.map((isFree, i) => (
+											{states.map((s, i) => (
 												<span
 													// biome-ignore lint/suspicious/noArrayIndexKey: dots are positional
 													key={i}
-													className={`fleet-dot${isFree ? " fleet-dot--free" : ""}`}
+													className={`fleet-dot${s === "free" ? " fleet-dot--free" : s === "repair" ? " fleet-dot--repair" : ""}`}
 												/>
 											))}
 										</span>
 										<span className="fleet-avail-count">
-											{freeCount}<span className="fleet-avail-of">/{free.length}</span>
+											{freeCount}<span className="fleet-avail-of">/{states.length}</span>
 										</span>
 									</div>
 								);
