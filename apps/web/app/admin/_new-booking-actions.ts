@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq, gte } from "drizzle-orm";
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { Resend } from "resend";
 import { getDb, schema } from "../lib/db/client";
 import type { BookingAddon, BookingPerson } from "../lib/db/schema";
@@ -381,7 +381,7 @@ export async function createAdminBooking(
 			.where(eq(schema.bookings.id, row.id));
 	}
 
-	updateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG);
 	revalidatePath("/admin");
 	revalidatePath("/admin/calendar");
 
@@ -528,8 +528,8 @@ export async function updateBookingDetails(
 			.where(eq(schema.bookings.id, bookingId));
 	}
 
-	updateTag(BOOKINGS_TAG);
-	updateTag(BOARDS_TAG);
+	revalidateTag(BOOKINGS_TAG);
+	revalidateTag(BOARDS_TAG);
 	revalidatePath("/admin");
 	revalidatePath(`/admin/bookings/${bookingId}`);
 	revalidatePath("/admin/calendar");
@@ -638,7 +638,7 @@ export async function sendBookingConfirmation(
 				updatedAt: new Date(),
 			})
 			.where(eq(schema.bookings.id, bookingId));
-		updateTag(BOOKINGS_TAG);
+		revalidateTag(BOOKINGS_TAG);
 	} catch (dbErr) {
 		// The email did go out; a failed bookkeeping write shouldn't
 		// report failure to Leon.

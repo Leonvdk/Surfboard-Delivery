@@ -7,7 +7,7 @@ import type { Board, BookingStatus } from "../../lib/db/schema";
  * Cached fleet + assignments dataset, mirroring bookings-cache. One SELECT
  * pair serves the boards list, the booking-detail assignment pickers, the
  * calendar availability strip, and the dashboard unassigned-boards flag.
- * Board mutations call updateTag(BOARDS_TAG).
+ * Board mutations call revalidateTag(BOARDS_TAG).
  */
 
 export const BOARDS_TAG = "boards";

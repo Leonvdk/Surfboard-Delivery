@@ -1,7 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "../lib/db/client";
 import type { BoardStatus, GearKind } from "../lib/db/schema";
@@ -10,7 +10,7 @@ import { isValidSize } from "./_lib/gear-sizes";
 
 /**
  * Board-inventory mutations. Same conventions as _actions.ts: server
- * actions only (no REST), updateTag for read-your-own-writes, then
+ * actions only (no REST), revalidateTag for read-your-own-writes, then
  * revalidatePath for every touched surface.
  *
  * Conflict policy is a hard block — a board can't physically be in two
@@ -23,7 +23,7 @@ const GEAR_KINDS = new Set<GearKind>(["board", "wetsuit", "other"]);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function revalidateBoardSurfaces() {
-	updateTag(BOARDS_TAG);
+	revalidateTag(BOARDS_TAG);
 	revalidatePath("/admin/boards");
 	revalidatePath("/admin/calendar");
 	revalidatePath("/admin");

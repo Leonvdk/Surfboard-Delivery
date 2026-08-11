@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getDb, schema } from "../lib/db/client";
 import { recomputeBookingPaid } from "../lib/payments";
 import { BOOKINGS_TAG } from "./_lib/bookings-cache";
@@ -10,7 +10,7 @@ type Method = "cash" | "card" | "other";
 const METHODS: Method[] = ["cash", "card", "other"];
 
 function revalidateBooking(id: number) {
-	updateTag(BOOKINGS_TAG);
+	revalidateTag(BOOKINGS_TAG);
 	revalidatePath(`/admin/bookings/${id}`);
 	revalidatePath("/admin/revenue");
 	revalidatePath("/admin");
