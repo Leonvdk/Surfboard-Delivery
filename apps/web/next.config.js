@@ -21,6 +21,9 @@ const REDIRECT_MAP = {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	images: {
+		formats: ["image/avif", "image/webp"],
+	},
 	async redirects() {
 		return Object.entries(REDIRECT_MAP).map(([source, destination]) => ({
 			source,

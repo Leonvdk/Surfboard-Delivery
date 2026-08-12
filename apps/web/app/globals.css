@@ -2041,6 +2041,24 @@ h1 {
   text-underline-offset: 2px;
 }
 
+.page-hero-meta {
+  margin-top: var(--space-md);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.page-hero-note {
+  margin-top: var(--space-sm);
+  font-size: 0.9375rem;
+  color: var(--gray-700);
+  max-width: 600px;
+  line-height: 1.7;
+}
+
 /* Horizon line */
 .horizon-line {
   border: none;
@@ -2727,6 +2745,78 @@ h1 {
   font-size: 0.9375rem;
   color: var(--gray-700);
   line-height: 1.7;
+}
+
+/* Spot comparison table */
+.spot-table-wrap {
+  overflow-x: auto;
+  border: var(--border);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+}
+
+.spot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  min-width: 640px;
+}
+
+.spot-table th,
+.spot-table td {
+  text-align: left;
+  padding: var(--space-md);
+  border-bottom: var(--border-light);
+  vertical-align: top;
+}
+
+.spot-table thead th {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  border-bottom: var(--border);
+  white-space: nowrap;
+}
+
+.spot-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.spot-table tbody th {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--black);
+  white-space: nowrap;
+}
+
+.spot-table tbody th a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.spot-table td {
+  color: var(--gray-700);
+}
+
+/* Spot guide / live-cam links */
+.spot-detail-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.spot-detail-links a {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ═══════════════════════════════════════════════

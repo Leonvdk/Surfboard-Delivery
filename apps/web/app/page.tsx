@@ -112,6 +112,7 @@ export default function Home() {
 									<div className="board-card-img">
 										<Image
 											className="board-card-img-default"
+											sizes="(max-width: 640px) 100vw, 25vw"
 											src="/images/rentals/6'6/picture(1).jpg"
 											alt="6'6 soft-top shortboard rental in Aljezur — for intermediate to advanced surfers, delivered to your accommodation"
 											width={600}
@@ -145,6 +146,7 @@ export default function Home() {
 									<div className="board-card-img">
 										<Image
 											className="board-card-img-default"
+											sizes="(max-width: 640px) 100vw, 25vw"
 											src="/images/rentals/7'0/picture(1).jpg"
 											alt="7'0 soft-top funboard rental in Aljezur — for beginner to intermediate surfers, delivered to your accommodation"
 											width={600}
@@ -178,6 +180,7 @@ export default function Home() {
 									<div className="board-card-img">
 										<Image
 											className="board-card-img-default"
+											sizes="(max-width: 640px) 100vw, 25vw"
 											src="/images/rentals/7'8/picture(1).jpg"
 											alt="7'8 soft-top funboard rental in Aljezur — versatile board for building confidence, delivered to your accommodation"
 											width={600}
@@ -211,6 +214,7 @@ export default function Home() {
 									<div className="board-card-img">
 										<Image
 											className="board-card-img-default"
+											sizes="(max-width: 640px) 100vw, 25vw"
 											src="/images/rentals/8'6/picture(1).jpg"
 											alt="8'6 soft-top longboard rental in Aljezur — stable, forgiving board for beginners, delivered to your accommodation"
 											width={600}
@@ -393,10 +397,10 @@ export default function Home() {
 								and <Link href="/deliver-to/carrapateira">Carrapateira</Link>.
 							</p>
 							<p>
-								Most of our renters surf <Link href="/surf-spots">Praia da
-								Arrifana</Link>, <Link href="/surf-spots">Praia do Amado</Link>,{" "}
-								<Link href="/surf-spots">Praia da Bordeira</Link>, or{" "}
-								<Link href="/surf-spots">Praia da Amoreira</Link> — all within
+								Most of our renters surf <Link href="/blog/arrifana-surf-guide">Praia da
+								Arrifana</Link>, <Link href="/blog/amado-surf-guide">Praia do Amado</Link>,{" "}
+								<Link href="/blog/bordeira-surf-guide">Praia da Bordeira</Link>, or{" "}
+								<Link href="/blog/amoreira-surf-guide">Praia da Amoreira</Link> — all within
 								a fifteen-minute drive of Aljezur. Tell us which beach you&apos;re
 								headed to and we&apos;ll match the board to the swell.
 							</p>
@@ -425,6 +429,30 @@ export default function Home() {
 								</div>
 							))}
 						</dl>
+					</Reveal>
+				</div>
+			</section>
+
+			{/* Homepage hubs — keep the blog and live cams one click from home */}
+			<section className="where-we-deliver" aria-labelledby="home-explore-title">
+				<div className="container">
+					<Reveal>
+						<div className="section-header section-header--center">
+							<p className="section-eyebrow">Before you go</p>
+							<h2 id="home-explore-title" className="section-title">
+								Plan your session.
+							</h2>
+						</div>
+					</Reveal>
+					<Reveal>
+						<div className="where-we-deliver-body">
+							<p>
+								Read the <Link href="/blog">Aljezur surf blog</Link> for
+								spot guides, tide tips, and local knowledge — or check the{" "}
+								<Link href="/surf-cams">live surf cams</Link> to see the
+								conditions before you paddle out.
+							</p>
+						</div>
 					</Reveal>
 				</div>
 			</section>

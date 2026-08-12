@@ -3,11 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { BoardCalculator } from "../components/board-calculator";
 import { CtaSection } from "../components/cta-section";
+import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
-	title: "Surf Gear — Boards & Wetsuits",
+	title: "Surfboard & Wetsuit Rental — Boards for Every Level",
 	description:
 		"Four soft-top surfboards (6'6 shortboard, 7'0 & 7'8 funboards, 8'6 longboard) plus seasonal wetsuits (3/2 summer, 4/3 winter), from €18/day board-only or €28/day with wetsuit. Free delivery in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira.",
 	alternates: { canonical: "/surf-gear" },
@@ -59,8 +61,47 @@ const boards = [
 ] as const;
 
 export default function SurfGearPage() {
+	const breadcrumb = breadcrumbJsonLd([
+		{ name: "Home", url: SITE_URL },
+		{ name: "Surf gear", url: `${SITE_URL}/surf-gear` },
+	]);
+
+	const productList = {
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		name: "Surfboard rentals",
+		itemListElement: boards.map((board, i) => ({
+			"@type": "ListItem",
+			position: i + 1,
+			item: {
+				"@type": "Product",
+				name: `${board.name} surfboard rental`,
+				image: `${SITE_URL}/images/rentals/${board.slug}/picture(1).jpg`,
+				category: "Surfboard rental",
+				offers: {
+					"@type": "Offer",
+					priceCurrency: "EUR",
+					price: "18",
+					availability: "https://schema.org/InStock",
+					provider: { "@id": `${SITE_URL}/#business` },
+				},
+			},
+		})),
+	};
+
+	const webPage = {
+		"@context": "https://schema.org",
+		"@type": "WebPage",
+		name: "Surfboard & Wetsuit Rental — Boards for Every Level",
+		url: `${SITE_URL}/surf-gear`,
+		dateModified: "2026-08-12",
+	};
+
 	return (
 		<>
+			<JsonLd data={breadcrumb} />
+			<JsonLd data={productList} />
+			<JsonLd data={webPage} />
 			{/* Board size calculator */}
 			<section className="page-hero" aria-labelledby="guide-heading">
 				<div className="container">
@@ -68,7 +109,8 @@ export default function SurfGearPage() {
 						<div className="section-header">
 							<p className="section-label">Board finder</p>
 							<h1 className="section-title" id="guide-heading">
-								Which surfboard is right for my level?
+								Surfboard and wetsuit rental in Aljezur — which
+								board is right for my level?
 							</h1>
 						<p className="section-desc">
 							We rent four soft-top surfboards in Aljezur, delivered free
@@ -155,6 +197,8 @@ export default function SurfGearPage() {
 												alt={`${board.name} — front view`}
 												width={600}
 												height={450}
+												sizes="(max-width: 768px) 100vw, 600px"
+												priority={i === 0}
 											/>
 										)}
 									</div>

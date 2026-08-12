@@ -6,7 +6,12 @@ import { Nav } from "./components/nav";
 import { SiteAnalytics } from "./components/site-analytics";
 import { SiteChrome } from "./components/site-chrome";
 import { WhatsAppFloat } from "./components/whatsapp-float";
-import { localBusinessJsonLd, siteNavigationJsonLd, webSiteJsonLd } from "./lib/jsonld";
+import {
+	localBusinessJsonLd,
+	servicesJsonLd,
+	siteNavigationJsonLd,
+	webSiteJsonLd,
+} from "./lib/jsonld";
 import { baseMetadata } from "./lib/metadata";
 import "./globals.css";
 
@@ -41,6 +46,9 @@ export default function RootLayout({
 				<JsonLd data={localBusinessJsonLd()} />
 				<JsonLd data={webSiteJsonLd()} />
 				<JsonLd data={siteNavigationJsonLd()} />
+				{servicesJsonLd().map((s) => (
+					<JsonLd key={s["@id"]} data={s} />
+				))}
 				<SiteChrome>
 					<Nav />
 				</SiteChrome>

@@ -38,7 +38,7 @@ const faqs = [
 	{
 		question: "What surfboards do you have?",
 		answer:
-			"We carry soft tops (7'0–8'0) for beginners, epoxy funboards (6'6–7'6) for intermediates, and performance shortboards (5'8–6'4) for advanced surfers. Not sure what to choose? Tell us your level and we'll recommend the right board.",
+			"Four soft-top funboards, in sizes 6'6, 7'0, 7'8, and 8'6 — all beginner to intermediate friendly. Tell us your weight, height, and experience level and we'll pick the right one. Level-match guarantee: if it doesn't fit after day one, we swap it for another size from the fleet, free.",
 	},
 	{
 		question: "What wetsuit thickness will I need?",
@@ -48,12 +48,12 @@ const faqs = [
 	{
 		question: "What's included in the rental?",
 		answer:
-			"Every rental includes the board, leash, and wax. The Full Package and Extended Stay plans also include a wetsuit. We deliver everything to your door and pick it up before your checkout.",
+			"Every rental includes the board, leash, and wax. The Full Package also includes a wetsuit. We deliver everything to your door and pick it up before your checkout.",
 	},
 	{
 		question: "Can I swap my board during my rental?",
 		answer:
-			"The Extended Stay (2-week) package includes one free board swap. For one-week rentals, swaps are possible for a small fee depending on availability — just ask.",
+			"Yes. Our level-match guarantee covers it: if the board doesn't fit after day one, we swap it for another size from the fleet, free. If you'd like to try a different size later in your stay, just ask — we'll sort it on the next delivery run when the board's available.",
 	},
 	{
 		question: "What if I damage the board?",

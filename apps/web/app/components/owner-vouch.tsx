@@ -34,6 +34,8 @@ export function OwnerVouch() {
 						// file is ~85KB so responsive srcsets aren't needed here.
 						<img
 							src="/images/leon-cutout.webp"
+							width={1000}
+							height={712}
 							alt="Léon — owner of Surf Rental Aljezur"
 							className="owner-vouch-cutout"
 							onError={() => setFailed(true)}

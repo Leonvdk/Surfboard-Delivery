@@ -138,8 +138,8 @@ export default function GiftVouchersPage() {
 								<h3>Extended Stay</h3>
 								<div className="price">&euro;{prices.fullPackage.extended.amount}</div>
 								<p className="voucher-includes">
-									Full package for 2 weeks with mid-stay board swap. The ultimate gift for
-									a proper surf holiday.
+									Full package for 2 weeks — board and wetsuit delivered. The ultimate
+									gift for a proper surf holiday.
 								</p>
 								<Link href="/contact?subject=Gift+Voucher+Extended+Stay" className="btn btn-secondary btn-full">
 									Order this voucher

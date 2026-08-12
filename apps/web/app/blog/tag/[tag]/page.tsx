@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		title: `Posts tagged "${decoded}"`,
 		description: `All blog posts about ${decoded} — surf guides, tips, and local knowledge from the Costa Vicentina.`,
 		alternates: { canonical: `/blog/tag/${tag}` },
-		robots: { index: true, follow: true },
+		robots: { index: false, follow: true },
 	};
 }
 

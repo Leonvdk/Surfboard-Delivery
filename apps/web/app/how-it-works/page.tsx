@@ -23,13 +23,13 @@ const rentalHowTo = howToJsonLd({
 		},
 		{
 			name: "Surf your trip; we pick up before checkout",
-			text: "For the rest of your stay the gear is yours — surf every day, try different spots, take a rest day. On your last day (or the day before checkout) we come back to collect everything. Extended Stay packages include a free mid-stay board swap.",
+			text: "For the rest of your stay the gear is yours — surf every day, try different spots, take a rest day. On your last day (or the day before checkout) we come back to collect everything. Need a different board size mid-stay? Just ask.",
 		},
 	],
 });
 
 export const metadata: Metadata = {
-	title: "How It Works — Surfboard Delivery to Your Accommodation",
+	title: "How It Works — Surfboard Delivery in Aljezur",
 	description:
 		"Book your surf gear in 3 simple steps: send us your dates, we deliver to your door in Aljezur, and we pick up before checkout. No queues, no car racks, no deposit hassle.",
 	alternates: { canonical: "/how-it-works" },
@@ -130,8 +130,9 @@ export default function HowItWorksPage() {
 										before checkout), we come back to collect everything.
 									</p>
 									<p>
-										<strong>Need to swap a board mid-stay?</strong> Our Extended Stay package
-										includes a free board swap. Or just ask — we&apos;re flexible.
+										<strong>Need to swap a board mid-stay?</strong> Just ask — we&apos;re
+										flexible, and our level-match guarantee means a board that doesn&apos;t
+										fit gets swapped free.
 									</p>
 								</div>
 							</div>
@@ -199,20 +200,20 @@ export default function HowItWorksPage() {
 						<div className="section-header section-header-center">
 							<p className="section-label">Our philosophy</p>
 							<h2 className="section-title" id="whynot-heading">
-								Why weekly rentals?
+								Why a three-day minimum?
 							</h2>
 						</div>
 					</Reveal>
 					<Reveal>
 						<div className="content-prose">
 							<p>
-								We chose a one-week minimum for a simple reason: it&apos;s better for everyone. You
+								We set a three-day minimum for a simple reason: it&apos;s better for everyone. You
 								get the freedom to surf whenever conditions are right — without worrying about daily
 								return times or extra fees.
 							</p>
 							<p>
-								Most people visiting the Aljezur area stay for at least a week anyway. If you&apos;re
-								here for a shorter trip and need gear, check out{" "}
+								Most people visiting the Aljezur area stay a few days at least. If you&apos;re
+								here for a shorter trip and only need gear for a day, check out{" "}
 								<a href="https://arrifanasurfschool.com" target="_blank" rel="noopener noreferrer">
 									Arrifana Surf School
 								</a>{" "}

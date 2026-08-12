@@ -102,8 +102,8 @@ export default function ContactPage() {
 								<div className="contact-card">
 									<h3>Delivery area</h3>
 									<p>
-										Free delivery to Aljezur, Arrifana, Vale da Telha, and
-										Monte Clérigo. Staying nearby?{" "}
+										Free delivery to Aljezur, Arrifana, Vale da Telha,
+										Monte Clérigo, Amoreira, and Carrapateira. Staying nearby?{" "}
 										<a href="mailto:hello@surfrental-aljezur.com">Ask us</a>.
 									</p>
 								</div>

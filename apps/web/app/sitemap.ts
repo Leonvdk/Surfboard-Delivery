@@ -1,11 +1,16 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getAllTags } from "./lib/blog";
+import { getAllPosts } from "./lib/blog";
 import { DELIVERY_TOWNS } from "./lib/delivery-towns";
 import { SITE_URL } from "./lib/metadata";
 import { CAM_SPOTS } from "./surf-cams/_data";
 
+const SITE_UPDATED = new Date("2026-08-12");
+
 export default function sitemap(): MetadataRoute.Sitemap {
-	const lastModified = new Date();
+	// Stable last-modified for static/delivery pages. A fresh `new Date()`
+	// every build stamps a false uniform freshness signal on every URL;
+	// bump this date only when these pages actually change.
+	const lastModified = SITE_UPDATED;
 	const posts = getAllPosts();
 
 	const staticPages: MetadataRoute.Sitemap = [
@@ -139,17 +144,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		.filter((post) => !post.noindex)
 		.map((post) => ({
 			url: `${SITE_URL}/blog/${post.slug}`,
-			lastModified: new Date(post.date),
+			lastModified: new Date(post.updated ?? post.date),
 			changeFrequency: "monthly" as const,
 			priority: 0.6,
 		}));
 
-	const tagPages: MetadataRoute.Sitemap = getAllTags().map((tag) => ({
-		url: `${SITE_URL}/blog/tag/${encodeURIComponent(tag)}`,
-		lastModified,
-		changeFrequency: "weekly" as const,
-		priority: 0.4,
-	}));
-
-	return [...staticPages, ...deliveryPages, ...blogPages, ...tagPages];
+	return [...staticPages, ...deliveryPages, ...blogPages];
 }

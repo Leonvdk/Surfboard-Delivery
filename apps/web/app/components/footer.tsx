@@ -13,6 +13,13 @@ export function Footer() {
 						<p className="footer-tagline">
 							Surfboard and wetsuit rentals across the Costa Vicentina&apos;s best beaches.
 						</p>
+						<ul className="footer-links">
+							<li><a href="tel:+351929244395">+351 929 244 395</a></li>
+							<li><a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a></li>
+						</ul>
+						<p className="footer-tagline">
+							Free delivery: Aljezur · Arrifana · Vale da Telha · Monte Clérigo · Amoreira · Carrapateira
+						</p>
 					</div>
 					<div>
 						<div className="footer-col-title">Explore</div>
@@ -20,7 +27,8 @@ export function Footer() {
 							<li><Link href="/surf-gear">Boards</Link></li>
 							<li><Link href="/pricing">Pricing</Link></li>
 							<li><Link href="/how-it-works">Process</Link></li>
-							<li><Link href="/surf-spots">Locations</Link></li>
+							<li><Link href="/surf-spots">Surf spots</Link></li>
+							<li><Link href="/deliver-to">Delivery zones</Link></li>
 							<li><Link href="/surf-cams">Live surf cams</Link></li>
 							<li><Link href="/faq">FAQ</Link></li>
 						</ul>

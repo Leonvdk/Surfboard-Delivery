@@ -232,6 +232,54 @@ export const DELIVERY_TOWNS: DeliveryTown[] = [
 		],
 	},
 	{
+		slug: "amoreira",
+		name: "Amoreira",
+		title: "Surfboard Delivery to Amoreira — Free to Your Door",
+		metaDescription:
+			"Free surfboard and wetsuit delivery to the Praia da Amoreira area, north of Aljezur. From €18/day board-only, €28/day with wetsuit, three-day minimum. Delivered to your accommodation — one of the coast's most beginner-friendly beaches.",
+		kicker: "Delivery zone · Amoreira",
+		oneLiner:
+			"Free surfboard delivery to the Amoreira / Praia da Amoreira area — from €18/day, three-day minimum.",
+		introParagraphs: [
+			"Amoreira is the wide river-mouth beach just north of Aljezur, about eight minutes by car. It faces the open Atlantic and catches most of the swell that reaches this stretch of coast, so it's usually the first spot working when everywhere else is flat — and one of the more forgiving beaches for anyone still finding their feet. Most people who surf here stay in Aljezur town or the villas of Vale da Telha and drive down.",
+			"We deliver surfboards and wetsuits straight to your accommodation — no shop pickup, no board on the hire-car roof. On pickup day we come back and take everything.",
+		],
+		typicalStays: [
+			"Airbnbs and guesthouses in Aljezur town (8 min)",
+			"Villas and apartments in Vale da Telha (5 min)",
+			"Campervans at Camping Serrão and along the river",
+			"Casas rurais on the road down to the beach",
+		],
+		nearbyBeaches: [
+			{ name: "Praia da Amoreira", distance: "on the beach", anchor: "amoreira" },
+			{ name: "Monte Clérigo", distance: "8 min", anchor: "monte-clerigo" },
+			{ name: "Praia da Arrifana", distance: "12 min", anchor: "praia-da-arrifana" },
+		],
+		deliveryNotes:
+			"Amoreira is a short drive north of Aljezur. We deliver to your accommodation in Aljezur or Vale da Telha, or — if you're heading straight down — we can meet you at the beach car park at a set time. Tell us your window on booking.",
+		boardMatch:
+			"Amoreira is beginner gold on the smaller, cleaner days, best at lower tide when the walk to the water is short. On a bigger swell or a higher tide you paddle further out and there are some currents, so we match the board to the day: an 8'6 longboard or 7'8 funboard for beginners, a 7'0 for intermediates chasing the sandbank peaks.",
+		personalNote:
+			"TODO(Leon): the personal detail — the tide you like here, the road down, the café you stop at, and the honest note that at higher tide beginners should take care with the currents.",
+		faqs: [
+			{
+				question: "Is Amoreira good for beginners?",
+				answer:
+					"On the smaller, cleaner days it's one of the best beginner beaches on the coast, especially at lower tide when the waves reform gently and the walk to the water is short. At higher tide, or on a bigger swell, you have to paddle further out and there are some currents — we flag that in the delivery brief and match the board to the conditions.",
+			},
+			{
+				question: "Do you deliver for surfing at Amoreira?",
+				answer:
+					"Yes — we deliver free to your accommodation in Aljezur or Vale da Telha (both a short drive from Amoreira), or meet you at the beach car park. Same three-day minimum and same prices as everywhere else we serve.",
+			},
+			{
+				question: "What's the best tide for Amoreira?",
+				answer:
+					"Lower tides are the friendlier bet, particularly for beginners — the waves are more forgiving and the currents milder. It catches most of the swell coming in, so it's often working when other spots are flat.",
+			},
+		],
+	},
+	{
 		slug: "carrapateira",
 		name: "Carrapateira",
 		title: "Surfboard Delivery to Carrapateira — Amado & Bordeira",

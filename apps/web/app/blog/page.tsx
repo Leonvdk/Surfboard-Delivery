@@ -39,7 +39,7 @@ export default function BlogPage() {
 					<Reveal>
 						<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Blog" }]} />
 						<div>
-							<h1>Blog</h1>
+							<h1>Aljezur &amp; Costa Vicentina Surf Blog</h1>
 							<p className="page-hero-sub">
 								Surf guides, travel tips, and local knowledge from the Costa Vicentina. Written by
 								surfers who live here.

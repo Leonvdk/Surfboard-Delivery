@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { CtaSection } from "../components/cta-section";
+import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { breadcrumbJsonLd, faqJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
-	title: "Surf Spots Guide — Arrifana, Monte Clérigo, Amoreira & More",
+	title: "Aljezur Surf Spots Guide — Arrifana, Amoreira & More",
 	description:
 		"Complete guide to the best surf spots near Aljezur on the Costa Vicentina. Wave conditions, best tides, difficulty levels, and seasonal tips for Arrifana, Monte Clérigo, Amoreira, and Vale Figueiras.",
 	alternates: { canonical: "/surf-spots" },
@@ -16,10 +18,30 @@ export const metadata: Metadata = {
 	},
 };
 
-const spots = [
+type Spot = {
+	name: string;
+	level: string;
+	tideShort: string;
+	seasonShort: string;
+	beginnerFriendly: string;
+	guideSlug: string;
+	camSlug?: string;
+	description: string;
+	bestFor: string;
+	bestTide: string;
+	bestSeason: string;
+	access: string;
+};
+
+const spots: Spot[] = [
 	{
 		name: "Praia da Arrifana",
 		level: "All levels",
+		tideShort: "All tides (mid–low best)",
+		seasonShort: "Year-round",
+		beginnerFriendly: "Yes",
+		guideSlug: "arrifana-surf-guide",
+		camSlug: "arrifana",
 		description:
 			"The most popular surf beach in the Aljezur area. Arrifana sits in a wide, cliff-backed bay that faces southwest — the high cliffs block north and northwest wind, so it stays cleaner and more surfable than the exposed beaches when the wind is up, and it's the most reliable spot around. The main beach break offers shifting peaks across a wide sandy stretch, plus a rock point at the north end.",
 		bestFor:
@@ -33,6 +55,11 @@ const spots = [
 	{
 		name: "Monte Clérigo",
 		level: "Beginner – Intermediate",
+		tideShort: "Low to mid",
+		seasonShort: "Summer & shoulder",
+		beginnerFriendly: "On small days",
+		guideSlug: "monte-clerigo-surf-guide",
+		camSlug: "monte-clerigo",
 		description:
 			"A beautiful beach between dramatic cliffs, just north of Aljezur. Monte Clérigo faces west-northwest and is more open than sheltered Arrifana, so it catches more swell and usually breaks bigger. On small, clean days the inside is forgiving and great for improving — but it has more rocks and current than nearby Amoreira, so it pays to read it first.",
 		bestFor:
@@ -46,6 +73,11 @@ const spots = [
 	{
 		name: "Amoreira",
 		level: "Beginner – Advanced",
+		tideShort: "Low (lagoon) to high",
+		seasonShort: "Year-round",
+		beginnerFriendly: "Yes",
+		guideSlug: "amoreira-surf-guide",
+		camSlug: "amoreira",
 		description:
 			"A river-mouth beach break where the Aljezur river meets the Atlantic, backed by wild cliffs and dunes. The sandbanks shift with the river flow, so it ranges from mellow and beginner-friendly on a small summer swell to punchy and powerful when a bigger swell hits the outer banks. It's usually bigger than Arrifana and cleaner than Monte Clérigo, with fewer rocks and gentler currents — but the river-mouth current is always the thing to respect.",
 		bestFor:
@@ -60,6 +92,10 @@ const spots = [
 	{
 		name: "Vale Figueiras",
 		level: "Intermediate – Advanced",
+		tideShort: "All tides, bank-dependent",
+		seasonShort: "Autumn & winter",
+		beginnerFriendly: "No",
+		guideSlug: "vale-figueiras-surf-guide",
 		description:
 			"An exposed, wide-open beach break about 30 minutes south of Aljezur. Vale Figueiras faces roughly west and is a swell magnet — it catches energy when other spots are flat. Shifting sandbars throw up lefts and rights along a long, empty stretch, but it's powerful and rippy, and the access is a rough dirt track with no facilities.",
 		bestFor:
@@ -73,6 +109,11 @@ const spots = [
 	{
 		name: "Canal / Kangaroos (Arrifana Point)",
 		level: "Advanced",
+		tideShort: "Mid tide",
+		seasonShort: "Autumn & winter",
+		beginnerFriendly: "No",
+		guideSlug: "arrifana-surf-guide",
+		camSlug: "arrifana",
 		description:
 			"A right-hand point that breaks over rock reef at the northern end of Arrifana bay. When a solid west or northwest swell wraps around the headland, it produces long, powerful, rippable walls — but the line-up is dotted with boils and exposed rocks, and it only starts working at size.",
 		bestFor:
@@ -103,16 +144,85 @@ function shortName(name: string) {
 }
 
 export default function SurfSpotsPage() {
+	const faq = faqJsonLd([
+		{
+			question: "Which surf spot near Aljezur is best for beginners?",
+			answer:
+				"Arrifana is the most reliable all-levels beach — beginners stick to the middle section where the waves reform gently. Amoreira is also beginner-friendly on small, clean days, with a shallow lagoon at low tide that suits families, and Monte Clérigo works for beginners on the smaller days too.",
+		},
+		{
+			question: "What is the best tide for Arrifana?",
+			answer:
+				"Arrifana works on all tides, but many surfers prefer mid to low tide for more defined walls. Watch for rocks near the point at the north end of the bay.",
+		},
+		{
+			question: "Is Amoreira safe for beginners?",
+			answer:
+				"Amoreira is beginner-friendly on small, clean days, when a shallow lagoon forms at low tide — good for families. It has fewer rocks and gentler currents than Monte Clérigo, but always keep clear of the river-mouth current, which is the main hazard.",
+		},
+		{
+			question: "When is the best time to surf in Aljezur?",
+			answer:
+				"Summer (June–September) brings smaller, mellow waves ideal for beginners, with water around 17–19°C and a 3/2 wetsuit the norm. Shoulder season (April–May and October) is the sweet spot: moderate swells and fewer crowds. Winter (November–March) delivers powerful North Atlantic swells for experienced surfers.",
+		},
+		{
+			question: "Which surf spots are near Aljezur?",
+			answer:
+				"The main breaks within 15–30 minutes of Aljezur are Praia da Arrifana (all levels, most sheltered), Monte Clérigo and Amoreira (both beginner-friendly on smaller days), Vale Figueiras (exposed, intermediate to advanced), and the Canal / Kangaroos reef at Arrifana point (advanced).",
+		},
+	]);
+
+	const breadcrumb = breadcrumbJsonLd([
+		{ name: "Home", url: SITE_URL },
+		{ name: "Surf spots", url: `${SITE_URL}/surf-spots` },
+	]);
+
+	const spotList = {
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		name: "Surf spots near Aljezur",
+		itemListElement: spots.map((spot, i) => ({
+			"@type": "ListItem",
+			position: i + 1,
+			item: {
+				"@type": "TouristAttraction",
+				name: spot.name,
+				description: spot.description,
+				url: `${SITE_URL}/surf-spots#spot-${spotSlug(spot.name)}`,
+			},
+		})),
+	};
+
+	const webPage = {
+		"@context": "https://schema.org",
+		"@type": "WebPage",
+		name: "Aljezur Surf Spots Guide — Arrifana, Amoreira & More",
+		url: `${SITE_URL}/surf-spots`,
+		dateModified: "2026-08-12",
+	};
+
 	return (
 		<>
+			<JsonLd data={faq} />
+			<JsonLd data={breadcrumb} />
+			<JsonLd data={spotList} />
+			<JsonLd data={webPage} />
 			<section className="page-hero">
 				<div className="container">
 					<Reveal>
 						<div>
 							<h1>Surf spots near Aljezur</h1>
 							<p className="page-hero-sub">
-								The Costa Vicentina is one of Europe&apos;s best-kept surf secrets — year-round
-								waves, uncrowded lineups, and stunning scenery.
+								The best surf spots near Aljezur are Arrifana (all levels, most
+								sheltered), Amoreira and Monte Clérigo (beginner-friendly on
+								smaller days), and Carrapateira&apos;s Amado (more exposed) — all
+								within 15–30 minutes.
+							</p>
+							<p className="page-hero-meta">Conditions reviewed August 2026.</p>
+							<p className="page-hero-note">
+								We&apos;ve delivered gear for 2,400+ sessions across these
+								breaks, so the tips below come from what our customers actually
+								find in the water.
 							</p>
 						</div>
 					</Reveal>
@@ -142,7 +252,7 @@ export default function SurfSpotsPage() {
 						<div className="section-header section-header-center">
 							<p className="section-label">Overview</p>
 							<h2 className="section-title" id="overview-heading">
-								The coast at a glance
+								Which surf spots are near Aljezur?
 							</h2>
 							<p className="section-desc">
 								All spots are within 15–30 minutes of Aljezur. The best spot on any given day
@@ -153,8 +263,43 @@ export default function SurfSpotsPage() {
 					</Reveal>
 
 					<Reveal>
+						<div className="spot-table-wrap">
+							<table className="spot-table">
+								<caption className="sr-only">
+									Surf spots near Aljezur compared by level, tide, season,
+									and how beginner-friendly they are.
+								</caption>
+								<thead>
+									<tr>
+										<th scope="col">Spot</th>
+										<th scope="col">Level</th>
+										<th scope="col">Best tide</th>
+										<th scope="col">Best season</th>
+										<th scope="col">Beginner-friendly</th>
+									</tr>
+								</thead>
+								<tbody>
+									{spots.map((spot) => (
+										<tr key={spot.name}>
+											<th scope="row">
+												<a href={`#spot-${spotSlug(spot.name)}`}>
+													{shortName(spot.name)}
+												</a>
+											</th>
+											<td>{spot.level}</td>
+											<td>{spot.tideShort}</td>
+											<td>{spot.seasonShort}</td>
+											<td>{spot.beginnerFriendly}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</Reveal>
+
+					<Reveal>
 						<div className="content-prose">
-							<h3>When to surf</h3>
+							<h3>When is the best time to surf near Aljezur?</h3>
 							<p>
 								<strong>Summer (June – September):</strong> The water sits around 17–19°C — this
 								exposed coast runs a touch cooler than the south Algarve, so a 3/2 wetsuit is still
@@ -216,6 +361,14 @@ export default function SurfSpotsPage() {
 								</div>
 							</dl>
 						</Reveal>
+						<Reveal>
+							<div className="spot-detail-links">
+								<a href={`/blog/${spot.guideSlug}`}>Full guide →</a>
+								{spot.camSlug ? (
+									<a href={`/surf-cams/${spot.camSlug}`}>Live conditions →</a>
+								) : null}
+							</div>
+						</Reveal>
 					</div>
 				</section>
 			))}
@@ -228,7 +381,7 @@ export default function SurfSpotsPage() {
 						<div className="section-header section-header-center">
 							<p className="section-label">Safety &amp; etiquette</p>
 							<h2 className="section-title" id="tips-heading">
-								Before you paddle out
+								What should you check before you paddle out?
 							</h2>
 						</div>
 					</Reveal>

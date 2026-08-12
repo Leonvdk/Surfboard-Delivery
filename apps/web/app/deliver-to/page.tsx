@@ -6,14 +6,14 @@ import { DELIVERY_TOWNS } from "../lib/delivery-towns";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
-	title: "Delivery Zones — Where We Deliver Surf Gear",
+	title: "Surfboard Delivery in the Algarve — Costa Vicentina",
 	description:
-		"Free surfboard and wetsuit delivery across the Costa Vicentina: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira. From €18/day board-only, €28/day with wetsuit. Three-day minimum.",
+		"Free surfboard and wetsuit delivery across the western Algarve's Costa Vicentina: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira. From €18/day board-only, €28/day with wetsuit. Three-day minimum.",
 	alternates: { canonical: "/deliver-to" },
 	openGraph: {
 		title: "Delivery Zones | Surf Rental Aljezur",
 		description:
-			"Free delivery to Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira. From €18/day.",
+			"Free delivery across the western Algarve: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira. From €18/day.",
 		url: `${SITE_URL}/deliver-to`,
 	},
 };
@@ -27,7 +27,7 @@ export default function DeliverToIndexPage() {
 						<div>
 							<h1>Where we deliver surfboards on the Costa Vicentina</h1>
 							<p className="page-hero-sub">
-								Free delivery and pickup to five service areas across the western
+								Free delivery and pickup to six service areas across the western
 								Algarve — from €18/day board-only, €28/day with wetsuit,
 								three-day minimum. Pick your stay location for delivery details
 								and the boards our guests there usually take.
@@ -45,7 +45,7 @@ export default function DeliverToIndexPage() {
 						<div className="section-header section-header-center">
 							<p className="section-label">Delivery zones</p>
 							<h2 className="section-title" id="towns-heading">
-								Five towns · one flat delivery promise
+								Six towns · one flat delivery promise
 							</h2>
 							<p className="section-desc">
 								Every town below has free delivery and free pickup on every

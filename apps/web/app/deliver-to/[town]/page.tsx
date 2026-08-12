@@ -48,11 +48,33 @@ export default async function DeliverToPage({
 		{ name: "Delivery zones", url: `${SITE_URL}/deliver-to` },
 		{ name: data.name, url },
 	]);
+	// Bind this programmatic page to the business entity: a Service provided by
+	// #business, served in this town. Without it the page is entity-orphaned.
+	const townService = {
+		"@context": "https://schema.org",
+		"@type": "Service",
+		"@id": `${url}#service`,
+		name: `Surfboard & wetsuit delivery in ${data.name}`,
+		serviceType: "Surfboard rental",
+		provider: { "@id": `${SITE_URL}/#business` },
+		areaServed: {
+			"@type": "Place",
+			name: data.name,
+			address: {
+				"@type": "PostalAddress",
+				addressLocality: data.name,
+				addressRegion: "Faro",
+				addressCountry: "PT",
+			},
+		},
+		url,
+	};
 
 	return (
 		<>
 			<JsonLd data={breadcrumbs} />
 			<JsonLd data={faqJsonLd(data.faqs)} />
+			<JsonLd data={townService} />
 
 			<section className="page-hero">
 				<div className="container">

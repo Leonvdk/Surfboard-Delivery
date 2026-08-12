@@ -26,10 +26,18 @@ export function Reveal({
 		const prefersReducedMotion = window.matchMedia(
 			"(prefers-reduced-motion: reduce)",
 		).matches;
-		if (prefersReducedMotion) {
-			el.setAttribute("data-revealed", "true");
-			return;
-		}
+		if (prefersReducedMotion) return;
+
+		// Content is server-rendered visible (data-revealed="true") so it
+		// paints immediately and never hurts LCP. Anything already in view
+		// on mount — above-the-fold sections — stays as-is. Only elements
+		// still below the fold get reset to their hidden pre-animation
+		// state, then transition in as they scroll into view.
+		const rect = el.getBoundingClientRect();
+		const inView = rect.top < window.innerHeight && rect.bottom > 0;
+		if (inView) return;
+
+		el.removeAttribute("data-revealed");
 
 		const observer = new IntersectionObserver(
 			([entry]) => {
@@ -56,6 +64,7 @@ export function Reveal({
 		<div
 			ref={ref}
 			className={className}
+			data-revealed="true"
 			{...(stagger
 				? { "data-animate-stagger": "" }
 				: { "data-animate": "" })}

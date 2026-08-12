@@ -4,28 +4,30 @@ import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { PricingToggle } from "../components/pricing-toggle";
 import { HorizonLine, Reveal } from "../components/reveal";
-import { faqJsonLd } from "../lib/jsonld";
+import { faqJsonLd, PRICE_VALID_UNTIL } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 import { prices } from "../lib/pricing";
 
+// Question + answer text must match the visible FAQ below verbatim — Google
+// drops the FAQ rich result when the schema and the page disagree.
 const pricingFaqs = [
 	{
-		question: "What's the minimum rental period at Surf Rental Aljezur?",
+		question: "What's the minimum rental period?",
 		answer:
 			"Daily rentals have a 3-day minimum. Weekly rentals run for 7 days. For stays longer than 2 weeks, contact us for a custom rate.",
 	},
 	{
-		question: "Can I upgrade my Surf Rental Aljezur package mid-rental?",
+		question: "Can I upgrade my package mid-rental?",
 		answer:
 			"Yes. If you start with a Board Only and decide you need a wetsuit, just let us know and we'll arrange a swap delivery.",
 	},
 	{
-		question: "Does Surf Rental Aljezur really include free delivery?",
+		question: "Is delivery really free?",
 		answer:
-			"Yes — delivery and pickup are included in every package at no extra cost. We deliver to accommodations in Aljezur, Arrifana, Vale da Telha, and Monte Clérigo on Portugal's Costa Vicentina.",
+			"Yes — delivery and pickup are included in every package at no extra cost. We deliver to accommodations in Aljezur, Arrifana, Vale da Telha, and Monte Clérigo.",
 	},
 	{
-		question: "Does Surf Rental Aljezur offer group discounts?",
+		question: "Do you offer group discounts?",
 		answer:
 			"Groups of 3–5 people save approximately 12% per person. For groups of 6 or more, we offer custom quotes. See our group bookings page for details.",
 	},
@@ -99,7 +101,7 @@ export default function PricingPage() {
 								2-week rates
 							</h2>
 							<p className="section-desc">
-								Book for two weeks and save even more. Includes a mid-stay board swap.
+								Book for two weeks and save even more.
 							</p>
 						</div>
 					</Reveal>
@@ -235,44 +237,17 @@ function pricingProductJsonLd() {
 		"@type": "Product",
 		name: "Surf Gear Rental — Surf Rental Aljezur",
 		description:
-			"Surfboard and wetsuit rental packages with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, and Monte Cl\u00E9rigo.",
+			"Surfboard and wetsuit rental packages with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Cl\u00E9rigo, Amoreira, and Carrapateira on the Costa Vicentina.",
 		brand: {
 			"@type": "Brand",
 			name: "Surf Rental Aljezur",
 		},
-		aggregateRating: {
-			"@type": "AggregateRating",
-			ratingValue: "4.9",
-			reviewCount: "8",
-			bestRating: "5",
-			worstRating: "1",
-		},
-		review: [
-			{
-				"@type": "Review",
-				author: { "@type": "Person", name: "Hannah & Tom" },
-				reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
-				reviewBody: "Boards and wetsuits were waiting at our Airbnb when we arrived. The local tips alone were worth it.",
-			},
-			{
-				"@type": "Review",
-				author: { "@type": "Person", name: "Marc Dumont" },
-				reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
-				reviewBody: "I've rented boards all over Portugal and this is hands down the easiest experience. No shop queues, no deposit hassle.",
-			},
-			{
-				"@type": "Review",
-				author: { "@type": "Person", name: "Sara van Dijk" },
-				reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
-				reviewBody: "The wetsuit fit perfectly and the funboard was exactly right for my level. They really listen to what you need.",
-			},
-		],
 		offers: {
 			"@type": "AggregateOffer",
 			lowPrice: String(prices.boardOnly.daily.amount),
-			highPrice: String(prices.fullPackage.weekly.amount),
+			highPrice: String(prices.fullPackage.extended.amount),
 			priceCurrency: "EUR",
-			offerCount: "4",
+			offerCount: "6",
 			availability: "https://schema.org/InStock",
 			offers: [
 				{
@@ -292,7 +267,7 @@ function pricingProductJsonLd() {
 						},
 					},
 					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
+					priceValidUntil: PRICE_VALID_UNTIL,
 				},
 				{
 					"@type": "Offer",
@@ -311,7 +286,7 @@ function pricingProductJsonLd() {
 						},
 					},
 					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
+					priceValidUntil: PRICE_VALID_UNTIL,
 				},
 				{
 					"@type": "Offer",
@@ -325,7 +300,7 @@ function pricingProductJsonLd() {
 						unitCode: "DAY",
 					},
 					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
+					priceValidUntil: PRICE_VALID_UNTIL,
 				},
 				{
 					"@type": "Offer",
@@ -339,7 +314,23 @@ function pricingProductJsonLd() {
 						unitCode: "WEE",
 					},
 					availability: "https://schema.org/InStock",
-					priceValidUntil: "2026-12-31",
+					priceValidUntil: PRICE_VALID_UNTIL,
+				},
+				{
+					"@type": "Offer",
+					name: "Board Only — 2 weeks",
+					price: String(prices.boardOnly.extended.amount),
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: PRICE_VALID_UNTIL,
+				},
+				{
+					"@type": "Offer",
+					name: "Full Package (Board + Wetsuit) — 2 weeks",
+					price: String(prices.fullPackage.extended.amount),
+					priceCurrency: "EUR",
+					availability: "https://schema.org/InStock",
+					priceValidUntil: PRICE_VALID_UNTIL,
 				},
 			],
 		},

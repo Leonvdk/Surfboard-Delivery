@@ -8,6 +8,18 @@ const AGGREGATE_RATING = {
 	worstRating: "1",
 };
 
+/** One forward date for every priced Offer, so schema never ships an expired
+ * priceValidUntil (which suppresses the offer snippet). */
+export const PRICE_VALID_UNTIL = "2027-12-31";
+
+/** The delivery footprint as a resolvable geo entity — reused by the business
+ * serviceArea and by each Service node's areaServed. */
+const SERVICE_AREA = {
+	"@type": "GeoCircle" as const,
+	geoMidpoint: { "@type": "GeoCoordinates" as const, latitude: 37.3178, longitude: -8.8037 },
+	geoRadius: "15000",
+};
+
 export function localBusinessJsonLd() {
 	return {
 		"@context": "https://schema.org",
@@ -15,7 +27,7 @@ export function localBusinessJsonLd() {
 		"@id": `${SITE_URL}/#business`,
 		name: "Surf Rental Aljezur",
 		description:
-			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira on the Costa Vicentina, Portugal.",
+			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
 		logo: `${SITE_URL}/images/logo.png`,
 		image: `${SITE_URL}/images/meta.jpg`,
@@ -45,15 +57,7 @@ export function localBusinessJsonLd() {
 				closes: "20:00",
 			},
 		],
-		serviceArea: {
-			"@type": "GeoCircle",
-			geoMidpoint: {
-				"@type": "GeoCoordinates",
-				latitude: 37.3178,
-				longitude: -8.8037,
-			},
-			geoRadius: "15000",
-		},
+		serviceArea: SERVICE_AREA,
 		areaServed: [
 			{
 				"@type": "Place",
@@ -80,6 +84,15 @@ export function localBusinessJsonLd() {
 				address: {
 					"@type": "PostalAddress",
 					addressLocality: "Monte Clérigo",
+					addressCountry: "PT",
+				},
+			},
+			{
+				"@type": "Place",
+				name: "Amoreira",
+				address: {
+					"@type": "PostalAddress",
+					addressLocality: "Amoreira",
 					addressCountry: "PT",
 				},
 			},
@@ -126,7 +139,7 @@ export function localBusinessJsonLd() {
 						name: "Board Only Rental",
 						serviceType: "Surfboard rental",
 						provider: { "@id": `${SITE_URL}/#business` },
-						areaServed: "Costa Vicentina, Portugal",
+						areaServed: SERVICE_AREA,
 					},
 					price: "18",
 					priceCurrency: "EUR",
@@ -138,7 +151,7 @@ export function localBusinessJsonLd() {
 						name: "Full Package Rental (Board + Wetsuit)",
 						serviceType: "Surfboard and wetsuit rental",
 						provider: { "@id": `${SITE_URL}/#business` },
-						areaServed: "Costa Vicentina, Portugal",
+						areaServed: SERVICE_AREA,
 					},
 					price: "28",
 					priceCurrency: "EUR",
@@ -159,7 +172,7 @@ export function localBusinessJsonLd() {
 					unitCode: "DAY",
 				},
 				availability: "https://schema.org/InStock",
-				priceValidUntil: "2027-12-31",
+				priceValidUntil: PRICE_VALID_UNTIL,
 			},
 			{
 				"@type": "Offer",
@@ -174,10 +187,53 @@ export function localBusinessJsonLd() {
 					unitCode: "DAY",
 				},
 				availability: "https://schema.org/InStock",
-				priceValidUntil: "2027-12-31",
+				priceValidUntil: PRICE_VALID_UNTIL,
+			},
+			{
+				"@type": "Offer",
+				name: "Roof rack pads (add-on)",
+				description: "Soft roof-rack pads to carry the boards on any hire car, added to any rental.",
+				price: "20",
+				priceCurrency: "EUR",
+				priceSpecification: {
+					"@type": "UnitPriceSpecification",
+					price: "20",
+					priceCurrency: "EUR",
+					unitCode: "WEE",
+				},
+				availability: "https://schema.org/InStock",
+				priceValidUntil: PRICE_VALID_UNTIL,
 			},
 		],
 	};
+}
+
+/**
+ * Standalone Service nodes (each with its own @id and provider → the business),
+ * rendered site-wide. These are the entity AI answer engines lift for
+ * service-area queries; the nested hasOfferCatalog Services aren't reachable.
+ */
+export function servicesJsonLd() {
+	const mk = (id: string, name: string, serviceType: string, price: string) => ({
+		"@context": "https://schema.org",
+		"@type": "Service",
+		"@id": `${SITE_URL}/#service-${id}`,
+		name,
+		serviceType,
+		provider: { "@id": `${SITE_URL}/#business` },
+		areaServed: SERVICE_AREA,
+		offers: {
+			"@type": "Offer",
+			price,
+			priceCurrency: "EUR",
+			priceValidUntil: PRICE_VALID_UNTIL,
+			availability: "https://schema.org/InStock",
+		},
+	});
+	return [
+		mk("board", "Surfboard rental with delivery", "Surfboard rental", "18"),
+		mk("full", "Surfboard and wetsuit rental with delivery", "Surfboard and wetsuit rental", "28"),
+	];
 }
 
 export function faqJsonLd(items: Array<{ question: string; answer: string }>) {
