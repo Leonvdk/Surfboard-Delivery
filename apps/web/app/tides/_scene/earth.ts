@@ -126,13 +126,27 @@ export function createEarth(radius = 1) {
 				vec3 nRot = rotY(uSpin) * n;               // Earth's spinning frame
 				vLat = n.y;                                // latitude (spin axis is Y)
 				vOcean = oceanMask(nRot);
-				// The sea rides the SAME tidal bulge as the land (uAmp*h), sitting a hair
-				// above the seabed. The land (raised by lh) always pokes above it, so the
-				// bulge side never floods the continents.
 				float h = uMoonW*tide(n,uMoonDir) + uSunW*tide(n,uSunDir);
 				vBulge = h;
 				float ripple = 0.006*snoise(nRot*8.0 + uTime*0.3) + 0.003*snoise(nRot*16.0 - uTime*0.45);
-				float rise = uAmp*h + 0.006 + ripple;
+				float sea = uAmp*h + 0.006 + ripple;   // open-ocean bulge height
+				// Wide, BLURRED coast proximity so the bulge dome physically curves DOWN
+				// to the globe as it nears land — a rounded, watery droplet edge instead
+				// of a raised film that just fades out. The land itself is untouched; the
+				// fragment's ocean mask keeps the water off it.
+				float U = 0.5 - atan(nRot.z, nRot.x) / 6.28318530718;
+				float Vv = 0.5 + asin(clamp(nRot.y, -1.0, 1.0)) / 3.14159265359;
+				float w = 0.07;
+				float prox = (1.0 - texture2D(uLandTex, vec2(U, Vv)).r)
+					+ (1.0 - texture2D(uLandTex, vec2(U + w, Vv)).r)
+					+ (1.0 - texture2D(uLandTex, vec2(U - w, Vv)).r)
+					+ (1.0 - texture2D(uLandTex, vec2(U, Vv + w)).r)
+					+ (1.0 - texture2D(uLandTex, vec2(U, Vv - w)).r)
+					+ (1.0 - texture2D(uLandTex, vec2(U + w*0.7, Vv + w*0.7)).r)
+					+ (1.0 - texture2D(uLandTex, vec2(U - w*0.7, Vv - w*0.7)).r);
+				prox /= 7.0;
+				float coastBlend = smoothstep(0.10, 0.85, prox);
+				float rise = mix(sea, 0.004, coastBlend);   // settle just above the surface at the shore
 				vec3 disp = position * (1.0 + rise);
 				vec3 nrm = normalize(mix(normalize(position), normalize(disp), 0.6));
 				vN = normalize(normalMatrix * nrm);
