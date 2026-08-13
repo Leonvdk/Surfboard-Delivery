@@ -119,9 +119,9 @@
 
 /* Lesson / Explore mode toggle — pinned to the panel's top-right */
 .tideguide #modes {
-	position: absolute;
-	top: 14px;
-	right: 16px;
+	position: relative; /* positioning context for the sliding thumb */
+	align-self: flex-end; /* top-right of the panel, in flow so it can't overlap text */
+	margin: 0 0 8px 0;
 	z-index: 2;
 	display: flex;
 	gap: 2px;
@@ -210,6 +210,8 @@
 /* Narration panel */
 .tideguide #panel {
 	position: relative;
+	display: flex;
+	flex-direction: column;
 	pointer-events: auto;
 	background: var(--panel-bg);
 	backdrop-filter: blur(14px);
@@ -408,10 +410,16 @@
 /* Tide-type menu */
 .tideguide #tidemenu {
 	position: absolute;
-	top: 56px;
+	top: 16px;
 	right: 16px;
 	pointer-events: auto;
 	text-align: right;
+	background: var(--panel-bg);
+	border: 1px solid var(--panel-line);
+	border-radius: 14px;
+	padding: 12px 14px;
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
 }
 .tideguide .tidemenu-label {
 	display: block;
@@ -432,7 +440,7 @@
 	font-weight: 700;
 	font-size: 13px;
 	color: var(--paper);
-	background: rgba(16, 20, 30, 0.72);
+	background: rgba(255, 255, 255, 0.06);
 	border: 1px solid var(--panel-line);
 	border-radius: 9px;
 	padding: 7px 12px;
@@ -446,9 +454,17 @@
 	transition: border-color 0.15s ease, background 0.15s ease;
 }
 .tideguide .tm small {
-	color: var(--sea);
 	font-weight: 600;
 	font-size: 11px;
+}
+/* spring tides (new/full moon) in ember, neap (quarters) in sea */
+.tideguide .tm[data-phase="0"] small,
+.tideguide .tm[data-phase="180"] small {
+	color: var(--ember);
+}
+.tideguide .tm[data-phase="90"] small,
+.tideguide .tm[data-phase="270"] small {
+	color: var(--sea);
 }
 .tideguide .tm:hover {
 	border-color: var(--ember);
@@ -464,6 +480,12 @@
 		order: 2;
 		width: 100%;
 		text-align: left;
+		background: none;
+		border: none;
+		border-radius: 0;
+		padding: 0;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
 	}
 	.tideguide .tidemenu-label {
 		display: none;
