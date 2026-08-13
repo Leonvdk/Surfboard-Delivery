@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -544,6 +545,9 @@ export function TideGuide() {
 
 			<div id="ui">
 				<header id="topbar">
+					<Link href="/" className="tg-back" aria-label="Back to Surf Rental Aljezur">
+						← Back
+					</Link>
 					<span className="brand">Surf Rental Aljezur</span>
 					<span className="brand-sub">How tides work</span>
 				</header>
