@@ -118,7 +118,7 @@ export function createEarth(radius = 1) {
 		uniforms: { uSunDir, uMoonDir, uMoonW, uSunW, uAmp, uTime, uSpin, uLandTex },
 		vertexShader: /* glsl */ `
 			${NOISE_GLSL} ${ROT} ${MASK}
-			varying vec3 vN; varying vec3 vWorld; varying float vBulge; varying float vOcean; varying float vLat;
+			varying vec3 vN; varying vec3 vWorld; varying float vBulge; varying float vOcean; varying float vLat; varying float vCoast;
 			uniform vec3 uMoonDir, uSunDir; uniform float uMoonW, uSunW, uAmp, uTime, uSpin;
 			float tide(vec3 n, vec3 axis){ float c = dot(n, normalize(axis)); return (3.0*c*c - 1.0)*0.5; }
 			void main(){
@@ -146,6 +146,7 @@ export function createEarth(radius = 1) {
 					+ (1.0 - texture2D(uLandTex, vec2(U - w*0.7, Vv - w*0.7)).r);
 				prox /= 7.0;
 				float coastBlend = smoothstep(0.10, 0.85, prox);
+				vCoast = coastBlend;                        // the fragment fades with the same smooth blend
 				float rise = mix(sea, 0.004, coastBlend);   // settle just above the surface at the shore
 				vec3 disp = position * (1.0 + rise);
 				vec3 nrm = normalize(mix(normalize(position), normalize(disp), 0.6));
@@ -156,7 +157,7 @@ export function createEarth(radius = 1) {
 			}`,
 		fragmentShader: /* glsl */ `
 			${NOISE_GLSL}
-			varying vec3 vN; varying vec3 vWorld; varying float vBulge; varying float vOcean; varying float vLat;
+			varying vec3 vN; varying vec3 vWorld; varying float vBulge; varying float vOcean; varying float vLat; varying float vCoast;
 			uniform vec3 uSunDir; uniform float uTime;
 			void main(){
 				vec3 V = normalize(cameraPosition - vWorld);
@@ -203,11 +204,12 @@ export function createEarth(radius = 1) {
 				// Brighten the crest so the piled-up water reads as a raised dome.
 				col += vec3(0.10, 0.16, 0.20) * smoothstep(0.15, 0.95, vBulge);
 
-				// The tidal bulge is a TRANSLUCENT water envelope, shown ONLY where the
-				// sea piles up (vBulge > 0) AND only over OCEAN (× ocean) — so the two
-				// bulges read as glassy domes over the sea, the Earth stays round, and
-				// the land shows through clean, never under the bulge.
-				float alpha = smoothstep(0.05, 0.5, vBulge) * (0.42 + 0.45*fres) * ocean;
+				// The tidal bulge is a TRANSLUCENT water envelope, shown only where the
+				// sea piles up (vBulge > 0), fading out with the SAME smooth blurred
+				// coast blend that drives its descent (vCoast) — so the dome melts away
+				// softly at the shores. Never the sharp ocean texture mask here: that
+				// punched land-shaped holes into the dome silhouette past the limb.
+				float alpha = smoothstep(0.05, 0.5, vBulge) * (0.42 + 0.45*fres) * (1.0 - vCoast);
 				gl_FragColor = vec4(col, alpha);
 			}`,
 	});
