@@ -61,19 +61,23 @@ export function createEarth(radius = 1) {
 
 	// ---- Land / ocean sphere ----
 	const landMat = new THREE.ShaderMaterial({
-		uniforms: { uSunDir, uTime, uSpin, uLandTex },
+		uniforms: { uSunDir, uMoonDir, uMoonW, uSunW, uAmp, uTime, uSpin, uLandTex },
 		vertexShader: /* glsl */ `
 			${NOISE_GLSL} ${ROT} ${MASK}
 			varying vec3 vN; varying vec3 vRot;
 			uniform float uSpin;
+			uniform vec3 uMoonDir, uSunDir; uniform float uMoonW, uSunW, uAmp;
+			float tide(vec3 n, vec3 axis){ float c = dot(n, normalize(axis)); return (3.0*c*c - 1.0)*0.5; }
 			void main(){
-				mat3 R = rotY(uSpin);
-				vec3 nr = R * normalize(position);
+				vec3 n = normalize(position);        // world frame — tidal bulge axes
+				vec3 nr = rotY(uSpin) * n;           // spun frame — continents / land height
 				vRot = nr;
-				// raise the land so islands stand a little proud of the sea where
-				// the water isn't bulging (the non-bulgy sides)
+				// The land RIDES the tidal bulge with the sea (the whole globe stretches
+				// toward the Moon), then stands a little proud of it (lh) — so the bulge
+				// side never floods the continents.
+				float h = uMoonW*tide(n,uMoonDir) + uSunW*tide(n,uSunDir);
 				float lh = 0.05 * smoothstep(0.15, 0.7, landAt(nr));
-				vec3 disp = position * (1.0 + lh);
+				vec3 disp = position * (1.0 + uAmp*h + lh);
 				// Light by the WORLD normal so the day/night terminator is fixed to
 				// the Sun; the continents (vRot) spin through it, matching the water.
 				vN = normalize(normal);
@@ -127,32 +131,13 @@ export function createEarth(radius = 1) {
 				vec3 nRot = rotY(uSpin) * n;               // Earth's spinning frame
 				vLat = n.y;                                // latitude (spin axis is Y)
 				vOcean = oceanMask(nRot);
-				float land = 1.0 - vOcean;
-				// Open sea rides the smooth tidal field → one rounded ellipsoid.
+				// The sea rides the SAME tidal bulge as the land (uAmp*h), sitting a hair
+				// above the seabed. The land (raised by lh) always pokes above it, so the
+				// bulge side never floods the continents.
 				float h = uMoonW*tide(n,uMoonDir) + uSunW*tide(n,uSunDir);
 				vBulge = h;
-				float ripple = 0.008*snoise(nRot*8.0 + uTime*0.3) + 0.004*snoise(nRot*16.0 - uTime*0.45);
-				float sea = uAmp*h + 0.02 + ripple;   // low base: open-ocean troughs sink below the seabed so the two bulges disconnect
-				// Wide, BLURRED coast proximity (sampled at a large radius) so the sea
-				// starts rounding down well before the shoreline — a smooth water-droplet
-				// edge instead of a sharp masked cliff at the sharp texture coastline.
-				float U = 0.5 - atan(nRot.z, nRot.x) / 6.28318530718;
-				float Vv = 0.5 + asin(clamp(nRot.y, -1.0, 1.0)) / 3.14159265359;
-				float w = 0.07;
-				float prox = (1.0 - texture2D(uLandTex, vec2(U, Vv)).r)
-					+ (1.0 - texture2D(uLandTex, vec2(U + w, Vv)).r)
-					+ (1.0 - texture2D(uLandTex, vec2(U - w, Vv)).r)
-					+ (1.0 - texture2D(uLandTex, vec2(U, Vv + w)).r)
-					+ (1.0 - texture2D(uLandTex, vec2(U, Vv - w)).r)
-					+ (1.0 - texture2D(uLandTex, vec2(U + w*0.7, Vv + w*0.7)).r)
-					+ (1.0 - texture2D(uLandTex, vec2(U - w*0.7, Vv - w*0.7)).r);
-				prox /= 7.0;                                          // wide, smooth coast proximity
-				// Near land, taper the shell DOWN to the resting sea level (just above
-				// the seabed) via the wide, smooth proximity → a rounded descent that
-				// meets the coast flush, no floating edge and nothing to spike.
-				float coastTarget = -0.013;
-				float coastBlend = smoothstep(0.04, 0.85, prox);
-				float rise = mix(sea, coastTarget, coastBlend);
+				float ripple = 0.006*snoise(nRot*8.0 + uTime*0.3) + 0.003*snoise(nRot*16.0 - uTime*0.45);
+				float rise = uAmp*h + 0.006 + ripple;
 				vec3 disp = position * (1.0 + rise);
 				vec3 nrm = normalize(mix(normalize(position), normalize(disp), 0.6));
 				vN = normalize(normalMatrix * nrm);
@@ -213,7 +198,7 @@ export function createEarth(radius = 1) {
 				gl_FragColor = vec4(col, alpha);
 			}`,
 	});
-	group.add(new THREE.Mesh(new THREE.SphereGeometry(radius * 1.02, 288, 288), waterMat));
+	group.add(new THREE.Mesh(new THREE.SphereGeometry(radius, 288, 288), waterMat));
 
 	return {
 		group,
