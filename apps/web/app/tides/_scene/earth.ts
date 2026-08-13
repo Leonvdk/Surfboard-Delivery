@@ -18,7 +18,7 @@ export function createEarth(radius = 1) {
 	const uMoonDir = { value: new THREE.Vector3(-1, 0, 0) };
 	const uMoonW = { value: 1.0 };
 	const uSunW = { value: 0.46 };
-	const uAmp = { value: 0.16 };
+	const uAmp = { value: 0.18 };
 	const uTime = { value: 0 };
 	const uSpin = { value: 0 };
 
@@ -61,25 +61,20 @@ export function createEarth(radius = 1) {
 
 	// ---- Land / ocean sphere ----
 	const landMat = new THREE.ShaderMaterial({
-		uniforms: { uSunDir, uMoonDir, uMoonW, uSunW, uAmp, uTime, uSpin, uLandTex },
+		uniforms: { uSunDir, uTime, uSpin, uLandTex },
 		vertexShader: /* glsl */ `
 			${NOISE_GLSL} ${ROT} ${MASK}
 			varying vec3 vN; varying vec3 vRot;
 			uniform float uSpin;
-			uniform vec3 uMoonDir, uSunDir; uniform float uMoonW, uSunW, uAmp;
-			float tide(vec3 n, vec3 axis){ float c = dot(n, normalize(axis)); return (3.0*c*c - 1.0)*0.5; }
 			void main(){
-				vec3 n = normalize(position);        // world frame — tidal bulge axes
-				vec3 nr = rotY(uSpin) * n;           // spun frame — continents / land height
+				vec3 nr = rotY(uSpin) * normalize(position);
 				vRot = nr;
-				// The land RIDES the tidal bulge with the sea (the whole globe stretches
-				// toward the Moon), then stands a little proud of it (lh) — so the bulge
-				// side never floods the continents.
-				float h = uMoonW*tide(n,uMoonDir) + uSunW*tide(n,uSunDir);
+				// The solid Earth stays ROUND — the tide doesn't deform rock. A little
+				// land relief so coasts read, but no tidal displacement here.
 				float lh = 0.05 * smoothstep(0.15, 0.7, landAt(nr));
-				vec3 disp = position * (1.0 + uAmp*h + lh);
+				vec3 disp = position * (1.0 + lh);
 				// Light by the WORLD normal so the day/night terminator is fixed to
-				// the Sun; the continents (vRot) spin through it, matching the water.
+				// the Sun; the continents (vRot) spin through it.
 				vN = normalize(normal);
 				gl_Position = projectionMatrix * modelViewMatrix * vec4(disp,1.0);
 			}`,
@@ -191,10 +186,14 @@ export function createEarth(radius = 1) {
 				float polar = smoothstep(0.88, 0.99, abs(vLat));
 				col = mix(col, vec3(0.66,0.73,0.80), polar*0.8);
 
-				// Opaque bulge layer — no jagged coastline mask. Where the shell isn't
-				// present, the resting sea (seabed, same water colour) shows, so there
-				// is never a gap. The raised land geometry occludes it at the coast.
-				float alpha = 0.90 + 0.10*fres;
+				// Brighten the crest so the piled-up water reads as a raised dome.
+				col += vec3(0.10, 0.16, 0.20) * smoothstep(0.15, 0.95, vBulge);
+
+				// The tidal bulge is a TRANSLUCENT water envelope, shown ONLY where the
+				// sea piles up (vBulge > 0) AND only over OCEAN (× ocean) — so the two
+				// bulges read as glassy domes over the sea, the Earth stays round, and
+				// the land shows through clean, never under the bulge.
+				float alpha = smoothstep(0.05, 0.5, vBulge) * (0.42 + 0.45*fres) * ocean;
 				gl_FragColor = vec4(col, alpha);
 			}`,
 	});
