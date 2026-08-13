@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -15,6 +16,7 @@ import { createSun } from "./_scene/sun";
 
 export function TideGuide() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const router = useRouter();
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
@@ -462,6 +464,9 @@ export function TideGuide() {
 		const clock = new THREE.Clock();
 		let rafId = 0;
 		function tick() {
+			// A frame the browser already dequeued can still fire once after
+			// cleanup; bail before touching DOM that React has torn down.
+			if (disposed) return;
 			const dt = Math.min(clock.getDelta(), 0.05);
 			const t = clock.elapsedTime;
 
@@ -545,11 +550,20 @@ export function TideGuide() {
 
 			<div id="ui">
 				<header id="topbar">
-					<Link href="/" className="tg-back" aria-label="Back to Surf Rental Aljezur">
+					<div className="topbar-title">
+						<Link href="/" className="brand">
+							Surf Rental Aljezur
+						</Link>
+						<span className="brand-sub">How tides work</span>
+					</div>
+					<button
+						type="button"
+						className="tg-back"
+						onClick={() => router.back()}
+						aria-label="Go back to the previous page"
+					>
 						← Back
-					</Link>
-					<span className="brand">Surf Rental Aljezur</span>
-					<span className="brand-sub">How tides work</span>
+					</button>
 				</header>
 
 				<div id="hint">

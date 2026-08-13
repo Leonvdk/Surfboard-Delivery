@@ -101,7 +101,11 @@ export const DELIVERY_TOWNS: DeliveryTown[] = [
 			"Airbnbs above the fishing harbour",
 		],
 		nearbyBeaches: [
-			{ name: "Praia da Arrifana", distance: "5 min walk / 3 min drive", anchor: "praia-da-arrifana" },
+			{
+				name: "Praia da Arrifana",
+				distance: "5 min walk / 3 min drive",
+				anchor: "praia-da-arrifana",
+			},
 			{
 				name: "Canal / Kangaroos (Arrifana point break)",
 				distance: "10 min walk from beach",
@@ -160,7 +164,7 @@ export const DELIVERY_TOWNS: DeliveryTown[] = [
 			{ name: "Praia do Amado", distance: "25 min", anchor: "" },
 		],
 		deliveryNotes:
-			"Vale da Telha is a spread-out urbanização with dozens of villa streets — Google Maps sometimes struggles with the exact house. Please send the full address including any letter suffix (e.g. \"Rua 25, Lote 47 B\") and, if you can, a WhatsApp pin. We plan our delivery route the night before, so tell us on booking.",
+			'Vale da Telha is a spread-out urbanização with dozens of villa streets — Google Maps sometimes struggles with the exact house. Please send the full address including any letter suffix (e.g. "Rua 25, Lote 47 B") and, if you can, a WhatsApp pin. We plan our delivery route the night before, so tell us on booking.',
 		boardMatch:
 			"Vale da Telha groups typically split levels — one beginner, one intermediate, sometimes a longboarder. We can deliver 2–4 different boards to the same address on the same delivery, no extra cost. For most guests: an 8'6 for the beginner, a 7'0 for the intermediate, plus wetsuits.",
 		personalNote:
@@ -177,7 +181,8 @@ export const DELIVERY_TOWNS: DeliveryTown[] = [
 					"Groups of 3–5 save about 12% per person on our published rates. For 6+ we build a custom quote — usually 15–20% off. See /group-bookings.",
 			},
 			{
-				question: "What's the closest beach to Vale da Telha for a beginner surf lesson-free session?",
+				question:
+					"What's the closest beach to Vale da Telha for a beginner surf lesson-free session?",
 				answer:
 					"Praia da Amoreira is five minutes down the road and has forgiving reforms on mid-tide. Monte Clérigo is a similar drive and works well on smaller days. Both are more beginner-friendly than the outside peaks at Arrifana.",
 			},
@@ -276,6 +281,55 @@ export const DELIVERY_TOWNS: DeliveryTown[] = [
 				question: "What's the best tide for Amoreira?",
 				answer:
 					"Lower tides are the friendlier bet, particularly for beginners — the waves are more forgiving and the currents milder. It catches most of the swell coming in, so it's often working when other spots are flat.",
+			},
+		],
+	},
+	{
+		slug: "rogil",
+		name: "Rogil",
+		title: "Surfboard Delivery to Rogil — Free to Your Door",
+		metaDescription:
+			"Free surfboard and wetsuit delivery to Rogil, north of Aljezur on the N120. From €18/day board-only, €28/day with wetsuit, three-day minimum. Delivered to your guesthouse, campsite, or Airbnb.",
+		kicker: "Delivery zone · Rogil",
+		oneLiner:
+			"Free surfboard delivery to Rogil — the quiet village north of Aljezur, minutes from Amoreira and Odeceixe.",
+		introParagraphs: [
+			"Rogil is a small, quiet village on the N120 a few minutes north of Aljezur, on the road toward Odeceixe. It sits inland among the farmland, but the coast is close on both sides — Praia da Amoreira to the west and Praia de Odeceixe to the north are each about ten minutes by car. Stays here tend to be rural guesthouses, campsites, and self-catering Airbnbs — quieter, and often better value than the beach-front villages.",
+			"We deliver surfboards and wetsuits straight to your accommodation in Rogil — no shop pickup, no board strapped to the hire car. On pickup day we come back and take everything.",
+		],
+		typicalStays: [
+			"Rural guesthouses and casas rurais around the village",
+			"Campsites and campervan stops off the N120",
+			"Self-catering Airbnbs in and around Rogil",
+			"Farm-stay accommodation in the surrounding countryside",
+		],
+		nearbyBeaches: [
+			{ name: "Praia da Amoreira", distance: "10 min", anchor: "amoreira" },
+			{ name: "Praia de Odeceixe", distance: "10 min", anchor: "" },
+			{ name: "Monte Clérigo", distance: "12 min", anchor: "monte-clerigo" },
+			{ name: "Praia da Arrifana", distance: "15 min", anchor: "praia-da-arrifana" },
+		],
+		deliveryNotes:
+			"Rogil is a short drive north of Aljezur on the N120. We deliver door-to-door; if your stay is tucked down a farm track, tell us on booking and we'll arrange an easy meeting point in the village.",
+		boardMatch:
+			"From Rogil most guests split between Amoreira and Odeceixe — both wide, forgiving beach breaks on the smaller days. Beginners do well on an 8'6 longboard or 7'8 funboard; intermediates take the 7'0 for the sandbank peaks. We match the board to the swell and send that with your gear.",
+		personalNote:
+			"TODO(Leon): the personal detail — the turn off the N120 you take, the café or mercado in Rogil, how the drive to Odeceixe compares to Amoreira on a given swell.",
+		faqs: [
+			{
+				question: "Do you deliver surfboards to Rogil?",
+				answer:
+					"Yes — Rogil is inside our free delivery zone, a few minutes north of Aljezur on the N120. Same three-day minimum and same prices as everywhere else we serve, delivered to your guesthouse, campsite, or Airbnb.",
+			},
+			{
+				question: "Which beach should I surf from Rogil?",
+				answer:
+					"Amoreira to the west and Odeceixe to the north are both about ten minutes away, and both are forgiving beach breaks on typical days. We pick the one that suits your level and the swell, and flag it in the delivery brief.",
+			},
+			{
+				question: "Is Rogil a good base for a surf trip?",
+				answer:
+					"If you want somewhere quiet and often better value than the beach-front villages, yes — you're within ten to fifteen minutes of several beaches (Amoreira, Odeceixe, Monte Clérigo, Arrifana) and we bring the gear to your door.",
 			},
 		],
 	},

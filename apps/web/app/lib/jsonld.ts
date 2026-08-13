@@ -27,7 +27,7 @@ export function localBusinessJsonLd() {
 		"@id": `${SITE_URL}/#business`,
 		name: "Surf Rental Aljezur",
 		description:
-			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira on the Costa Vicentina, Portugal.",
+			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira on the Costa Vicentina, Portugal.",
 		url: SITE_URL,
 		logo: `${SITE_URL}/images/logo.png`,
 		image: `${SITE_URL}/images/meta.jpg`,
@@ -44,15 +44,7 @@ export function localBusinessJsonLd() {
 		openingHoursSpecification: [
 			{
 				"@type": "OpeningHoursSpecification",
-				dayOfWeek: [
-					"Monday",
-					"Tuesday",
-					"Wednesday",
-					"Thursday",
-					"Friday",
-					"Saturday",
-					"Sunday",
-				],
+				dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 				opens: "08:00",
 				closes: "20:00",
 			},
@@ -98,6 +90,15 @@ export function localBusinessJsonLd() {
 			},
 			{
 				"@type": "Place",
+				name: "Rogil",
+				address: {
+					"@type": "PostalAddress",
+					addressLocality: "Rogil",
+					addressCountry: "PT",
+				},
+			},
+			{
+				"@type": "Place",
 				name: "Carrapateira",
 				address: {
 					"@type": "PostalAddress",
@@ -120,8 +121,7 @@ export function localBusinessJsonLd() {
 		},
 		priceRange: "€18–€28 per day",
 		currenciesAccepted: "EUR",
-		paymentAccepted:
-			"Cash, Card, Apple Pay, iDEAL, Wero, MB WAY, Bank Transfer",
+		paymentAccepted: "Cash, Card, Apple Pay, iDEAL, Wero, MB WAY, Bank Transfer",
 		sameAs: [
 			// TODO(Leon): fill in as public profiles come online. GBP goes in
 			// its own knowledge-graph link, not here.
@@ -162,7 +162,8 @@ export function localBusinessJsonLd() {
 			{
 				"@type": "Offer",
 				name: "Board Only Rental",
-				description: "Surfboard rental with leash, wax, and free delivery and pickup. Three-day minimum.",
+				description:
+					"Surfboard rental with leash, wax, and free delivery and pickup. Three-day minimum.",
 				price: "18",
 				priceCurrency: "EUR",
 				priceSpecification: {
@@ -177,7 +178,8 @@ export function localBusinessJsonLd() {
 			{
 				"@type": "Offer",
 				name: "Full Package Rental (Board + Wetsuit)",
-				description: "Surfboard and wetsuit rental with free delivery and pickup. Three-day minimum.",
+				description:
+					"Surfboard and wetsuit rental with free delivery and pickup. Three-day minimum.",
 				price: "28",
 				priceCurrency: "EUR",
 				priceSpecification: {
@@ -192,7 +194,8 @@ export function localBusinessJsonLd() {
 			{
 				"@type": "Offer",
 				name: "Roof rack pads (add-on)",
-				description: "Soft roof-rack pads to carry the boards on any hire car, added to any rental.",
+				description:
+					"Soft roof-rack pads to carry the boards on any hire car, added to any rental.",
 				price: "20",
 				priceCurrency: "EUR",
 				priceSpecification: {

@@ -22,7 +22,7 @@ export function Footer() {
 							</li>
 						</ul>
 						<p className="footer-tagline">
-							Free delivery: Aljezur · Arrifana · Vale da Telha · Monte Clérigo · Amoreira ·
+							Free delivery: Aljezur · Arrifana · Vale da Telha · Monte Clérigo · Amoreira · Rogil ·
 							Carrapateira
 						</p>
 					</div>

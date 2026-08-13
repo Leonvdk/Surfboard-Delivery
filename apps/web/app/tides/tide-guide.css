@@ -64,13 +64,19 @@
 	left: 0;
 	right: 0;
 	display: flex;
-	align-items: baseline;
-	gap: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
 	padding: 14px 20px;
 	pointer-events: none;
 }
+.tideguide .topbar-title {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+}
 .tideguide .tg-back {
-	align-self: center;
+	align-self: flex-start;
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
@@ -83,6 +89,7 @@
 	border: 1px solid var(--panel-line);
 	border-radius: 999px;
 	padding: 5px 12px;
+	cursor: pointer;
 	pointer-events: auto;
 	transition: background 0.15s ease, border-color 0.15s ease;
 }
@@ -95,6 +102,13 @@
 	font-weight: 800;
 	letter-spacing: -0.02em;
 	font-size: 15px;
+	color: var(--paper);
+	text-decoration: none;
+	pointer-events: auto;
+	transition: color 0.15s ease;
+}
+.tideguide .brand:hover {
+	color: var(--ember);
 }
 .tideguide .brand-sub {
 	font-size: 12px;

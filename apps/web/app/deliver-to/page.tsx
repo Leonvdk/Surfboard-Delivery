@@ -8,12 +8,12 @@ import { SITE_URL } from "../lib/metadata";
 export const metadata: Metadata = {
 	title: "Surfboard Delivery in the Algarve — Costa Vicentina",
 	description:
-		"Free surfboard and wetsuit delivery across the western Algarve's Costa Vicentina: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira. From €18/day board-only, €28/day with wetsuit. Three-day minimum.",
+		"Free surfboard and wetsuit delivery across the western Algarve's Costa Vicentina: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira. From €18/day board-only, €28/day with wetsuit. Three-day minimum.",
 	alternates: { canonical: "/deliver-to" },
 	openGraph: {
 		title: "Delivery Zones | Surf Rental Aljezur",
 		description:
-			"Free delivery across the western Algarve: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira. From €18/day.",
+			"Free delivery across the western Algarve: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira. From €18/day.",
 		url: `${SITE_URL}/deliver-to`,
 	},
 };
@@ -27,10 +27,9 @@ export default function DeliverToIndexPage() {
 						<div>
 							<h1>Where we deliver surfboards on the Costa Vicentina</h1>
 							<p className="page-hero-sub">
-								Free delivery and pickup to six service areas across the western
-								Algarve — from €18/day board-only, €28/day with wetsuit,
-								three-day minimum. Pick your stay location for delivery details
-								and the boards our guests there usually take.
+								Free delivery and pickup to seven service areas across the western Algarve — from
+								€18/day board-only, €28/day with wetsuit, three-day minimum. Pick your stay location
+								for delivery details and the boards our guests there usually take.
 							</p>
 						</div>
 					</Reveal>
@@ -45,22 +44,18 @@ export default function DeliverToIndexPage() {
 						<div className="section-header section-header-center">
 							<p className="section-label">Delivery zones</p>
 							<h2 className="section-title" id="towns-heading">
-								Six towns · one flat delivery promise
+								Seven towns · one flat delivery promise
 							</h2>
 							<p className="section-desc">
-								Every town below has free delivery and free pickup on every
-								rental — no minimum order, no distance surcharge.
+								Every town below has free delivery and free pickup on every rental — no minimum
+								order, no distance surcharge.
 							</p>
 						</div>
 					</Reveal>
 					<Reveal stagger>
 						<div className="boards-grid">
 							{DELIVERY_TOWNS.map((town) => (
-								<Link
-									key={town.slug}
-									href={`/deliver-to/${town.slug}`}
-									className="board-card-link"
-								>
+								<Link key={town.slug} href={`/deliver-to/${town.slug}`} className="board-card-link">
 									<article className="board-card">
 										<div className="board-card-body">
 											<h3 className="board-card-title">{town.name}</h3>
