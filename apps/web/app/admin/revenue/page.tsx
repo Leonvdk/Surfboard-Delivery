@@ -1,25 +1,18 @@
 import { desc } from "drizzle-orm";
-import Link from "next/link";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import type Stripe from "stripe";
-import type { Booking } from "../../lib/db/schema";
 import { getDb, schema } from "../../lib/db/client";
+import type { Booking } from "../../lib/db/schema";
 import { getStripe } from "../../lib/stripe";
 import { RevenueBarChart } from "../_components/revenue-bar-chart";
 import { RevenueWindowSelect } from "../_components/revenue-window-select";
-import {
-	type BreakdownRow,
-	StatBreakdown,
-} from "../_components/stat-breakdown";
+import { type BreakdownRow, StatBreakdown } from "../_components/stat-breakdown";
 import { addExpense, deleteExpense } from "../_expense-actions";
-import { getCachedBookings } from "../_lib/bookings-cache";
 import { getCachedFleet } from "../_lib/boards-cache";
+import { getCachedBookings } from "../_lib/bookings-cache";
 import { formatShortDate, todayIso } from "../_lib/dates";
-import {
-	bookingFunnelForRecentMonths,
-	monthlyRollup,
-	packageMix,
-} from "../_lib/insights";
+import { bookingFunnelForRecentMonths, monthlyRollup, packageMix } from "../_lib/insights";
 import {
 	computeRevenue,
 	eur,
@@ -27,10 +20,7 @@ import {
 	onTheBooksCents,
 	upcomingByWeek,
 } from "../_lib/revenue-metrics";
-import {
-	REVENUE_WINDOW_COOKIE,
-	resolveWindow,
-} from "../_lib/revenue-window";
+import { REVENUE_WINDOW_COOKIE, resolveWindow } from "../_lib/revenue-window";
 
 export const dynamic = "force-dynamic";
 
@@ -116,10 +106,7 @@ function buildTrend(
 	if (granularity === "day") {
 		const endMs = new Date(`${endIso}T00:00:00Z`).getTime();
 		const startMs = new Date(`${start}T00:00:00Z`).getTime();
-		const days = Math.min(
-			62,
-			Math.max(1, Math.round((endMs - startMs) / 86_400_000) + 1),
-		);
+		const days = Math.min(62, Math.max(1, Math.round((endMs - startMs) / 86_400_000) + 1));
 		for (let i = 0; i < days; i++) {
 			const d = iso(new Date(endMs - (days - 1 - i) * 86_400_000));
 			out.push({ day: d, cents: byBucket.get(d) ?? 0 });
@@ -157,9 +144,7 @@ function pctLabel(part: number, whole: number): string {
 export default async function AdminRevenuePage({ searchParams }: Props) {
 	const params = await searchParams;
 	const cookieStore = await cookies();
-	const win = resolveWindow(
-		params.window ?? cookieStore.get(REVENUE_WINDOW_COOKIE)?.value,
-	);
+	const win = resolveWindow(params.window ?? cookieStore.get(REVENUE_WINDOW_COOKIE)?.value);
 	const today = todayIso();
 	const startIso = win.days ? isoDaysAgo(win.days - 1) : null;
 	const startUnix = win.days ? Math.floor(Date.now() / 1000) - win.days * 86400 : 0;
@@ -218,24 +203,15 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 	// Expenses: manual (in window) + gear purchased in window; all-time
 	// includes undated gear so nothing is lost.
-	const gearInvested = (fleetData?.fleet ?? []).reduce(
-		(s, b) => s + (b.purchaseCost ?? 0),
-		0,
-	);
+	const gearInvested = (fleetData?.fleet ?? []).reduce((s, b) => s + (b.purchaseCost ?? 0), 0);
 	const gearPurchasedInPeriod = win.days
 		? (fleetData?.fleet ?? [])
 				.filter((b) => b.purchaseDate && startIso && b.purchaseDate >= startIso)
 				.reduce((s, b) => s + (b.purchaseCost ?? 0), 0)
 		: gearInvested;
-	const expenses = expenseBreakdown(
-		allExpenses,
-		gearPurchasedInPeriod,
-		startIso,
-		today,
-	);
+	const expenses = expenseBreakdown(allExpenses, gearPurchasedInPeriod, startIso, today);
 	const resultCents = m.billedCents - m.refundedCents - expenses.totalCents;
-	const marginPct =
-		m.billedCents > 0 ? Math.round((resultCents / m.billedCents) * 100) : null;
+	const marginPct = m.billedCents > 0 ? Math.round((resultCents / m.billedCents) * 100) : null;
 
 	// ── Breakdown rows behind the clickable tiles ───────────────────────
 	// Turn each headline number into a tap-to-see itemised list, so "why is
@@ -245,10 +221,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 	const nameById = new Map(allBookings.map((b) => [b.id, b.name] as const));
 	const paidByBooking = new Map<number, number>();
 	for (const p of payments) {
-		paidByBooking.set(
-			p.bookingId,
-			(paidByBooking.get(p.bookingId) ?? 0) + p.amountCents,
-		);
+		paidByBooking.set(p.bookingId, (paidByBooking.get(p.bookingId) ?? 0) + p.amountCents);
 	}
 	const producingInWindow = allBookings.filter(
 		(b) => !b.deletedAt && PRODUCING.has(b.status) && inWin(b.checkout),
@@ -278,9 +251,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 		}));
 
 	const refundRows: BreakdownRow[] = payments
-		.filter(
-			(p) => p.amountCents < 0 && inWin(p.createdAt.toISOString().slice(0, 10)),
-		)
+		.filter((p) => p.amountCents < 0 && inWin(p.createdAt.toISOString().slice(0, 10)))
 		.sort((a, b) => a.amountCents - b.amountCents)
 		.map((p) => ({
 			label: nameById.get(p.bookingId) ?? `Booking #${p.bookingId}`,
@@ -307,10 +278,7 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			.filter(
 				(b) =>
 					(b.purchaseCost ?? 0) > 0 &&
-					(!win.days ||
-						(b.purchaseDate != null &&
-							startIso != null &&
-							b.purchaseDate >= startIso)),
+					(!win.days || (b.purchaseDate != null && startIso != null && b.purchaseDate >= startIso)),
 			)
 			.map((b) => {
 				const cents = Math.round((b.purchaseCost ?? 0) * 100);
@@ -366,6 +334,9 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 			<header className="admin-page-header">
 				<h1>Revenue</h1>
 				<div className="admin-page-header-actions">
+					<Link href="/admin/links" className="admin-row-link">
+						Marketing links →
+					</Link>
 					<Link href="/admin/discounts" className="admin-row-link">
 						Discount codes →
 					</Link>
@@ -375,14 +346,14 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 			{!stripe && (
 				<p className="admin-card-hint admin-sync-status--warn">
-					Stripe isn&apos;t connected here — card charges &amp; refunds are
-					hidden, but every booking-based figure below is complete.
+					Stripe isn&apos;t connected here — card charges &amp; refunds are hidden, but every
+					booking-based figure below is complete.
 				</p>
 			)}
 			{fetchError && (
 				<p className="admin-card-hint admin-sync-status--warn">
-					Stripe fetch failed ({fetchError}) — card refunds may be missing;
-					booking figures below are unaffected.
+					Stripe fetch failed ({fetchError}) — card refunds may be missing; booking figures below
+					are unaffected.
 				</p>
 			)}
 
@@ -451,21 +422,16 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					</div>
 				</div>
 				<p className="admin-card-hint">
-					Revenue recognised when gear goes back (checkout), for confirmed /
-					in-progress / completed bookings in the {win.label.toLowerCase()}{" "}
-					window. Cash is only counted once you tap <strong>Mark paid in
-					cash</strong> on the booking. Card figures come from Stripe.
+					Revenue recognised when gear goes back (checkout), for confirmed / in-progress / completed
+					bookings in the {win.label.toLowerCase()} window. Cash is only counted once you tap{" "}
+					<strong>Mark paid in cash</strong> on the booking. Card figures come from Stripe.
 				</p>
 			</article>
 
 			<article className="admin-card admin-card--compact">
 				<h2>
 					Revenue ·{" "}
-					{!win.days || win.days > 180
-						? "by month"
-						: win.days <= 31
-							? "by day"
-							: "by week"}
+					{!win.days || win.days > 180 ? "by month" : win.days <= 31 ? "by day" : "by week"}
 				</h2>
 				<RevenueBarChart trend={trend} />
 			</article>
@@ -474,8 +440,8 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				<article className="admin-card">
 					<h2>Upcoming income · by week</h2>
 					<p className="admin-card-hint">
-						{eur(upcomingTotal)} booked from today forward (confirmed /
-						in-progress), by delivery week.
+						{eur(upcomingTotal)} booked from today forward (confirmed / in-progress), by delivery
+						week.
 					</p>
 					<ul className="mix-list">
 						{upcoming.map((w) => (
@@ -483,14 +449,19 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 								<div className="mix-row-heading">
 									<span>
 										{w.label}
-										<span className="admin-cell-muted"> · {w.count} booking{w.count === 1 ? "" : "s"}</span>
+										<span className="admin-cell-muted">
+											{" "}
+											· {w.count} booking{w.count === 1 ? "" : "s"}
+										</span>
 									</span>
 									<span className="mix-row-pct">{eur(w.cents)}</span>
 								</div>
 								<div className="mix-row-bar">
 									<div
 										className="mix-row-bar-fill mix-row-bar-fill--board"
-										style={{ width: `${upcomingTotal > 0 ? (w.cents / Math.max(...upcoming.map((u) => u.cents))) * 100 : 0}%` }}
+										style={{
+											width: `${upcomingTotal > 0 ? (w.cents / Math.max(...upcoming.map((u) => u.cents))) * 100 : 0}%`,
+										}}
 									/>
 								</div>
 							</li>
@@ -561,9 +532,9 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				)}
 				<p className="admin-card-hint">
 					All-time: {eur(gearInvested * 100)} invested in gear ·{" "}
-					{eur(allExpenses.reduce((s, e) => s + e.amount, 0) * 100)} logged
-					expenses. Gear without a purchase date only counts in the all-time
-					number — set purchase dates on the Fleet page to place them in time.
+					{eur(allExpenses.reduce((s, e) => s + e.amount, 0) * 100)} logged expenses. Gear without a
+					purchase date only counts in the all-time number — set purchase dates on the Fleet page to
+					place them in time.
 				</p>
 			</article>
 
@@ -573,19 +544,44 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					<div className="admin-board-form-grid">
 						<label>
 							Date
-							<input type="date" name="date" required defaultValue={today} className="admin-input" />
+							<input
+								type="date"
+								name="date"
+								required
+								defaultValue={today}
+								className="admin-input"
+							/>
 						</label>
 						<label>
 							What
-							<input type="text" name="label" required placeholder="e.g. Paid João for deliveries" className="admin-input" />
+							<input
+								type="text"
+								name="label"
+								required
+								placeholder="e.g. Paid João for deliveries"
+								className="admin-input"
+							/>
 						</label>
 						<label>
 							Amount (€)
-							<input type="number" name="amount" required min="1" placeholder="e.g. 40" className="admin-input" />
+							<input
+								type="number"
+								name="amount"
+								required
+								min="1"
+								placeholder="e.g. 40"
+								className="admin-input"
+							/>
 						</label>
 						<label>
 							Category
-							<input type="text" name="category" placeholder="delivery / fuel / repair…" className="admin-input" list="expense-categories" />
+							<input
+								type="text"
+								name="category"
+								placeholder="delivery / fuel / repair…"
+								className="admin-input"
+								list="expense-categories"
+							/>
 							<datalist id="expense-categories">
 								<option value="delivery" />
 								<option value="fuel" />
@@ -596,7 +592,9 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 							</datalist>
 						</label>
 					</div>
-					<button type="submit" className="admin-btn">Add expense</button>
+					<button type="submit" className="admin-btn">
+						Add expense
+					</button>
 				</form>
 
 				{allExpenses.length === 0 ? (
@@ -627,7 +625,11 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 											<td>€{e.amount}</td>
 											<td>
 												<form action={deleteWithId}>
-													<button type="submit" className="admin-board-remove" aria-label={`Delete expense: ${e.label}`}>
+													<button
+														type="submit"
+														className="admin-board-remove"
+														aria-label={`Delete expense: ${e.label}`}
+													>
 														delete
 													</button>
 												</form>
@@ -647,19 +649,33 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 					<p className="admin-card-hint">This month vs last.</p>
 					<div className="funnel-grid">
 						{[funnel.current, funnel.previous].map((col, idx) => (
-							<div
-								key={col.label}
-								className={`funnel-col${idx === 1 ? " funnel-col--dim" : ""}`}
-							>
+							<div key={col.label} className={`funnel-col${idx === 1 ? " funnel-col--dim" : ""}`}>
 								<div className="funnel-col-label">{col.label}</div>
-								<div className="funnel-metric"><span>Requested</span><strong>{col.requested}</strong></div>
-								<div className="funnel-metric"><span>Confirmed</span><strong>{col.confirmed}</strong></div>
-								<div className="funnel-metric"><span>In progress</span><strong>{col.inProgress}</strong></div>
-								<div className="funnel-metric"><span>Completed</span><strong>{col.completed}</strong></div>
-								<div className="funnel-metric"><span>Cancelled</span><strong>{col.cancelled}</strong></div>
+								<div className="funnel-metric">
+									<span>Requested</span>
+									<strong>{col.requested}</strong>
+								</div>
+								<div className="funnel-metric">
+									<span>Confirmed</span>
+									<strong>{col.confirmed}</strong>
+								</div>
+								<div className="funnel-metric">
+									<span>In progress</span>
+									<strong>{col.inProgress}</strong>
+								</div>
+								<div className="funnel-metric">
+									<span>Completed</span>
+									<strong>{col.completed}</strong>
+								</div>
+								<div className="funnel-metric">
+									<span>Cancelled</span>
+									<strong>{col.cancelled}</strong>
+								</div>
 								<div className="funnel-metric funnel-metric--rate">
 									<span>Confirm rate</span>
-									<strong>{col.confirmRate != null ? `${Math.round(col.confirmRate * 100)}%` : "—"}</strong>
+									<strong>
+										{col.confirmRate != null ? `${Math.round(col.confirmRate * 100)}%` : "—"}
+									</strong>
 								</div>
 							</div>
 						))}
@@ -677,10 +693,15 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 								<li key={mi.key} className="mix-row">
 									<div className="mix-row-heading">
 										<span>{mi.label}</span>
-										<span className="mix-row-pct">{mi.count} · {Math.round(mi.pct)}%</span>
+										<span className="mix-row-pct">
+											{mi.count} · {Math.round(mi.pct)}%
+										</span>
 									</div>
 									<div className="mix-row-bar">
-										<div className={`mix-row-bar-fill mix-row-bar-fill--${mi.key}`} style={{ width: `${mi.pct}%` }} />
+										<div
+											className={`mix-row-bar-fill mix-row-bar-fill--${mi.key}`}
+											style={{ width: `${mi.pct}%` }}
+										/>
 									</div>
 								</li>
 							))}
@@ -691,7 +712,9 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 
 			<article className="admin-card">
 				<h2>Monthly rollup</h2>
-				<p className="admin-card-hint">Confirmed and completed bookings by check-in month · last 12 months.</p>
+				<p className="admin-card-hint">
+					Confirmed and completed bookings by check-in month · last 12 months.
+				</p>
 				<div className="admin-table-wrap">
 					<table className="admin-table">
 						<thead>
@@ -707,7 +730,11 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						</thead>
 						<tbody>
 							{rollup.length === 0 && (
-								<tr><td colSpan={7} className="admin-empty-inline">No producing bookings yet.</td></tr>
+								<tr>
+									<td colSpan={7} className="admin-empty-inline">
+										No producing bookings yet.
+									</td>
+								</tr>
 							)}
 							{rollup.map((r) => (
 								<tr key={r.month}>
@@ -729,7 +756,11 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 				<h2>Recent card charges</h2>
 				<p className="admin-card-hint">
 					Online Stripe payments in the {win.label.toLowerCase()} window ·{" "}
-					{pctLabel(stripeRefundedCents, charges.reduce((s, c) => s + c.amount, 0))} refunded (Stripe, incl. tests).
+					{pctLabel(
+						stripeRefundedCents,
+						charges.reduce((s, c) => s + c.amount, 0),
+					)}{" "}
+					refunded (Stripe, incl. tests).
 				</p>
 				<div className="admin-table-wrap">
 					<table className="admin-table">
@@ -743,14 +774,20 @@ export default async function AdminRevenuePage({ searchParams }: Props) {
 						</thead>
 						<tbody>
 							{charges.length === 0 && (
-								<tr><td colSpan={4} className="admin-empty-inline">No card charges in this window.</td></tr>
+								<tr>
+									<td colSpan={4} className="admin-empty-inline">
+										No card charges in this window.
+									</td>
+								</tr>
 							)}
 							{charges.slice(0, 40).map((c) => (
 								<tr key={c.id}>
 									<td>{formatDate(c.created)}</td>
 									<td>
 										<div className="admin-cell-strong">{c.billing_details?.name || "—"}</div>
-										<div className="admin-cell-muted">{c.billing_details?.email || c.receipt_email || ""}</div>
+										<div className="admin-cell-muted">
+											{c.billing_details?.email || c.receipt_email || ""}
+										</div>
 									</td>
 									<td>{eur(c.amount)}</td>
 									<td>{c.amount_refunded > 0 ? eur(c.amount_refunded) : "—"}</td>

@@ -69,6 +69,18 @@ export function AdminNavBar({ logout }: Props) {
 							Revenue
 						</Link>
 					</li>
+					<li>
+						<Link
+							href="/admin/links"
+							className={
+								pathname.startsWith("/admin/links")
+									? "admin-nav-link admin-nav-link--active"
+									: "admin-nav-link"
+							}
+						>
+							Links
+						</Link>
+					</li>
 				</ul>
 				<div className="admin-nav-tail">
 					<NotificationsBell />

@@ -10805,3 +10805,100 @@ a.admin-breakdown-label:hover { color: var(--accent); text-decoration: underline
   font-size: 1.25rem;
 }
 .surfcam-linkcard-sub { font-size: 0.875rem; opacity: 0.85; }
+
+/* ---- Admin: marketing links (UTM builder + inventory) ------------------- */
+
+/* Category badge — same shape as the status tags, one colour per category. */
+.admin-cat {
+  display: inline-block;
+  padding: 2px 8px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--black);
+}
+.admin-cat--social    { background: #c9daf8; color: #1c4587; }
+.admin-cat--marketing { background: #ffe3c2; color: #8a4b00; }
+.admin-cat--partner   { background: #b9e4d0; color: #076239; }
+.admin-cat--referral  { background: #e4d7f4; color: #5a2d82; }
+
+/* Live preview of the link being built. */
+.admin-link-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 4px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--admin-line, rgba(0, 0, 0, 0.12));
+  background: rgba(0, 0, 0, 0.03);
+}
+.admin-link-preview-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.65;
+}
+.admin-link-preview-url {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+.admin-link-url { font-size: 0.8rem; }
+
+/* Category filter pills above the saved list. */
+.admin-link-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.admin-link-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--black);
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.admin-link-filter:hover { background: rgba(0, 0, 0, 0.05); }
+.admin-link-filter--active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.admin-link-filter-count {
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+.admin-link-filter--active .admin-link-filter-count { opacity: 0.85; }
+.admin-link-filter--tag { border-color: var(--accent); color: var(--accent); background: transparent; }
+
+/* "(optional …)" hint next to a field label. */
+.admin-label-opt { font-weight: 400; opacity: 0.55; }
+
+/* Source shown under the campaign in the list. */
+.admin-link-source { display: block; font-size: 0.72rem; margin-top: 1px; }
+
+/* Tag chips — clickable to filter the list by that tag. */
+.admin-tag-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.admin-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--admin-line, rgba(0, 0, 0, 0.15));
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.admin-tag:hover { border-color: var(--accent); color: var(--accent); }
+.admin-tag--active { background: var(--accent); color: #fff; border-color: var(--accent); }

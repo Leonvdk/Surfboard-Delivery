@@ -138,11 +138,7 @@ export type NewBooking = typeof bookings.$inferInsert;
 
 /* ── Board inventory ─────────────────────────────────────────────── */
 
-export const boardStatusEnum = pgEnum("board_status", [
-	"active",
-	"repair",
-	"retired",
-]);
+export const boardStatusEnum = pgEnum("board_status", ["active", "repair", "retired"]);
 
 export type BoardStatus = (typeof boardStatusEnum.enumValues)[number];
 
@@ -198,11 +194,7 @@ export type NewBoard = typeof boards.$inferInsert;
  * so the dashboard, stage machine and status tags don't each need to sum
  * the ledger. `paidAt` set = the booking is settled (payments ≥ billed).
  */
-export const paymentMethodEnum = pgEnum("payment_method_kind", [
-	"card",
-	"cash",
-	"other",
-]);
+export const paymentMethodEnum = pgEnum("payment_method_kind", ["card", "cash", "other"]);
 export type PaymentMethodKind = (typeof paymentMethodEnum.enumValues)[number];
 
 export const bookingPayments = pgTable(
@@ -257,9 +249,7 @@ export const boardAssignments = pgTable(
 		startDate: text("start_date").notNull(),
 		endDate: text("end_date").notNull(),
 
-		swappedFromId: integer("swapped_from_id").references(
-			(): AnyPgColumn => boardAssignments.id,
-		),
+		swappedFromId: integer("swapped_from_id").references((): AnyPgColumn => boardAssignments.id),
 		notes: text("notes"),
 		// Condition / damage note captured when the gear comes back, so a
 		// ding is tied to the booking that had it (deposits, disputes) and
@@ -267,10 +257,7 @@ export const boardAssignments = pgTable(
 		returnNote: text("return_note"),
 	},
 	(t) => ({
-		boardStartIdx: index("board_assignments_board_start_idx").on(
-			t.boardId,
-			t.startDate,
-		),
+		boardStartIdx: index("board_assignments_board_start_idx").on(t.boardId, t.startDate),
 		bookingIdx: index("board_assignments_booking_idx").on(t.bookingId),
 	}),
 );
@@ -368,3 +355,40 @@ export const calendarSyncStatus = pgTable("calendar_sync_status", {
 });
 
 export type CalendarSyncStatus = typeof calendarSyncStatus.$inferSelect;
+
+// ---- Marketing / campaign UTM links --------------------------------------
+
+export const linkCategoryEnum = pgEnum("link_category", [
+	"social",
+	"marketing",
+	"partner",
+	"referral",
+]);
+
+export type LinkCategory = (typeof linkCategoryEnum.enumValues)[number];
+
+/**
+ * A saved, categorised UTM link so Leon can build and keep track of his
+ * marketing/social/partner links in one place and filter by category. The
+ * full `url` is denormalised so the admin can copy it without rebuilding.
+ * GA attributes the traffic from the utm_* params; this table is just the
+ * inventory. (Partner *codes* with revenue attribution still live in Stripe /
+ * the Discounts page — this "partner" category is for plain partner links.)
+ */
+export const marketingLinks = pgTable("marketing_links", {
+	id: serial("id").primaryKey(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	category: linkCategoryEnum("category").notNull(),
+	// Path on the site the link points at, e.g. "/" or "/contact".
+	destination: text("destination").notNull(),
+	source: text("source").notNull(), // utm_source
+	// utm_medium — derived from the category (social → social, etc.), stored so
+	// the list can show / rebuild it without recomputing.
+	medium: text("medium").notNull(),
+	campaign: text("campaign").notNull(), // utm_campaign
+	// Free-text tags for grouping and filtering beyond the fixed category.
+	tags: jsonb("tags").$type<string[]>(),
+	url: text("url").notNull(), // the full built link, ready to copy
+});
+
+export type MarketingLink = typeof marketingLinks.$inferSelect;
