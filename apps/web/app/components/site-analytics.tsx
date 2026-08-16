@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { usePathname } from "next/navigation";
 import { ConsentNotice } from "./consent-notice";
 import { EngagementTracker } from "./engagement-tracker";
+import { Hotjar } from "./hotjar";
 import { OutboundTracker } from "./outbound-tracker";
 
 /**
@@ -25,6 +26,7 @@ export function SiteAnalytics({ gaId }: { gaId: string }) {
 			<GoogleAnalytics gaId={gaId} />
 			<Analytics />
 			<SpeedInsights />
+			<Hotjar />
 			{/* Scroll-depth and outbound-click tracking — public site only,
 				for the same reason. */}
 			<EngagementTracker />

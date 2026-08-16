@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { HorizonLine, Reveal } from "../components/reveal";
 
 export const metadata: Metadata = {
@@ -34,9 +33,9 @@ export default function PrivacyPage() {
 						<div className="legal-prose">
 							<h2>1. Who we are</h2>
 							<p>
-								Surf Rental Aljezur is a surf equipment rental service based in Aljezur, Faro district,
-								Portugal. We are the data controller for the personal information described in this
-								policy.
+								Surf Rental Aljezur is a surf equipment rental service based in Aljezur, Faro
+								district, Portugal. We are the data controller for the personal information
+								described in this policy.
 							</p>
 							<p>
 								<strong>Contact:</strong>{" "}
@@ -80,17 +79,17 @@ export default function PrivacyPage() {
 									right gear to the right place at the right time.
 								</li>
 								<li>
-									<strong>Communication:</strong> To confirm bookings, coordinate delivery/pickup, and
-									answer your questions.
+									<strong>Communication:</strong> To confirm bookings, coordinate delivery/pickup,
+									and answer your questions.
 								</li>
 								<li>
-									<strong>Follow-up:</strong> To send a one-time post-rental email asking for feedback.
-									You can opt out of this at any time.
+									<strong>Follow-up:</strong> To send a one-time post-rental email asking for
+									feedback. You can opt out of this at any time.
 								</li>
 							</ul>
 							<p>
-								We do not use your data for marketing, profiling, or automated decision-making unless
-								you explicitly opt in to receive updates from us.
+								We do not use your data for marketing, profiling, or automated decision-making
+								unless you explicitly opt in to receive updates from us.
 							</p>
 
 							<h2>4. Legal basis</h2>
@@ -100,12 +99,12 @@ export default function PrivacyPage() {
 							</p>
 							<ul>
 								<li>
-									<strong>Contractual necessity:</strong> Processing is necessary to fulfil the rental
-									service you requested (Article 6(1)(b)).
+									<strong>Contractual necessity:</strong> Processing is necessary to fulfil the
+									rental service you requested (Article 6(1)(b)).
 								</li>
 								<li>
-									<strong>Legitimate interest:</strong> Post-rental feedback requests are based on our
-									legitimate interest in improving our service (Article 6(1)(f)).
+									<strong>Legitimate interest:</strong> Post-rental feedback requests are based on
+									our legitimate interest in improving our service (Article 6(1)(f)).
 								</li>
 								<li>
 									<strong>Consent:</strong> Any marketing communications beyond a one-time follow-up
@@ -115,13 +114,13 @@ export default function PrivacyPage() {
 
 							<h2>5. How we store your data</h2>
 							<p>
-								Your data is stored securely in EU-based services. We do not transfer data outside the
-								European Economic Area.
+								Your data is stored securely in EU-based services. We do not transfer data outside
+								the European Economic Area.
 							</p>
 							<p>
-								We retain booking data for <strong>24 months</strong> after your last rental to handle
-								repeat bookings and any outstanding queries. After this period, data is securely deleted
-								unless you have an active booking or have requested otherwise.
+								We retain booking data for <strong>24 months</strong> after your last rental to
+								handle repeat bookings and any outstanding queries. After this period, data is
+								securely deleted unless you have an active booking or have requested otherwise.
 							</p>
 
 							<h2>6. Your rights</h2>
@@ -150,24 +149,34 @@ export default function PrivacyPage() {
 							</ul>
 							<p>
 								To exercise any of these rights, email us at{" "}
-								<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>. We respond to all
-								requests within 30 days.
+								<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>. We
+								respond to all requests within 30 days.
 							</p>
 
 							<h2>7. Cookies</h2>
-							<p>
-								This website uses minimal cookies. We do not use advertising or third-party tracking
-								cookies.
-							</p>
+							<p>This website uses minimal cookies. We do not use advertising cookies.</p>
 							<ul>
 								<li>
 									<strong>Essential cookies:</strong> Required for the website to function (e.g.,
 									session handling). These cannot be disabled.
 								</li>
 								<li>
-									<strong>Analytics:</strong> We may use privacy-respecting analytics to understand how
-									visitors use our site. No personal data is collected, and no data is shared with third
-									parties.
+									<strong>Analytics:</strong> We use analytics (Google Analytics, Vercel Analytics)
+									to understand how visitors use our site, in aggregate.
+								</li>
+								<li>
+									<strong>Behaviour analytics:</strong> We use Hotjar to understand how visitors
+									interact with our pages (heatmaps and anonymised session replays) so we can
+									improve the booking experience. Hotjar masks keystrokes and form input by default
+									and does not collect your name, email, or payment details. See{" "}
+									<a
+										href="https://www.hotjar.com/privacy/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Hotjar&apos;s privacy policy
+									</a>
+									.
 								</li>
 							</ul>
 
@@ -178,11 +187,16 @@ export default function PrivacyPage() {
 							</p>
 							<ul>
 								<li>
-									<strong>Hosting provider:</strong> Our website is hosted on EU-based infrastructure.
+									<strong>Hosting provider:</strong> Our website is hosted on EU-based
+									infrastructure.
 								</li>
 								<li>
 									<strong>Email provider:</strong> Used solely to send booking confirmations and
 									follow-ups.
+								</li>
+								<li>
+									<strong>Analytics providers:</strong> Google Analytics, Vercel Analytics, and
+									Hotjar process usage data on our behalf to help us improve the site.
 								</li>
 							</ul>
 
@@ -202,7 +216,8 @@ export default function PrivacyPage() {
 								authority, the <strong>Comissão Nacional de Proteção de Dados (CNPD)</strong>, at{" "}
 								<a href="https://www.cnpd.pt" target="_blank" rel="noopener noreferrer">
 									www.cnpd.pt
-								</a>.
+								</a>
+								.
 							</p>
 
 							<p className="legal-updated">Last updated: March 2026</p>
