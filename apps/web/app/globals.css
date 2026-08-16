@@ -8283,6 +8283,18 @@ h1 {
   border-color: var(--accent);
 }
 
+/* Today marker — same treatment as the month calendar above (accent bold
+   day number, accent outline down the column). */
+.admin-board-strip-day--today {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.admin-board-strip-cell--today {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+
 /* ---- Booking lifecycle progress bar ---- */
 
 .booking-progress {

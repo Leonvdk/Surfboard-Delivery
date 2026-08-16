@@ -1,14 +1,14 @@
 import Link from "next/link";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
-import { getCachedBookings } from "../_lib/bookings-cache";
-import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
-import { todayIso } from "../_lib/dates";
+import { getSyncHealth, getWatchInfo, type SyncHealth } from "../../lib/google-calendar";
+import { BRAND_COLOR } from "../../lib/ics";
 import { CalendarSubscribe } from "../_components/calendar-subscribe";
 import { CalendarSyncNow } from "../_components/calendar-sync-now";
+import { CheckIcon, WarningIcon } from "../_components/icons";
 import { TwoWaySyncToggle } from "../_components/two-way-sync-toggle";
-import { WarningIcon, CheckIcon } from "../_components/icons";
-import { BRAND_COLOR } from "../../lib/ics";
-import { getSyncHealth, getWatchInfo, type SyncHealth } from "../../lib/google-calendar";
+import { blockingAssignments, getCachedFleet } from "../_lib/boards-cache";
+import { getCachedBookings } from "../_lib/bookings-cache";
+import { todayIso } from "../_lib/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -44,16 +44,9 @@ function bookingSpansDay(b: Booking, iso: string): boolean {
 function EdgeMarker({ kind }: { kind: "delivery" | "pickup" }) {
 	// Inline SVG so iOS Safari doesn't render triangle chars (▶ ◀) as color
 	// emoji — those glyphs break the flat black-and-orange brand look.
-	const points =
-		kind === "delivery" ? "1,1 8,4.5 1,8" : "8,1 1,4.5 8,8";
+	const points = kind === "delivery" ? "1,1 8,4.5 1,8" : "8,1 1,4.5 8,8";
 	return (
-		<svg
-			width={9}
-			height={9}
-			viewBox="0 0 9 9"
-			className="cal-chip-marker"
-			aria-hidden="true"
-		>
+		<svg width={9} height={9} viewBox="0 0 9 9" className="cal-chip-marker" aria-hidden="true">
 			<polygon points={points} fill="currentColor" />
 		</svg>
 	);
@@ -72,7 +65,9 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 		return (
 			<section className="admin-empty">
 				<h1>Database not configured</h1>
-				<p>Set <code>DATABASE_URL</code> to see the calendar.</p>
+				<p>
+					Set <code>DATABASE_URL</code> to see the calendar.
+				</p>
 			</section>
 		);
 	}
@@ -81,9 +76,7 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	// over the shared cached dataset. (The old SQL or() month filter was a
 	// tautology that matched every row anyway — this is both faster and
 	// actually correct.)
-	const bookings = allBookings.filter(
-		(b) => !(b.checkout < monthStart || b.checkin >= monthEnd),
-	);
+	const bookings = allBookings.filter((b) => !(b.checkout < monthStart || b.checkin >= monthEnd));
 
 	// Fleet availability strip data: active boards + their busy windows
 	// clipped to this month.
@@ -91,7 +84,10 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	const activeFleet = (fleetData?.fleet ?? []).filter(
 		(b) => b.kind === "board" && b.status === "active",
 	);
-	const busyByBoard = new Map<number, Array<{ start: string; end: string; bookingId: number; bookingName: string }>>();
+	const busyByBoard = new Map<
+		number,
+		Array<{ start: string; end: string; bookingId: number; bookingName: string }>
+	>();
 	if (fleetData) {
 		for (const a of blockingAssignments(fleetData.assignments)) {
 			if (a.endDate < monthStart || a.startDate >= monthEnd) continue;
@@ -118,10 +114,11 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 	}
 	while (cells.length % 7 !== 0) cells.push(null);
 
-	const monthLabel = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(
-		"en-GB",
-		{ month: "long", year: "numeric", timeZone: "UTC" },
-	);
+	const monthLabel = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString("en-GB", {
+		month: "long",
+		year: "numeric",
+		timeZone: "UTC",
+	});
 	const prev = month === 1 ? { y: year - 1, m: 12 } : { y: year, m: month - 1 };
 	const next = nextMonth;
 	const today = todayIso();
@@ -132,11 +129,17 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 				<h1>{monthLabel}</h1>
 				<div className="admin-cal-controls">
 					<Link href={`/admin/calendar?month=${prev.y}-${pad(prev.m)}`}>
-						← {new Date(Date.UTC(prev.y, prev.m - 1, 1)).toLocaleDateString("en-GB", { month: "short" })}
+						←{" "}
+						{new Date(Date.UTC(prev.y, prev.m - 1, 1)).toLocaleDateString("en-GB", {
+							month: "short",
+						})}
 					</Link>
 					<Link href={`/admin/calendar`}>Today</Link>
 					<Link href={`/admin/calendar?month=${next.y}-${pad(next.m)}`}>
-						{new Date(Date.UTC(next.y, next.m - 1, 1)).toLocaleDateString("en-GB", { month: "short" })} →
+						{new Date(Date.UTC(next.y, next.m - 1, 1)).toLocaleDateString("en-GB", {
+							month: "short",
+						})}{" "}
+						→
 					</Link>
 				</div>
 			</header>
@@ -148,15 +151,16 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 				<span className="cal-chip cal-chip--completed">Completed</span>
 				<span className="cal-chip cal-chip--cancelled">Cancelled</span>
 				<span className="cal-chip cal-chip--legend-marker">
-					<EdgeMarker kind="delivery" /> delivery ·{" "}
-					<EdgeMarker kind="pickup" /> pickup
+					<EdgeMarker kind="delivery" /> delivery · <EdgeMarker kind="pickup" /> pickup
 				</span>
 			</div>
 
 			<div className="admin-cal-grid">
 				<div className="admin-cal-weekdays">
 					{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((w) => (
-						<div key={w} className="admin-cal-weekday">{w}</div>
+						<div key={w} className="admin-cal-weekday">
+							{w}
+						</div>
 					))}
 				</div>
 				<div className="admin-cal-cells">
@@ -187,18 +191,13 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 												{isPickup && <EdgeMarker kind="pickup" />}
 												{b.name.split(" ")[0]} · {b.peopleCount}p
 												{b.ownerNotes ? (
-													<span
-														className="cal-chip-note"
-														aria-hidden="true"
-													/>
+													<span className="cal-chip-note" aria-hidden="true" />
 												) : null}
 											</Link>
 										);
 									})}
 									{dayBookings.length > 3 && (
-										<span className="cal-chip cal-chip--more">
-											+{dayBookings.length - 3} more
-										</span>
+										<span className="cal-chip cal-chip--more">+{dayBookings.length - 3} more</span>
 									)}
 								</div>
 							</div>
@@ -217,11 +216,17 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 							<thead>
 								<tr>
 									<th className="admin-board-strip-name" />
-									{Array.from({ length: daysInMonth }, (_, i) => (
-										<th key={i + 1} className="admin-board-strip-day">
-											{i + 1}
-										</th>
-									))}
+									{Array.from({ length: daysInMonth }, (_, i) => {
+										const iso = `${year}-${pad(month)}-${pad(i + 1)}`;
+										return (
+											<th
+												key={i + 1}
+												className={`admin-board-strip-day${iso === today ? " admin-board-strip-day--today" : ""}`}
+											>
+												{i + 1}
+											</th>
+										);
+									})}
 								</tr>
 							</thead>
 							<tbody>
@@ -230,26 +235,22 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 									return (
 										<tr key={board.id}>
 											<td className="admin-board-strip-name">
-												<Link
-													href={`/admin/boards/${board.id}`}
-													className="admin-row-link"
-												>
+												<Link href={`/admin/boards/${board.id}`} className="admin-row-link">
 													{board.name}
 												</Link>
 											</td>
 											{Array.from({ length: daysInMonth }, (_, i) => {
 												const iso = `${year}-${pad(month)}-${pad(i + 1)}`;
-												const hit = busy.find(
-													(w) => w.start <= iso && iso <= w.end,
-												);
+												const todayClass = iso === today ? " admin-board-strip-cell--today" : "";
+												const hit = busy.find((w) => w.start <= iso && iso <= w.end);
 												return hit ? (
 													<td
 														key={iso}
-														className="admin-board-strip-cell admin-board-strip-cell--busy"
+														className={`admin-board-strip-cell admin-board-strip-cell--busy${todayClass}`}
 														title={`${hit.bookingName} · #${hit.bookingId}`}
 													/>
 												) : (
-													<td key={iso} className="admin-board-strip-cell" />
+													<td key={iso} className={`admin-board-strip-cell${todayClass}`} />
 												);
 											})}
 										</tr>
@@ -259,8 +260,8 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 						</table>
 					</div>
 					<p className="admin-card-hint">
-						Orange = out on a booking. Hover a bar for the booking. Repair /
-						retired boards aren&apos;t shown.
+						Orange = out on a booking. Hover a bar for the booking. Repair / retired boards
+						aren&apos;t shown.
 					</p>
 				</div>
 			)}
@@ -290,8 +291,8 @@ function CalendarSyncStatusLine({ health }: { health: SyncHealth }) {
 	if (!status || !status.lastRunAt) {
 		return (
 			<p className="admin-sync-status admin-sync-status--warn">
-				<WarningIcon /> Never run yet. Tap <strong>Sync now</strong> to push
-				existing bookings and confirm the connection.
+				<WarningIcon /> Never run yet. Tap <strong>Sync now</strong> to push existing bookings and
+				confirm the connection.
 			</p>
 		);
 	}
@@ -299,8 +300,8 @@ function CalendarSyncStatusLine({ health }: { health: SyncHealth }) {
 	if (healthy) {
 		return (
 			<p className="admin-sync-status admin-sync-status--ok">
-				<CheckIcon /> Last synced {ago(status.lastRunAt)} · {status.bookings}{" "}
-				booking{status.bookings === 1 ? "" : "s"} in sync.
+				<CheckIcon /> Last synced {ago(status.lastRunAt)} · {status.bookings} booking
+				{status.bookings === 1 ? "" : "s"} in sync.
 			</p>
 		);
 	}
@@ -322,8 +323,7 @@ function CalendarSyncStatusLine({ health }: { health: SyncHealth }) {
  */
 async function CalendarFeedCard() {
 	const token = process.env.CALENDAR_FEED_TOKEN;
-	const site =
-		process.env.NEXT_PUBLIC_SITE_URL ?? "https://surfrental-aljezur.com";
+	const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://surfrental-aljezur.com";
 
 	const health = await getSyncHealth();
 	const directSync = health.configured;
@@ -336,49 +336,44 @@ async function CalendarFeedCard() {
 					▸
 				</span>
 				<h2>Calendar sync &amp; feed</h2>
-				<span className="admin-collapsible-hint">
-					{directSync ? "Direct sync on" : "Off"}
-				</span>
+				<span className="admin-collapsible-hint">{directSync ? "Direct sync on" : "Off"}</span>
 			</summary>
 			<div className="admin-collapsible-body">
-			{directSync ? (
-				<>
+				{directSync ? (
+					<>
+						<p className="admin-card-hint">
+							<strong>Direct sync is on.</strong> Delivery and collection runs are written straight
+							into {process.env.GOOGLE_CALENDAR_ID} as real events, so they appear in Notion
+							Calendar, Apple Calendar and anywhere else that account syncs — within seconds, not
+							hours. They update when you change a booking and disappear when you cancel one.
+						</p>
+						<CalendarSyncStatusLine health={health} />
+						<CalendarSyncNow />
+						<TwoWaySyncToggle
+							active={watch.active}
+							expiration={watch.expiration ? watch.expiration.toISOString() : null}
+						/>
+					</>
+				) : (
 					<p className="admin-card-hint">
-						<strong>Direct sync is on.</strong> Delivery and collection runs are
-						written straight into {process.env.GOOGLE_CALENDAR_ID} as real
-						events, so they appear in Notion Calendar, Apple Calendar and
-						anywhere else that account syncs — within seconds, not hours. They
-						update when you change a booking and disappear when you cancel one.
+						Direct sync is off. Set GOOGLE_CALENDAR_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL and
+						GOOGLE_SERVICE_ACCOUNT_KEY in Vercel to write real events into the hello@ calendar.
+						Until then the subscribable feed below is the only option — note that Google polls feeds
+						slowly and Apple Calendar can&apos;t see them through a Google account at all.
 					</p>
-					<CalendarSyncStatusLine health={health} />
-					<CalendarSyncNow />
-					<TwoWaySyncToggle
-						active={watch.active}
-						expiration={watch.expiration ? watch.expiration.toISOString() : null}
+				)}
+				<h3 className="admin-modal-section">Or subscribe to the feed</h3>
+				{token ? (
+					<CalendarSubscribe
+						feedUrl={`${site}/api/calendar/${token}/runs.ics`}
+						brandColor={BRAND_COLOR}
 					/>
-				</>
-			) : (
-				<p className="admin-card-hint">
-					Direct sync is off. Set GOOGLE_CALENDAR_ID,
-					GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_KEY in
-					Vercel to write real events into the hello@ calendar. Until then
-					the subscribable feed below is the only option — note that Google
-					polls feeds slowly and Apple Calendar can&apos;t see them through a
-					Google account at all.
-				</p>
-			)}
-			<h3 className="admin-modal-section">Or subscribe to the feed</h3>
-			{token ? (
-				<CalendarSubscribe
-					feedUrl={`${site}/api/calendar/${token}/runs.ics`}
-					brandColor={BRAND_COLOR}
-				/>
-			) : (
-				<p className="admin-empty-inline">
-					Set <code>CALENDAR_FEED_TOKEN</code> in the Vercel environment to a
-					long random string, redeploy, and the subscribe link appears here.
-				</p>
-			)}
+				) : (
+					<p className="admin-empty-inline">
+						Set <code>CALENDAR_FEED_TOKEN</code> in the Vercel environment to a long random string,
+						redeploy, and the subscribe link appears here.
+					</p>
+				)}
 			</div>
 		</details>
 	);
