@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Booking, BookingStatus } from "../../lib/db/schema";
 import { getSyncHealth, getWatchInfo, type SyncHealth } from "../../lib/google-calendar";
 import { BRAND_COLOR } from "../../lib/ics";
+import { BoardStripScroll } from "../_components/board-strip-scroll";
 import { CalendarSubscribe } from "../_components/calendar-subscribe";
 import { CalendarSyncNow } from "../_components/calendar-sync-now";
 import { CheckIcon, WarningIcon } from "../_components/icons";
@@ -211,7 +212,7 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 					<div className="admin-list-heading">
 						<h2>Board availability</h2>
 					</div>
-					<div className="admin-board-strip-scroll">
+					<BoardStripScroll>
 						<table className="admin-board-strip-table">
 							<thead>
 								<tr>
@@ -258,7 +259,7 @@ export default async function AdminCalendarPage({ searchParams }: Props) {
 								})}
 							</tbody>
 						</table>
-					</div>
+					</BoardStripScroll>
 					<p className="admin-card-hint">
 						Orange = out on a booking. Hover a bar for the booking. Repair / retired boards
 						aren&apos;t shown.

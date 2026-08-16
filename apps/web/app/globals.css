@@ -8290,9 +8290,27 @@ h1 {
   font-weight: 800;
 }
 
+/* One continuous outline around the whole today column: accent edges on the
+   sides of every cell, closed off at the first and last rows — no horizontal
+   accent lines between the rows inside. Inset box-shadows, not borders,
+   because border-collapse would let a neighbour's gray border win the edge. */
 .admin-board-strip-cell--today {
-  outline: 1px solid var(--accent);
-  outline-offset: -1px;
+  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent);
+}
+
+.admin-board-strip-table tbody tr:first-child .admin-board-strip-cell--today {
+  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent),
+    inset 0 1px 0 var(--accent);
+}
+
+.admin-board-strip-table tbody tr:last-child .admin-board-strip-cell--today {
+  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent),
+    inset 0 -1px 0 var(--accent);
+}
+
+.admin-board-strip-table tbody tr:first-child:last-child .admin-board-strip-cell--today {
+  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent),
+    inset 0 1px 0 var(--accent), inset 0 -1px 0 var(--accent);
 }
 
 /* ---- Booking lifecycle progress bar ---- */
