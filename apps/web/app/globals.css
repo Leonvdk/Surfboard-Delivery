@@ -8290,27 +8290,28 @@ h1 {
   font-weight: 800;
 }
 
-/* One continuous outline around the whole today column: accent edges on the
-   sides of every cell, closed off at the first and last rows — no horizontal
-   accent lines between the rows inside. Inset box-shadows, not borders,
-   because border-collapse would let a neighbour's gray border win the edge. */
+/* One continuous outline around the whole today column: side edges on every
+   cell, closed off at the first and last rows — no horizontal lines between
+   the rows inside. Inset box-shadows, not borders, because border-collapse
+   would let a neighbour's gray border win the edge. Uses the darker brand red
+   (accent-hover) at 2px so it stays visible over accent-filled busy cells. */
 .admin-board-strip-cell--today {
-  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent-hover), inset -2px 0 0 var(--accent-hover);
 }
 
 .admin-board-strip-table tbody tr:first-child .admin-board-strip-cell--today {
-  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent),
-    inset 0 1px 0 var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent-hover), inset -2px 0 0 var(--accent-hover),
+    inset 0 2px 0 var(--accent-hover);
 }
 
 .admin-board-strip-table tbody tr:last-child .admin-board-strip-cell--today {
-  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent),
-    inset 0 -1px 0 var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent-hover), inset -2px 0 0 var(--accent-hover),
+    inset 0 -2px 0 var(--accent-hover);
 }
 
 .admin-board-strip-table tbody tr:first-child:last-child .admin-board-strip-cell--today {
-  box-shadow: inset 1px 0 0 var(--accent), inset -1px 0 0 var(--accent),
-    inset 0 1px 0 var(--accent), inset 0 -1px 0 var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent-hover), inset -2px 0 0 var(--accent-hover),
+    inset 0 2px 0 var(--accent-hover), inset 0 -2px 0 var(--accent-hover);
 }
 
 /* ---- Booking lifecycle progress bar ---- */
