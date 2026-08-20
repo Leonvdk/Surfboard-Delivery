@@ -607,7 +607,11 @@ export function TideGuide() {
 							Step 1 of 6
 						</span>
 						<h1 id="lesson-title">The Moon lifts the sea</h1>
-						<div id="lesson-text">…</div>
+						<div id="lesson-text">
+							The Moon's gravity pulls hardest on the ocean closest to it, and weakest on the ocean
+							on the far side. That stretch raises <b>two bulges</b> of water — one under the Moon,
+							one directly opposite. Those bulges are <b>high tide</b>.
+						</div>
 						<div className="lesson-controls">
 							<button id="lesson-back" className="btn btn-ghost" type="button">
 								← Back
@@ -634,7 +638,10 @@ export function TideGuide() {
 								Spring tide
 							</span>
 						</div>
-						<div id="desc">…</div>
+						<div id="desc">
+							Sun, Earth and Moon in a line — the two pulls add up. Biggest range: highest highs,
+							lowest lows.
+						</div>
 						<div className="meter">
 							<div className="meter-fill" id="meter" />
 						</div>

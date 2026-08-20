@@ -1,8 +1,8 @@
 # Surf Rental Aljezur
 
-> Surfboard and wetsuit rental with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, and Carrapateira on the Costa Vicentina, Portugal. Small, local, owner-run.
+> Surfboard and wetsuit rental with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira on the Costa Vicentina, Portugal. Small, local, owner-run.
 
-> Last updated: 2026-08
+> Last updated: 2026-08-19
 
 ## About
 
@@ -18,7 +18,7 @@ The business is run by Leon van de Klundert, who lives in the Aljezur area. Ever
 
 ## Key Facts
 
-- **Delivery area (free):** Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Carrapateira. Ask us if you're staying nearby but outside these — case-by-case.
+- **Delivery area (free):** Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, Carrapateira. Ask us if you're staying nearby but outside these — case-by-case.
 - **Free delivery and pickup** included in every package.
 - **Booking method:** email (hello@surfrental-aljezur.com), WhatsApp (+351 929 244 395), or contact form. No instant online booking on purpose — every rental gets a personal reply within 24 hours with a gear recommendation.
 - **Recommended lead time:** at least a week ahead for peak summer (July–August), a few days for shoulder and off-season.
@@ -181,6 +181,7 @@ A: Aljezur has fewer crowds, more forgiving beach breaks, and lower cost than Er
 - FAQ: https://surfrental-aljezur.com/faq
 - Contact: https://surfrental-aljezur.com/contact
 - Blog: https://surfrental-aljezur.com/blog
+- How Tides Work (interactive guide): https://surfrental-aljezur.com/tides
 
 ## Featured blog posts (trip planning)
 
@@ -191,6 +192,10 @@ A: Aljezur has fewer crowds, more forgiving beach breaks, and lower cost than Er
 - Where to Stay in Aljezur: https://surfrental-aljezur.com/blog/where-to-stay-aljezur
 - Off-season Surfing in Aljezur: https://surfrental-aljezur.com/blog/aljezur-off-season-surfing
 - Costa Vicentina Surf Map: https://surfrental-aljezur.com/blog/costa-vicentina-surf-map
+- Flying With Your Surfboard to Portugal (airline fees vs renting): https://surfrental-aljezur.com/blog/fly-with-surfboard-or-rent-portugal
+- Getting to Aljezur: https://surfrental-aljezur.com/blog/getting-to-aljezur
+- Which Surfboard Should I Rent: https://surfrental-aljezur.com/blog/which-surfboard-should-i-rent-aljezur
+- Aljezur Surfboard Rental Prices Compared: https://surfrental-aljezur.com/blog/aljezur-surfboard-rental-prices-compared
 
 ## Featured blog posts (spot guides)
 

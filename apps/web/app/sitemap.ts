@@ -4,7 +4,7 @@ import { DELIVERY_TOWNS } from "./lib/delivery-towns";
 import { SITE_URL } from "./lib/metadata";
 import { CAM_SPOTS } from "./surf-cams/_data";
 
-const SITE_UPDATED = new Date("2026-08-12");
+const SITE_UPDATED = new Date("2026-08-19");
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	// Stable last-modified for static/delivery pages. A fresh `new Date()`
@@ -19,6 +19,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			lastModified,
 			changeFrequency: "weekly",
 			priority: 1,
+		},
+		{
+			// Interactive tide guide — an educational asset worth citing, so it
+			// belongs in the sitemap even though it's a WebGL page.
+			url: `${SITE_URL}/tides`,
+			lastModified,
+			changeFrequency: "yearly",
+			priority: 0.7,
 		},
 		{
 			url: `${SITE_URL}/surf-gear`,

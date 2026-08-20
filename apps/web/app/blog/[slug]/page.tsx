@@ -12,8 +12,8 @@ import { mdxComponents } from "../../components/mdx-components";
 import { RelatedPosts } from "../../components/related-posts";
 import { HorizonLine, Reveal } from "../../components/reveal";
 import { UpdatedBanner } from "../../components/updated-banner";
-import { getAllPosts, getPostBySlug } from "../../lib/blog";
-import { articleJsonLd, breadcrumbJsonLd } from "../../lib/jsonld";
+import { extractFaqs, getAllPosts, getPostBySlug } from "../../lib/blog";
+import { articleJsonLd, breadcrumbJsonLd, faqJsonLd } from "../../lib/jsonld";
 import { SITE_URL } from "../../lib/metadata";
 import { RELATED_POSTS_MAP } from "../../lib/related-posts-map";
 
@@ -59,6 +59,8 @@ export default async function BlogPostPage({ params }: Props) {
 	const post = getPostBySlug(slug);
 	if (!post) notFound();
 
+	const faqs = extractFaqs(post.content);
+
 	return (
 		<>
 			<JsonLd
@@ -78,6 +80,10 @@ export default async function BlogPostPage({ params }: Props) {
 				})}
 			/>
 
+			{/* Question/answer pairs from the post's own FAQ section, marked up
+			    so answer engines can lift them as structured Q&A. */}
+			{faqs.length > 0 && <JsonLd data={faqJsonLd(faqs)} />}
+
 			<section className="section" style={{ paddingTop: 100 }}>
 				<div className="container">
 					<Reveal>
@@ -89,14 +95,12 @@ export default async function BlogPostPage({ params }: Props) {
 									{ label: post.title },
 								]}
 							/>
-													<div className="blog-post-meta">
+							<div className="blog-post-meta">
 								<time className="blog-post-date" dateTime={post.date}>
 									{formatDate(post.date)}
 								</time>
 								{post.updated && post.updated !== post.date && (
-									<span className="blog-post-updated">
-										· Updated {formatDate(post.updated)}
-									</span>
+									<span className="blog-post-updated">· Updated {formatDate(post.updated)}</span>
 								)}
 								<span className="blog-post-read">· {post.readingTime} min read</span>
 							</div>
@@ -119,7 +123,11 @@ export default async function BlogPostPage({ params }: Props) {
 					<HorizonLine />
 
 					<article className="blog-post-body">
-						<MDXRemote source={post.content} components={mdxComponents} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
+						<MDXRemote
+							source={post.content}
+							components={mdxComponents}
+							options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+						/>
 					</article>
 
 					{RELATED_POSTS_MAP[slug] && (
