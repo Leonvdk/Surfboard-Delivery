@@ -1,7 +1,7 @@
-import { Resend } from "resend";
 import { eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
 import { getDb, schema } from "../../lib/db/client";
 import {
 	calcAddonPrice,
@@ -23,7 +23,6 @@ function getResend() {
 
 const BUSINESS_EMAIL = "hello@surfrental-aljezur.com";
 const FROM_EMAIL = "Surf Rental Aljezur <hello@surfrental-aljezur.com>";
-
 
 interface PersonData {
 	name: string;
@@ -56,9 +55,7 @@ interface BookingRequest {
 
 /** Keep only catalog add-ons with a sane quantity — a hand-crafted payload
  * can't invent a charge (unknown keys price to 0, quantity is clamped). */
-function normalizeAddons(
-	raw: BookingRequest["addons"],
-): { key: string; quantity: number }[] {
+function normalizeAddons(raw: BookingRequest["addons"]): { key: string; quantity: number }[] {
 	if (!Array.isArray(raw)) return [];
 	return raw
 		.filter((a) => a && typeof a.key === "string" && getAddonTariff(a.key))
@@ -69,10 +66,7 @@ function normalizeAddons(
 }
 
 /** Total for a set of add-ons over the booking window (envelope days). */
-function addonsTotal(
-	addons: { key: string; quantity: number }[],
-	days: number | null,
-): number {
+function addonsTotal(addons: { key: string; quantity: number }[], days: number | null): number {
 	if (!days) return 0;
 	return addons.reduce((sum, a) => sum + calcAddonPrice(a.key, days, a.quantity), 0);
 }
@@ -209,7 +203,10 @@ function buildBusinessEmail(
 		: `${data.checkin} → ${data.checkout}`;
 	const subject = `New booking request from ${data.name} (${dateHeadline})`;
 
-	const totalLine = total != null ? `Estimated total: €${total}` : "Estimated total: Not available (custom package selected)";
+	const totalLine =
+		total != null
+			? `Estimated total: €${total}`
+			: "Estimated total: Not available (custom package selected)";
 
 	const text = `New booking request
 
@@ -261,11 +258,15 @@ Reply directly to this email to reach the customer.`;
         <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#1A1A1A;">${total != null ? `€${total}` : "Custom — needs quote"}</div>
       </div>
 
-      ${data.message ? `
+      ${
+				data.message
+					? `
       <div style="margin-top:24px;padding:16px 20px;background:#F0F0EE;border-left:3px solid #D4501E;">
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#555555;margin-bottom:6px;">Message</div>
         <p style="margin:0;font-size:14px;line-height:1.6;color:#1A1A1A;">${data.message.replace(/\n/g, "<br/>")}</p>
-      </div>` : ""}
+      </div>`
+					: ""
+			}
     </div>
 
     <p style="margin-top:16px;font-size:12px;color:#888888;">Reply directly to this email to reach ${data.name}.</p>
@@ -285,9 +286,10 @@ function buildCustomerEmail(
 	const deliveryLabel = showDates ? "First delivery" : "Delivery";
 	const pickupLabel = showDates ? "Last pickup" : "Pickup";
 
-	const customerTotalLine = total != null
-		? `Estimated total: €${total} (final pricing confirmed in our reply)`
-		: "We'll include pricing in our personalized reply.";
+	const customerTotalLine =
+		total != null
+			? `Estimated total: €${total} (final pricing confirmed in our reply)`
+			: "We'll include pricing in our personalized reply.";
 
 	const text = `Hi ${data.name},
 
@@ -340,18 +342,26 @@ See you in the water!
         ${data.people.map((p, i) => formatPersonHtml(p, i, { checkin: data.checkin, checkout: data.checkout }, showDates)).join("")}
       </table>
 
-      ${total != null ? `
+      ${
+				total != null
+					? `
       <div style="margin-top:24px;padding:20px;background:#F0F0EE;border-left:3px solid #1A1A1A;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555555;margin-bottom:6px;">Estimated total</div>
         <div style="font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#1A1A1A;margin-bottom:4px;">€${total}</div>
         <div style="font-size:12px;color:#888888;">Final pricing confirmed in our personalized reply</div>
-      </div>` : ""}
+      </div>`
+					: ""
+			}
 
-      ${data.message ? `
+      ${
+				data.message
+					? `
       <div style="margin-top:20px;padding:16px 20px;background:#F0F0EE;border-left:3px solid #D4501E;">
         <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#555555;margin-bottom:6px;">Your message</div>
         <p style="margin:0;font-size:14px;line-height:1.6;color:#1A1A1A;">${data.message.replace(/\n/g, "<br/>")}</p>
-      </div>` : ""}
+      </div>`
+					: ""
+			}
     </div>
 
     <!-- What happens next -->
@@ -371,7 +381,7 @@ See you in the water!
 
     <!-- Footer -->
     <hr style="margin:32px 0 16px;border:none;border-top:1.5px solid #1A1A1A;" />
-    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#D4501E;text-decoration:none;">surfrental-aljezur.com</a></p>
+    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & the Costa Vicentina<br/><a href="https://surfrental-aljezur.com" style="color:#D4501E;text-decoration:none;">surfrental-aljezur.com</a></p>
   </div>
 </div>`;
 
@@ -383,10 +393,7 @@ export async function POST(request: Request) {
 		const data: BookingRequest = await request.json();
 
 		if (!data.name || !data.email || !data.checkin || !data.checkout) {
-			return NextResponse.json(
-				{ error: "Missing required fields" },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
 		}
 
 		// Normalize: a per-person "override" identical to the trip range is
@@ -471,12 +478,14 @@ export async function POST(request: Request) {
 				text: customerEmail.text,
 				html: customerEmail.html,
 			}),
-			client.contacts.create({
-				email: data.email,
-				firstName,
-				unsubscribed: false,
-				segments: [{ id: "f2615757-9791-466f-9ca2-061d884304ce" }],
-			}).catch((err) => console.error("Contact create error:", err)),
+			client.contacts
+				.create({
+					email: data.email,
+					firstName,
+					unsubscribed: false,
+					segments: [{ id: "f2615757-9791-466f-9ca2-061d884304ce" }],
+				})
+				.catch((err) => console.error("Contact create error:", err)),
 		]);
 
 		if (businessResult.error || customerResult.error) {
@@ -605,9 +614,6 @@ export async function POST(request: Request) {
 		return NextResponse.json({ success: true, requestRef });
 	} catch (err) {
 		console.error("Contact API error:", err);
-		return NextResponse.json(
-			{ error: "Internal server error" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 	}
 }

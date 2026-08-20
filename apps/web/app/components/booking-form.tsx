@@ -16,7 +16,6 @@ import {
 	trackWetsuitCalcOpened,
 	trackWetsuitCalcResult,
 } from "../lib/analytics";
-import { DateRangePicker } from "./date-range-picker";
 import {
 	addonPerDay,
 	calcAddonPrice,
@@ -26,6 +25,7 @@ import {
 	formatWeeksLabel,
 	type PackageTier,
 } from "../lib/pricing";
+import { DateRangePicker } from "./date-range-picker";
 
 const ROOF_RACK_KEY = "roof_rack";
 
@@ -139,17 +139,33 @@ type BoardRec = {
 };
 
 const BOARD_RECS: Record<string, BoardRec> = {
-	longboard: { value: "8'6", label: "8\u20196 Longboard", image: "/images/rentals/8'6/picture(1).jpg" },
-	"funboard-78": { value: "7'8", label: "7\u20198 Funboard", image: "/images/rentals/7'8/picture(1).jpg" },
-	"funboard-70": { value: "7'0", label: "7\u20190 Funboard", image: "/images/rentals/7'0/picture(1).jpg" },
-	shortboard: { value: "6'6", label: "6\u20196 Shortboard", image: "/images/rentals/6'6/picture(1).jpg" },
+	longboard: {
+		value: "8'6",
+		label: "8\u20196 Longboard",
+		image: "/images/rentals/8'6/picture(1).jpg",
+	},
+	"funboard-78": {
+		value: "7'8",
+		label: "7\u20198 Funboard",
+		image: "/images/rentals/7'8/picture(1).jpg",
+	},
+	"funboard-70": {
+		value: "7'0",
+		label: "7\u20190 Funboard",
+		image: "/images/rentals/7'0/picture(1).jpg",
+	},
+	shortboard: {
+		value: "6'6",
+		label: "6\u20196 Shortboard",
+		image: "/images/rentals/6'6/picture(1).jpg",
+	},
 };
 
 function recommendBoard(level: Level, weight: number): BoardRec | "advanced" | null {
 	if (!level || !weight) return null;
 	if (level === "advanced") return "advanced";
 	if (level === "never") {
-		return weight >= 80 ? BOARD_RECS.longboard ?? null : BOARD_RECS["funboard-78"] ?? null;
+		return weight >= 80 ? (BOARD_RECS.longboard ?? null) : (BOARD_RECS["funboard-78"] ?? null);
 	}
 	if (level === "few-times") {
 		if (weight >= 80) return BOARD_RECS.longboard ?? null;
@@ -157,7 +173,7 @@ function recommendBoard(level: Level, weight: number): BoardRec | "advanced" | n
 		return BOARD_RECS["funboard-78"] ?? null;
 	}
 	if (level === "intermediate") {
-		return weight >= 80 ? BOARD_RECS["funboard-78"] ?? null : BOARD_RECS["funboard-70"] ?? null;
+		return weight >= 80 ? (BOARD_RECS["funboard-78"] ?? null) : (BOARD_RECS["funboard-70"] ?? null);
 	}
 	return null;
 }
@@ -260,11 +276,7 @@ function personEffectiveDates(
  * date picker needs: it decides "am I picking a start or an end?" from
  * whether checkout is empty, so a fallback value would freeze it.
  */
-function hasDateOverride(
-	person: Person,
-	tripCheckin = "",
-	tripCheckout = "",
-): boolean {
+function hasDateOverride(person: Person, tripCheckin = "", tripCheckout = ""): boolean {
 	if (!person.checkin || !person.checkout) return false;
 	return person.checkin !== tripCheckin || person.checkout !== tripCheckout;
 }
@@ -400,15 +412,20 @@ function BoardCalcModal({
 
 	return createPortal(
 		<div className="modal-overlay" onClick={onClose}>
-			<dialog
-				className="modal"
-				open
-				onClick={(e) => e.stopPropagation()}
-			>
+			<dialog className="modal" open onClick={(e) => e.stopPropagation()}>
 				<div className="modal-header">
 					<h3 className="modal-title">Find the right board</h3>
 					<button className="modal-close" onClick={onClose} aria-label="Close">
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
 							<line x1="18" y1="6" x2="6" y2="18" />
 							<line x1="6" y1="6" x2="18" y2="18" />
 						</svg>
@@ -416,8 +433,15 @@ function BoardCalcModal({
 				</div>
 				<div className="modal-body">
 					<div className="calc-field">
-						<label className="calc-label" htmlFor="modal-board-level">Surf experience</label>
-						<select id="modal-board-level" className="calc-select" value={level} onChange={(e) => setLevel(e.target.value as Level)}>
+						<label className="calc-label" htmlFor="modal-board-level">
+							Surf experience
+						</label>
+						<select
+							id="modal-board-level"
+							className="calc-select"
+							value={level}
+							onChange={(e) => setLevel(e.target.value as Level)}
+						>
 							<option value="">Select your level</option>
 							<option value="never">Never surfed before</option>
 							<option value="few-times">Surfed a few times</option>
@@ -426,8 +450,19 @@ function BoardCalcModal({
 						</select>
 					</div>
 					<div className="calc-field">
-						<label className="calc-label" htmlFor="modal-board-weight">Weight (kg)</label>
-						<input id="modal-board-weight" className="calc-input" type="number" min="20" max="200" placeholder="e.g. 75" value={weight} onChange={(e) => setWeight(e.target.value)} />
+						<label className="calc-label" htmlFor="modal-board-weight">
+							Weight (kg)
+						</label>
+						<input
+							id="modal-board-weight"
+							className="calc-input"
+							type="number"
+							min="20"
+							max="200"
+							placeholder="e.g. 75"
+							value={weight}
+							onChange={(e) => setWeight(e.target.value)}
+						/>
 					</div>
 					{result && result !== "advanced" && (
 						<div className="modal-result">
@@ -437,7 +472,11 @@ function BoardCalcModal({
 								</div>
 								<div className="modal-rec-body">
 									<div className="modal-rec-name">{result.label}</div>
-									<button type="button" className="btn btn-primary btn-sm" onClick={() => handleSelect(result.value)}>
+									<button
+										type="button"
+										className="btn btn-primary btn-sm"
+										onClick={() => handleSelect(result.value)}
+									>
 										Select this board
 									</button>
 								</div>
@@ -446,10 +485,17 @@ function BoardCalcModal({
 					)}
 					{result === "advanced" && (
 						<div className="modal-result">
-							<p className="modal-advanced-text">You can ride any of our boards! Pick the one that suits the conditions.</p>
+							<p className="modal-advanced-text">
+								You can ride any of our boards! Pick the one that suits the conditions.
+							</p>
 							<div className="modal-advanced-options">
 								{Object.values(BOARD_RECS).map((b) => (
-									<button key={b.value} type="button" className="modal-board-btn" onClick={() => handleSelect(b.value)}>
+									<button
+										key={b.value}
+										type="button"
+										className="modal-board-btn"
+										onClick={() => handleSelect(b.value)}
+									>
 										<div className="modal-board-btn-img">
 											<Image src={b.image} alt={b.label} width={150} height={112} />
 										</div>
@@ -502,9 +548,7 @@ function WetsuitCalcModal({
 	if (!open || !mounted) return null;
 
 	const isKid = sex === "kid";
-	const sizeLabel = isKid && result
-		? `${result.replace("-", " – ")} cm`
-		: result;
+	const sizeLabel = isKid && result ? `${result.replace("-", " – ")} cm` : result;
 
 	return createPortal(
 		<div className="modal-overlay" onClick={onClose}>
@@ -512,7 +556,16 @@ function WetsuitCalcModal({
 				<div className="modal-header">
 					<h3 className="modal-title">Find your wetsuit size</h3>
 					<button className="modal-close" onClick={onClose} aria-label="Close">
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
 							<line x1="18" y1="6" x2="6" y2="18" />
 							<line x1="6" y1="6" x2="18" y2="18" />
 						</svg>
@@ -526,14 +579,36 @@ function WetsuitCalcModal({
 					</p>
 
 					<div className="calc-field">
-						<label className="calc-label" htmlFor="modal-ws-height">Height (cm)</label>
-						<input id="modal-ws-height" className="calc-input" type="number" min={isKid ? 90 : 140} max={isKid ? 170 : 220} placeholder={isKid ? "e.g. 135" : "e.g. 178"} value={height} onChange={(e) => setHeight(e.target.value)} />
+						<label className="calc-label" htmlFor="modal-ws-height">
+							Height (cm)
+						</label>
+						<input
+							id="modal-ws-height"
+							className="calc-input"
+							type="number"
+							min={isKid ? 90 : 140}
+							max={isKid ? 170 : 220}
+							placeholder={isKid ? "e.g. 135" : "e.g. 178"}
+							value={height}
+							onChange={(e) => setHeight(e.target.value)}
+						/>
 					</div>
 
 					{!isKid && (
 						<div className="calc-field">
-							<label className="calc-label" htmlFor="modal-ws-weight">Weight (kg)</label>
-							<input id="modal-ws-weight" className="calc-input" type="number" min="30" max="200" placeholder="e.g. 75" value={weight} onChange={(e) => setWeight(e.target.value)} />
+							<label className="calc-label" htmlFor="modal-ws-weight">
+								Weight (kg)
+							</label>
+							<input
+								id="modal-ws-weight"
+								className="calc-input"
+								type="number"
+								min="30"
+								max="200"
+								placeholder="e.g. 75"
+								value={weight}
+								onChange={(e) => setWeight(e.target.value)}
+							/>
 						</div>
 					)}
 
@@ -559,7 +634,11 @@ function WetsuitCalcModal({
 
 					<div className="modal-size-table">
 						<h4 className="modal-table-title">
-							{isKid ? "Size guide (kids)" : sex === "male" ? "Size guide (men)" : "Size guide (women)"}
+							{isKid
+								? "Size guide (kids)"
+								: sex === "male"
+									? "Size guide (men)"
+									: "Size guide (women)"}
 						</h4>
 						<table className="ws-table">
 							<thead>
@@ -572,30 +651,88 @@ function WetsuitCalcModal({
 							<tbody>
 								{sex === "male" && (
 									<>
-										<tr><td>XS</td><td>165 – 172 cm</td><td>55 – 65 kg</td></tr>
-										<tr><td>S</td><td>170 – 178 cm</td><td>60 – 72 kg</td></tr>
-										<tr><td>M</td><td>175 – 183 cm</td><td>68 – 82 kg</td></tr>
-										<tr><td>L</td><td>180 – 190 cm</td><td>78 – 92 kg</td></tr>
-										<tr><td>XL</td><td>185 – 198 cm</td><td>88 – 105 kg</td></tr>
+										<tr>
+											<td>XS</td>
+											<td>165 – 172 cm</td>
+											<td>55 – 65 kg</td>
+										</tr>
+										<tr>
+											<td>S</td>
+											<td>170 – 178 cm</td>
+											<td>60 – 72 kg</td>
+										</tr>
+										<tr>
+											<td>M</td>
+											<td>175 – 183 cm</td>
+											<td>68 – 82 kg</td>
+										</tr>
+										<tr>
+											<td>L</td>
+											<td>180 – 190 cm</td>
+											<td>78 – 92 kg</td>
+										</tr>
+										<tr>
+											<td>XL</td>
+											<td>185 – 198 cm</td>
+											<td>88 – 105 kg</td>
+										</tr>
 									</>
 								)}
 								{sex === "female" && (
 									<>
-										<tr><td>XS</td><td>155 – 163 cm</td><td>45 – 55 kg</td></tr>
-										<tr><td>S</td><td>160 – 170 cm</td><td>52 – 63 kg</td></tr>
-										<tr><td>M</td><td>167 – 176 cm</td><td>60 – 72 kg</td></tr>
-										<tr><td>L</td><td>173 – 183 cm</td><td>68 – 82 kg</td></tr>
-										<tr><td>XL</td><td>178 – 190 cm</td><td>78 – 95 kg</td></tr>
+										<tr>
+											<td>XS</td>
+											<td>155 – 163 cm</td>
+											<td>45 – 55 kg</td>
+										</tr>
+										<tr>
+											<td>S</td>
+											<td>160 – 170 cm</td>
+											<td>52 – 63 kg</td>
+										</tr>
+										<tr>
+											<td>M</td>
+											<td>167 – 176 cm</td>
+											<td>60 – 72 kg</td>
+										</tr>
+										<tr>
+											<td>L</td>
+											<td>173 – 183 cm</td>
+											<td>68 – 82 kg</td>
+										</tr>
+										<tr>
+											<td>XL</td>
+											<td>178 – 190 cm</td>
+											<td>78 – 95 kg</td>
+										</tr>
 									</>
 								)}
 								{isKid && (
 									<>
-										<tr><td>100 – 110 cm</td><td>100 – 110 cm</td></tr>
-										<tr><td>110 – 120 cm</td><td>110 – 120 cm</td></tr>
-										<tr><td>120 – 130 cm</td><td>120 – 130 cm</td></tr>
-										<tr><td>130 – 140 cm</td><td>130 – 140 cm</td></tr>
-										<tr><td>140 – 150 cm</td><td>140 – 150 cm</td></tr>
-										<tr><td>150 – 160 cm</td><td>150 – 160 cm</td></tr>
+										<tr>
+											<td>100 – 110 cm</td>
+											<td>100 – 110 cm</td>
+										</tr>
+										<tr>
+											<td>110 – 120 cm</td>
+											<td>110 – 120 cm</td>
+										</tr>
+										<tr>
+											<td>120 – 130 cm</td>
+											<td>120 – 130 cm</td>
+										</tr>
+										<tr>
+											<td>130 – 140 cm</td>
+											<td>130 – 140 cm</td>
+										</tr>
+										<tr>
+											<td>140 – 150 cm</td>
+											<td>140 – 150 cm</td>
+										</tr>
+										<tr>
+											<td>150 – 160 cm</td>
+											<td>150 – 160 cm</td>
+										</tr>
 									</>
 								)}
 							</tbody>
@@ -659,18 +796,26 @@ function saveDraft(draft: Partial<FormDraft>) {
 	try {
 		const existing = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
 		sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...draft }));
-	} catch { /* ignore */ }
+	} catch {
+		/* ignore */
+	}
 }
 
 function loadDraft(): FormDraft | null {
 	try {
 		const raw = sessionStorage.getItem(STORAGE_KEY);
 		return raw ? JSON.parse(raw) : null;
-	} catch { return null; }
+	} catch {
+		return null;
+	}
 }
 
 function clearDraft() {
-	try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+	try {
+		sessionStorage.removeItem(STORAGE_KEY);
+	} catch {
+		/* ignore */
+	}
 }
 
 export function BookingForm() {
@@ -692,9 +837,7 @@ export function BookingForm() {
 	const [expandedPerson, setExpandedPerson] = useState(0);
 	// Booking-level roof-rack add-on. Charged at the weekly tariff; shown
 	// per-day so it reads as a small number.
-	const [roofRack, setRoofRack] = useState<boolean>(
-		Boolean(draft.current?.roofRack),
-	);
+	const [roofRack, setRoofRack] = useState<boolean>(Boolean(draft.current?.roofRack));
 	const [editingName, setEditingName] = useState<number | null>(null);
 	const [boardCalcOpen, setBoardCalcOpen] = useState<number | null>(null);
 	const [wetsuitCalcOpen, setWetsuitCalcOpen] = useState<number | null>(null);
@@ -750,10 +893,17 @@ export function BookingForm() {
 		const d = draft.current;
 		if (!d || !formRef.current) return;
 		const form = formRef.current;
-		if (d.name) (form.elements.namedItem("name") as HTMLInputElement | null)?.setAttribute("value", d.name);
-		if (d.email) (form.elements.namedItem("email") as HTMLInputElement | null)?.setAttribute("value", d.email);
-		if (d.phone) (form.elements.namedItem("phone") as HTMLInputElement | null)?.setAttribute("value", d.phone);
-		if (d.accommodation) (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.setAttribute("value", d.accommodation);
+		if (d.name)
+			(form.elements.namedItem("name") as HTMLInputElement | null)?.setAttribute("value", d.name);
+		if (d.email)
+			(form.elements.namedItem("email") as HTMLInputElement | null)?.setAttribute("value", d.email);
+		if (d.phone)
+			(form.elements.namedItem("phone") as HTMLInputElement | null)?.setAttribute("value", d.phone);
+		if (d.accommodation)
+			(form.elements.namedItem("accommodation") as HTMLInputElement | null)?.setAttribute(
+				"value",
+				d.accommodation,
+			);
 		if (d.message) {
 			const el = form.elements.namedItem("message") as HTMLTextAreaElement | null;
 			if (el) el.value = d.message;
@@ -773,8 +923,14 @@ export function BookingForm() {
 		// Turning it off collapses back to a single window: keep the span
 		// the items covered so nothing silently shrinks.
 		if (!next) {
-			const ins = people.map((p) => p.checkin).filter(Boolean).sort();
-			const outs = people.map((p) => p.checkout).filter(Boolean).sort();
+			const ins = people
+				.map((p) => p.checkin)
+				.filter(Boolean)
+				.sort();
+			const outs = people
+				.map((p) => p.checkout)
+				.filter(Boolean)
+				.sort();
 			if (ins[0]) setCheckin(ins[0]);
 			if (outs.length) setCheckout(outs[outs.length - 1]!);
 		}
@@ -798,7 +954,8 @@ export function BookingForm() {
 			name,
 			email,
 			phone: (form.elements.namedItem("phone") as HTMLInputElement | null)?.value || "",
-			accommodation: (form.elements.namedItem("accommodation") as HTMLInputElement | null)?.value || "",
+			accommodation:
+				(form.elements.namedItem("accommodation") as HTMLInputElement | null)?.value || "",
 			message: (form.elements.namedItem("message") as HTMLTextAreaElement | null)?.value || "",
 		});
 		if (name.trim() && /.+@.+\..+/.test(email)) fireStep("contact_details_filled");
@@ -850,10 +1007,7 @@ export function BookingForm() {
 
 	useEffect(() => {
 		const handleBeforeUnload = () => {
-			if (
-				status !== "success" &&
-				trackedFields.current.size > 0
-			) {
+			if (status !== "success" && trackedFields.current.size > 0) {
 				trackBookingAbandoned({
 					last_field: lastField.current,
 					fields_completed: trackedFields.current.size,
@@ -871,9 +1025,7 @@ export function BookingForm() {
 		contactViewTracked.current = true;
 		let referrerPath = "";
 		try {
-			referrerPath = document.referrer
-				? new URL(document.referrer).pathname
-				: "(direct)";
+			referrerPath = document.referrer ? new URL(document.referrer).pathname : "(direct)";
 		} catch {
 			referrerPath = "(unknown)";
 		}
@@ -924,8 +1076,14 @@ export function BookingForm() {
 	// separate party range that could disagree with the gear.
 	const partyRange = useMemo(() => {
 		if (!allowIndividualDates) return { checkin, checkout };
-		const ins = people.map((p) => p.checkin).filter(Boolean).sort();
-		const outs = people.map((p) => p.checkout).filter(Boolean).sort();
+		const ins = people
+			.map((p) => p.checkin)
+			.filter(Boolean)
+			.sort();
+		const outs = people
+			.map((p) => p.checkout)
+			.filter(Boolean)
+			.sort();
 		return {
 			checkin: ins[0] ?? checkin,
 			checkout: outs[outs.length - 1] ?? checkout,
@@ -964,9 +1122,7 @@ export function BookingForm() {
 		if (estimate.allSelected && estimate.total > 0) {
 			if (!firedSteps.current.has("estimate_shown")) {
 				firedSteps.current.add("estimate_shown");
-				const hasWetsuit = people.some((p) =>
-					packageIncludesWetsuit(p.package, pkgOptions),
-				);
+				const hasWetsuit = people.some((p) => packageIncludesWetsuit(p.package, pkgOptions));
 				const accommodation =
 					(formRef.current?.elements.namedItem("accommodation") as HTMLInputElement | null)
 						?.value ?? "";
@@ -1022,7 +1178,7 @@ export function BookingForm() {
 		if (people.length <= 1) return;
 		setPeople((prev) => prev.filter((_, i) => i !== index));
 		setPeopleCount((c) => c - 1);
-		setExpandedPerson((prev) => prev >= index ? Math.max(0, prev - 1) : prev);
+		setExpandedPerson((prev) => (prev >= index ? Math.max(0, prev - 1) : prev));
 	};
 
 	const updatePerson = (index: number, field: keyof Person, value: string) => {
@@ -1042,8 +1198,7 @@ export function BookingForm() {
 	// the picker's back, so its second click never registered and the end
 	// date snapped straight back to the booking's. Divergence is decided
 	// by hasDateOverride() comparing values instead.
-	const setPersonCheckin = (index: number, value: string) =>
-		updatePerson(index, "checkin", value);
+	const setPersonCheckin = (index: number, value: string) => updatePerson(index, "checkin", value);
 	const setPersonCheckout = (index: number, value: string) =>
 		updatePerson(index, "checkout", value);
 
@@ -1055,9 +1210,7 @@ export function BookingForm() {
 		if (prev.checkin === checkin && prev.checkout === checkout) return;
 		setPeople((current) =>
 			current.map((p) =>
-				!p.checkin ||
-				!p.checkout ||
-				(p.checkin === prev.checkin && p.checkout === prev.checkout)
+				!p.checkin || !p.checkout || (p.checkin === prev.checkin && p.checkout === prev.checkout)
 					? { ...p, checkin, checkout }
 					: p,
 			),
@@ -1065,7 +1218,8 @@ export function BookingForm() {
 		prevTripRef.current = { checkin, checkout };
 	}, [checkin, checkout]);
 
-	const wetsuitCalcSex = wetsuitCalcOpen !== null ? (people[wetsuitCalcOpen]?.sex as Sex) : ("" as Sex);
+	const wetsuitCalcSex =
+		wetsuitCalcOpen !== null ? (people[wetsuitCalcOpen]?.sex as Sex) : ("" as Sex);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -1199,17 +1353,13 @@ export function BookingForm() {
 				// bundles a wetsuit (Full/Premium) => "both".
 				rental_type: hasWetsuit ? "both" : "board",
 				rental_duration: days,
-				delivery_location: deriveDeliveryLocation(
-					formData.get("accommodation") as string | null,
-				),
+				delivery_location: deriveDeliveryLocation(formData.get("accommodation") as string | null),
 			});
 			clearDraft();
 			setStatus("success");
 		} catch (err) {
 			setStatus("error");
-			setErrorMsg(
-				err instanceof Error ? err.message : "Something went wrong. Please try again.",
-			);
+			setErrorMsg(err instanceof Error ? err.message : "Something went wrong. Please try again.");
 		}
 	};
 
@@ -1223,13 +1373,9 @@ export function BookingForm() {
 			})
 			.join(" · ");
 		const submittedName =
-			formRef.current?.querySelector<HTMLInputElement>(
-				"input[name='name']",
-			)?.value ?? "";
+			formRef.current?.querySelector<HTMLInputElement>("input[name='name']")?.value ?? "";
 		const submittedAcc =
-			formRef.current?.querySelector<HTMLInputElement>(
-				"input[name='accommodation']",
-			)?.value ?? "";
+			formRef.current?.querySelector<HTMLInputElement>("input[name='accommodation']")?.value ?? "";
 		const firstName = submittedName.split(" ")[0] || "there";
 
 		const whatsappBase = "https://wa.me/351929244395";
@@ -1242,18 +1388,24 @@ export function BookingForm() {
 		return (
 			<div className="form-success">
 				<div className="form-success-icon">
-					<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+					<svg
+						width="48"
+						height="48"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
 						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
 						<polyline points="22 4 12 14.01 9 11.01" />
 					</svg>
 				</div>
-				<h3 className="form-success-title">
-					Thanks {firstName} — request logged.
-				</h3>
+				<h3 className="form-success-title">Thanks {firstName} — request logged.</h3>
 				{requestRef && (
 					<p className="form-success-ref">
-						Reference:{" "}
-						<strong className="form-success-ref-code">{requestRef}</strong>
+						Reference: <strong className="form-success-ref-code">{requestRef}</strong>
 					</p>
 				)}
 
@@ -1314,9 +1466,8 @@ export function BookingForm() {
 				</a>
 
 				<p className="form-success-sub">
-					You&apos;ll also get a confirmation email at the address you
-					provided. If it doesn&apos;t arrive within a few minutes, WhatsApp
-					us — we&apos;ll take it from there.
+					You&apos;ll also get a confirmation email at the address you provided. If it doesn&apos;t
+					arrive within a few minutes, WhatsApp us — we&apos;ll take it from there.
 				</p>
 			</div>
 		);
@@ -1353,7 +1504,16 @@ export function BookingForm() {
 								onClick={() => setPhoneTipOpen((o) => !o)}
 								onBlur={() => setPhoneTipOpen(false)}
 							>
-								<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+								<svg
+									width="15"
+									height="15"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+									aria-hidden="true"
+								>
 									<circle cx="12" cy="12" r="9.5" />
 									<line x1="12" y1="11" x2="12" y2="16.5" />
 									<circle cx="12" cy="7.5" r="0.5" fill="currentColor" />
@@ -1363,8 +1523,8 @@ export function BookingForm() {
 								className={`form-tooltip-bubble${phoneTipOpen ? " form-tooltip-bubble--open" : ""}`}
 								role="tooltip"
 							>
-								We need your phone number for delivery and pickup. You
-								don&apos;t have to leave it here, but we will ask for it later.
+								We need your phone number for delivery and pickup. You don&apos;t have to leave it
+								here, but we will ask for it later.
 							</span>
 						</span>
 					</div>
@@ -1376,7 +1536,7 @@ export function BookingForm() {
 						placeholder="e.g. +49 170 1234567"
 					/>
 				</div>
-			{!allowIndividualDates ? (
+				{!allowIndividualDates ? (
 					<DateRangePicker
 						checkin={checkin}
 						checkout={checkout}
@@ -1404,19 +1564,34 @@ export function BookingForm() {
 				</label>
 				{allowIndividualDates && (
 					<p className="individual-dates-note">
-						The dates you picked above apply to everyone. Edit each board&apos;s dates individually below.
+						The dates you picked above apply to everyone. Edit each board&apos;s dates individually
+						below.
 					</p>
 				)}
 				<div className="form-group">
 					<label htmlFor="accommodation">Accommodation address or name</label>
-					<input type="text" id="accommodation" name="accommodation" placeholder="e.g. Casa Sol, Vale da Telha" required />
+					<input
+						type="text"
+						id="accommodation"
+						name="accommodation"
+						placeholder="e.g. Casa Sol, Vale da Telha"
+						required
+					/>
 				</div>
 
 				<div className="form-group">
 					<label htmlFor="people-count">Number of people</label>
-					<select id="people-count" name="people_count" required value={peopleCount} onChange={(e) => handlePeopleChange(Number(e.target.value))}>
+					<select
+						id="people-count"
+						name="people_count"
+						required
+						value={peopleCount}
+						onChange={(e) => handlePeopleChange(Number(e.target.value))}
+					>
 						{[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-							<option key={n} value={n}>{n}</option>
+							<option key={n} value={n}>
+								{n}
+							</option>
 						))}
 					</select>
 				</div>
@@ -1432,14 +1607,30 @@ export function BookingForm() {
 
 						if (!isOpen) {
 							return (
-								<div key={i} className="person-fieldset person-fieldset--collapsed" onClick={() => setExpandedPerson(i)}>
+								<div
+									key={i}
+									className="person-fieldset person-fieldset--collapsed"
+									onClick={() => setExpandedPerson(i)}
+								>
 									<div className="person-collapsed-header">
 										<span className="person-legend">{personDisplayName(person, i)}</span>
-										<svg className="person-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+										<svg
+											className="person-chevron"
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
 											<polyline points="6 9 12 15 18 9" />
 										</svg>
 									</div>
-									<p className="person-collapsed-summary">{personSummaryLabel(person, personDays, checkin, checkout)}</p>
+									<p className="person-collapsed-summary">
+										{personSummaryLabel(person, personDays, checkin, checkout)}
+									</p>
 								</div>
 							);
 						}
@@ -1456,7 +1647,9 @@ export function BookingForm() {
 											autoFocus
 											onChange={(e) => updatePerson(i, "name", e.target.value)}
 											onBlur={() => setEditingName(null)}
-											onKeyDown={(e) => { if (e.key === "Enter") setEditingName(null); }}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") setEditingName(null);
+											}}
 										/>
 									) : (
 										<legend className="person-legend">
@@ -1467,7 +1660,16 @@ export function BookingForm() {
 												onClick={() => setEditingName(i)}
 												title="Change name"
 											>
-												<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<svg
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													strokeWidth="2"
+													strokeLinecap="round"
+													strokeLinejoin="round"
+												>
 													<path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
 													<path d="m15 5 4 4" />
 												</svg>
@@ -1475,7 +1677,9 @@ export function BookingForm() {
 										</legend>
 									)}
 									{allowIndividualDates && (
-										<div className={`person-date-picker person-date-picker--header${overrideActive ? " person-date-picker--custom" : ""}`}>
+										<div
+											className={`person-date-picker person-date-picker--header${overrideActive ? " person-date-picker--custom" : ""}`}
+										>
 											{/* Bound to the person's OWN dates, seeded from the trip
 												range when the checkbox is ticked. Falling back to the
 												trip values here would keep `checkout` permanently
@@ -1491,8 +1695,22 @@ export function BookingForm() {
 										</div>
 									)}
 									{people.length > 1 && (
-										<button type="button" className="person-remove" onClick={() => handleRemovePerson(i)} aria-label={`Remove person ${i + 1}`}>
-											<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+										<button
+											type="button"
+											className="person-remove"
+											onClick={() => handleRemovePerson(i)}
+											aria-label={`Remove person ${i + 1}`}
+										>
+											<svg
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											>
 												<line x1="18" y1="6" x2="6" y2="18" />
 												<line x1="6" y1="6" x2="18" y2="18" />
 											</svg>
@@ -1510,12 +1728,16 @@ export function BookingForm() {
 											onChange={(e) => updatePerson(i, "sex", e.target.value)}
 										>
 											{SEX_OPTIONS.map((o) => (
-												<option key={o.value} value={o.value}>{o.label}</option>
+												<option key={o.value} value={o.value}>
+													{o.label}
+												</option>
 											))}
 										</select>
 									</div>
 									<div className="form-group">
-										<label htmlFor={`experience-${i}`}>Experience <span className="form-optional">(optional)</span></label>
+										<label htmlFor={`experience-${i}`}>
+											Experience <span className="form-optional">(optional)</span>
+										</label>
 										<select
 											id={`experience-${i}`}
 											name={`person_${i + 1}_experience`}
@@ -1523,36 +1745,42 @@ export function BookingForm() {
 											onChange={(e) => updatePerson(i, "experience", e.target.value)}
 										>
 											{EXPERIENCE_OPTIONS.map((o) => (
-												<option key={o.value} value={o.value}>{o.label}</option>
+												<option key={o.value} value={o.value}>
+													{o.label}
+												</option>
 											))}
 										</select>
 									</div>
-								<div className="form-group">
-									<label htmlFor={`package-${i}`}>Package</label>
-									<select
-										id={`package-${i}`}
-										name={`person_${i + 1}_package`}
-										required
-										value={person.package}
-										onChange={(e) => updatePerson(i, "package", e.target.value)}
-									>
-										<option value="">Select a package</option>
-										{personPkgOptions.map((o) => (
-											<option key={o.value} value={o.value}>{o.label}</option>
-										))}
-									</select>
-									{(() => {
-										const sel = personPkgOptions.find((o) => o.value === person.package);
-										if (!sel?.pricePerPerson) return null;
-										return (
-											<span className="package-price-tag">
-												&euro;{sel.pricePerPerson} {formatDurationLabel(personDays)} per person
-											</span>
-										);
-									})()}
-								</div>
 									<div className="form-group">
-										<label htmlFor={`board-${i}`}>Board size <span className="form-optional">(optional)</span></label>
+										<label htmlFor={`package-${i}`}>Package</label>
+										<select
+											id={`package-${i}`}
+											name={`person_${i + 1}_package`}
+											required
+											value={person.package}
+											onChange={(e) => updatePerson(i, "package", e.target.value)}
+										>
+											<option value="">Select a package</option>
+											{personPkgOptions.map((o) => (
+												<option key={o.value} value={o.value}>
+													{o.label}
+												</option>
+											))}
+										</select>
+										{(() => {
+											const sel = personPkgOptions.find((o) => o.value === person.package);
+											if (!sel?.pricePerPerson) return null;
+											return (
+												<span className="package-price-tag">
+													&euro;{sel.pricePerPerson} {formatDurationLabel(personDays)} per person
+												</span>
+											);
+										})()}
+									</div>
+									<div className="form-group">
+										<label htmlFor={`board-${i}`}>
+											Board size <span className="form-optional">(optional)</span>
+										</label>
 										<select
 											id={`board-${i}`}
 											name={`person_${i + 1}_board`}
@@ -1560,7 +1788,9 @@ export function BookingForm() {
 											onChange={(e) => updatePerson(i, "board", e.target.value)}
 										>
 											{BOARD_OPTIONS.map((o) => (
-												<option key={o.value} value={o.value}>{o.label}</option>
+												<option key={o.value} value={o.value}>
+													{o.label}
+												</option>
 											))}
 										</select>
 										<button
@@ -1586,7 +1816,9 @@ export function BookingForm() {
 												disabled={!person.sex}
 											>
 												{wetsuitOpts.map((o) => (
-													<option key={o.value} value={o.value}>{o.label}</option>
+													<option key={o.value} value={o.value}>
+														{o.label}
+													</option>
 												))}
 											</select>
 											{person.sex && (
@@ -1609,8 +1841,21 @@ export function BookingForm() {
 					})}
 
 					{people.length < 8 && (
-						<button type="button" className="btn btn-outline person-add-btn" onClick={handleAddPerson}>
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+						<button
+							type="button"
+							className="btn btn-outline person-add-btn"
+							onClick={handleAddPerson}
+						>
+							<svg
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
 								<line x1="12" y1="5" x2="12" y2="19" />
 								<line x1="5" y1="12" x2="19" y2="12" />
 							</svg>
@@ -1621,7 +1866,12 @@ export function BookingForm() {
 
 				<div className="form-group">
 					<label htmlFor="message">Anything else we should know?</label>
-					<textarea id="message" name="message" rows={4} placeholder="Board preferences, special requests, questions..." />
+					<textarea
+						id="message"
+						name="message"
+						rows={4}
+						placeholder="Board preferences, special requests, questions..."
+					/>
 				</div>
 
 				<label className="roofrack-addon">
@@ -1641,97 +1891,126 @@ export function BookingForm() {
 					</span>
 				</label>
 
-			{estimate.selectedCount > 0 && (
-				<div className="estimate-summary">
-					<div className="estimate-header">
-						<span className="estimate-label">Estimated total</span>
-						{estimate.allSelected ? (
-							<span className="estimate-amount">&euro;{displayTotal}</span>
-						) : (
-							<span className="estimate-amount estimate-amount--partial">&euro;{displayTotal}+</span>
-						)}
-					</div>
-					{estimate.allSelected && (people.length > 1 || roofRack) && (
-						<div className="estimate-breakdown">
-							{people.length > 1 &&
-								people.map((person, i) => {
-									const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
-									const opt = getPackageOptions(personDays).find((o) => o.value === person.package);
-									if (!opt?.pricePerPerson) return null;
-									const suffix = hasDateOverride(person, checkin, checkout)
-										? ` · ${person.checkin} → ${person.checkout}`
-										: "";
-									return (
-										<div key={i} className="estimate-line">
-											<span>Person {i + 1} &middot; {opt.label.split(" — ")[0]}{suffix}</span>
-											<span>&euro;{opt.pricePerPerson}</span>
-										</div>
-									);
-								})}
-							{roofRack && (
-								<div className="estimate-line">
-									<span>Roof rack &middot; {formatWeeksLabel(roofRackDays)}</span>
-									<span>&euro;{roofRackTotal}</span>
-								</div>
+				{estimate.selectedCount > 0 && (
+					<div className="estimate-summary">
+						<div className="estimate-header">
+							<span className="estimate-label">Estimated total</span>
+							{estimate.allSelected ? (
+								<span className="estimate-amount">&euro;{displayTotal}</span>
+							) : (
+								<span className="estimate-amount estimate-amount--partial">
+									&euro;{displayTotal}+
+								</span>
 							)}
 						</div>
-					)}
-					<p className="estimate-note">
-						Final pricing confirmed in our personalized reply
-					</p>
-					<div className="estimate-rating">
-						<span className="estimate-rating-stars" aria-hidden="true">★★★★★</span>
-						<span className="estimate-rating-text">4.9 on Google · 8 reviews</span>
+						{estimate.allSelected && (people.length > 1 || roofRack) && (
+							<div className="estimate-breakdown">
+								{people.length > 1 &&
+									people.map((person, i) => {
+										const personDays = effectiveDaysForPerson(person, days, checkin, checkout);
+										const opt = getPackageOptions(personDays).find(
+											(o) => o.value === person.package,
+										);
+										if (!opt?.pricePerPerson) return null;
+										const suffix = hasDateOverride(person, checkin, checkout)
+											? ` · ${person.checkin} → ${person.checkout}`
+											: "";
+										return (
+											<div key={i} className="estimate-line">
+												<span>
+													Person {i + 1} &middot; {opt.label.split(" — ")[0]}
+													{suffix}
+												</span>
+												<span>&euro;{opt.pricePerPerson}</span>
+											</div>
+										);
+									})}
+								{roofRack && (
+									<div className="estimate-line">
+										<span>Roof rack &middot; {formatWeeksLabel(roofRackDays)}</span>
+										<span>&euro;{roofRackTotal}</span>
+									</div>
+								)}
+							</div>
+						)}
+						<p className="estimate-note">Final pricing confirmed in our personalized reply</p>
+						<div className="estimate-rating">
+							<span className="estimate-rating-stars" aria-hidden="true">
+								★★★★★
+							</span>
+							<span className="estimate-rating-text">4.9 on Google · 8 reviews</span>
+						</div>
+						<ul className="estimate-trust">
+							<li>Free delivery across the Costa Vicentina</li>
+							<li>Pay on arrival — no upfront payment</li>
+							<li>Free cancellation up to 72h after booking</li>
+						</ul>
 					</div>
-					<ul className="estimate-trust">
-						<li>Free delivery in Aljezur, Arrifana &amp; Vale da Telha</li>
-						<li>Pay on arrival — no upfront payment</li>
-						<li>Free cancellation up to 72h after booking</li>
-					</ul>
-				</div>
-			)}
+				)}
 
-			{status === "error" && (
-				<div className="form-error">
-					<p>{errorMsg || "Something went wrong. Please try again or contact us via WhatsApp."}</p>
-				</div>
-			)}
+				{status === "error" && (
+					<div className="form-error">
+						<p>
+							{errorMsg || "Something went wrong. Please try again or contact us via WhatsApp."}
+						</p>
+					</div>
+				)}
 
-			<div className="submit-reassure">
-				<div className="submit-reassure-line">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-						<rect x="3" y="6" width="18" height="13" rx="1" />
-						<path d="M3 10h18" />
-						<line x1="7" y1="15" x2="10" y2="15" />
-					</svg>
-					<span>
-						<strong>No card charged now.</strong> Leon confirms availability
-						first, then you pay by link or on arrival.
-					</span>
+				<div className="submit-reassure">
+					<div className="submit-reassure-line">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<rect x="3" y="6" width="18" height="13" rx="1" />
+							<path d="M3 10h18" />
+							<line x1="7" y1="15" x2="10" y2="15" />
+						</svg>
+						<span>
+							<strong>No card charged now.</strong> Leon confirms availability first, then you pay
+							by link or on arrival.
+						</span>
+					</div>
+					<div className="submit-reassure-line">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<circle cx="12" cy="12" r="9" />
+							<path d="M12 7v5l3 2" />
+						</svg>
+						<span>
+							<strong>Personal reply usually within 3 hours</strong> · Mon–Sun 08:00–20:00 Portugal
+							(GMT+1).
+						</span>
+					</div>
 				</div>
-				<div className="submit-reassure-line">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-						<circle cx="12" cy="12" r="9" />
-						<path d="M12 7v5l3 2" />
-					</svg>
-					<span>
-						<strong>Personal reply usually within 3 hours</strong> · Mon–Sun
-						08:00–20:00 Portugal (GMT+1).
-					</span>
-				</div>
-			</div>
 
-			<button
-				type="submit"
-				className="btn btn-primary btn-full"
-				disabled={status === "submitting"}
-			>
-				{status === "submitting" ? "Sending..." : "Send request — no payment now"}
-			</button>
-			<p className="booking-discount-hint">
-				Got a discount code? Add it at checkout when you pay — your payment
-				link comes after we confirm.
-			</p>
+				<button
+					type="submit"
+					className="btn btn-primary btn-full"
+					disabled={status === "submitting"}
+				>
+					{status === "submitting" ? "Sending..." : "Send request — no payment now"}
+				</button>
+				<p className="booking-discount-hint">
+					Got a discount code? Add it at checkout when you pay — your payment link comes after we
+					confirm.
+				</p>
 			</form>
 
 			<BoardCalcModal

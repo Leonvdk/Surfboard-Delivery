@@ -247,7 +247,7 @@ See you in the water!
     <p style="margin:24px 0 0;font-size:15px;line-height:1.7;color:#1A1A1A;">See you in the water!<br/><strong style="font-weight:800;">Leon</strong><br/><span style="color:#555555;">Surf Rental Aljezur</span></p>
 
     <hr style="margin:32px 0 16px;border:none;border-top:1.5px solid #1A1A1A;" />
-    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & Vale da Telha<br/><a href="https://surfrental-aljezur.com" style="color:#C04419;text-decoration:none;">surfrental-aljezur.com</a></p>
+    <p style="font-size:12px;color:#888888;line-height:1.5;">Surf Rental Aljezur · Aljezur, Arrifana & the Costa Vicentina<br/><a href="https://surfrental-aljezur.com" style="color:#C04419;text-decoration:none;">surfrental-aljezur.com</a></p>
   </div>
 </div>`;
 

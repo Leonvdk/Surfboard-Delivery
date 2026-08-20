@@ -3,17 +3,16 @@ import Link from "next/link";
 import { CtaSection } from "../components/cta-section";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { DELIVERY_TOWNS } from "../lib/delivery-towns";
+import { deliveryZoneList } from "../lib/delivery-zone";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
 	title: "Surfboard Delivery in the Algarve — Costa Vicentina",
-	description:
-		"Free surfboard and wetsuit delivery across the western Algarve's Costa Vicentina: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira. From €18/day board-only, €28/day with wetsuit. Three-day minimum.",
+	description: `Free surfboard and wetsuit delivery across the western Algarve's Costa Vicentina: ${deliveryZoneList()}. From €18/day board-only, €28/day with wetsuit. Three-day minimum.`,
 	alternates: { canonical: "/deliver-to" },
 	openGraph: {
 		title: "Delivery Zones | Surf Rental Aljezur",
-		description:
-			"Free delivery across the western Algarve: Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira. From €18/day.",
+		description: `Free delivery across the western Algarve: ${deliveryZoneList()}. From €18/day.`,
 		url: `${SITE_URL}/deliver-to`,
 	},
 };

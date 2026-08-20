@@ -5,13 +5,13 @@ import { BoardCalculator } from "../components/board-calculator";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { breadcrumbJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
 	title: "Surfboard & Wetsuit Rental — Boards for Every Level",
-	description:
-		"Four soft-top surfboards (6'6 shortboard, 7'0 & 7'8 funboards, 8'6 longboard) plus seasonal wetsuits (3/2 summer, 4/3 winter), from €18/day board-only or €28/day with wetsuit. Free delivery in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira.",
+	description: `Four soft-top surfboards (6'6 shortboard, 7'0 & 7'8 funboards, 8'6 longboard) plus seasonal wetsuits (3/2 summer, 4/3 winter), from €18/day board-only or €28/day with wetsuit. Free delivery in ${deliveryZoneSentence()}.`,
 	alternates: { canonical: "/surf-gear" },
 	openGraph: {
 		title: "Surf Gear — Boards & Wetsuits | Surf Rental Aljezur",
@@ -109,38 +109,54 @@ export default function SurfGearPage() {
 						<div className="section-header">
 							<p className="section-label">Board finder</p>
 							<h1 className="section-title" id="guide-heading">
-								Surfboard and wetsuit rental in Aljezur — which
-								board is right for my level?
+								Surfboard and wetsuit rental in Aljezur — which board is right for my level?
 							</h1>
-						<p className="section-desc">
-							We rent four soft-top surfboards in Aljezur, delivered free
-							to your door: an <strong>8&#8217;6 longboard</strong> and
-							<strong> 7&#8217;8 funboard</strong> for beginners, a
-							<strong> 7&#8217;0 funboard</strong> for intermediates, and a
-							<strong> 6&#8217;6 shortboard</strong> for experienced surfers.
-							Every rental includes leash and wax; seasonal wetsuits (3/2 in
-							summer, 4/3 in winter) are available with any package. Use the
-							calculator below and we&apos;ll match the board to your height,
-							weight, and level.
-						</p>
-						<div className="hero-btn-row">
-							<a href="#the-quiver" className="btn btn-outline scroll-down-btn boards-btn">
-								<span className="boards-btn-desktop">View our boards</span>
-								<span className="boards-btn-mobile">Go to our gear calculator</span>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-									<line x1="12" y1="5" x2="12" y2="19" />
-									<polyline points="19 12 12 19 5 12" />
-								</svg>
-							</a>
-							<a href="#extras-heading" className="btn btn-primary scroll-down-btn">
-								Check out our extras
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-									<line x1="12" y1="5" x2="12" y2="19" />
-									<polyline points="19 12 12 19 5 12" />
-								</svg>
-							</a>
+							<p className="section-desc">
+								We rent four soft-top surfboards in Aljezur, delivered free to your door: an{" "}
+								<strong>8&#8217;6 longboard</strong> and
+								<strong> 7&#8217;8 funboard</strong> for beginners, a
+								<strong> 7&#8217;0 funboard</strong> for intermediates, and a
+								<strong> 6&#8217;6 shortboard</strong> for experienced surfers. Every rental
+								includes leash and wax; seasonal wetsuits (3/2 in summer, 4/3 in winter) are
+								available with any package. Use the calculator below and we&apos;ll match the board
+								to your height, weight, and level.
+							</p>
+							<div className="hero-btn-row">
+								<a href="#the-quiver" className="btn btn-outline scroll-down-btn boards-btn">
+									<span className="boards-btn-desktop">View our boards</span>
+									<span className="boards-btn-mobile">Go to our gear calculator</span>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
+										<line x1="12" y1="5" x2="12" y2="19" />
+										<polyline points="19 12 12 19 5 12" />
+									</svg>
+								</a>
+								<a href="#extras-heading" className="btn btn-primary scroll-down-btn">
+									Check out our extras
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
+										<line x1="12" y1="5" x2="12" y2="19" />
+										<polyline points="19 12 12 19 5 12" />
+									</svg>
+								</a>
+							</div>
 						</div>
-					</div>
 					</Reveal>
 					<BoardCalculator />
 				</div>
@@ -158,9 +174,9 @@ export default function SurfGearPage() {
 								Four shapes. Every wave.
 							</h2>
 							<p className="section-desc">
-								All our boards are soft tops — safe, durable, and forgiving.
-								Each one is cleaned, waxed, and inspected before every rental.
-								Scroll through to find the shape that matches your experience.
+								All our boards are soft tops — safe, durable, and forgiving. Each one is cleaned,
+								waxed, and inspected before every rental. Scroll through to find the shape that
+								matches your experience.
 							</p>
 						</div>
 					</Reveal>
@@ -173,7 +189,9 @@ export default function SurfGearPage() {
 								className={`board-detail ${i % 2 !== 0 ? "board-detail--reverse" : ""}`}
 							>
 								<div className="board-detail-gallery">
-									<div className={`board-detail-img board-detail-img--main${"crossfadeSlug" in board ? " board-detail-img--crossfade" : ""}`}>
+									<div
+										className={`board-detail-img board-detail-img--main${"crossfadeSlug" in board ? " board-detail-img--crossfade" : ""}`}
+									>
 										{"crossfadeSlug" in board ? (
 											<>
 												<Image
@@ -241,17 +259,29 @@ export default function SurfGearPage() {
 											<li key={t}>{t}</li>
 										))}
 									</ul>
-								<div className="board-detail-who">
-									<strong>Best for:</strong> {board.who}
+									<div className="board-detail-who">
+										<strong>Best for:</strong> {board.who}
+									</div>
+									<Link
+										href={`/contact?board=${encodeURIComponent(board.slug)}`}
+										className="btn btn-primary board-detail-cta"
+									>
+										Book this board now!
+										<svg
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<line x1="5" y1="12" x2="19" y2="12" />
+											<polyline points="12 5 19 12 12 19" />
+										</svg>
+									</Link>
 								</div>
-								<Link href={`/contact?board=${encodeURIComponent(board.slug)}`} className="btn btn-primary board-detail-cta">
-									Book this board now!
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-										<line x1="5" y1="12" x2="19" y2="12" />
-										<polyline points="12 5 19 12 12 19" />
-									</svg>
-								</Link>
-							</div>
 							</div>
 						</Reveal>
 					))}
@@ -270,9 +300,8 @@ export default function SurfGearPage() {
 								Everything you need, nothing to think about
 							</h2>
 							<p className="section-desc">
-								A changing mat, roof rack pads, and a warm poncho for the complete
-								hassle-free surf trip. Just ask when you book and we&apos;ll
-								bring them along.
+								A changing mat, roof rack pads, and a warm poncho for the complete hassle-free surf
+								trip. Just ask when you book and we&apos;ll bring them along.
 							</p>
 						</div>
 					</Reveal>
@@ -289,8 +318,8 @@ export default function SurfGearPage() {
 								</div>
 								<h3>Changing mat</h3>
 								<p>
-									A portable mat you stand on while changing. Keeps sand
-									contained and doubles as a bag for your wetsuit after a session.
+									A portable mat you stand on while changing. Keeps sand contained and doubles as a
+									bag for your wetsuit after a session.
 								</p>
 							</article>
 							<article className="extras-card">
@@ -304,8 +333,8 @@ export default function SurfGearPage() {
 								</div>
 								<h3>Roof rack pads</h3>
 								<p>
-									Soft rack pads with straps that fit any rental car. We show
-									you how to strap everything down on delivery.
+									Soft rack pads with straps that fit any rental car. We show you how to strap
+									everything down on delivery.
 								</p>
 							</article>
 							<article className="extras-card">
@@ -334,8 +363,8 @@ export default function SurfGearPage() {
 								</div>
 								<h3>Poncho</h3>
 								<p>
-									A warm changing poncho for getting in and out of your wetsuit
-									at the beach. Keeps you covered and warm after a session.
+									A warm changing poncho for getting in and out of your wetsuit at the beach. Keeps
+									you covered and warm after a session.
 								</p>
 							</article>
 						</div>
@@ -355,9 +384,8 @@ export default function SurfGearPage() {
 								Wetsuits by season
 							</h2>
 							<p className="section-desc">
-								The water temperature on the Costa Vicentina varies from 15°C in
-								winter to 20°C in summer. We provide the right thickness for
-								your dates — no guesswork needed.
+								The water temperature on the Costa Vicentina varies from 15°C in winter to 20°C in
+								summer. We provide the right thickness for your dates — no guesswork needed.
 							</p>
 						</div>
 					</Reveal>
@@ -371,10 +399,7 @@ export default function SurfGearPage() {
 									<p className="gear-card-months">Jun – Sep</p>
 								</div>
 								<p className="gear-tag">3/2mm fullsuit or spring suit</p>
-								<p>
-									A light fullsuit keeps you comfortable for long sessions
-									without overheating.
-								</p>
+								<p>A light fullsuit keeps you comfortable for long sessions without overheating.</p>
 							</article>
 							<article className="gear-card gear-card--shoulder">
 								<div className="gear-card-accent" />
@@ -384,10 +409,7 @@ export default function SurfGearPage() {
 									<p className="gear-card-months">Apr – May, Oct</p>
 								</div>
 								<p className="gear-tag">4/3mm fullsuit</p>
-								<p>
-									The standard thickness for the Algarve. Warm enough for
-									dawn patrols.
-								</p>
+								<p>The standard thickness for the Algarve. Warm enough for dawn patrols.</p>
 							</article>
 							<article className="gear-card gear-card--winter">
 								<div className="gear-card-accent" />
@@ -397,10 +419,7 @@ export default function SurfGearPage() {
 									<p className="gear-card-months">Nov – Mar</p>
 								</div>
 								<p className="gear-tag">4/3mm or 5/3mm fullsuit</p>
-								<p>
-									Thicker neoprene plus optional boots and gloves for the
-									colder months.
-								</p>
+								<p>Thicker neoprene plus optional boots and gloves for the colder months.</p>
 							</article>
 						</div>
 					</Reveal>

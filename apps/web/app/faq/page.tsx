@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { faqJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
@@ -13,8 +14,7 @@ export const metadata: Metadata = {
 	alternates: { canonical: "/faq" },
 	openGraph: {
 		title: "FAQ | Surf Rental Aljezur",
-		description:
-			"Everything you need to know about renting surf gear with delivery in Aljezur, Arrifana, and Vale da Telha.",
+		description: `Everything you need to know about renting surf gear with delivery in ${deliveryZoneSentence()}.`,
 		url: `${SITE_URL}/faq`,
 	},
 };
@@ -27,8 +27,7 @@ const faqs = [
 	},
 	{
 		question: "Where do you deliver?",
-		answer:
-			"We deliver for free to all accommodations in Aljezur, Arrifana, Vale da Telha, and Monte Clérigo. If you're staying nearby but outside these areas, get in touch — we may still be able to deliver.",
+		answer: `We deliver for free to all accommodations in ${deliveryZoneSentence()}. If you're staying nearby but outside these areas, get in touch — we may still be able to deliver.`,
 	},
 	{
 		question: "How far in advance should I book?",

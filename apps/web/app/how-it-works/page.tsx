@@ -4,13 +4,13 @@ import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import NewsletterPopup from "../components/newsletter-popup";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { howToJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 const rentalHowTo = howToJsonLd({
 	name: "How to rent surfboards and wetsuits with delivery in Aljezur",
-	description:
-		"Rent a surfboard and wetsuit with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, or Monte Clérigo on Portugal's Costa Vicentina.",
+	description: `Rent a surfboard and wetsuit with free delivery and pickup to your accommodation in ${deliveryZoneSentence("or")} on Portugal's Costa Vicentina.`,
 	steps: [
 		{
 			name: "Send us your trip details",
@@ -35,8 +35,7 @@ export const metadata: Metadata = {
 	alternates: { canonical: "/how-it-works" },
 	openGraph: {
 		title: "How It Works | Surf Rental Aljezur",
-		description:
-			"3-step surfboard and wetsuit rental delivery to your accommodation in Aljezur, Arrifana, and Vale da Telha.",
+		description: `3-step surfboard and wetsuit rental delivery to your accommodation in ${deliveryZoneSentence()}.`,
 		url: `${SITE_URL}/how-it-works`,
 	},
 };
@@ -52,12 +51,10 @@ export default function HowItWorksPage() {
 						<div>
 							<h1>How Surf Rental Aljezur works — three steps, ~10 minutes</h1>
 							<p className="page-hero-sub">
-								Send your dates and accommodation address. We reply within
-								24 hours with a gear match. On check-in day we deliver your
-								surfboard and wetsuit to your door in Aljezur, Arrifana,
-								Vale da Telha, Monte Clérigo, or Carrapateira. Pay on
-								arrival or by card. We pick up before checkout. No surf
-								shop queues, no car racks, no deposit.
+								Send your dates and accommodation address. We reply within 24 hours with a gear
+								match. On check-in day we deliver your surfboard and wetsuit to your door in{" "}
+								{deliveryZoneSentence("or")}. Pay on arrival or by card. We pick up before checkout.
+								No surf shop queues, no car racks, no deposit.
 							</p>
 						</div>
 					</Reveal>
@@ -88,10 +85,7 @@ export default function HowItWorksPage() {
 									</p>
 									<ul>
 										<li>Your check-in and checkout dates</li>
-										<li>
-											Your accommodation address (Aljezur, Arrifana, Vale da Telha, or Monte
-											Clérigo)
-										</li>
+										<li>Your accommodation address ({deliveryZoneSentence("or")})</li>
 										<li>How many people need gear</li>
 										<li>Your surfing experience level</li>
 									</ul>
@@ -130,16 +124,25 @@ export default function HowItWorksPage() {
 										before checkout), we come back to collect everything.
 									</p>
 									<p>
-										<strong>Need to swap a board mid-stay?</strong> Just ask — we&apos;re
-										flexible, and our level-match guarantee means a board that doesn&apos;t
-										fit gets swapped free.
+										<strong>Need to swap a board mid-stay?</strong> Just ask — we&apos;re flexible,
+										and our level-match guarantee means a board that doesn&apos;t fit gets swapped
+										free.
 									</p>
 								</div>
 							</div>
 							<div className="steps-cta">
 								<Link href="/contact" className="btn btn-primary">
 									Book your gear now
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
 										<line x1="5" y1="12" x2="19" y2="12" />
 										<polyline points="12 5 19 12 12 19" />
 									</svg>
@@ -183,6 +186,18 @@ export default function HowItWorksPage() {
 								<h3>Monte Clérigo</h3>
 								<p>Beach village and hills</p>
 							</div>
+							<div className="area-card">
+								<h3>Amoreira</h3>
+								<p>River-mouth beach north of Aljezur</p>
+							</div>
+							<div className="area-card">
+								<h3>Rogil</h3>
+								<p>Village on the N120, north of Aljezur</p>
+							</div>
+							<div className="area-card">
+								<h3>Carrapateira</h3>
+								<p>Between Praia do Amado and Bordeira</p>
+							</div>
 						</div>
 					</Reveal>
 					<p className="pricing-note">
@@ -212,8 +227,8 @@ export default function HowItWorksPage() {
 								return times or extra fees.
 							</p>
 							<p>
-								Most people visiting the Aljezur area stay a few days at least. If you&apos;re
-								here for a shorter trip and only need gear for a day, check out{" "}
+								Most people visiting the Aljezur area stay a few days at least. If you&apos;re here
+								for a shorter trip and only need gear for a day, check out{" "}
 								<a href="https://arrifanasurfschool.com" target="_blank" rel="noopener noreferrer">
 									Arrifana Surf School
 								</a>{" "}

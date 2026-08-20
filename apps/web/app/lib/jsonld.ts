@@ -1,3 +1,4 @@
+import { deliveryZoneSentence } from "./delivery-zone";
 import { SITE_URL } from "./metadata";
 
 const AGGREGATE_RATING = {
@@ -26,8 +27,7 @@ export function localBusinessJsonLd() {
 		"@type": ["LocalBusiness", "SportingGoodsStore"],
 		"@id": `${SITE_URL}/#business`,
 		name: "Surf Rental Aljezur",
-		description:
-			"Surfboard and wetsuit rental with free delivery and pickup to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, Amoreira, Rogil, and Carrapateira on the Costa Vicentina, Portugal.",
+		description: `Surfboard and wetsuit rental with free delivery and pickup to your accommodation in ${deliveryZoneSentence()} on the Costa Vicentina, Portugal.`,
 		url: SITE_URL,
 		logo: `${SITE_URL}/images/logo.png`,
 		image: `${SITE_URL}/images/meta.jpg`,
@@ -387,8 +387,7 @@ export function organizationJsonLd() {
 		"@type": "Organization",
 		name: "Surf Rental Aljezur",
 		url: SITE_URL,
-		description:
-			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha on the Costa Vicentina, Portugal.",
+		description: `Surfboard and wetsuit rental delivered to your accommodation in ${deliveryZoneSentence()} on the Costa Vicentina, Portugal.`,
 		address: {
 			"@type": "PostalAddress",
 			addressLocality: "Aljezur",
@@ -457,8 +456,7 @@ export function webSiteJsonLd() {
 		"@type": "WebSite",
 		name: "Surf Rental Aljezur",
 		url: SITE_URL,
-		description:
-			"Surfboard and wetsuit rental delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha.",
+		description: `Surfboard and wetsuit rental delivered to your accommodation in ${deliveryZoneSentence()}.`,
 	};
 }
 

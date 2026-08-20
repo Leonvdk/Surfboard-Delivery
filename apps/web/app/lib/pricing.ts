@@ -1,3 +1,11 @@
+/**
+ * "premium" is RETIRED as a sellable package — TIERS below excludes it, so it
+ * renders nowhere on the public site. It stays in the type and in `packages` /
+ * `prices` because bookings sold before it was dropped still have to price and
+ * label correctly in the admin (revenue, gear allocation, booking labels).
+ *
+ * Do not add it to a new customer-facing surface.
+ */
 export type PackageTier = "boardOnly" | "fullPackage" | "premium";
 export type Duration = "daily" | "weekly" | "extended";
 
@@ -20,17 +28,12 @@ export const packages: Record<PackageTier, PackageInfo> = {
 	boardOnly: {
 		name: "Board Only",
 		description: "Surfboard rental with leash, wax, and free delivery & pickup.",
-		features: [
-			"Surfboard of your choice",
-			"Leash & wax included",
-			"Free delivery & pickup",
-		],
+		features: ["Surfboard of your choice", "Leash & wax included", "Free delivery & pickup"],
 		whoIsItFor: "Already have a wetsuit",
 	},
 	fullPackage: {
 		name: "Full Package",
-		description:
-			"Surfboard and wetsuit rental with leash, wax, and free delivery & pickup.",
+		description: "Surfboard and wetsuit rental with leash, wax, and free delivery & pickup.",
 		features: [
 			"Surfboard of your choice",
 			"Wetsuit (season-appropriate)",
@@ -159,11 +162,7 @@ export function weeksForDays(days: number): number {
  * Price for `quantity` of an add-on over `days`. Returns 0 for unknown
  * keys so a bad payload can't silently inflate a bill.
  */
-export function calcAddonPrice(
-	key: string,
-	days: number,
-	quantity = 1,
-): number {
+export function calcAddonPrice(key: string, days: number, quantity = 1): number {
 	const tariff = getAddonTariff(key);
 	if (!tariff || quantity <= 0 || days <= 0) return 0;
 	const weeks = weeksForDays(days);

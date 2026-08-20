@@ -4,6 +4,7 @@ import { JsonLd } from "../components/json-ld";
 import NewsletterPopup from "../components/newsletter-popup";
 import { HorizonLine, Reveal } from "../components/reveal";
 import { StarRating } from "../components/star-rating";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { reviewJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 	alternates: { canonical: "/reviews" },
 	openGraph: {
 		title: "Reviews | Surf Rental Aljezur",
-		description: "What surfers say about our surf gear delivery in Aljezur, Arrifana, and Vale da Telha.",
+		description: `What surfers say about our surf gear delivery in ${deliveryZoneSentence()}.`,
 		url: `${SITE_URL}/reviews`,
 	},
 };
@@ -89,7 +90,7 @@ export default function ReviewsPage() {
 						<div>
 							<h1>Don&apos;t take our word for it</h1>
 							<p className="page-hero-sub">
-								Hear from surfers who&apos;ve rented with us in Aljezur, Arrifana, and Vale da Telha.
+								Hear from surfers who&apos;ve rented with us in {deliveryZoneSentence()}.
 							</p>
 						</div>
 					</Reveal>
@@ -161,8 +162,8 @@ export default function ReviewsPage() {
 							</h2>
 							<p>
 								After every rental, we send a follow-up email asking how things went. The reviews on
-								this page come directly from those responses and from our Google Business listing. We
-								never edit or cherry-pick — what you see is what surfers told us.
+								this page come directly from those responses and from our Google Business listing.
+								We never edit or cherry-pick — what you see is what surfers told us.
 							</p>
 						</div>
 					</Reveal>

@@ -4,6 +4,7 @@ import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { PricingToggle } from "../components/pricing-toggle";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { faqJsonLd, PRICE_VALID_UNTIL } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 import { prices } from "../lib/pricing";
@@ -23,8 +24,7 @@ const pricingFaqs = [
 	},
 	{
 		question: "Is delivery really free?",
-		answer:
-			"Yes — delivery and pickup are included in every package at no extra cost. We deliver to accommodations in Aljezur, Arrifana, Vale da Telha, and Monte Clérigo.",
+		answer: `Yes — delivery and pickup are included in every package at no extra cost. We deliver to accommodations in ${deliveryZoneSentence()}.`,
 	},
 	{
 		question: "Do you offer group discounts?",
@@ -35,8 +35,7 @@ const pricingFaqs = [
 
 export const metadata: Metadata = {
 	title: "Pricing — Daily & Weekly Surf Rental Packages",
-	description:
-		"Surfboard and wetsuit rental from \u20AC18/day or \u20AC100/week board-only, \u20AC28/day or \u20AC150/week with wetsuit. Three-day minimum. Free delivery in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira.",
+	description: `Surfboard and wetsuit rental from \u20AC18/day or \u20AC100/week board-only, \u20AC28/day or \u20AC150/week with wetsuit. Three-day minimum. Free delivery in ${deliveryZoneSentence()}.`,
 	alternates: { canonical: "/pricing" },
 	openGraph: {
 		title: "Pricing — Daily & Weekly Surf Rental Packages | Surf Rental Aljezur",
@@ -58,12 +57,9 @@ export default function PricingPage() {
 						<div>
 							<h1>Surf rental prices in Aljezur — from €18/day, €100/week</h1>
 							<p className="page-hero-sub">
-								Board-only rental is <strong>€18/day or €100/week</strong>.
-								Board + wetsuit is <strong>€28/day or €150/week</strong>.
-								Three-day minimum,
-								free delivery and pickup across Aljezur, Arrifana, Vale da
-								Telha, Monte Clérigo, and Carrapateira. Not sure which gear
-								to pick? Check our{" "}
+								Board-only rental is <strong>€18/day or €100/week</strong>. Board + wetsuit is{" "}
+								<strong>€28/day or €150/week</strong>. Three-day minimum, free delivery and pickup
+								across {deliveryZoneSentence()}. Not sure which gear to pick? Check our{" "}
 								<Link href="/surf-gear">boards &amp; wetsuits</Link> page.
 							</p>
 						</div>
@@ -100,9 +96,7 @@ export default function PricingPage() {
 							<h2 className="section-title" id="extended-heading">
 								2-week rates
 							</h2>
-							<p className="section-desc">
-								Book for two weeks and save even more.
-							</p>
+							<p className="section-desc">Book for two weeks and save even more.</p>
 						</div>
 					</Reveal>
 					<Reveal>
@@ -150,23 +144,22 @@ export default function PricingPage() {
 							<article className="gear-card">
 								<h3>Free delivery &amp; pickup</h3>
 								<p>
-									We bring the gear to your accommodation in Aljezur, Arrifana,
-									Vale da Telha, or Monte Cl&eacute;rigo — and collect it when
-									you&apos;re done.
+									We bring the gear to your accommodation and collect it when you&apos;re done —
+									anywhere in {deliveryZoneSentence("or")}.
 								</p>
 							</article>
 							<article className="gear-card">
 								<h3>Leash, wax &amp; fins</h3>
 								<p>
-									Every board comes ready to ride. Leash attached, freshly waxed,
-									fins installed. Just grab it and go.
+									Every board comes ready to ride. Leash attached, freshly waxed, fins installed.
+									Just grab it and go.
 								</p>
 							</article>
 							<article className="gear-card">
 								<h3>No hidden fees</h3>
 								<p>
-									The price you see is the price you pay. No deposit surprises,
-									no cleaning fees, no extra charges for delivery.
+									The price you see is the price you pay. No deposit surprises, no cleaning fees, no
+									extra charges for delivery.
 								</p>
 							</article>
 						</div>
@@ -191,30 +184,29 @@ export default function PricingPage() {
 							<details className="faq-item">
 								<summary className="faq-question">What&apos;s the minimum rental period?</summary>
 								<p className="faq-answer">
-									Daily rentals have a 3-day minimum. Weekly rentals run for 7 days.
-									For stays longer than 2 weeks, contact us for a custom rate.
+									Daily rentals have a 3-day minimum. Weekly rentals run for 7 days. For stays
+									longer than 2 weeks, contact us for a custom rate.
 								</p>
 							</details>
 							<details className="faq-item">
 								<summary className="faq-question">Can I upgrade my package mid-rental?</summary>
 								<p className="faq-answer">
-									Yes. If you start with a Board Only and decide you need a wetsuit,
-									just let us know and we&apos;ll arrange a swap delivery.
+									Yes. If you start with a Board Only and decide you need a wetsuit, just let us
+									know and we&apos;ll arrange a swap delivery.
 								</p>
 							</details>
 							<details className="faq-item">
 								<summary className="faq-question">Is delivery really free?</summary>
 								<p className="faq-answer">
-									Yes — delivery and pickup are included in every package at no extra cost.
-									We deliver to accommodations in Aljezur, Arrifana, Vale da Telha, and
-									Monte Cl&eacute;rigo.
+									Yes — delivery and pickup are included in every package at no extra cost. We
+									deliver to accommodations in {deliveryZoneSentence()}.
 								</p>
 							</details>
 							<details className="faq-item">
 								<summary className="faq-question">Do you offer group discounts?</summary>
 								<p className="faq-answer">
-									Groups of 3&ndash;5 people save approximately 12% per person. For groups
-									of 6 or more, we offer custom quotes. See our{" "}
+									Groups of 3&ndash;5 people save approximately 12% per person. For groups of 6 or
+									more, we offer custom quotes. See our{" "}
 									<Link href="/group-bookings">group bookings page</Link> for details.
 								</p>
 							</details>
@@ -236,8 +228,7 @@ function pricingProductJsonLd() {
 		"@context": "https://schema.org",
 		"@type": "Product",
 		name: "Surf Gear Rental — Surf Rental Aljezur",
-		description:
-			"Surfboard and wetsuit rental packages with free delivery to your accommodation in Aljezur, Arrifana, Vale da Telha, Monte Cl\u00E9rigo, Amoreira, and Carrapateira on the Costa Vicentina.",
+		description: `Surfboard and wetsuit rental packages with free delivery to your accommodation in ${deliveryZoneSentence()} on the Costa Vicentina.`,
 		brand: {
 			"@type": "Brand",
 			name: "Surf Rental Aljezur",

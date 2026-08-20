@@ -3,13 +3,13 @@ import Link from "next/link";
 import { CtaSection } from "../components/cta-section";
 import { JsonLd } from "../components/json-ld";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { personJsonLd } from "../lib/jsonld";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
 	title: "About Surf Rental Aljezur — Local Surf Gear Delivery",
-	description:
-		"Meet the team behind Surf Rental. Two surfers, one van, and a simple idea: deliver quality surfboards and wetsuits to your door in Aljezur, Arrifana, and Vale da Telha.",
+	description: `Meet the team behind Surf Rental. Two surfers, one van, and a simple idea: deliver quality surfboards and wetsuits to your door in ${deliveryZoneSentence()}.`,
 	alternates: { canonical: "/about" },
 	openGraph: {
 		title: "About Surf Rental Aljezur",
@@ -54,24 +54,25 @@ export default function AboutPage() {
 						<div className="about-story">
 							<p>
 								We moved to Aljezur for the same reason most people visit: the waves, the light, the
-								pace of life. But after years of watching holiday surfers wrestle boards onto car roofs,
-								queue at busy rental shops, and waste precious holiday time on logistics — we figured
-								there had to be a better way.
+								pace of life. But after years of watching holiday surfers wrestle boards onto car
+								roofs, queue at busy rental shops, and waste precious holiday time on logistics — we
+								figured there had to be a better way.
 							</p>
 							<p>
-								Surf Rental started with a simple idea. What if we brought quality boards and wetsuits
-								directly to people&apos;s accommodation? No queues, no car racks, no deposits. Just
-								gear waiting at your door when you arrive, and us picking it up when you leave.
+								Surf Rental started with a simple idea. What if we brought quality boards and
+								wetsuits directly to people&apos;s accommodation? No queues, no car racks, no
+								deposits. Just gear waiting at your door when you arrive, and us picking it up when
+								you leave.
 							</p>
 							<p>
-								We hand-pick every board in our quiver and maintain our wetsuits obsessively. When we
-								deliver, we don&apos;t just drop and run — we share what we know. Which beach is
-								working, where to paddle out, where to eat afterwards. The kind of knowledge you only
-								get from surfing here every day.
+								We hand-pick every board in our quiver and maintain our wetsuits obsessively. When
+								we deliver, we don&apos;t just drop and run — we share what we know. Which beach is
+								working, where to paddle out, where to eat afterwards. The kind of knowledge you
+								only get from surfing here every day.
 							</p>
 							<p>
-								That&apos;s what Surf Rental is: a small, local operation run by surfers who care about
-								your holiday as much as you do.
+								That&apos;s what Surf Rental is: a small, local operation run by surfers who care
+								about your holiday as much as you do.
 							</p>
 						</div>
 					</Reveal>
@@ -152,21 +153,21 @@ export default function AboutPage() {
 						<div className="about-story">
 							<p>
 								Aljezur sits on Portugal&apos;s wild west coast, inside the Southwest Alentejo and
-								Vicentine Coast Natural Park. It&apos;s one of the last stretches of truly undeveloped
-								European coastline — dramatic cliffs, empty beaches, and consistent waves all year
-								round.
+								Vicentine Coast Natural Park. It&apos;s one of the last stretches of truly
+								undeveloped European coastline — dramatic cliffs, empty beaches, and consistent
+								waves all year round.
 							</p>
 							<p>
 								Unlike the crowded lineups further north, the beaches around Aljezur stay remarkably
 								uncrowded. Arrifana offers a sheltered bay for all levels. Monte Clérigo is a more
 								open beach break, forgiving inside on the smaller days. Amoreira&apos;s river mouth
-								ranges from mellow and beginner-friendly to punchy with the swell. And Vale Figueiras
-								rewards the adventurous with raw, empty power.
+								ranges from mellow and beginner-friendly to punchy with the swell. And Vale
+								Figueiras rewards the adventurous with raw, empty power.
 							</p>
 							<p>
 								Off the water, Aljezur is a quiet market town with a Moorish castle on the hill,
-								excellent restaurants, and a laid-back community of surfers, artists, and families who
-								chose this place for the same reasons you&apos;re considering it.
+								excellent restaurants, and a laid-back community of surfers, artists, and families
+								who chose this place for the same reasons you&apos;re considering it.
 							</p>
 							<p>
 								We wouldn&apos;t want to be anywhere else — and we think you&apos;ll understand why

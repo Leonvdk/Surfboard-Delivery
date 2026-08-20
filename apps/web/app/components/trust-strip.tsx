@@ -61,7 +61,7 @@ export function TrustStrip() {
 						Written down. <em>Standing behind it.</em>
 					</span>
 					<span className="trust-strip-locale">
-						Aljezur · Arrifana · Vale da Telha
+						Aljezur · Arrifana · across the Costa Vicentina
 					</span>
 				</p>
 			</div>

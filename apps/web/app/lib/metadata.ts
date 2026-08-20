@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { deliveryZoneSentence } from "./delivery-zone";
 
 const SITE_URL = "https://surfrental-aljezur.com";
 const SITE_NAME = "Surf Rental Aljezur";
-const DEFAULT_DESCRIPTION =
-	"Rent surfboards and wetsuits delivered to your accommodation in Aljezur, Arrifana, and Vale da Telha. From €18/day board-only or €150/week board + wetsuit. Three-day minimum. Free delivery and pickup on the Costa Vicentina.";
+const DEFAULT_DESCRIPTION = `Rent surfboards and wetsuits delivered to your accommodation in ${deliveryZoneSentence()}. From €18/day board-only or €150/week board + wetsuit. Three-day minimum. Free delivery and pickup on the Costa Vicentina.`;
 
 export const baseMetadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
@@ -45,9 +45,7 @@ export const baseMetadata: Metadata = {
 	alternates: {
 		canonical: SITE_URL,
 		types: {
-			"text/markdown": [
-				{ url: "/llms.txt", title: "AI-readable site summary" },
-			],
+			"text/markdown": [{ url: "/llms.txt", title: "AI-readable site summary" }],
 		},
 	},
 	robots: {

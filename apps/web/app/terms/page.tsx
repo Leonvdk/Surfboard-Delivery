@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 
 export const metadata: Metadata = {
 	title: "Terms & Conditions",
@@ -34,8 +35,8 @@ export default function TermsPage() {
 							<h2>1. Booking &amp; confirmation</h2>
 							<p>
 								All bookings are made via our <Link href="/contact">contact form</Link>, email
-								(hello@surfrental-aljezur.com), or WhatsApp. A booking is confirmed once we reply with
-								availability and you agree to proceed. No payment is taken until delivery.
+								(hello@surfrental-aljezur.com), or WhatsApp. A booking is confirmed once we reply
+								with availability and you agree to proceed. No payment is taken until delivery.
 							</p>
 							<p>
 								We aim to confirm all bookings within 24 hours. During peak season (June–September),
@@ -45,8 +46,8 @@ export default function TermsPage() {
 							<h2>2. Rental period &amp; returns</h2>
 							<p>
 								Our standard rental period is <strong>one week</strong> (7 days). Extended rentals
-								of two weeks are available at a discounted rate. The rental period begins on the
-								day of delivery and ends on the day of pickup.
+								of two weeks are available at a discounted rate. The rental period begins on the day
+								of delivery and ends on the day of pickup.
 							</p>
 							<p>
 								Gear must be available for pickup at your accommodation on the agreed date. If you
@@ -55,9 +56,9 @@ export default function TermsPage() {
 
 							<h2>3. Delivery &amp; pickup</h2>
 							<p>
-								We deliver to accommodations in <strong>Aljezur, Arrifana, Vale da Telha, and
-								Monte Clérigo</strong> at no additional charge. Deliveries to nearby areas may be
-								possible — <Link href="/contact">ask us</Link>.
+								We deliver to accommodations in <strong>{deliveryZoneSentence()}</strong> at no
+								additional charge. Deliveries to nearby areas may be possible —{" "}
+								<Link href="/contact">ask us</Link>.
 							</p>
 							<p>
 								Delivery is arranged for your check-in day at a mutually agreed time. Pickup is
@@ -67,9 +68,9 @@ export default function TermsPage() {
 
 							<h2>4. Payment terms</h2>
 							<p>
-								Payment is due on delivery. We accept <strong>cash (EUR)</strong>, <strong>MBWay</strong>,
-								and <strong>bank transfer</strong>. For bank transfers, payment must clear before
-								or on the day of delivery.
+								Payment is due on delivery. We accept <strong>cash (EUR)</strong>,{" "}
+								<strong>MBWay</strong>, and <strong>bank transfer</strong>. For bank transfers,
+								payment must clear before or on the day of delivery.
 							</p>
 							<p>
 								All prices are in euros and include delivery and pickup. Current pricing is listed
@@ -79,16 +80,21 @@ export default function TermsPage() {
 							<h2>5. Cancellation &amp; refunds</h2>
 							<ul>
 								<li>
-									<strong>Free cancellation within 72 hours of booking.</strong> If you change your mind within 72 hours of placing your booking, we&apos;ll cancel it free of charge and refund any payment made.
+									<strong>Free cancellation within 72 hours of booking.</strong> If you change your
+									mind within 72 hours of placing your booking, we&apos;ll cancel it free of charge
+									and refund any payment made.
 								</li>
 								<li>
-									<strong>Bookings starting within 7 days cannot be cancelled.</strong> Once the start of your booking date is within 7 days, the booking is final and cannot be cancelled or refunded, including no-shows. This applies regardless of when the booking was placed.
+									<strong>Bookings starting within 7 days cannot be cancelled.</strong> Once the
+									start of your booking date is within 7 days, the booking is final and cannot be
+									cancelled or refunded, including no-shows. This applies regardless of when the
+									booking was placed.
 								</li>
 							</ul>
 							<p>
-								Between the 72-hour cooling-off window and the 7-day cut-off, contact us as
-								early as possible — we may be able to offer a partial refund or reschedule
-								depending on availability, but we&apos;re not obliged to.
+								Between the 72-hour cooling-off window and the 7-day cut-off, contact us as early as
+								possible — we may be able to offer a partial refund or reschedule depending on
+								availability, but we&apos;re not obliged to.
 							</p>
 							<p>
 								If you need to shorten your rental after delivery, we can arrange early pickup but
@@ -98,12 +104,13 @@ export default function TermsPage() {
 							<h2>6. Damage &amp; loss</h2>
 							<p>
 								Normal wear and tear is expected — minor wax marks, small surface scratches, and
-								general use marks are not charged. We inspect all gear before and after every rental.
+								general use marks are not charged. We inspect all gear before and after every
+								rental.
 							</p>
 							<p>
-								<strong>Significant damage</strong> (major dings, snapped fins, torn wetsuits, broken
-								leashes through misuse) will be assessed and charged at repair cost. If a board is
-								damaged beyond repair or lost, the replacement cost will apply.
+								<strong>Significant damage</strong> (major dings, snapped fins, torn wetsuits,
+								broken leashes through misuse) will be assessed and charged at repair cost. If a
+								board is damaged beyond repair or lost, the replacement cost will apply.
 							</p>
 							<p>
 								We encourage honest communication. Accidents happen in surf — let us know and
@@ -117,15 +124,15 @@ export default function TermsPage() {
 								occur while using our equipment.
 							</p>
 							<p>
-								We recommend that all renters have personal travel insurance that covers water sports.
-								We do not provide personal injury insurance.
+								We recommend that all renters have personal travel insurance that covers water
+								sports. We do not provide personal injury insurance.
 							</p>
 
 							<h2>8. Age requirements</h2>
 							<p>
-								Renters must be at least 18 years old to enter into a rental agreement. Minors may use
-								rental equipment under the supervision and responsibility of a parent or legal guardian
-								who accepts these terms.
+								Renters must be at least 18 years old to enter into a rental agreement. Minors may
+								use rental equipment under the supervision and responsibility of a parent or legal
+								guardian who accepts these terms.
 							</p>
 
 							<h2>9. Gear care</h2>

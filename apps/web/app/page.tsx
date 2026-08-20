@@ -8,13 +8,14 @@ import NewsletterPopup from "./components/newsletter-popup";
 import { Reveal } from "./components/reveal";
 import { StarRating } from "./components/star-rating";
 import { TrustStrip } from "./components/trust-strip";
+import { DELIVERY_TOWNS } from "./lib/delivery-towns";
+import { deliveryZoneSentence } from "./lib/delivery-zone";
 import { faqJsonLd } from "./lib/jsonld";
 import { prices } from "./lib/pricing";
 
 export const metadata: Metadata = {
 	title: "Surfboard Rental Aljezur & Arrifana — Delivered",
-	description:
-		"Surfboard and wetsuit rental delivered across Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira. From €18/day or €100/week board-only, €150/week board + wetsuit. Three-day minimum. Free delivery and pickup.",
+	description: `Surfboard and wetsuit rental delivered across ${deliveryZoneSentence()}. From €18/day or €100/week board-only, €150/week board + wetsuit. Three-day minimum. Free delivery and pickup.`,
 	alternates: { canonical: "/" },
 };
 
@@ -26,8 +27,7 @@ const HOMEPAGE_FAQS = [
 	},
 	{
 		question: "Do you deliver surfboards to my Airbnb?",
-		answer:
-			"Yes. We deliver and collect surfboards and wetsuits anywhere in Aljezur, Arrifana, Vale da Telha, Monte Clérigo, and Carrapateira. Free delivery and pickup, no minimum order.",
+		answer: `Yes. We deliver and collect surfboards and wetsuits anywhere in ${deliveryZoneSentence()}. Free delivery and pickup, no minimum order.`,
 	},
 	{
 		question: "Is there a minimum rental period?",
@@ -46,9 +46,7 @@ const HOMEPAGE_FAQS = [
 	},
 ];
 
-const boardFromPrice = Math.ceil(
-	prices.boardOnly.extended.amount / 14,
-);
+const boardFromPrice = Math.ceil(prices.boardOnly.extended.amount / 14);
 
 export default function Home() {
 	return (
@@ -100,8 +98,8 @@ export default function Home() {
 							<p className="section-eyebrow">The collection</p>
 							<h2 className="section-title">Four soft-top rental boards. Every skill level.</h2>
 							<p className="section-desc">
-								Each board is cleaned, waxed, and inspected before every rental.
-								Pick the shape that matches your experience.
+								Each board is cleaned, waxed, and inspected before every rental. Pick the shape that
+								matches your experience.
 							</p>
 						</div>
 					</Reveal>
@@ -130,11 +128,13 @@ export default function Home() {
 									<div className="board-card-body">
 										<h3 className="board-card-title">6&#8217;6 Shortboard</h3>
 										<p className="board-card-desc">
-											Built for speed, sharp turns, and aerial maneuvers. For
-											experienced surfers chasing performance.
+											Built for speed, sharp turns, and aerial maneuvers. For experienced surfers
+											chasing performance.
 										</p>
 										<div className="board-card-footer">
-											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<div className="board-card-price">
+												from &euro;{boardFromPrice} <small>/day</small>
+											</div>
 											<span className="board-card-level">Intermediate – Advanced</span>
 										</div>
 									</div>
@@ -164,11 +164,13 @@ export default function Home() {
 									<div className="board-card-body">
 										<h3 className="board-card-title">7&#8217;0 Funboard</h3>
 										<p className="board-card-desc">
-											A step up from the beginner board. Easier to maneuver
-											while still forgiving enough to build confidence.
+											A step up from the beginner board. Easier to maneuver while still forgiving
+											enough to build confidence.
 										</p>
 										<div className="board-card-footer">
-											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<div className="board-card-price">
+												from &euro;{boardFromPrice} <small>/day</small>
+											</div>
 											<span className="board-card-level">Beginner – Intermediate</span>
 										</div>
 									</div>
@@ -198,11 +200,13 @@ export default function Home() {
 									<div className="board-card-body">
 										<h3 className="board-card-title">7&#8217;8 Funboard</h3>
 										<p className="board-card-desc">
-											The middle ground. Enough stability to catch waves easily,
-											enough response to start carving turns.
+											The middle ground. Enough stability to catch waves easily, enough response to
+											start carving turns.
 										</p>
 										<div className="board-card-footer">
-											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<div className="board-card-price">
+												from &euro;{boardFromPrice} <small>/day</small>
+											</div>
 											<span className="board-card-level">Beginner – Intermediate</span>
 										</div>
 									</div>
@@ -232,11 +236,13 @@ export default function Home() {
 									<div className="board-card-body">
 										<h3 className="board-card-title">8&#8217;6 Longboard</h3>
 										<p className="board-card-desc">
-											Stable and forgiving. Perfect for catching every wave,
-											whether you are starting out or cruising.
+											Stable and forgiving. Perfect for catching every wave, whether you are
+											starting out or cruising.
 										</p>
 										<div className="board-card-footer">
-											<div className="board-card-price">from &euro;{boardFromPrice} <small>/day</small></div>
+											<div className="board-card-price">
+												from &euro;{boardFromPrice} <small>/day</small>
+											</div>
 											<span className="board-card-level">Beginner &amp; Longboarder</span>
 										</div>
 									</div>
@@ -255,7 +261,10 @@ export default function Home() {
 							<div className="section-header">
 								<p className="section-eyebrow">The process</p>
 								<h2 className="section-title">
-									From booking to paddling out<br />in Aljezur —<br />in 10 minutes.
+									From booking to paddling out
+									<br />
+									in Aljezur —<br />
+									in 10 minutes.
 								</h2>
 							</div>
 						</Reveal>
@@ -266,10 +275,9 @@ export default function Home() {
 									<div>
 										<h3 className="step-title">Tell us your level</h3>
 										<p className="step-desc">
-											Answer a few questions — height, weight, experience,
-											dates — and we&apos;ll match you to the right board and
-											wetsuit for the conditions you&apos;ll actually surf. No
-											fleet browsing, no guessing.
+											Answer a few questions — height, weight, experience, dates — and we&apos;ll
+											match you to the right board and wetsuit for the conditions you&apos;ll
+											actually surf. No fleet browsing, no guessing.
 										</p>
 									</div>
 								</div>
@@ -278,9 +286,8 @@ export default function Home() {
 									<div>
 										<h3 className="step-title">We reply, you pay</h3>
 										<p className="step-desc">
-											Within 24 hours we confirm gear and dates. Then a
-											secure payment link — card, Apple Pay, iDEAL, Wero, MB
-											WAY — or pay in cash on arrival. No deposit, no
+											Within 24 hours we confirm gear and dates. Then a secure payment link — card,
+											Apple Pay, iDEAL, Wero, MB WAY — or pay in cash on arrival. No deposit, no
 											upfront charge. Cancel free within 72h.
 										</p>
 									</div>
@@ -290,8 +297,8 @@ export default function Home() {
 									<div>
 										<h3 className="step-title">Paddle out</h3>
 										<p className="step-desc">
-											Pick up your board, get a quick safety brief, and head
-											to the water. Return it when you are done.
+											Pick up your board, get a quick safety brief, and head to the water. Return it
+											when you are done.
 										</p>
 									</div>
 								</div>
@@ -299,7 +306,16 @@ export default function Home() {
 							<div className="how-cta">
 								<Link href="/contact" className="btn btn-primary">
 									Request your board
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
 										<line x1="5" y1="12" x2="19" y2="12" />
 										<polyline points="12 5 19 12 12 19" />
 									</svg>
@@ -324,9 +340,8 @@ export default function Home() {
 							<div className="testimonial-card">
 								<StarRating />
 								<p className="testimonial-quote">
-									Rented a longboard for a full week. Board was in perfect
-									condition, and the staff gave excellent local spot
-									recommendations.
+									Rented a longboard for a full week. Board was in perfect condition, and the staff
+									gave excellent local spot recommendations.
 								</p>
 								<div className="testimonial-author">
 									<div className="testimonial-avatar">MK</div>
@@ -340,8 +355,8 @@ export default function Home() {
 							<div className="testimonial-card">
 								<StarRating />
 								<p className="testimonial-quote">
-									First time surfing. They matched me with the right board and I
-									caught my first wave within an hour. Coming back next summer.
+									First time surfing. They matched me with the right board and I caught my first
+									wave within an hour. Coming back next summer.
 								</p>
 								<div className="testimonial-author">
 									<div className="testimonial-avatar">JV</div>
@@ -355,9 +370,8 @@ export default function Home() {
 							<div className="testimonial-card">
 								<StarRating />
 								<p className="testimonial-quote">
-									Shortboard selection is top-notch. Clean, well-maintained boards
-									and the pickup process is seamless. Best rental experience in
-									Europe.
+									Shortboard selection is top-notch. Clean, well-maintained boards and the pickup
+									process is seamless. Best rental experience in Europe.
 								</p>
 								<div className="testimonial-author">
 									<div className="testimonial-avatar">SL</div>
@@ -386,23 +400,26 @@ export default function Home() {
 					<Reveal>
 						<div className="where-we-deliver-body">
 							<p>
-								Surf Rental Aljezur is run by <strong>Leon van de Klundert</strong>,
-								who lives in Aljezur and delivers surfboards and wetsuits across
-								the western Algarve. Free delivery and pickup to your Airbnb,
-								guesthouse, or campervan in{" "}
-								<Link href="/deliver-to/aljezur">Aljezur</Link>,{" "}
-								<Link href="/deliver-to/arrifana">Arrifana</Link>,{" "}
-								<Link href="/deliver-to/vale-da-telha">Vale da Telha</Link>,{" "}
-								<Link href="/deliver-to/monte-clerigo">Monte Clérigo</Link>,{" "}
-								and <Link href="/deliver-to/carrapateira">Carrapateira</Link>.
+								Surf Rental Aljezur is run by <strong>Leon van de Klundert</strong>, who lives in
+								Aljezur and delivers surfboards and wetsuits across the western Algarve. Free
+								delivery and pickup to your Airbnb, guesthouse, or campervan in{" "}
+								{DELIVERY_TOWNS.map((town, i) => (
+									<span key={town.slug}>
+										{i > 0 && ", "}
+										{i === DELIVERY_TOWNS.length - 1 && "and "}
+										<Link href={`/deliver-to/${town.slug}`}>{town.name}</Link>
+									</span>
+								))}
+								.
 							</p>
 							<p>
-								Most of our renters surf <Link href="/blog/arrifana-surf-guide">Praia da
-								Arrifana</Link>, <Link href="/blog/amado-surf-guide">Praia do Amado</Link>,{" "}
+								Most of our renters surf{" "}
+								<Link href="/blog/arrifana-surf-guide">Praia da Arrifana</Link>,{" "}
+								<Link href="/blog/amado-surf-guide">Praia do Amado</Link>,{" "}
 								<Link href="/blog/bordeira-surf-guide">Praia da Bordeira</Link>, or{" "}
-								<Link href="/blog/amoreira-surf-guide">Praia da Amoreira</Link> — all within
-								a fifteen-minute drive of Aljezur. Tell us which beach you&apos;re
-								headed to and we&apos;ll match the board to the swell.
+								<Link href="/blog/amoreira-surf-guide">Praia da Amoreira</Link> — all within a
+								fifteen-minute drive of Aljezur. Tell us which beach you&apos;re headed to and
+								we&apos;ll match the board to the swell.
 							</p>
 						</div>
 					</Reveal>
@@ -447,10 +464,9 @@ export default function Home() {
 					<Reveal>
 						<div className="where-we-deliver-body">
 							<p>
-								Read the <Link href="/blog">Aljezur surf blog</Link> for
-								spot guides, tide tips, and local knowledge — or check the{" "}
-								<Link href="/surf-cams">live surf cams</Link> to see the
-								conditions before you paddle out.
+								Read the <Link href="/blog">Aljezur surf blog</Link> for spot guides, tide tips, and
+								local knowledge — or check the <Link href="/surf-cams">live surf cams</Link> to see
+								the conditions before you paddle out.
 							</p>
 						</div>
 					</Reveal>

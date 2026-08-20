@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { deliveryZoneDots } from "../lib/delivery-zone";
 import { NewsletterForm } from "./newsletter-form";
 
 export function Footer() {
@@ -21,10 +22,7 @@ export function Footer() {
 								<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>
 							</li>
 						</ul>
-						<p className="footer-tagline">
-							Free delivery: Aljezur · Arrifana · Vale da Telha · Monte Clérigo · Amoreira · Rogil ·
-							Carrapateira
-						</p>
+						<p className="footer-tagline">Free delivery: {deliveryZoneDots()}</p>
 					</div>
 					<div>
 						<div className="footer-col-title">Explore</div>

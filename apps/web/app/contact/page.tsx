@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BookingForm } from "../components/booking-form";
 import { OwnerVouch } from "../components/owner-vouch";
 import { HorizonLine, Reveal } from "../components/reveal";
+import { deliveryZoneSentence } from "../lib/delivery-zone";
 import { SITE_URL } from "../lib/metadata";
 
 export const metadata: Metadata = {
@@ -28,12 +29,11 @@ export default function ContactPage() {
 								Book surf rental delivery in <em>Aljezur</em> — reply usually within 3h
 							</h1>
 							<p className="page-hero-sub">
-								Tell us your dates, accommodation address, height, weight,
-								and experience level. Leon reads every request personally
-								and replies within a few hours (08:00–20:00 Portugal, GMT+1)
-								in EN · NL · DE · FR · PT with a board-and-wetsuit match,
-								total price, and delivery confirmation. Pay on arrival or
-								by card — no deposit, cancel free within 72 hours.
+								Tell us your dates, accommodation address, height, weight, and experience level.
+								Leon reads every request personally and replies within a few hours (08:00–20:00
+								Portugal, GMT+1) in EN · NL · DE · FR · PT with a board-and-wetsuit match, total
+								price, and delivery confirmation. Pay on arrival or by card — no deposit, cancel
+								free within 72 hours.
 							</p>
 						</div>
 					</Reveal>
@@ -64,9 +64,7 @@ export default function ContactPage() {
 									<dl className="contact-details">
 										<dt>Email</dt>
 										<dd>
-											<a href="mailto:hello@surfrental-aljezur.com">
-												hello@surfrental-aljezur.com
-											</a>
+											<a href="mailto:hello@surfrental-aljezur.com">hello@surfrental-aljezur.com</a>
 										</dd>
 										<dt>Phone / WhatsApp</dt>
 										<dd>
@@ -93,17 +91,15 @@ export default function ContactPage() {
 								<div className="contact-card">
 									<h3>Why no instant checkout?</h3>
 									<p>
-										We don&apos;t do instant booking and payment on purpose.
-										We personally review every request to make sure you get
-										the right gear for your level and conditions — so you
-										pay only once everything is confirmed and matched.
+										We don&apos;t do instant booking and payment on purpose. We personally review
+										every request to make sure you get the right gear for your level and conditions
+										— so you pay only once everything is confirmed and matched.
 									</p>
 								</div>
 								<div className="contact-card">
 									<h3>Delivery area</h3>
 									<p>
-										Free delivery to Aljezur, Arrifana, Vale da Telha,
-										Monte Clérigo, Amoreira, and Carrapateira. Staying nearby?{" "}
+										Free delivery to {deliveryZoneSentence()}. Staying nearby?{" "}
 										<a href="mailto:hello@surfrental-aljezur.com">Ask us</a>.
 									</p>
 								</div>
